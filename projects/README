@@ -1,0 +1,5 @@
+Goettingen Robotics Repository - projects folder
+
+- place project related files in this folder
+  * usually this is the main.cpp of your simulation or 
+  * temporary files, which you need to show the development you did, but which are not final in the sense that zou will not put them in the controller or the lpzrobots directory

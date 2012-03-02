@@ -1,0 +1,6 @@
+Goettingen Robotics Repository  - controller directory
+
+- controller for simulated/real robots belong in this folder
+  * add/push into corresponding subfolder (e.g. amosII directory for controller of the amosII robot)
+
+- utilities, which can be used by several controllers belong in the utils folder
