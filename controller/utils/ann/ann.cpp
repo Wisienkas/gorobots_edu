@@ -157,6 +157,11 @@ void ANN::setDefaultTransferFunction(TransferFunction const * func)
     defaultTransferFunction = func;
 }
 
+void ANN::setInput(const int& neuron, const double& ainput)
+{
+    setInput(neurons[neuron], ainput);
+}
+
 void ANN::setInput(Neuron* neuron, const double ainput)
 {
     neuron->setInput(ainput);

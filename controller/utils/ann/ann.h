@@ -36,6 +36,7 @@ public:
     void                    setBias(Neuron * neuron, const double& abias);
     void                    setBias(const int& neuron, const double& abias);
     void                    setDefaultTransferFunction(TransferFunction const* func);
+    void                    setInput(const int& neuron, const double& ainput);
     static void             setInput(Neuron * neuron, const double ainput);
     void                    setWeight(Neuron* post, Neuron* pre, const double weight);
     void                    setWeight(const int post, const int pre, const double weight);
