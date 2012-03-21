@@ -15,7 +15,6 @@ Synapse::Synapse(Neuron * const apost, Neuron * const apre)
 {
     pre->addSynapseOut(this);
     post->addSynapseIn(this);
-    //myANN = parent;
 }
 
 Synapse::~Synapse()
@@ -25,25 +24,20 @@ Synapse::~Synapse()
     post->removeSynapseIn(this);
 }
 
-Neuron* Synapse::getPre()
-{
-    return pre;
-}
-
 Neuron* Synapse::getPost()
 {
     return post;
+}
+
+Neuron* Synapse::getPre()
+{
+    return pre;
 }
 
 const double& Synapse::getWeight() const
 {
     return weight;
 }
-
-//double& Synapse::getWeightRef()
-//{
-//    return weight;
-//}
 
 void Synapse::setWeight(const double & aweight)
 {
