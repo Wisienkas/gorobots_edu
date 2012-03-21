@@ -15,6 +15,7 @@ Synapse::Synapse(Neuron * const apost, Neuron * const apre)
 {
     pre->addSynapseOut(this);
     post->addSynapseIn(this);
+    weight = 0;
 }
 
 Synapse::~Synapse()
