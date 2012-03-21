@@ -20,7 +20,6 @@ Synapse::Synapse(Neuron * const apost, Neuron * const apre)
 
 Synapse::~Synapse()
 {
-    //myANN->removeSynapse(this);
     pre->removeSynapseOut(this);
     post->removeSynapseIn(this);
 }
