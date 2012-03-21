@@ -14,7 +14,6 @@
 ANN::ANN()
 :tanhFunction()
 {
-    //parent = NULL;
     setDefaultTransferFunction(&tanhFunction);
 }
 
@@ -27,29 +26,21 @@ ANN::~ANN()
     }
 }
 
-//void ANN::addNeuron(Neuron * neuron)
-//{
-//    neurons.push_back(neuron);
-//    //if (parent) parent->addNeuron(neuron);
-//}
-
 Neuron* ANN::addNeuron()
 {
     Neuron * const neuron = new Neuron();
-    neurons.push_back(neuron);//addNeuron(neuron);
+    neurons.push_back(neuron);
     return neuron;
 }
 
 void ANN::addSubnet(ANN * subnet)
 {
-    //subnet->setParent(this);
     subnets.push_back(subnet);
 }
 
 Synapse* ANN::addSynapse(Neuron * post, Neuron * pre)
 {
     Synapse * const synapse = new Synapse(post, pre);
-    //synapses.push_back( synapse );
     return synapse;
 }
 
@@ -133,14 +124,7 @@ void ANN::removeNeuron(Neuron const * neuron)
 {
     delete neuron;
     neurons.erase( find(neurons.begin(), neurons.end(), neuron));
-    //if (parent) parent->removeNeuron(neuron);
 }
-
-//void ANN::removeSynapse(Synapse const * synapse)
-//{
-    //synapses.erase( find(synapses.begin(), synapses.end(), synapse));
-    //if (parent) parent->removeSynapse(synapse);
-//}
 
 void ANN::setBias(Neuron * neuron, const double& abias)
 {
