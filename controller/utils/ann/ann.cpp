@@ -122,8 +122,12 @@ const double ANN::getWeight(Neuron const * post, Neuron const * pre) const
 
 void ANN::removeNeuron(Neuron const * neuron)
 {
-    delete neuron;
-    neurons.erase( find(neurons.begin(), neurons.end(), neuron));
+    NeuronList::iterator it = find(neurons.begin(), neurons.end(), neuron);
+    if (it != neurons.end()) {
+        delete neuron;
+        neurons.erase( find(neurons.begin(), neurons.end(), neuron));
+    }
+    /** @todo give out error message if neuron does not belong to this net */
 }
 
 void ANN::setBias(Neuron * neuron, const double& abias)
