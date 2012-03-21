@@ -76,6 +76,11 @@ void Neuron::removeSynapseOut(Synapse const * synapse)
     synapsesOut.erase(find(synapsesOut.begin(), synapsesOut.end(), synapse));
 }
 
+void Neuron::setActivity(const double& aactivity)
+{
+    activity = aactivity;
+}
+
 void Neuron::setBias(const double & abias)
 {
     bias = abias;
@@ -84,6 +89,11 @@ void Neuron::setBias(const double & abias)
 void Neuron::setInput(double const & ainput)
 {
     input = ainput;
+}
+
+void Neuron::setOutput(const double& aoutput)
+{
+    output = aoutput;
 }
 
 void Neuron::updateActivity()
@@ -99,5 +109,4 @@ void Neuron::updateActivity()
 void Neuron::updateOutput()
 {
     output = (*func)(activity);
-//    std::cout << "Neuron::updateOutput(): activity = " << activity << " output = " << output << "\n";
 }

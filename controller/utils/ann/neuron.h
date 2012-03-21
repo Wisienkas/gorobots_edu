@@ -20,12 +20,11 @@ class Neuron {
 public:
     Neuron();
     ~Neuron();
+    void addSynapseIn(Synapse * synapse);
+    void addSynapseOut(Synapse * synapse);
     const double& getActivity() const;
     const double& getBias() const;
     const double& getOutput() const;
-    void addSynapseIn(Synapse * synapse);
-    void addSynapseOut(Synapse * synapse);
-    //double&  getBiasRef();
     Synapse* getSynapseFrom(Neuron const * pre) const;
     void removeSynapseIn(Synapse const * synapse);
     void removeSynapseOut(Synapse const * synapse);
@@ -33,7 +32,6 @@ public:
     void setBias(const double& abias);
     void setInput(const double& ainput);
     void setOutput(const double& aoutput);
-    void setParent(const ANN* parent);
     void updateActivity();
     void updateOutput();
 private:
