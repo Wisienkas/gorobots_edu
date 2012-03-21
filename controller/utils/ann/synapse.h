@@ -16,16 +16,14 @@ class Synapse {
 public:
     Synapse(Neuron * const apost, Neuron * const apre);
     ~Synapse();
-    Neuron* getPre();
     Neuron* getPost();
+    Neuron* getPre();
     const double& getWeight() const;
     void setWeight(const double& aweight);
-    //double& getWeightRef();
 private:
     Neuron * const pre;
     Neuron * const post;
     double weight;
-    //ANN* myANN;
 };
 
 #endif /* SYNAPSE_H_ */
