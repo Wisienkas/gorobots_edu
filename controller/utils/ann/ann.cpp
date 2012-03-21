@@ -67,7 +67,7 @@ const double& ANN::getBias(const int neuron) const
 {
     return getBias(neurons[neuron]);
 }
-const double& ANN::getBias(Neuron const * neuron) const
+const double& ANN::getBias(Neuron const * neuron)
 {
     return neuron->getBias();
 }
