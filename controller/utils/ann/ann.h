@@ -206,6 +206,27 @@ public:
     static void setInput(Neuron * neuron, const double ainput);
 
     /**
+     * Sets the output of the neuron with the given index
+     *
+     * This method can be used to set the output value of the neuron with the
+     * given index directly belonging to this network. You cannot set the output
+     * values of neurons of other networks or subnetworks with this method. If
+     * this is necessary use the method of the specific network or
+     * ANN::setOutput(Neuron*,double) with a pointer to the desired neuron
+     * instead.
+     */
+    void setOutput(const int& neuron, const double& aoutput);
+
+    /**
+     * Sets the output of the given neuron
+     *
+     * You can use this function to set the output value of any neuron without
+     * having to include the neuron.h header file. If you don't mind including
+     * the additional header you can as well use Neuron::setOutput(double).
+     */
+    static void setOutput(Neuron * neuron, const double aoutput);
+
+    /**
      * Sets the weight of the synapse between any two neurons
      *
      * Use this method to set the weight of the synapse between any two given

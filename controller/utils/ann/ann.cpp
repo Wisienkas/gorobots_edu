@@ -155,6 +155,16 @@ void ANN::setInput(Neuron* neuron, const double ainput)
     neuron->setInput(ainput);
 }
 
+void ANN::setOutput(const int& neuron, const double& aoutput)
+{
+    setOutput(neurons[neuron], aoutput);
+}
+
+void ANN::setOutput(Neuron* neuron, const double aoutput)
+{
+    neuron->setOutput(aoutput);
+}
+
 void ANN::setNeuronNumber(const unsigned int& anumber)
 {
     while (neurons.size() > anumber)
