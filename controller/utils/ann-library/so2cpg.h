@@ -17,7 +17,7 @@ public:
     void setAlpha(const double aalpha);
     void setPhi(const double& aphi);
 protected:
-    void updateWeights();
+    void updateSO2Weights();
 private:
     double phi;
     double alpha;

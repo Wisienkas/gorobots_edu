@@ -18,7 +18,7 @@ SO2CPG::SO2CPG()
 
     alpha = 1.01;
     phi   = 0.1*M_PI;
-    updateWeights();
+    updateSO2Weights();
 }
 
 void SO2CPG::setPhi(const double& aphi)
@@ -27,7 +27,7 @@ void SO2CPG::setPhi(const double& aphi)
     updateWeights();
 }
 
-void SO2CPG::updateWeights()
+void SO2CPG::updateSO2Weights()
 {
     w(0, 0,  alpha * cos(phi));
     w(0, 1,  alpha * sin(phi));
