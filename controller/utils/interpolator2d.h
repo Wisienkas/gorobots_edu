@@ -15,8 +15,8 @@ class Interpolator2d
 public:
     Interpolator2d();
     void load(const char* filename);
-    double x(const double& y);
-    double y(const double& x);
+    double x(const double& y) const;
+    double y(const double& x) const;
 private:
     struct tableEntry {
         double x;

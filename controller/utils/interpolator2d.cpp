@@ -54,12 +54,12 @@ void Interpolator2d::load(const char * filename)
     N = table.size();
 }
 
-double Interpolator2d::x(const double& y)
+double Interpolator2d::x(const double& y) const
 {
     // guess position
     int i = (y-minY)*N/(maxY-minY);
-    tableEntry* A = &(table[i]);
-    tableEntry* B = A;
+    tableEntry const* A = &(table[i]);
+    tableEntry const* B = A;
     if (A->y == y) return A->x;
     // find surrounding frequency values. In the end it should hold
     // A->f < f < B->f
@@ -77,13 +77,13 @@ double Interpolator2d::x(const double& y)
     return xapprox;
 }
 
-double Interpolator2d::y(const double& x)
+double Interpolator2d::y(const double& x) const
 {
     // guess position
     if (x<minX or x > maxX) return 0;
     int i = (x-minX)*N/(maxX-minX);
-    tableEntry* A = &(table[i]);
-    tableEntry* B = A;
+    tableEntry const* A = &(table[i]);
+    tableEntry const* B = A;
     if (A->x == x) return A->y;
     // find surrounding x values. In the end it should hold
     // A->x < x < B->x
