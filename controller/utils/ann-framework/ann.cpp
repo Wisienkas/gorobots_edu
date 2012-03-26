@@ -12,12 +12,12 @@
 #include <algorithm>
 
 /** initialization of static const member variables */
-const TanhFunction ANN::tanhFunction = TanhFunction();
-const LogisticFunction ANN::logisticFunction = LogisticFunction();
+TanhFunction const * const ANN::tanhFunction = new TanhFunction();
+LogisticFunction const * const ANN::logisticFunction = new LogisticFunction();
 
 ANN::ANN()
 {
-    setDefaultTransferFunction(&tanhFunction);
+    setDefaultTransferFunction(tanhFunction);
 }
 
 ANN::~ANN()
