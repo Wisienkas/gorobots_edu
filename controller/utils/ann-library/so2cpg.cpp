@@ -33,6 +33,11 @@ SO2CPG::SO2CPG()
     updateSO2Weights();
 }
 
+const double& SO2CPG::getPhi() const
+{
+    return phi;
+}
+
 void SO2CPG::setPhi(const double& aphi)
 {
     phi = aphi;
