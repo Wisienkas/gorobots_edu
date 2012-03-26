@@ -482,7 +482,7 @@ protected:
      */
     const double w(const int& post, const int& pre);
 
-    const TanhFunction tanhFunction;
+    static const TanhFunction tanhFunction;
 private:
     typedef std::vector <Neuron*>   NeuronList;
     typedef std::list <ANN*>        AnnList;

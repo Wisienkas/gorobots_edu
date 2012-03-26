@@ -11,8 +11,10 @@
 #include "synapse.h"
 #include <algorithm>
 
+/** initialization of static const member variable */
+const TanhFunction ANN::tanhFunction = TanhFunction();
+
 ANN::ANN()
-:tanhFunction()
 {
     setDefaultTransferFunction(&tanhFunction);
 }
