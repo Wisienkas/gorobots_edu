@@ -32,6 +32,7 @@ public:
     void setBias(const double& abias);
     void setInput(const double& ainput);
     void setOutput(const double& aoutput);
+    void setTransferFunction(TransferFunction const * const afunction);
     void updateActivity();
     void updateOutput();
 private:
@@ -43,7 +44,7 @@ private:
     SynapseList synapsesOut;
     SynapseList synapsesIn;
     TransferFunction const * func;
-    static const TanhFunction defaultTransferFunction;
+    static TanhFunction const * const tanhFunction;
 };
 
 #endif /* NEURON_H_ */

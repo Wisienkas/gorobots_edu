@@ -14,7 +14,7 @@
 #include <iostream>
 
 // initialize static constant member
-const TanhFunction Neuron::defaultTransferFunction = TanhFunction();
+TanhFunction const * const Neuron::tanhFunction = new TanhFunction();
 
 Neuron::Neuron()
 {
@@ -22,7 +22,7 @@ Neuron::Neuron()
     output   = 0;
     bias     = 0;
     input    = 0;
-    func     = &defaultTransferFunction;
+    func     = tanhFunction;
 }
 
 Neuron::~Neuron()
@@ -95,6 +95,12 @@ void Neuron::setOutput(const double& aoutput)
 {
     output = aoutput;
 }
+
+void Neuron::setTransferFunction(TransferFunction const * const afunction)
+{
+    func = afunction;
+}
+
 
 void Neuron::updateActivity()
 {

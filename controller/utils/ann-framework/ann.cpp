@@ -32,6 +32,7 @@ ANN::~ANN()
 Neuron* ANN::addNeuron()
 {
     Neuron * const neuron = new Neuron();
+    neuron->setTransferFunction(defaultTransferFunction);
     neurons.push_back(neuron);
     return neuron;
 }
