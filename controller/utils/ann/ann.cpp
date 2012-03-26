@@ -130,6 +130,16 @@ void ANN::removeNeuron(Neuron const * neuron)
     /** @todo give out error message if neuron does not belong to this net */
 }
 
+void ANN::setActivity(const int& neuron, const double& aactivity)
+{
+    setActivity(neurons[neuron], aactivity);
+}
+
+void ANN::setActivity(Neuron* neuron, const double & aactivity)
+{
+    neuron->setActivity(aactivity);
+}
+
 void ANN::setBias(Neuron * neuron, const double& abias)
 {
     neuron->setBias(abias);

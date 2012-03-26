@@ -156,6 +156,27 @@ public:
     void removeNeuron(Neuron const * neuron);
 
     /**
+     * Sets the activity of the neuron with the given index
+     *
+     * This method can be used to set the activity value of the neuron with the
+     * given index directly belonging to this network. You cannot set the
+     * activity values of neurons of other networks or subnetworks with this
+     * method. If this is necessary use the method of the specific network or
+     * ANN::setActivity(Neuron*,double) with a pointer to the desired neuron
+     * instead.
+     */
+    void setActivity(const int& neuron, const double& aactivity);
+
+    /**
+     * Sets the input of the given neuron
+     *
+     * You can use this function to set the activity of any neuron without
+     * having to include the neuron.h header file. If you don't mind including
+     * the additional header you can as well use Neuron::setActivity(double).
+     */
+    static void setActivity(Neuron * neuron, const double& aactivity);
+
+    /**
      * Sets the bias of the given neuron
      *
      * You can use this function to set the bias of any neuron without
