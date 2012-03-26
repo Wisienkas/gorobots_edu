@@ -33,6 +33,11 @@ SO2CPG::SO2CPG()
     updateSO2Weights();
 }
 
+const double& SO2CPG::getAlpha() const
+{
+    return alpha;
+}
+
 const double& SO2CPG::getPhi() const
 {
     return phi;
