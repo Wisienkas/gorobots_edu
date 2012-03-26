@@ -16,6 +16,15 @@
 class Neuron;
 class Synapse;
 
+/**
+ * Artificial Neural Network Class
+ *
+ * This is a class to represent a time-discrete recurrent neural network.
+ * You can subclass this class to obtain classes for special network
+ * configurations (such as VRN, PSN, CPG ...). It should be sufficient to
+ * include this file into your project. Under normal circumstances you don't
+ * need to know anything about the underlying neuron and synapses classes.
+ */
 class ANN {
 public:
     /**
@@ -37,6 +46,9 @@ public:
      * method. If this is necessary use the method of the specific network
      * or ANN::getBias(Neuron*) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron index of the neuron
+     * @return activity value
      */
     const double& getActivity(const int neuron) const;
 
@@ -46,6 +58,9 @@ public:
      * You can use this function to retrieve the activity of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::getActivity().
+     *
+     * @param neuron pointer to the neuron
+     * @return activity value
      */
     static const double& getActivity(Neuron const * neuron);
 
@@ -58,6 +73,9 @@ public:
      * method. If this is necessary use the method of the specific network
      * or ANN::getBias(Neuron*) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron index of the neuron
+     * @return bias value
      */
     const double& getBias(const int neuron) const;
 
@@ -67,11 +85,16 @@ public:
      * You can use this function to retrieve the bias of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::getBias().
+     *
+     * @param neuron pointer to the neuron
+     * @return bias value
      */
     static const double& getBias(Neuron const * neuron);
 
     /**
      * Returns a pointer to the default transfer function of the network
+     *
+     * @return pointer to the default transfer function
      */
     TransferFunction const* getDefaultTransferFunction() const;
 
@@ -81,6 +104,9 @@ public:
      * This method can be used to get direct access to a neuron belonging to
      * this network or to store a pointer to a specific neuron when working
      * with multiple or sub networks.
+     *
+     * @param index index of the neuron
+     * @return pointer to the neuron
      */
     Neuron* getNeuron(unsigned int const index);
 
@@ -91,6 +117,8 @@ public:
      * network. Neurons of sub networks are not considered. Use
      * ANN::getTotalNeuronNumber() instead if you want to consider neurons
      * of all sub networks as well.
+     *
+     * @return number of neurons
      */
     unsigned int getNeuronNumber() const;
 
@@ -103,6 +131,9 @@ public:
      * method. If this is necessary use the method of the specific network
      * or ANN::getOutput(Neuron*) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron index of the neuron
+     * @return output value
      */
     const double& getOutput(const int neuron) const;
 
@@ -112,6 +143,9 @@ public:
      * You can use this function to retrieve the output of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::getOutput().
+     *
+     * @param neuron pointer to the neuron
+     * @return output value
      */
     static const double& getOutput(Neuron const * neuron);
 
@@ -123,6 +157,8 @@ public:
      * on...). Use ANN::getNeuronNumber() instead if you only want to know the
      * number of neurons belonging directly to this network (without considering
      * sub networks).
+     *
+     * @return number of neurons
      */
     unsigned int getTotalNeuronNumber() const;
 
@@ -134,6 +170,10 @@ public:
      * neurons directly belonging to this network. If you want to retrieve
      * synaptic weights between neurons of different or sub networks you have to
      * use ANN::getWeight(Neuron*, Neuron*).
+     *
+     * @param post index of the postsynaptic neuron
+     * @param pre  index of the presynaptic neuron
+     * @post weight of the synapse (or 0 if not present)
      */
     const double getWeight(const int& post, const int& pre) const;
 
@@ -143,6 +183,10 @@ public:
      * This method returns the weight of the synapse between the two given
      * neurons or 0 if their is no such synapse. For neurons directly belonging
      * to the same network you can as well use ANN::getWeight(int, int).
+     *
+     * @param post pointer to the postsynaptic neuron
+     * @param pre  pointer to the presynaptic neuron
+     * @return weight of the synapse (or 0 if not present)
      */
     const double getWeight(Neuron const * post, Neuron const * pre) const;
 
@@ -152,6 +196,8 @@ public:
      * This method removes the given neuron from the network. All the synapses
      * attached to the neuron are removed as well. The neuron is only removed
      * if it indeed belongs to the network on which this method was called.
+     *
+     * @param neuron pointer to the neuron
      */
     void removeNeuron(Neuron const * neuron);
 
@@ -164,6 +210,9 @@ public:
      * method. If this is necessary use the method of the specific network or
      * ANN::setActivity(Neuron*,double) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron    index of the neuron
+     * @param aactivity new activity value
      */
     void setActivity(const int& neuron, const double& aactivity);
 
@@ -173,6 +222,9 @@ public:
      * You can use this function to set the activity of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::setActivity(double).
+     *
+     * @param neuron    pointer to the neuron
+     * @param aactivity new activity value
      */
     static void setActivity(Neuron * neuron, const double& aactivity);
 
@@ -182,6 +234,9 @@ public:
      * You can use this function to set the bias of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::setBias(double).
+     *
+     * @param neuron pointer to the neuron
+     * @param abias  new bias value
      */
     static void setBias(Neuron * neuron, const double& abias);
 
@@ -193,6 +248,9 @@ public:
      * of neurons of other networks or subnetworks with this method. If this is
      * necessary use the method of the specific network or ANN::setBias(Neuron*)
      * with a pointer to the desired neuron instead.
+     *
+     * @param neuron index of the neuron
+     * @param abias  new bias value
      */
     void setBias(const int& neuron, const double& abias);
 
@@ -202,6 +260,8 @@ public:
      * With this method you can define the default transfer function used for
      * new neurons of this network. This only affects neurons which are created
      * after calling ANN::setDefaultTransferFunction().
+     *
+     * @param func pointer to the new default transfer function
      */
     void setDefaultTransferFunction(TransferFunction const* func);
 
@@ -214,6 +274,9 @@ public:
      * this is necessary use the method of the specific network or
      * ANN::setInput(Neuron*,double) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron index of the neuron
+     * @param ainput new input value
      */
     void setInput(const int& neuron, const double& ainput);
 
@@ -223,6 +286,9 @@ public:
      * You can use this function to set the input of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::setInput(double).
+     *
+     * @param neuron pointer to the neuron
+     * @param ainput new input value
      */
     static void setInput(Neuron * neuron, const double ainput);
 
@@ -235,6 +301,9 @@ public:
      * this is necessary use the method of the specific network or
      * ANN::setOutput(Neuron*,double) with a pointer to the desired neuron
      * instead.
+     *
+     * @param neuron  index of the neuron
+     * @param aoutput new output value
      */
     void setOutput(const int& neuron, const double& aoutput);
 
@@ -244,6 +313,9 @@ public:
      * You can use this function to set the output value of any neuron without
      * having to include the neuron.h header file. If you don't mind including
      * the additional header you can as well use Neuron::setOutput(double).
+     *
+     * @param neuron  pointer to the neuron
+     * @param aoutput new output value
      */
     static void setOutput(Neuron * neuron, const double aoutput);
 
@@ -256,6 +328,10 @@ public:
      * is altered. If no synapse exists a new synapse with the given weight is
      * created. For neurons directly belonging to the same network you can as
      * well use ANN::setWeight(int, int, double).
+     *
+     * @param post   pointer to the postsynaptic neuron
+     * @param pre    pointer to the presynaptic neuron
+     * @param weight new weight of the synapse
      */
     static void setWeight(Neuron* post, Neuron* pre, const double weight);
 
@@ -267,6 +343,10 @@ public:
      * neurons already exists its weight is altered. If no synapse exists a new
      * synapse with the given weight is created. For belonging to different
      * networks use ANN::setWeight(Neuron*, Neuron*, double).
+     *
+     * @param post   index of the postsynaptic neuron
+     * @param pre    index of the presynaptic neuron
+     * @param weight new weight of the synapse
      */
     void setWeight(const int post, const int pre, const double weight);
 
@@ -295,7 +375,6 @@ public:
      *
      * This method iterates over all neurons in this network and all sub
      * networks and updates their output values based on their activity values.
-     *
      */
     virtual void updateOutputs();
 
@@ -313,6 +392,8 @@ protected:
      * With this function you can set the desired number of neurons for this
      * network. If less neurons are currently present neurons are added, if more
      * neurons are present the neurons with the highest indexes are removed.
+     *
+     * @param anumber new number of neurons directly belonging to this net
      */
     void setNeuronNumber(const unsigned int& anumber);
 
@@ -320,6 +401,7 @@ protected:
      * Adds a neuron to the network
      *
      * This methods creates a new neuron and adds it to the network.
+     *
      * @return pointer to the newly created neuron
      */
     Neuron* addNeuron();
@@ -341,7 +423,7 @@ protected:
      * This method creates a new synapse between the two given neurons.
      *
      * @param post pointer to the postsynaptic neuron
-     * @param pre pointer to the presynaptic neuron
+     * @param pre  pointer to the presynaptic neuron
      * @return pointer to the newly created synapse
      */
     static Synapse* addSynapse(Neuron* post, Neuron* pre);
