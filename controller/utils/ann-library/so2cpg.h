@@ -35,7 +35,6 @@ protected:
 private:
     double phi;
     double alpha;
-
 };
 
 

@@ -56,5 +56,3 @@ void SO2CPG::updateSO2Weights()
     w(1, 0, -alpha * sin(phi));
     w(1, 1,  alpha * cos(phi));
 }
-
-
