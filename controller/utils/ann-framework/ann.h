@@ -191,6 +191,13 @@ public:
     const double getWeight(Neuron const * post, Neuron const * pre) const;
 
     /**
+     * Return pointer to a LogisticFunction object
+     *
+     * @return pointer to LogisticFunction object
+     */
+    static LogisticFunction const * const logisticFunction();
+
+    /**
      * Removes neuron from the network
      *
      * This method removes the given neuron from the network. All the synapses
@@ -408,6 +415,13 @@ public:
     virtual void step();
 
     /**
+     * Returns pointer to a TanhFunction object
+     *
+     * @return pointer to TanhFunction object
+     */
+    static TanhFunction const * const tanhFunction();
+
+    /**
      * Updates neuron activities
      *
      * This method iterates over all neurons in this network and all sub
@@ -529,10 +543,10 @@ protected:
     const double w(const int& post, const int& pre);
 
     // f(x) = tanh(x)
-    static TanhFunction const * const tanhFunction;
+    static TanhFunction const * const tanhFunctionPointer;
 
     // f(x) = 1./(1+exp(-x))
-    static LogisticFunction const * const logisticFunction;
+    static LogisticFunction const * const logisticFunctionPointer;
 
 private:
     typedef std::vector <Neuron*>   NeuronList;

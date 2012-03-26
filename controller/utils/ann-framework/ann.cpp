@@ -12,12 +12,14 @@
 #include <algorithm>
 
 /** initialization of static const member variables */
-TanhFunction const * const ANN::tanhFunction = new TanhFunction();
-LogisticFunction const * const ANN::logisticFunction = new LogisticFunction();
+TanhFunction const * const ANN::tanhFunctionPointer =
+        new TanhFunction();
+LogisticFunction const * const ANN::logisticFunctionPointer =
+        new LogisticFunction();
 
 ANN::ANN()
 {
-    setDefaultTransferFunction(tanhFunction);
+    setDefaultTransferFunction(tanhFunctionPointer);
 }
 
 ANN::~ANN()
@@ -124,6 +126,11 @@ const double ANN::getWeight(Neuron const * post, Neuron const * pre) const
 
 }
 
+LogisticFunction const * const ANN::logisticFunction() {
+    return logisticFunctionPointer;
+}
+
+
 void ANN::removeNeuron(Neuron const * neuron)
 {
     NeuronList::iterator it = find(neurons.begin(), neurons.end(), neuron);
@@ -205,6 +212,10 @@ void ANN::setNeuronNumber(const unsigned int& anumber)
     {
         addNeuron();
     }
+}
+
+TanhFunction const * const ANN::tanhFunction() {
+    return tanhFunctionPointer;
 }
 
 void ANN::setTransferFunction(const int neuron,
