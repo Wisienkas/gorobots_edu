@@ -19,8 +19,16 @@ public:
 
 class TanhFunction : public TransferFunction {
 public:
-    inline double operator()(const double& x) const {return std::tanh(x);}
+    inline double operator()(const double& x) const {
+        return std::tanh(x);
+    }
 };
 
+class LogisticFunction : public TransferFunction {
+public:
+    inline double operator()(const double& x) const {
+        return 1./(1+std::exp(-x));
+    }
+};
 
 #endif /* TRANSFERFUNCTION_H_ */

@@ -482,7 +482,11 @@ protected:
      */
     const double w(const int& post, const int& pre);
 
+    // f(x) = tanh(x)
     static const TanhFunction tanhFunction;
+
+    // f(x) = 1./(1+exp(-x))
+    static const LogisticFunction logisticFunction;
 private:
     typedef std::vector <Neuron*>   NeuronList;
     typedef std::list <ANN*>        AnnList;

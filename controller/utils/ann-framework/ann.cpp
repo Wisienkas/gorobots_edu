@@ -11,8 +11,9 @@
 #include "synapse.h"
 #include <algorithm>
 
-/** initialization of static const member variable */
+/** initialization of static const member variables */
 const TanhFunction ANN::tanhFunction = TanhFunction();
+const LogisticFunction ANN::logisticFunction = LogisticFunction();
 
 ANN::ANN()
 {
