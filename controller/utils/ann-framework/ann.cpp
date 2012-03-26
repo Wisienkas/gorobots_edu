@@ -144,6 +144,22 @@ void ANN::setActivity(Neuron* neuron, const double & aactivity)
     neuron->setActivity(aactivity);
 }
 
+void ANN::setAllTransferFunctions(TransferFunction const * const func,
+        const bool& includeSubnets)
+{
+    for (NeuronList::iterator it=neurons.begin(); it != neurons.end(); it++)
+    {
+        (*it)->setTransferFunction(func);
+    }
+    if (includeSubnets)
+    {
+        for (AnnList::iterator it=subnets.begin(); it!=subnets.end(); it++)
+        {
+            (*it)->setAllTransferFunctions(func, true);
+        }
+    }
+}
+
 void ANN::setBias(Neuron * neuron, const double& abias)
 {
     neuron->setBias(abias);

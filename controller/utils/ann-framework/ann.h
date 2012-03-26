@@ -229,6 +229,22 @@ public:
     static void setActivity(Neuron * neuron, const double& aactivity);
 
     /**
+     * Sets the transfer functions of all neurons
+     *
+     * With this method you can set the transfer function used for all neurons.
+     * You can decide whether also the transfer functions of neurons belonging
+     * to subnets should be included in the setting.
+     * If you want to change also which transfer function will be used for
+     * neurons added in the future use ANN::setDefaultTransferFunction()
+     *
+     * @param func           pointer to the TransferFunction object
+     * @param includeSubnets decides whether neurons of subnets are also
+     *                       affected
+     */
+    void setAllTransferFunctions(TransferFunction const * const func,
+            const bool& includeSubnets=true);
+
+    /**
      * Sets the bias of the given neuron
      *
      * You can use this function to set the bias of any neuron without
