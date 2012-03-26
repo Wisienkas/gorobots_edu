@@ -336,6 +336,36 @@ public:
     static void setOutput(Neuron * neuron, const double aoutput);
 
     /**
+     * Sets transfer function for a neuron of this net
+     *
+     * This method allows you to set an individual transfer function for a
+     * neuron belonging to this network. You cannot set the transfer function
+     * of neurons of other networks or subnetworks with this method. If
+     * this is necessary use the method of the specific network or
+     * ANN::setTransferFunction(Neuron*,TransferFunction) with a pointer to the
+     * desired neuron instead.
+     *
+     * @param neuron index of the neuron
+     * @param func   pointer to the transfer function object
+     */
+    void setTransferFunction(const int neuron,
+            TransferFunction const * const func);
+
+    /**
+     * Sets the transfer function of the given neuron
+     *
+     * You can use this function to set the transfer function of any neuron
+     * without having to include the neuron.h header file. If you don't mind
+     * including the additional header you can as well use
+     * Neuron::setTransferFunction(TransferFunction*).
+     *
+     * @param neuron pointer to the neuron
+     * @param func   pointer to the transfer function object
+     */
+    void setTransferFunction(Neuron * neuron,
+            TransferFunction const * const func);
+
+    /**
      * Sets the weight of the synapse between any two neurons
      *
      * Use this method to set the weight of the synapse between any two given

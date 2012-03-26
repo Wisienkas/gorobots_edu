@@ -207,6 +207,19 @@ void ANN::setNeuronNumber(const unsigned int& anumber)
     }
 }
 
+void ANN::setTransferFunction(const int neuron,
+        TransferFunction const * const func)
+{
+    setTransferFunction(neurons[neuron], func);
+}
+
+void ANN::setTransferFunction(Neuron * neuron,
+        TransferFunction const * const func)
+{
+    neuron->setTransferFunction(func);
+}
+
+
 void ANN::setWeight(Neuron* post, Neuron* pre, const double weight)
 {
     Synapse * synapse = post->getSynapseFrom(pre);
