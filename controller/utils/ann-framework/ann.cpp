@@ -177,7 +177,7 @@ void ANN::setBias(const int& neuron, const double& abias)
     setBias(neurons[neuron], abias);
 }
 
-void ANN::setDefaultTransferFunction(TransferFunction const * func)
+void ANN::setDefaultTransferFunction(TransferFunction const * const func)
 {
     defaultTransferFunction = func;
 }

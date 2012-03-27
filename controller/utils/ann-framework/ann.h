@@ -286,7 +286,7 @@ public:
      *
      * @param func pointer to the new default transfer function
      */
-    void setDefaultTransferFunction(TransferFunction const* func);
+    void setDefaultTransferFunction(TransferFunction const * const func);
 
     /**
      * Sets the input of the neuron with the given index
