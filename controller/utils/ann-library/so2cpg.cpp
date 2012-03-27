@@ -24,6 +24,7 @@
 
 SO2CPG::SO2CPG()
 {
+    setDefaultTransferFunction(tanhFunction());
     setNeuronNumber(2);
 
     b(0, 0.01);
@@ -93,7 +94,7 @@ void SO2CPG::updateFrequencyTable()
 {
     if (!frequencyTableEnabled) return;
     std::stringstream filename;
-    filename << "fVsPhi_a" << alpha << ".dat";
+    filename << "so2cpg_fVsPhi_a" << alpha << ".dat";
     frequencyTable.load(filename.str().c_str());
 }
 
