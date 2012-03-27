@@ -30,8 +30,16 @@
  * Pasemann et al. in "SO(2)-Networks as Neural Oscillators"
  * ( http://dx.doi.org/10.1007/3-540-44868-3_19 )
  *
- * You should use the tanh transfer function for this network (default) to
- * make use of all the methods
+ * The weights of the four synapses are governed by the SO(2) weight matrix:
+ * @verbatim
+ *    /        \                /                     \
+ *   | w00  w01 |              |  cos(phi)   sin(phi)  |
+ *   |          |   =  alpha * |                       |
+ *   | w10  w11 |              | -sin(phi)   cos(phi)  |
+ *    \        /                \                     /
+ * @endverbatim
+ *
+ * You should use the tanh transfer function for this network (default)
  */
 class SO2CPG : public ANN
 {
