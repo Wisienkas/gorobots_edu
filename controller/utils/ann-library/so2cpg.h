@@ -32,6 +32,7 @@ public:
     const double& getPhi() const;
     const double getPhi(const double& afrequency) const;
     void setAlpha(const double& aalpha);
+    void setFrequency(const double& afrequency);
     void setPhi(const double& aphi);
 protected:
     void updateFrequencyTable();

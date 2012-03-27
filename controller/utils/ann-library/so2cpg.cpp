@@ -62,6 +62,11 @@ void SO2CPG::setAlpha(const double& aalpha)
     updateFrequencyTable();
 }
 
+void SO2CPG::setFrequency(const double& afrequency)
+{
+    setPhi(getPhi(afrequency));
+}
+
 void SO2CPG::setPhi(const double& aphi)
 {
     phi = aphi;
