@@ -56,6 +56,7 @@ void Interpolator2d::load(const char * filename)
 
 double Interpolator2d::x(const double& y) const
 {
+    if (y<minY or y>maxY) return 0;
     // guess position
     int i = (y-minY)*N/(maxY-minY);
     tableEntry const* A = &(table[i]);
@@ -79,8 +80,8 @@ double Interpolator2d::x(const double& y) const
 
 double Interpolator2d::y(const double& x) const
 {
-    // guess position
     if (x<minX or x > maxX) return 0;
+    // guess position
     int i = (x-minX)*N/(maxX-minX);
     tableEntry const* A = &(table[i]);
     tableEntry const* B = A;
