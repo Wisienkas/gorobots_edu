@@ -210,6 +210,15 @@ public:
     static LogisticFunction const * const logisticFunction();
 
     /**
+     * Do stuff at the end of simulation step
+     *
+     * When using ANN::step() this method is called in every simulation step
+     * after updating the neuron outputs. Overload it if you need to do some
+     * stuff in every time step. The default implementation does nothing.
+     */
+    virtual void postProcessing();
+
+    /**
      * Removes neuron from the network
      *
      * This method removes the given neuron from the network. All the synapses

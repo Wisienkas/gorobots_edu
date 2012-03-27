@@ -142,6 +142,10 @@ LogisticFunction const * const ANN::logisticFunction() {
     return logisticFunctionPointer;
 }
 
+void ANN::postProcessing()
+{
+    // nothing to do here
+}
 
 void ANN::removeNeuron(Neuron const * neuron)
 {
@@ -260,6 +264,7 @@ void ANN::step()
     updateActivities();
     updateWeights();
     updateOutputs();
+    postProcessing();
 }
 
 void ANN::updateActivities()
