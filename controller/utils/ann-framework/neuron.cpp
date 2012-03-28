@@ -80,6 +80,13 @@ Synapse* Neuron::getSynapseFrom(Neuron const * pre) const
     return it->second;
 }
 
+Synapse* Neuron::getSynapseTo(Neuron const * post) const
+{
+    SynapseList::const_iterator it=synapsesOut.find(post);
+    if (it == synapsesOut.end()) return NULL;
+    return it->second;
+}
+
 void Neuron::removeSynapseIn(Synapse const * synapse)
 {
     SynapseList::iterator it = synapsesIn.find(synapse->getPre());

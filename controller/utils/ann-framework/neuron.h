@@ -126,6 +126,19 @@ public:
     Synapse* getSynapseFrom(Neuron const * pre) const;
 
     /**
+     * Returns outgoing synapse to a given neuron
+     *
+     * This method can be used to get the synapse connecting this neuron with
+     * the given postsynaptic neuron. It is assumed that there are not two
+     * synapses connecting the same presynaptic and postsynaptic neurons. If
+     * there is no such synapse present NULL is returned.
+     *
+     * @param post pointer to postynaptic neuron
+     * @return pointer to synapse or NULL if no such synapse exists
+     */
+    Synapse* getSynapseTo(Neuron const * post) const;
+
+    /**
      * Removes an entry from the list of incoming synapses
      *
      * This method removes the given synapse from the list of incoming synapses.
