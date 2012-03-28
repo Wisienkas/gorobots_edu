@@ -35,6 +35,9 @@ class Synapse;
  * net. It is described by its current output, activity, bias and input values
  * as well as by the list of incoming and outgoing synapses and the transfer
  * function to use for this neuron.
+ *
+ * ATTENTION: All methods assume that there are no two synapses with the same
+ * postsynaptic and presynaptic neurons.
  */
 class Neuron {
 public:
