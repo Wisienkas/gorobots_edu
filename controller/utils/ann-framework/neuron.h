@@ -20,7 +20,7 @@
 #ifndef NEURON_H_
 #define NEURON_H_
 
-#include<list>
+#include <map>
 #include "transferfunction.h"
 
 // forward declarations
@@ -212,8 +212,9 @@ public:
      */
     void updateOutput();
 private:
-    /** type for holding a list of synapses */
-    typedef std::list<Synapse*> SynapseList;
+    /** type for holding a list of synapses associated to a neuron*/
+    typedef std::map<Neuron const *, Synapse*> SynapseList;
+    typedef std::pair<Neuron const *, Synapse*> SynapseListPair;
     /** output value of the neuron */
     double output;
     /** activity value of the neuron */

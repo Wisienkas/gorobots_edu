@@ -39,18 +39,18 @@ Neuron::Neuron()
 
 Neuron::~Neuron()
 {
-    while (synapsesIn.size()>0)  delete synapsesIn.front();
-    while (synapsesOut.size()>0) delete synapsesOut.front();
+    while (synapsesIn.size()>0) delete (*(synapsesIn.begin())).second;
+    while (synapsesOut.size()>0) delete (*(synapsesOut.begin())).second;
 }
 
 void Neuron::addSynapseIn(Synapse * synapse)
 {
-    synapsesIn.push_back(synapse);
+    synapsesIn.insert( SynapseListPair(synapse->getPre(),synapse) );
 }
 
 void Neuron::addSynapseOut(Synapse * synapse)
 {
-    synapsesOut.push_back(synapse);
+    synapsesOut.insert( SynapseListPair(synapse->getPost(),synapse) );
 }
 
 const double& Neuron::getActivity() const
@@ -75,22 +75,23 @@ const double& Neuron::getOutput() const
 
 Synapse* Neuron::getSynapseFrom(Neuron const * pre) const
 {
-    for(SynapseList::const_iterator it=synapsesIn.begin(); it!=synapsesIn.end(); it++)
-    {
-        Synapse * const synapse = *it;
-        if (synapse->getPre() == pre) return synapse;
-    }
-    return NULL;
+    SynapseList::const_iterator it=synapsesIn.find(pre);
+    if (it == synapsesIn.end()) return NULL;
+    return it->second;
 }
 
 void Neuron::removeSynapseIn(Synapse const * synapse)
 {
-    synapsesIn.erase(find(synapsesIn.begin(), synapsesIn.end(), synapse));
+    SynapseList::iterator it = synapsesIn.find(synapse->getPre());
+    if (it == synapsesIn.end()) return;
+    synapsesIn.erase(it);
 }
 
 void Neuron::removeSynapseOut(Synapse const * synapse)
 {
-    synapsesOut.erase(find(synapsesOut.begin(), synapsesOut.end(), synapse));
+    SynapseList::iterator it = synapsesOut.find(synapse->getPost());
+    if (it == synapsesOut.end()) return;
+    synapsesOut.erase(it);
 }
 
 void Neuron::setActivity(const double& aactivity)
@@ -124,7 +125,7 @@ void Neuron::updateActivity()
     double newActivity = bias + input;
     for (SynapseList::iterator it = synapsesIn.begin(); it != synapsesIn.end(); it++)
     {
-        newActivity += (*it)->getWeight() * (*it)->getPre()->getOutput();
+        newActivity += it->second->getWeight() * it->first->getOutput();
     }
     activity = newActivity;
 }
