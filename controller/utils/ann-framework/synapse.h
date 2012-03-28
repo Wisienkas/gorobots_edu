@@ -24,17 +24,76 @@
 class ANN;
 class Neuron;
 
+/**
+ * Synapse Class
+ *
+ * This class represents a single directed synapse connection to neurons
+ * of an artificial neural net. The synapse is described by the pre- and
+ * postsynaptic neuron and its synaptic weight.
+ */
 class Synapse {
 public:
+    /**
+     * The constructor
+     *
+     * You have to give the pre- and postsynaptic neuron here. Those cannot
+     * be changed later. Create a new synapse if you want to connect other
+     * neurons instead of the present ones.
+     *
+     * The constructor also "registers" the new synapse at the two neurons
+     * so that the synapse is inserted into their corresponding lists.
+     *
+     * @param apost pointer to the postsynaptic neuron
+     * @param apre  pointer to the presynaptic neuron
+     */
     Synapse(Neuron * const apost, Neuron * const apre);
+
+    /**
+     * The destructor
+     *
+     * The destructor also removes the synapse from the corresponding synapse
+     * lists of the post- and presynaptic neuron.
+     */
     ~Synapse();
+
+    /**
+     * Returns postsynaptic neuron
+     *
+     * @return pointer to the postsynaptic neuron
+     */
     Neuron* getPost() const;
+
+    /**
+     * Returns presynaptic neuron
+     *
+     * @return pointer to the presynaptic neuron
+     */
     Neuron* getPre() const;
+
+    /**
+     * Returns synaptic weight
+     *
+     * This method returns the weight of this synapse. The reference stays
+     * valid for the whole lifetime of the synapse.
+     *
+     * @return synaptic weight
+     */
     const double& getWeight() const;
+
+    /**
+     * Sets synaptic weight
+     *
+     * This method can be used to alter the weight of this synapse.
+     *
+     * @param aweight new synaptic weight
+     */
     void setWeight(const double& aweight);
 private:
+    /** pointer to presynaptic neuron */
     Neuron * const pre;
+    /** pointer to postsynaptic neuron */
     Neuron * const post;
+    /** synapse weight */
     double weight;
 };
 
