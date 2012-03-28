@@ -227,6 +227,7 @@ public:
 private:
     /** type for holding a list of synapses associated to a neuron*/
     typedef std::map<Neuron const *, Synapse*> SynapseList;
+    /** item type of the synapse list */
     typedef std::pair<Neuron const *, Synapse*> SynapseListPair;
     /** output value of the neuron */
     double output;
