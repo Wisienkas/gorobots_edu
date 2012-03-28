@@ -93,6 +93,16 @@ public:
     const double& getBias() const;
 
     /**
+     * Returns input
+     *
+     * This method returns the input value of the neuron. The returned
+     * reference stays valid for the whole lifetime of the neuron.
+     *
+     * @return input value
+     */
+    const double& getInput() const;
+
+    /**
      * Returns output
      *
      * This method returns the output value of the neuron. The returned

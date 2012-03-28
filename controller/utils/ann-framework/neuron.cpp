@@ -63,6 +63,11 @@ const double& Neuron::getBias() const
     return bias;
 }
 
+const double& Neuron::getInput() const
+{
+    return input;
+}
+
 const double& Neuron::getOutput() const
 {
     return output;
