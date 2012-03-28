@@ -28,8 +28,8 @@ class Synapse {
 public:
     Synapse(Neuron * const apost, Neuron * const apre);
     ~Synapse();
-    Neuron* getPost();
-    Neuron* getPre();
+    Neuron* getPost() const;
+    Neuron* getPre() const;
     const double& getWeight() const;
     void setWeight(const double& aweight);
 private:

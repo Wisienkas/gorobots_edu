@@ -36,12 +36,12 @@ Synapse::~Synapse()
     post->removeSynapseIn(this);
 }
 
-Neuron* Synapse::getPost()
+Neuron* Synapse::getPost() const
 {
     return post;
 }
 
-Neuron* Synapse::getPre()
+Neuron* Synapse::getPre() const
 {
     return pre;
 }
