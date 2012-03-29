@@ -22,13 +22,44 @@
 
 #include <cmath>
 
+/**
+ * Transer Function Class
+ *
+ * This class represents the general transfer function interface that can be
+ * used by a neuron to update its output value. Every type of transfer function
+ * you want to use function has to subclass TransferFunction and to implement
+ * the operator() method.
+ */
 class TransferFunction {
 public:
+    /**
+     * The constructor
+     */
     TransferFunction() {};
+
+    /**
+     * The destructor
+     */
     virtual ~TransferFunction() {};
-    virtual double operator()(const double& ) const = 0;
+
+    /**
+     * Method for function call
+     *
+     * This method overloads the () operator and represents the usage of
+     * the transfer function. Every subclass has to implement it.
+     *
+     * @param a the activity value of the neuron
+     * @return the new output value of the neuron
+     */
+    virtual double operator()(const double& a) const = 0;
 };
 
+
+/**
+ * tanh transfer function (sigmoid)
+ *
+ * o(a) = tanh(a)
+ */
 class TanhFunction : public TransferFunction {
 public:
     inline double operator()(const double& x) const {
@@ -36,6 +67,11 @@ public:
     }
 };
 
+/*
+ * logistic transfer function (sigmoid)
+ *
+ * o(a) = 1./(1+exp(-x))
+ */
 class LogisticFunction : public TransferFunction {
 public:
     inline double operator()(const double& x) const {
