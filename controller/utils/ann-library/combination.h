@@ -42,7 +42,7 @@ private:
     SO2CPG * cpg;
     VRN * vrnLeft;
     VRN * vrnRight;
-};
+} __attribute__((deprecated));
 
 
 #endif /* COMBINATION_H_ */
