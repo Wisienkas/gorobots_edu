@@ -22,8 +22,25 @@
 
 #include "utils/ann-framework/ann.h"
 
+/**
+ * Phase Changing Network Class
+ *
+ * This class represents a phase changing network as e. g. introduced in
+ *
+ * Manoonpong, P., Pasemann, F., Woergoetter, F.: Sensor-driven neural control
+ * for omnidirectional locomotion and versatile reactive behaviors of walking
+ * machines. Robotics and Autonomous Systems 56 (2009). 265-288
+ *
+ * Currently it only sets the synaptic weights and neural biases.
+ *
+ */
 class PSN : public ANN {
 public:
+    /**
+     * The constructor
+     *
+     * Sets synaptic weights and biases
+     */
     PSN();
 };
 
