@@ -21,11 +21,38 @@
 
 #include "utils/ann-framework/ann.h"
 
+/**
+ * Velocity Regulating Network Class
+ *
+ * This class represents a VRN network as e. g. described in
+ *
+ * Manoonpong, P., Pasemann, F., Woergoetter, F.: Sensor-driven neural control
+ * for omnidirectional locomotion and versatile reactive behaviors of walking
+ * machines. Robotics and Autonomous Systems 56 (2009). 265-288
+ *
+ */
 class VRN : public ANN {
 public:
+    /**
+     * The constructor
+     *
+     * Sets synaptic weights and neural biases
+     */
     VRN();
+
+    /**
+     * Returns pointer to input neuron x
+     */
     Neuron* getNeuronX();
+
+    /**
+     * Returns pointer to input neuron y
+     */
     Neuron* getNeuronY();
+
+    /**
+     * Returns pointer to output neuron
+     */
     Neuron* getNeuronOutput();
 private:
 
