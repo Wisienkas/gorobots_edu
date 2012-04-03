@@ -520,6 +520,16 @@ protected:
     void b(const int neuron, const double& abias);
 
     /**
+     * Sets the bias of a any neuron
+     *
+     * This method is an abbreviation of ANN::setBias(Neuron*, double).
+     *
+     * @param neuron pointer to the neuron
+     * @param abias new bias value of this neuron
+     */
+    void b(Neuron* neuron, const double& abias);
+
+    /**
      * Returns the bias of a neuron of this network
      *
      * This method is an abbreviation of ANN::getBias(int).

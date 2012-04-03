@@ -67,6 +67,11 @@ void ANN::b(const int neuron, const double& abias)
     setBias(neuron, abias);
 }
 
+void ANN::b(Neuron* neuron, const double& abias)
+{
+    setBias(neuron, abias);
+}
+
 const double& ANN::b (const int neuron)
 {
     return getBias(neuron);
