@@ -162,6 +162,33 @@ public:
     static const double& getOutput(Neuron const * neuron);
 
     /**
+     * Returns synapse between two neurons of this network
+     *
+     * This methods returns the synapse between the given presynaptic and
+     * postsynaptic neuron directly belonging to this network. If no such
+     * synapse exists NULL is returned.
+     *
+     * @param post index of postsynaptic neuron
+     * @param pre index of presynaptic neuron
+     * @return pointer to synapse or NULL if not existent
+     */
+    Synapse* getSynapse(const unsigned int& post, const unsigned int& pre)const;
+
+    /**
+     * Returns synapse between any two neurons
+     *
+     * This method returns the synapse between the given presynaptic and
+     * postsynaptic neuron that do not have to belong to the same network. If
+     * no such synapse exists NULL is returned.
+     *
+     * @param post pointer to postsynaptic neuron
+     * @param pre pointer to presynaptic neuron
+     * @return pointer to synapse or NULL if not existent
+     */
+    static Synapse* getSynapse(Neuron const * const post,
+            Neuron const * const pre);
+
+    /**
      * Returns the number of neurons of this network including sub networks
      *
      * This method returns the number of neurons belonging to this

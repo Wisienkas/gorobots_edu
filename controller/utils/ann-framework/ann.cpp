@@ -120,6 +120,17 @@ const double& ANN::getOutput(Neuron const * neuron)
     return neuron->getOutput();
 }
 
+Synapse* ANN::getSynapse(const unsigned int& post, const unsigned int& pre)
+        const
+{
+    return getSynapse(neurons[post], neurons[pre]);
+}
+
+Synapse* ANN::getSynapse(Neuron const * const post, Neuron const * const pre)
+{
+    return post->getSynapseFrom(pre);
+}
+
 unsigned int ANN::getTotalNeuronNumber() const
 {
     int number = neurons.size();
