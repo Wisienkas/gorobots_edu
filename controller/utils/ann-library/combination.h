@@ -8,7 +8,7 @@
 #ifndef COMBINATION_H_
 #define COMBINATION_H_
 
-#include "ann.h"
+#include "utils/ann-framework/ann.h"
 
 // forward declarations
 class SO2CPG;

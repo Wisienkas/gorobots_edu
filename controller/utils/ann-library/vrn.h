@@ -8,7 +8,7 @@
 #ifndef VRN_H_
 #define VRN_H_
 
-#include "ann.h"
+#include "utils/ann-framework/ann.h"
 
 class VRN : public ANN {
 public:

@@ -8,7 +8,7 @@
 #ifndef SO2CPG_H_
 #define SO2CPG_H_
 
-#include "ann.h"
+#include "utils/ann-framework/ann.h"
 
 class SO2CPG : public ANN
 {

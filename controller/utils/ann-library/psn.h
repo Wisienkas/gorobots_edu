@@ -8,7 +8,7 @@
 #ifndef PSN_H_
 #define PSN_H_
 
-#include "ann.h"
+#include "utils/ann-framework/ann.h"
 
 class PSN : public ANN {
 public:
