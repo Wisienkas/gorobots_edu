@@ -50,6 +50,11 @@ const double& SO2CPG::getPhi() const
     return phi;
 }
 
+const double SO2CPG::getPhi(const double & afrequency) const
+{
+    return frequencyTable.x(afrequency)*M_PI;
+}
+
 void SO2CPG::setAlpha(const double& aalpha)
 {
     alpha = aalpha;
