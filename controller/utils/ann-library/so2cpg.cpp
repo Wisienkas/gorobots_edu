@@ -72,7 +72,7 @@ const double SO2CPG::getPhi(const double & afrequency) const
 void SO2CPG::setAlpha(const double& aalpha)
 {
     alpha = aalpha;
-    updateWeights();
+    updateSO2Weights();
     updateFrequencyTable();
 }
 
@@ -84,7 +84,7 @@ void SO2CPG::setFrequency(const double& afrequency)
 void SO2CPG::setPhi(const double& aphi)
 {
     phi = aphi;
-    updateWeights();
+    updateSO2Weights();
 }
 
 void SO2CPG::updateFrequencyTable()
