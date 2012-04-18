@@ -7,6 +7,7 @@
 
 #include "interpolator2d.h"
 
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <limits>

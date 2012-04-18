@@ -21,6 +21,7 @@
 #define SO2CPG_H_
 
 #include "utils/ann-framework/ann.h"
+#include "utils/interpolator2d.h"
 
 class SO2CPG : public ANN
 {
@@ -28,13 +29,15 @@ public:
     SO2CPG();
     const double& getAlpha() const;
     const double& getPhi() const;
-    void setAlpha(const double aalpha);
+    void setAlpha(const double& aalpha);
     void setPhi(const double& aphi);
 protected:
+    void updateFrequencyTable();
     void updateSO2Weights();
 private:
     double phi;
     double alpha;
+    Interpolator2d frequencyTable;
 };
 
 
