@@ -27,9 +27,6 @@ SO2CPG::SO2CPG()
     setDefaultTransferFunction(tanhFunction());
     setNeuronNumber(2);
 
-    b(0, 0.01);
-    b(1, 0.01);
-
     alpha = 1.01;
     phi   = 0.1*M_PI;
     updateSO2Weights();
