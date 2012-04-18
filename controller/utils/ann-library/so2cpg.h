@@ -28,6 +28,7 @@ class SO2CPG : public ANN
 public:
     SO2CPG();
     const double& getAlpha() const;
+    const double getFrequency() const;
     const double& getPhi() const;
     void setAlpha(const double& aalpha);
     void setPhi(const double& aphi);

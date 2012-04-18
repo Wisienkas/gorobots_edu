@@ -40,6 +40,11 @@ const double& SO2CPG::getAlpha() const
     return alpha;
 }
 
+const double SO2CPG::getFrequency() const
+{
+    return frequencyTable.y(phi/M_PI);
+}
+
 const double& SO2CPG::getPhi() const
 {
     return phi;
