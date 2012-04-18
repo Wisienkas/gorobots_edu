@@ -32,6 +32,14 @@ SO2CPG::SO2CPG()
     alpha = 1.01;
     phi   = 0.1*M_PI;
     updateSO2Weights();
+    frequencyTableEnabled = false;
+    updateFrequencyTable();
+}
+
+void SO2CPG::enableFrequencyTable(const bool enabled)
+{
+    if (enabled == frequencyTableEnabled) return;
+    frequencyTableEnabled = enabled;
     updateFrequencyTable();
 }
 
@@ -42,7 +50,11 @@ const double& SO2CPG::getAlpha() const
 
 const double SO2CPG::getFrequency() const
 {
-    return frequencyTable.y(phi/M_PI);
+    if (frequencyTableEnabled)
+        return frequencyTable.y(phi/M_PI);
+    else
+        //linear approximation
+        return (0.5/M_PI)*phi;
 }
 
 const double& SO2CPG::getPhi() const
@@ -52,7 +64,11 @@ const double& SO2CPG::getPhi() const
 
 const double SO2CPG::getPhi(const double & afrequency) const
 {
-    return frequencyTable.x(afrequency)*M_PI;
+    if (frequencyTableEnabled)
+        return frequencyTable.x(afrequency)*M_PI;
+    else
+        // linear approximation
+        return 2*afrequency*M_PI;
 }
 
 void SO2CPG::setAlpha(const double& aalpha)
@@ -75,6 +91,7 @@ void SO2CPG::setPhi(const double& aphi)
 
 void SO2CPG::updateFrequencyTable()
 {
+    if (!frequencyTableEnabled) return;
     std::stringstream filename;
     filename << "fVsPhi_a" << alpha << ".dat";
     frequencyTable.load(filename.str().c_str());

@@ -27,6 +27,7 @@ class SO2CPG : public ANN
 {
 public:
     SO2CPG();
+    void enableFrequencyTable(const bool enabled=true);
     const double& getAlpha() const;
     const double getFrequency() const;
     const double& getPhi() const;
@@ -40,6 +41,7 @@ protected:
 private:
     double phi;
     double alpha;
+    bool frequencyTableEnabled;
     Interpolator2d frequencyTable;
 };
 
