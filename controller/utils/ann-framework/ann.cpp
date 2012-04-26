@@ -154,6 +154,11 @@ const double ANN::getWeight(Neuron const * post, Neuron const * pre) const
 
 }
 
+Neuron* ANN::n(unsigned int const index)
+{
+    return getNeuron(index);
+}
+
 LogisticFunction const * const ANN::logisticFunction() {
     return logisticFunctionPointer;
 }

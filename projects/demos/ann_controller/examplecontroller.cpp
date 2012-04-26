@@ -43,41 +43,41 @@ class ExampleANN : public ANN {
       addSubnet(vrnRight);
 
       // connect synapses originating at input neurons
-      w(psn->getNeuron(0),      inputNeurons[0], -1);
-      w(psn->getNeuron(1),      inputNeurons[0],  1);
-      w(vrnLeft->getNeuron(1),  inputNeurons[1],  5);
-      w(vrnRight->getNeuron(1), inputNeurons[2],  5);
+      w(psn->n(0),      inputNeurons[0], -1);
+      w(psn->n(1),      inputNeurons[0],  1);
+      w(vrnLeft->n(1),  inputNeurons[1],  5);
+      w(vrnRight->n(1), inputNeurons[2],  5);
 
 
       // create synapses from cpg to psn
-      w(psn->getNeuron(2), cpg->getNeuron(0), 0.5);
-      w(psn->getNeuron(3), cpg->getNeuron(1), 0.5);
-      w(psn->getNeuron(4), cpg->getNeuron(1), 0.5);
-      w(psn->getNeuron(5), cpg->getNeuron(0), 0.5);
+      w(psn->n(2), cpg->n(0), 0.5);
+      w(psn->n(3), cpg->n(1), 0.5);
+      w(psn->n(4), cpg->n(1), 0.5);
+      w(psn->n(5), cpg->n(0), 0.5);
 
       // create synapses from psn to VRN networks
-      w(vrnLeft->getNeuron(0),  psn->getNeuron(11), 1.75);
-      w(vrnRight->getNeuron(0), psn->getNeuron(11), 1.75);
+      w(vrnLeft->n(0),  psn->n(11), 1.75);
+      w(vrnRight->n(0), psn->n(11), 1.75);
 
       // create synapses to output neurons
-      w(outputNeurons[FL0_m], psn->getNeuron(10),  0.5);
-      w(outputNeurons[FL1_m], psn->getNeuron(10), -0.5);
-      w(outputNeurons[FL2_m], psn->getNeuron(10),  0.5);
-      w(outputNeurons[FR0_m], psn->getNeuron(10), -0.5);
-      w(outputNeurons[FR1_m], psn->getNeuron(10),  0.5);
-      w(outputNeurons[FR2_m], psn->getNeuron(10), -0.5);
-      w(outputNeurons[CL0_m], psn->getNeuron(11),  0.8);
-      w(outputNeurons[CL1_m], psn->getNeuron(11), -0.8);
-      w(outputNeurons[CL2_m], psn->getNeuron(11),  0.8);
-      w(outputNeurons[CR0_m], psn->getNeuron(11), -0.8);
-      w(outputNeurons[CR1_m], psn->getNeuron(11),  0.8);
-      w(outputNeurons[CR2_m], psn->getNeuron(11), -0.8);
-      w(outputNeurons[TL0_m], vrnLeft->getNeuron(6),  0.6);
-      w(outputNeurons[TL1_m], vrnLeft->getNeuron(6), -0.6);
-      w(outputNeurons[TL2_m], vrnLeft->getNeuron(6),  0.6);
-      w(outputNeurons[TR0_m], vrnRight->getNeuron(6),  0.6);
-      w(outputNeurons[TR1_m], vrnRight->getNeuron(6), -0.6);
-      w(outputNeurons[TR2_m], vrnRight->getNeuron(6),  0.6);
+      w(outputNeurons[FL0_m], psn->n(10),  0.5);
+      w(outputNeurons[FL1_m], psn->n(10), -0.5);
+      w(outputNeurons[FL2_m], psn->n(10),  0.5);
+      w(outputNeurons[FR0_m], psn->n(10), -0.5);
+      w(outputNeurons[FR1_m], psn->n(10),  0.5);
+      w(outputNeurons[FR2_m], psn->n(10), -0.5);
+      w(outputNeurons[CL0_m], psn->n(11),  0.8);
+      w(outputNeurons[CL1_m], psn->n(11), -0.8);
+      w(outputNeurons[CL2_m], psn->n(11),  0.8);
+      w(outputNeurons[CR0_m], psn->n(11), -0.8);
+      w(outputNeurons[CR1_m], psn->n(11),  0.8);
+      w(outputNeurons[CR2_m], psn->n(11), -0.8);
+      w(outputNeurons[TL0_m], vrnLeft->n(6),  0.6);
+      w(outputNeurons[TL1_m], vrnLeft->n(6), -0.6);
+      w(outputNeurons[TL2_m], vrnLeft->n(6),  0.6);
+      w(outputNeurons[TR0_m], vrnRight->n(6),  0.6);
+      w(outputNeurons[TR1_m], vrnRight->n(6), -0.6);
+      w(outputNeurons[TR2_m], vrnRight->n(6),  0.6);
 
       // initialize cpg
       cpg->setAlpha(2);
