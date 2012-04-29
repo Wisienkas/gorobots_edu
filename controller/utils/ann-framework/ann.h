@@ -237,6 +237,16 @@ public:
     static LogisticFunction const * const logisticFunction();
 
     /**
+     * Returns a pointer to the neuron with the given number
+     *
+     * This is an abbreviation for Neuron* getNeuron(unsigned int const index)
+     *
+     * @param index index of the neuron
+     * @return pointer to the neuron
+     */
+    Neuron* n(unsigned int const index);
+
+    /**
      * Do stuff at the end of simulation step
      *
      * When using ANN::step() this method is called in every simulation step

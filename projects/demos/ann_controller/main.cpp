@@ -66,6 +66,7 @@ class ThisSim : public lpzrobots::Simulation {
 
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
+      myAmosIIConf.rubberFeet = true;
       amos = new lpzrobots::AmosII(
           odeHandle,
           osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
