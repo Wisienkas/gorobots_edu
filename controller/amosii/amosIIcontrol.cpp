@@ -23,7 +23,7 @@
 using namespace matrix;
 using namespace std;
 
-AmosIIControl::AmosIIControl()
+AmosIIControl::AmosIIControl(int amosVersion)
   : AbstractController("AmosIIControl", "$Id: amosIIcontrol.cpp,v 0.1 $"){
 
 	//---ADD YOUR initialization here---//
@@ -50,6 +50,8 @@ AmosIIControl::AmosIIControl()
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
 		  "$Revision: 0.1 $");
+
+  //control_adaptiveclimbing.NeuralLocomotionControlAdaptiveClimbing(amosVersion);
 
 
 };
@@ -94,7 +96,7 @@ void AmosIIControl::step(const sensor* x_, int number_sensors,
 
 	//3) Neural locomotion control------
 
-	//y = control_adaptiveclimbing.step_nlc(x,x_prep,memory_out,/*Footinhibition = false*/ false);
+	//y = control_adaptiveclimbing.step_nlc(x,x_prroller-ep,memory_out,/*Footinhibition = false*/ false);
 	//y = control_adaptiveclimbing.step_nlc(x_prep,memory_out);
 	y = control_adaptiveclimbing.step_nlc(x_prep,x);
 

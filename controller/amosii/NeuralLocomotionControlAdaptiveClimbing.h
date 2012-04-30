@@ -35,7 +35,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
 public:
 
 	//---Start Define functions---//
-	NeuralLocomotionControlAdaptiveClimbing();
+	NeuralLocomotionControlAdaptiveClimbing(int amosVersion);
 	~NeuralLocomotionControlAdaptiveClimbing();
 
 	double sigmoid(double num)
@@ -93,6 +93,8 @@ public:
     int i_text_loop;
     int ii;
     bool initialized;
+
+    int amos_version;
 
     KineController tripod;
 

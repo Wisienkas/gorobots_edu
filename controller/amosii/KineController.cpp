@@ -8,8 +8,13 @@
  #include "KineController.h"
  
  //This function is to initialize parameters
- KineController::KineController()
+ KineController::KineController(int amos_version)
  {
+	 if (amos_version==1){
+
+	 } else if(amos_version==2){
+
+	 } else {std::cout<<"provide correct version of amos!! (1 or 2)"<<std::endl;}
 	 l1 = 35;
 	 l2 = 60;
 	 l3 = 115;

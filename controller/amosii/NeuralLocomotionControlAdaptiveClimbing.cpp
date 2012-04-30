@@ -8,7 +8,8 @@
 #include "NeuralLocomotionControlAdaptiveClimbing.h"
 
 
-NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(){
+NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(int amosVersion):
+		amos_version(amosVersion){
 
  		  //Save files
  		  outFilenlc1.open("Neurallocomotion.dat");

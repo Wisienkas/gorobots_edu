@@ -58,7 +58,7 @@
 class AmosIIControl : public AbstractController {
 
 public:
-  AmosIIControl();
+  AmosIIControl(int amosVersion);
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~AmosIIControl();
@@ -92,7 +92,7 @@ protected:
 
 	int t;
 	paramkey name;
-
+	int amos_version;
 
 	//Begin ADD YOUR VARIABLE HERE//
 
@@ -120,7 +120,7 @@ public:
 
 	//3) Neural locomotion control------
 
-	NeuralLocomotionControlAdaptiveClimbing control_adaptiveclimbing;
+	NeuralLocomotionControlAdaptiveClimbing control_adaptiveclimbing(const int amos_version);
 
 
 	//4) Motor postprocessing/scaling   ----------------
