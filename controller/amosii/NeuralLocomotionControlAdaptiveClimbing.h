@@ -96,7 +96,7 @@ public:
 
     int amos_version;
 
-    KineController tripod;
+    KineController* tripod;
 
     //---End Define vector----//
 

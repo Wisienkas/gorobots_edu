@@ -35,7 +35,7 @@ using namespace std;
 class KineController
 {
 public:
-	KineController();
+	KineController(int amos_version);
 	~KineController();
 
 	std::vector<double> out;

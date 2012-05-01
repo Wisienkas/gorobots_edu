@@ -11,10 +11,15 @@
  KineController::KineController(int amos_version)
  {
 	 if (amos_version==1){
+		 /* specific parameters for amosii version 1 */
+
 
 	 } else if(amos_version==2){
+		 /* specific parameters for amosii version 2 */
 
 	 } else {std::cout<<"provide correct version of amos!! (1 or 2)"<<std::endl;}
+
+
 	 l1 = 35;
 	 l2 = 60;
 	 l3 = 115;

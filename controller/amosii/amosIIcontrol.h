@@ -110,17 +110,17 @@ public:
 
     //1) Neural preprocessing------------
 
-	NeuralPreprocessingReflex preprocessing_reflex;
+	NeuralPreprocessingReflex *preprocessing_reflex;
 
 
 	//2) Neural learning and memory-----
 
-	NeuralLearningAndMemoryYourExtension learningmemory_your_extension;
+	NeuralLearningAndMemoryYourExtension *learningmemory_your_extension;
 
 
 	//3) Neural locomotion control------
 
-	NeuralLocomotionControlAdaptiveClimbing control_adaptiveclimbing(const int amos_version);
+	NeuralLocomotionControlAdaptiveClimbing *control_adaptiveclimbing;
 
 
 	//4) Motor postprocessing/scaling   ----------------

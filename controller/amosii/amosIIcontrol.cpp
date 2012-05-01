@@ -32,6 +32,9 @@ AmosIIControl::AmosIIControl(int amosVersion)
 
 	//---ADD YOUR initialization here---//
 
+	  preprocessing_reflex = new NeuralPreprocessingReflex();
+	  learningmemory_your_extension = new NeuralLearningAndMemoryYourExtension();
+	  control_adaptiveclimbing = new NeuralLocomotionControlAdaptiveClimbing(amosVersion);
 
 
 	//Call this function with your changeable parameters here//
@@ -44,14 +47,14 @@ AmosIIControl::AmosIIControl(int amosVersion)
 //	addInspectableValue("input.at(4)",&control_adaptiveclimbing.input.at(4),"ydown.at(0)");
 
 
+
   //Add edit parameter on terminal
-  Configurable::addParameter("cin", &control_adaptiveclimbing.Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
+  Configurable::addParameter("cin", &control_adaptiveclimbing->Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
 		  "test discription" );
   // prepare name;
   Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
 		  "$Revision: 0.1 $");
 
-  //control_adaptiveclimbing.NeuralLocomotionControlAdaptiveClimbing(amosVersion);
 
 
 };
@@ -86,19 +89,19 @@ void AmosIIControl::step(const sensor* x_, int number_sensors,
 
 
 	//1) Neural preprocessing------------
-	std:: vector<double> x_prep = preprocessing_reflex.step_npp(x);
+	std:: vector<double> x_prep = preprocessing_reflex->step_npp(x);
 
 
 
 	//2) Neural learning and memory-----
-	std:: vector<double> memory_out = learningmemory_your_extension.step_nlm(x);
+	std:: vector<double> memory_out = learningmemory_your_extension->step_nlm(x);
 
 
 	//3) Neural locomotion control------
 
-	//y = control_adaptiveclimbing.step_nlc(x,x_prroller-ep,memory_out,/*Footinhibition = false*/ false);
-	//y = control_adaptiveclimbing.step_nlc(x_prep,memory_out);
-	y = control_adaptiveclimbing.step_nlc(x_prep,x);
+	//y = control_adaptiveclimbing->step_nlc(x,x_prroller-ep,memory_out,/*Footinhibition = false*/ false);
+	//y = control_adaptiveclimbing->step_nlc(x_prep,memory_out);
+	y = control_adaptiveclimbing->step_nlc(x_prep,x);
 
 
 

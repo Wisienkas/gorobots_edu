@@ -108,7 +108,7 @@ int main(int argc, char** argv){	list<PlotOption> plotoptions;
 
 
 	//AbstractController*
-	AmosIIControl* controller = new AmosIIControl();
+	AmosIIControl* controller = new AmosIIControl(/*amos version*/1);
 	// one2onewiring gives full range of robot actuators
 	AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(),true);
 
@@ -181,11 +181,11 @@ int main(int argc, char** argv){	list<PlotOption> plotoptions;
 			if (key==115){
 					std::cout<<"S pressed"<<std::endl;
 					if (walking){
-						controller->control_adaptiveclimbing.tripod.stopWalking();
+						controller->control_adaptiveclimbing->tripod->stopWalking();
 						std::cout<<"stop now"<< std::endl;
 						walking=false;
 					} else{
-						controller->control_adaptiveclimbing.tripod.startWalking();
+						controller->control_adaptiveclimbing->tripod->startWalking();
 						std::cout<<"start now"<< std::endl;
 						walking=true;
 					}
@@ -193,13 +193,13 @@ int main(int argc, char** argv){	list<PlotOption> plotoptions;
 
 
 				if (key==104){
-					controller->control_adaptiveclimbing.tripod.liftLeg();
+					controller->control_adaptiveclimbing->tripod->liftLeg();
 					std::cout<<"H pressed"<<std::endl;
 					std::cout<<"lift leg"<<std::endl;
 				}
 
 				if (key==106){
-					controller->control_adaptiveclimbing.tripod.lowerLeg();
+					controller->control_adaptiveclimbing->tripod->lowerLeg();
 					std::cout<<"J pressed"<<std::endl;
 					std::cout<<"lower leg"<<std::endl;
 				}
@@ -207,11 +207,11 @@ int main(int argc, char** argv){	list<PlotOption> plotoptions;
 				if (key==98){
 					std::cout<<"B pressed"<<std::endl;
 //					if (come_back){
-//						controller->control_adaptiveclimbing.tripod.stopComeBack();
+//						controller->control_adaptiveclimbing->tripod->stopComeBack();
 //						std::cout<<"stop come back"<<std::endl;
 //						come_back=false;
 //					} else {
-						controller->control_adaptiveclimbing.tripod.comeBack();
+						controller->control_adaptiveclimbing->tripod->comeBack();
 						std::cout<<"lower leg and come back"<<std::endl;
 		//				come_back=true;
 	//				}
@@ -225,39 +225,39 @@ int main(int argc, char** argv){	list<PlotOption> plotoptions;
 
 				if (key==108){ // Turn left
 					std::cout<<"L pressed"<<std::endl;
-						controller->control_adaptiveclimbing.tripod.turnLeft();
+						controller->control_adaptiveclimbing->tripod->turnLeft();
 						std::cout<<"start now"<< std::endl;
 				}
 
 
 				if (key==114){ // Turn right
 					std::cout<<"R pressed"<<std::endl;
-						controller->control_adaptiveclimbing.tripod.turnRight();
+						controller->control_adaptiveclimbing->tripod->turnRight();
 						std::cout<<"start now"<< std::endl;
 				}
 
 				if (key==97){ // left side ward
 					std::cout<<"A pressed"<<std::endl;
-						controller->control_adaptiveclimbing.tripod.sidewardleft();
+						controller->control_adaptiveclimbing->tripod->sidewardleft();
 						std::cout<<"start now"<< std::endl;
 				}
 
 
 				if (key==103){ // right side ward
 					std::cout<<"G pressed"<<std::endl;
-						controller->control_adaptiveclimbing.tripod.sidewardright();
+						controller->control_adaptiveclimbing->tripod->sidewardright();
 						std::cout<<"start now"<< std::endl;
 				}
 
 				if (key==121){ // Turn right side ward // STILL NOT WORKING this function
 						std::cout<<"Y pressed"<<std::endl;
-							controller->control_adaptiveclimbing.tripod.turnrightsideward();
+							controller->control_adaptiveclimbing->tripod->turnrightsideward();
 							std::cout<<"start now"<< std::endl;
 				}
 
 				if (key==119){ // Turn right side ward
 						std::cout<<"W pressed"<<std::endl;
-							controller->control_adaptiveclimbing.tripod.turnleftsideward();
+							controller->control_adaptiveclimbing->tripod->turnleftsideward();
 							std::cout<<"start now"<< std::endl;
 				}
 

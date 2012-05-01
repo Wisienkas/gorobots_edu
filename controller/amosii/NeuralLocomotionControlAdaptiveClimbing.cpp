@@ -57,7 +57,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
  	      //Testing controller from text (e.g. SOINN control as motor memory network)
  	     reading_text_testing = false;
 
-
+ 	     tripod = new KineController(amos_version);
  	  };
 
 
@@ -214,31 +214,31 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		}
 		else // using normal control
 		{
-			tripod.Kine();
+			tripod->Kine();
 
-			m.at(TR0_m) = tripod.out.at(TR0_m);
-			m.at(TR1_m) = tripod.out.at(TR1_m);
-			m.at(TR2_m) = tripod.out.at(TR2_m);
+			m.at(TR0_m) = tripod->out.at(TR0_m);
+			m.at(TR1_m) = tripod->out.at(TR1_m);
+			m.at(TR2_m) = tripod->out.at(TR2_m);
 
-			m.at(TL0_m) = tripod.out.at(TL0_m);
-			m.at(TL1_m) = tripod.out.at(TL1_m);
-			m.at(TL2_m) = tripod.out.at(TL2_m);
+			m.at(TL0_m) = tripod->out.at(TL0_m);
+			m.at(TL1_m) = tripod->out.at(TL1_m);
+			m.at(TL2_m) = tripod->out.at(TL2_m);
 
-			m.at(CL0_m) = tripod.out.at(CL0_m);
-			m.at(CL1_m) = tripod.out.at(CL1_m);
-			m.at(CL2_m) = tripod.out.at(CL2_m);
+			m.at(CL0_m) = tripod->out.at(CL0_m);
+			m.at(CL1_m) = tripod->out.at(CL1_m);
+			m.at(CL2_m) = tripod->out.at(CL2_m);
 
-			m.at(CR0_m) = tripod.out.at(CR0_m);
-			m.at(CR1_m) = tripod.out.at(CR1_m);
-			m.at(CR2_m) = tripod.out.at(CR2_m);
+			m.at(CR0_m) = tripod->out.at(CR0_m);
+			m.at(CR1_m) = tripod->out.at(CR1_m);
+			m.at(CR2_m) = tripod->out.at(CR2_m);
 
-			m.at(FR0_m) = tripod.out.at(FR0_m);
-			m.at(FR1_m) = tripod.out.at(FR1_m);
-			m.at(FR2_m) = tripod.out.at(FR2_m);
+			m.at(FR0_m) = tripod->out.at(FR0_m);
+			m.at(FR1_m) = tripod->out.at(FR1_m);
+			m.at(FR2_m) = tripod->out.at(FR2_m);
 
-			m.at(FL0_m) = tripod.out.at(FL0_m);
-			m.at(FL1_m) = tripod.out.at(FL1_m);
-			m.at(FL2_m) = tripod.out.at(FL2_m);
+			m.at(FL0_m) = tripod->out.at(FL0_m);
+			m.at(FL1_m) = tripod->out.at(FL1_m);
+			m.at(FL2_m) = tripod->out.at(FL2_m);
 
 			m.at(BJ_m) =  0;
 			outFilenlc1<<m.at(TR0_m)<<' '<<m.at(TR1_m)<<' '<<m.at(TR2_m)<<' '<<m.at(TL0_m)<<' '<<m.at(TL1_m)<<' '<<m.at(TL2_m)<<endl;
