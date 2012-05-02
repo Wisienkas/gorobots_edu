@@ -26,8 +26,8 @@ then
 	sudo apt-get install freeglut3 freeglut3-dev
 	echo "sudo apt-get install binutils-gold"
 	sudo apt-get install binutils-gold
-	echo "sudo apt-get install git"
-	sudo apt-get install git
+	echo "sudo apt-get install git libncurses-dev"
+	sudo apt-get install git libncurses-dev
 	echo 
 	echo
 else
@@ -95,21 +95,21 @@ then
 	read USERNAME
 	echo
 	echo "cloning gorobots repository"
-	echo "git clone https://${USERNAME}@git.assembla.com/gorobots.git -b goettingen_master"
+	echo "git clone https://${USERNAME}@git.assembla.com/${GOadress}.git -b master"
 	git clone https://${USERNAME}@git.assembla.com/${GOadress}.git -b master
 
 	echo
 	echo "cloning lpzrobots repository"
-	echo "git clone https://${USERNAME}@git.assembla.com/lpzrobots.git -b goettingen_master"
+	echo "git clone https://${USERNAME}@git.assembla.com/${LPZadress}.git -b master"
 	git clone https://${USERNAME}@git.assembla.com/${LPZadress}.git -b master
 	echo 
 	echo
 	echo '----copy project settings to lpzrobots and gorobots folder----'
 	cd ${OWN_DIR}
-	echo "cp lpzproject ${HOME}/workspace/lpzrobots/.project"
-	echo "cp lpzcproject ${HOME}/workspace/lpzrobots/.cproject"
-	echo "cp goproject ${HOME}/workspace/gorobots/.project"
-	echo "cp gocproject ${HOME}/workspace/gorobots/.cproject"
+	echo "cp lpzproject ${HOME}/workspace/${LPZadress}/.project"
+	echo "cp lpzcproject ${HOME}/workspace/${LPZadress}/.cproject"
+	echo "cp goproject ${HOME}/workspace/${GOadress}/.project"
+	echo "cp gocproject ${HOME}/workspace/${GOadress}/.cproject"
 	cp lpzproject ${HOME}/workspace/${LPZadress}/.project
 	cp lpzcproject ${HOME}/workspace/${LPZadress}/.cproject
 	cp goproject ${HOME}/workspace/${GOadress}/.project
