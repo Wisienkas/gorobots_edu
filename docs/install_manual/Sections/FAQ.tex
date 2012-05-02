@@ -1,0 +1,72 @@
+\section{FAQs}
+
+\subsection{Encountered errors}
+
+The error messages was:
+
+\begin{lstlisting}
+> ./start
+> ./start: error while loading shared libraries: libode\_dbl.so.1: 
+  cannot open shared object file: No such file or directory
+\end{lstlisting}
+The solution was:
+\begin{lstlisting}
+ > source ~/.bashrc
+\end{lstlisting}
+
+
+\subsection{Errors using setUpGoRotobots.sh}
+
+I encountered the problem whilst cloning the git repositories:
+\begin{lstlisting}
+Cloning into crauterb-lpzrobots-fork...
+Password: 
+remote: Counting objects: 25478, done.
+remote: Compressing objects: 100\% (6030/6030), done.
+remote: Total 25478 (delta 19211), reused 25478 (delta 19211)
+Receiving objects: 100\% (25478/25478), 19.97 MiB | 716 KiB/s, done.
+Resolving deltas: 100\% (19211/19211), done.
+warning: remote HEAD refers to nonexistent ref, unable to checkout.
+\end{lstlisting}
+The solution was simply, that the reference in the \emph{git clone} command was set
+to \emph{master}, but for lpzrobots, there is no master, so I had to change the command to: \\
+\emph{git clone https://\$crauterb@git.assembla.com/\$crauterb-lpzrobots-fork.git -b goettingen\_master} \\
+
+\subsection{Problems with GIT}
+\label{EclipseGIT}
+In some cases, the instructions on how to set up the GIT-repositories within Eclipse did not work. \\
+Here is a different approach, that worked for me: \\
+\begin{enumerate}
+ \item Import the repositories into the GIT-view of Eclipse, just as described before
+ \item Instead of importing over the GIT-View, you now go onto \emph{File $\rightarrow$ Import $\rightarrow$ General $\rightarrow$ Existing Projects into Workspace} and you then choose the two repositories
+ \item After Eclipse has imported the files, you can \emph{right-click} on the Project, and then select \emph{Team $\rightarrow$ Share}
+ \item No, just select \emph{GIT} and the two GIT-repository-adresses should appear
+ \item \emph{Apply}
+\end{enumerate}
+
+
+\subsection{Problems within the Script}
+
+\subsubsection{Error with \emph{git clone}}
+
+Whilst cloning the repositories, I encountered the following error:
+\begin{lstlisting}
+git clone https://crauterb@git.assembla.com/lpzrobots.git -b goettingen_master
+Cloning into crauterb-lpzrobots-fork...
+Password: 
+remote: Counting objects: 25478, done.
+remote: Compressing objects: 100% (6030/6030), done.
+remote: Total 25478 (delta 19211), reused 25478 (delta 19211)
+Receiving objects: 100% (25478/25478), 19.97 MiB | 527 KiB/s, done.
+Resolving deltas: 100% (19211/19211), done.
+warning: Remote branch master not found in upstream origin, using HEAD instead
+warning: remote HEAD refers to nonexistent ref, unable to checkout.
+\end{lstlisting}
+
+The problem is, that we switched from the branch name \emph{goettingen\_master} to ``just'' \emph{master}. In my case, I forked
+the repository Lpzrobots when there was no branch \emph{master}, and for some reason, it was not added later and did not appear anywear.
+The solution was simple: Delete the forked version and create a new one - if possible. Worked for me.
+
+ 
+
+
