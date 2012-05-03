@@ -535,8 +535,24 @@
 
 		 }
 
-
-
+	 assert(legend_RF.X==legend_RF.X);
+	 assert(legend_RF.Y==legend_RF.Y);
+	 assert(legend_RF.Z==legend_RF.Z);
+	 assert(legend_RM.X==legend_RM.X);
+	 assert(legend_RM.Y==legend_RM.Y);
+	 assert(legend_RM.Z==legend_RM.Z);
+	 assert(legend_RH.X==legend_RH.X);
+	 assert(legend_RH.Y==legend_RH.Y);
+	 assert(legend_RH.Z==legend_RH.Z);
+   assert(legend_LF.X==legend_LF.X);
+   assert(legend_LF.Y==legend_LF.Y);
+   assert(legend_LF.Z==legend_LF.Z);
+   assert(legend_LM.X==legend_LM.X);
+   assert(legend_LM.Y==legend_LM.Y);
+   assert(legend_LM.Z==legend_LM.Z);
+   assert(legend_LH.X==legend_LH.X);
+   assert(legend_LH.Y==legend_LH.Y);
+   assert(legend_LH.Z==legend_LH.Z);
 
 	 //--------------control the six legs-------------------------
 	 SingleLegInverKine_RF(legend_RF.X,legend_RF.Y,legend_RF.Z);
@@ -547,6 +563,26 @@
 	 SingleLegInverKine_LH(legend_LH.X,legend_LH.Y,legend_LH.Z);
 
 	 //--------------------mapping to -1 ~ 1 -----------------------
+
+   assert(RF.TC==RF.TC);
+   assert(RF.CTr==RF.CTr);
+   assert(RF.FTi==RF.FTi);
+   assert(RM.TC==RM.TC);
+   assert(RM.CTr==RM.CTr);
+   assert(RM.FTi==RM.FTi);
+   assert(RH.TC==RH.TC);
+   assert(RH.CTr==RH.CTr);
+   assert(RH.FTi==RH.FTi);
+   assert(LF.TC==LF.TC);
+   assert(LF.CTr==LF.CTr);
+   assert(LF.FTi==LF.FTi);
+   assert(LM.TC==LM.TC);
+   assert(LM.CTr==LM.CTr);
+   assert(LM.FTi==LM.FTi);
+   assert(LH.TC==LH.TC);
+   assert(LH.CTr==LH.CTr);
+   assert(LH.FTi==LH.FTi);
+
 	 out.at(TR0_m) = RF.TC * 0.0143 * 180 / PI;
 	 out.at(TR1_m) = RM.TC * 0.0167 * 180 / PI;
 	 out.at(TR2_m) = RH.TC * 0.0143 * 180 / PI;
