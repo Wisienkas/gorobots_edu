@@ -65,8 +65,8 @@ class ThisSim : public lpzrobots::Simulation {
     global.odeConfig.setParam("simstepsize", 0.01);
 
     // select which version of AMOSII should be used
-    bool use_amosii_version1 = true;
-    bool use_amosii_version2 = false;
+    bool use_amosii_version1 = false;
+    bool use_amosii_version2 = true;
 
     if (use_amosii_version1 && !use_amosii_version2){
       std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;

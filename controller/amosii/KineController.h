@@ -38,6 +38,13 @@ public:
 	KineController(int amos_version);
 	~KineController();
 
+	double pA_pD_Z_RF;
+	double pA_pD_Z_RM;
+	double pA_pD_Z_RH;
+	double pA_pD_Z_LF;
+	double pA_pD_Z_LM;
+	double pA_pD_Z_LH;
+
 	std::vector<double> out;
 
 	void Kine();
