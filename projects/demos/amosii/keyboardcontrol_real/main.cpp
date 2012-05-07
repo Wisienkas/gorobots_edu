@@ -113,8 +113,8 @@ int main(int argc, char** argv){
   if (use_amosii_version1 && !use_amosii_version2){
     std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
     // using amosii version 1
-    //robot         = new AmosIISerialV1("/dev/ttyS0");     // using serial port
-    robot         = new AmosIISerialV1("/dev/ttyUSB0");   // using USB-to-serial adapter
+    robot         = new AmosIISerialV1("/dev/ttyS0");     // using serial port
+    //robot         = new AmosIISerialV1("/dev/ttyUSB0");   // using USB-to-serial adapter
 
     controller = new AmosIIControl(/*amos version*/1);// (in general a pointer to AbstractController* is used)
   } else {
@@ -125,8 +125,8 @@ int main(int argc, char** argv){
   if (use_amosii_version2 && !use_amosii_version1){
     std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
     // using amosii version 2
-    //robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
-    robot         = new AmosIISerialV2("/dev/ttyUSB0");   // using USB-to-serial adapter
+    robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
+    //robot         = new AmosIISerialV2("/dev/ttyUSB0");   // using USB-to-serial adapter
 
     controller = new AmosIIControl(/*amos version*/2); // (usually a pointer to AbstractController* is used)
   } else {
