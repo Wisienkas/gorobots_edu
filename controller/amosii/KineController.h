@@ -38,6 +38,13 @@ public:
 	KineController(int amos_version);
 	~KineController();
 
+	double pA_pD_Z_RF;
+	double pA_pD_Z_RM;
+	double pA_pD_Z_RH;
+	double pA_pD_Z_LF;
+	double pA_pD_Z_LM;
+	double pA_pD_Z_LH;
+
 	std::vector<double> out;
 
 	void Kine();
@@ -352,6 +359,7 @@ protected:
 	}legangle;
 	legangle RF,RM,RH,LF,LM,LH;
 	legangle RF_ini,RM_ini,RH_ini,LF_ini,LM_ini,LH_ini; 		//initial angle of different legs
+  legangle RF_old,RM_old,RH_old,LF_old,LM_old,LH_old;
 
 	void SingleLegInverKine_RF(double x,double y,double z);
 	void SingleLegInverKine_RM(double x,double y,double z);

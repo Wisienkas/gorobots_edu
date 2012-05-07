@@ -110,9 +110,8 @@ void AmosIIControl::step(const sensor* x_, int number_sensors,
 
 	for(unsigned int i=0; i<(BJ_m+1);i++)
 	{
-		y_[i] = 1*y.at(i);
+		y_[i] = 1.0*y.at(i);
 	}
-
 	// update step counter
 	t++;
 };
