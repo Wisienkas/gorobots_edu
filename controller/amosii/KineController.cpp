@@ -367,8 +367,8 @@ void KineController::Kine()
     std::cout<<"turn left"<<std::endl;
     if(swingflag)
     {
-      legend_RF.Y = legend_RH.Y = legend_LM.Y = ((double)n++/MAXNUM) * STRIDE;
-      legend_LM.Y = ((double)n++/MAXNUM) * STRIDE*0.05;
+      legend_RF.Y = legend_RH.Y = ((double)n++/MAXNUM) * STRIDE;
+      legend_LM.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = - (double) abs(n) * 2 * LEGH / MAXNUM + LEGH;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE;
@@ -378,8 +378,8 @@ void KineController::Kine()
     }
     else
     {
-      legend_RF.Y = legend_RH.Y = legend_LM.Y = ((double)n--/MAXNUM) * STRIDE;
-      legend_LM.Y = ((double)n--/MAXNUM) * STRIDE*0.05;
+      legend_RF.Y = legend_RH.Y = ((double)n--/MAXNUM) * STRIDE;
+      legend_LM.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = 0;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE;
@@ -406,7 +406,7 @@ void KineController::Kine()
     if(swingflag)
     {
       legend_LM.Y = ((double)n++/MAXNUM) * STRIDE*1.0;
-      legend_RF.Y = legend_RH.Y = ((double)n++/MAXNUM) * STRIDE*0.05;
+      legend_RF.Y = legend_RH.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = - (double) abs(n) * 2 * LEGH / MAXNUM + LEGH;
 
       legend_LF.Y = legend_LH.Y = -((double)n/MAXNUM) * STRIDE*1.0;
@@ -418,7 +418,7 @@ void KineController::Kine()
     else
     {
       legend_LM.Y = ((double)n--/MAXNUM) * STRIDE*1.0;
-      legend_RF.Y = legend_RH.Y = ((double)n--/MAXNUM) * STRIDE*0.05;
+      legend_RF.Y = legend_RH.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = 0;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE*1.0;
@@ -508,8 +508,8 @@ void KineController::Kine()
     if(swingflag)
     {
       legend_LM.Y = ((double)n++/MAXNUM) * STRIDE*1.0;
-      legend_RF.Y = legend_RH.Y = ((double)n++/MAXNUM) * STRIDE*0.05;
-      legend_RF.X = legend_RH.X = legend_LM.X = ((double)n++/MAXNUM) * STRIDE*0.6;
+      legend_RF.Y = legend_RH.Y = ((double)n/MAXNUM) * STRIDE*0.05;
+      legend_RF.X = legend_RH.X = legend_LM.X = ((double)n/MAXNUM) * STRIDE*0.6;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = - (double) abs(n) * 2 * LEGH / MAXNUM + LEGH;
       legend_LF.X = legend_LH.X = legend_RM.X = -((double)n/MAXNUM) * STRIDE*0.6;
 
@@ -522,9 +522,9 @@ void KineController::Kine()
     else
     {
       legend_LM.Y = ((double)n--/MAXNUM) * STRIDE*1.0;
-      legend_RF.Y = legend_RH.Y = ((double)n--/MAXNUM) * STRIDE*0.05;
+      legend_RF.Y = legend_RH.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = 0;
-      legend_RF.X = legend_RH.X = legend_LM.X = ((double)n--/MAXNUM) * STRIDE*0.6;
+      legend_RF.X = legend_RH.X = legend_LM.X = ((double)n/MAXNUM) * STRIDE*0.6;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE*1.0;
       legend_RM.Y = ((double)n/MAXNUM) * STRIDE*0.05;
@@ -552,8 +552,8 @@ void KineController::Kine()
     if(swingflag)
     {
       legend_RF.Y = legend_RH.Y = legend_LM.Y = ((double)n++/MAXNUM) * STRIDE;
-      legend_LM.Y = ((double)n++/MAXNUM) * STRIDE*0.05;
-      legend_RF.X = legend_RH.X = legend_LM.X = -((double)n++/MAXNUM) * STRIDE*0.6;
+      legend_LM.Y = ((double)n/MAXNUM) * STRIDE*0.05;
+      legend_RF.X = legend_RH.X = legend_LM.X = -((double)n/MAXNUM) * STRIDE*0.6;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = - (double) abs(n) * 2 * LEGH / MAXNUM + LEGH;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE;
@@ -567,8 +567,8 @@ void KineController::Kine()
     else
     {
       legend_RF.Y = legend_RH.Y = legend_LM.Y = ((double)n--/MAXNUM) * STRIDE;
-      legend_RF.X = legend_RH.X = legend_LM.X = -((double)n--/MAXNUM) * STRIDE*0.6;
-      legend_LM.Y = ((double)n--/MAXNUM) * STRIDE*0.05;
+      legend_RF.X = legend_RH.X = legend_LM.X = -((double)n/MAXNUM) * STRIDE*0.6;
+      legend_LM.Y = ((double)n/MAXNUM) * STRIDE*0.05;
       legend_RF.Z = legend_RH.Z = legend_LM.Z = 0;
 
       legend_LF.Y = legend_LH.Y = legend_RM.Y = -((double)n/MAXNUM) * STRIDE;
