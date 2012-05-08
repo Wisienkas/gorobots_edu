@@ -28,6 +28,8 @@ TanhFunction const * const ANN::tanhFunctionPointer =
         new TanhFunction();
 LogisticFunction const * const ANN::logisticFunctionPointer =
         new LogisticFunction();
+LinearFunction const * const ANN::identityFunctionPointer =
+    new LinearFunction(1,0);
 
 ANN::ANN()
 {

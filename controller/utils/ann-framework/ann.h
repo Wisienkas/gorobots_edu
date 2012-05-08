@@ -616,6 +616,9 @@ protected:
     // f(x) = 1./(1+exp(-x))
     static LogisticFunction const * const logisticFunctionPointer;
 
+    // f(x) = x
+    static LinearFunction const * const identityFunctionPointer;
+
 private:
     typedef std::vector <Neuron*>   NeuronList;
     typedef std::list <ANN*>        AnnList;

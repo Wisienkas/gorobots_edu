@@ -70,13 +70,33 @@ public:
 /*
  * logistic transfer function (sigmoid)
  *
- * o(a) = 1./(1+exp(-x))
+ * o(a) = 1./(1+exp(-a))
  */
 class LogisticFunction : public TransferFunction {
 public:
     inline double operator()(const double& x) const {
         return 1./(1+std::exp(-x));
     }
+};
+
+/**
+ * Linear transfer function
+ *
+ * o(a) = m*a+b
+ */
+class LinearFunction : public TransferFunction {
+  public:
+    LinearFunction(const double& m=1, const double& b=0):m(m),b(b) {}
+    inline double operator()(const double& x) const {
+      return m*x+b;
+    }
+    inline void setM(const double &am) {m=am;}
+    inline void setB(const double &ab) {b=ab;}
+    inline const double& getM() const{return m;}
+    inline const double& getB() const{return b;}
+  private:
+    double m;
+    double b;
 };
 
 #endif /* TRANSFERFUNCTION_H_ */
