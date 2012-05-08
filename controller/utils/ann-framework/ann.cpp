@@ -161,6 +161,11 @@ Neuron* ANN::n(unsigned int const index)
     return getNeuron(index);
 }
 
+LinearFunction const * const ANN::identityFunction() {
+    return identityFunctionPointer;
+}
+
+
 LogisticFunction const * const ANN::logisticFunction() {
     return logisticFunctionPointer;
 }

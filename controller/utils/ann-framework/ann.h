@@ -230,6 +230,13 @@ public:
     const double getWeight(Neuron const * post, Neuron const * pre) const;
 
     /**
+     * Return pointer to a identity function object
+     *
+     * @return pointer to identity function object
+     */
+    static LinearFunction const * const identityFunction();
+
+    /**
      * Return pointer to a LogisticFunction object
      *
      * @return pointer to LogisticFunction object
@@ -610,6 +617,7 @@ protected:
      */
     const double w(const int& post, const int& pre);
 
+private:
     // f(x) = tanh(x)
     static TanhFunction const * const tanhFunctionPointer;
 
@@ -619,7 +627,6 @@ protected:
     // f(x) = x
     static LinearFunction const * const identityFunctionPointer;
 
-private:
     typedef std::vector <Neuron*>   NeuronList;
     typedef std::list <ANN*>        AnnList;
     NeuronList              neurons;
