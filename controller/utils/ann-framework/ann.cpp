@@ -28,6 +28,8 @@ TanhFunction const * const ANN::tanhFunctionPointer =
         new TanhFunction();
 LogisticFunction const * const ANN::logisticFunctionPointer =
         new LogisticFunction();
+LinearFunction const * const ANN::identityFunctionPointer =
+    new LinearFunction(1,0);
 
 ANN::ANN()
 {
@@ -158,6 +160,11 @@ Neuron* ANN::n(unsigned int const index)
 {
     return getNeuron(index);
 }
+
+LinearFunction const * const ANN::identityFunction() {
+    return identityFunctionPointer;
+}
+
 
 LogisticFunction const * const ANN::logisticFunction() {
     return logisticFunctionPointer;
