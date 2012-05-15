@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <set>
 #include <iostream>
+#include <sstream>
 
 /** initialization of static const member variables */
 TanhFunction const * const ANN::tanhFunctionPointer =
@@ -92,6 +93,21 @@ void ANN::backpropagationStep()
     (*rit)->updateError();
   }
 }
+
+std::string ANN::dumpWeights()
+{
+  std::stringstream str;
+  for (unsigned int i=0; i<neurons.size(); i++)
+  {
+    for (unsigned int j=0; j<neurons.size(); j++)
+    {
+      Synapse * s = getSynapse(i,j);
+      if (s) str << "w(" << i << ", " << j << ", " << s->getWeight() << ");\n";
+    }
+  }
+  return str.str();
+}
+
 
 void ANN::feedForwardStep()
 {
