@@ -94,6 +94,16 @@ void ANN::backpropagationStep()
   }
 }
 
+std::string ANN::dumpBiases()
+{
+  std::stringstream str;
+  for (unsigned int i=0; i<neurons.size(); i++)
+  {
+    str << "b(" << i << ", " << neurons[i]->getBias() << ");\n";
+  }
+  return str.str();
+}
+
 std::string ANN::dumpWeights()
 {
   std::stringstream str;

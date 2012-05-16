@@ -53,6 +53,8 @@ public:
 
     void backpropagationStep();
 
+    std::string dumpBiases();
+
     std::string dumpWeights();
 
     void feedForwardStep();
