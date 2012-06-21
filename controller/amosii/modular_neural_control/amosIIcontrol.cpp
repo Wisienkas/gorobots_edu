@@ -48,7 +48,7 @@ AmosIIControl::AmosIIControl() :
   plot_reflex_fs = false;   /*Plot fs signals used for reflexes*/
   plot_post_ctr = false;    /*Plot postprocessed ctr signals for testing*/
   plot_fmodel_errors = false; /*Plot errors of fmodel*/
-  plot_fmodel_w = false;    /*Plot weights of fmodel*/
+  plot_fmodel_w = true;    /*Plot weights of fmodel*/
   plot_reversegear = false;  /*Plot obstacle avoidance behavior of robot*/
   plot_nlc = false;       /*Plot nlc control signals*/
   plot_testbjc = true;    /*Plot BJC for testing*/
@@ -124,12 +124,12 @@ AmosIIControl::AmosIIControl() :
 //  addInspectableValue("CL1_output", &control_adaptiveclimbing.fmodel.at(CL1_m)->output, "CL1_fs");
 //  addInspectableValue("CL2_output", &control_adaptiveclimbing.fmodel.at(CL2_m)->output, "CL1_fs");
 //
-//  addInspectableValue("CR0_outputfinal", &control_adaptiveclimbing.fmodel.at(CR0_m)->outputfinal, "CL1_fs");
-//  addInspectableValue("CR1_outputfinal", &control_adaptiveclimbing.fmodel.at(CR1_m)->outputfinal, "CL1_fs");
-//  addInspectableValue("CR2_outputfinal", &control_adaptiveclimbing.fmodel.at(CR2_m)->outputfinal, "CL1_fs");
-//  addInspectableValue("CL0_outputfinal", &control_adaptiveclimbing.fmodel.at(CL0_m)->outputfinal, "CL1_fs");
-//  addInspectableValue("CL1_outputfinal", &control_adaptiveclimbing.fmodel.at(CL1_m)->outputfinal, "CL1_fs");
-//  addInspectableValue("CL2_outputfinal", &control_adaptiveclimbing.fmodel.at(CL2_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CR0_outputfinal", &control_adaptiveclimbing.fmodel.at(CR0_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CR1_outputfinal", &control_adaptiveclimbing.fmodel.at(CR1_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CR2_outputfinal", &control_adaptiveclimbing.fmodel.at(CR2_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CL0_outputfinal", &control_adaptiveclimbing.fmodel.at(CL0_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CL1_outputfinal", &control_adaptiveclimbing.fmodel.at(CL1_m)->outputfinal, "CL1_fs");
+  addInspectableValue("CL2_outputfinal", &control_adaptiveclimbing.fmodel.at(CL2_m)->outputfinal, "CL1_fs");
 //
 //  addInspectableValue("CR0_w", &control_adaptiveclimbing.fmodel.at(CR0_m)->input_w, "CL1_fs");
 //  addInspectableValue("CR1_w", &control_adaptiveclimbing.fmodel.at(CR1_m)->input_w, "CL1_fs");

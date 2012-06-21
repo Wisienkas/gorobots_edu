@@ -34,7 +34,7 @@
 // the robot
 #include <ode_robots/amosII.h>
 // the controller
-#include "amosIIcontrol.h"
+#include "../../../controller/amosII/amosIIcontrol.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
@@ -82,7 +82,7 @@ class ThisSim : public lpzrobots::Simulation {
       double steplength = 0.43; //AMOS II body length
 
       //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
-      bool climbing_experiment_setup = true;
+      bool climbing_experiment_setup = false;
       if (climbing_experiment_setup) {
         lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
             0.10), 1, false);
@@ -227,17 +227,11 @@ class ThisSim : public lpzrobots::Simulation {
               robotfixator = NULL;
             }
             break;
-
-            /*Added by Dennis for adaptive climbing experiments RESET by hand for sim */
-
           case 'r':
             amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
             ((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
             std::cout << "RESET" << endl;
             break;
-
-           /*Added by Dennis for adaptive climbing experiments SWITCH ON AND OFF BACKBONE JOINT CONTROL */
-
           case 'b':
             if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint) {
               ((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
@@ -278,7 +272,6 @@ class ThisSim : public lpzrobots::Simulation {
       //      }
       if (globalData.sim_step >= 0) //a small delay to make sure the robot will not restart at beginning!
       {
-        /* RESET FUNCTION for adaptive climbing experiment by Dennis */
         if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
             && ((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9) {
           ((AmosIIControl*) controller)->control_adaptiveclimbing.bj_output.at(0) = 0.0;

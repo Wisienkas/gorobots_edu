@@ -189,7 +189,7 @@ double Mapping::getElevator(int motor) {
   }
   //FTi
   if (FTi(motor)) {
-    return 0.4;//0.7
+    return 0.7;//0.7
   }
   return 0;
   std::cout << endl << "out of motor number range (no return value)" << endl << endl; //warning when none of the if cases matches

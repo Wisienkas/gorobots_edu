@@ -271,11 +271,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     bjc_offset = /*0.5*/0.5 * bjc->getOutput(0);//0.75 for > 0.10
 
   }
-  //  if(!switchon_backbonejoint) {
-  //    m_pre.at(BJ_m) = bias_bjc;
-  //  }
   if (!switchon_backbonejoint) {
     m_pre.at(BJ_m) = 0.0;
+  }
+  if(!switchon_backbonejoint && !switchon_learnweights) {
+    m_pre.at(BJ_m) = bias_bjc;
   }
 
   /*******************************************************************************
