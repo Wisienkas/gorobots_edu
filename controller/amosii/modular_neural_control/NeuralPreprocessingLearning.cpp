@@ -6,11 +6,34 @@
  *
  *      Edited by Dennis Goldschmidt
  *      Apr 27, 2012
+ *
+ *      Edited by Eduard Grinke
+ *      May 10, 2012
  */
 
 #include "NeuralPreprocessingLearning.h"
 
 ///-------------------------------------------------------------------------------------------------------------------------
+
+US_Obstacleavoidance::US_Obstacleavoidance(){
+
+	setNeuronNumber(4);
+
+	setTransferFunction(getNeuron(2),thresholdFunction());
+	setTransferFunction(getNeuron(3),thresholdFunction());
+	ThresholdFunction().setTheta(0.5);
+
+	// synaptic weights
+	w(0, 0,  1.8);//1.8
+	w(0, 1,  -3.6);
+	w(1, 0,  -3.6);
+	w(1, 1,  1.8);//1.8
+
+	w(3,0,      1.0);
+	w(2,1,      1.0);
+};
+
+
 
 //1) Class for Neural preprocessing------------
 
@@ -68,14 +91,15 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
     irs_delayline.at(i) = new Delayline(2 * delay_irs + 1);
   }
 
-  //Neuronal Preprocessing
-  sensorprepro_us = new SO2CPG();
 
-  //set neural weights
-  sensorprepro_us->setWeight(0, 0, 3.3);
-  sensorprepro_us->setWeight(0, 1, -3.5);
-  sensorprepro_us->setWeight(1, 0, -3.5);
-  sensorprepro_us->setWeight(1, 1, 3.3);
+  //Neuronal Preprocessing Objects and Vector Resize!
+  	preproobjvect.resize(AMOSII_SENSOR_MAX);
+  	for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect[i].resize(2);
+  	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++){ if(i!=FR_us||FL_us){preproobjvect.at(i).at(0)        = new OneNeuron();}}
+  	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++){preproobjvect.at(i).at(0) = new OneNeuron();}
+  	// preproobjvect.at(FR_us).at(0) = new BJC_ANN;
+  	preproobjvect.at(FR_us).at(1) = new US_Obstacleavoidance();
+
 
 }
 ;
@@ -91,10 +115,6 @@ NeuralPreprocessingLearning::~NeuralPreprocessingLearning() {
 //1)  Step function of Neural preprocessing------------
 std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::vector<double> in0) {
 
-  //enum for new us sensor prepro
-  enum {
-    FR_us2 = 111, FL_us2 = 112,
-  };
 
   //1)****Prepro Foot sensors for searching reflexes********
 
@@ -143,13 +163,7 @@ std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::v
   //cout << "FOOT CONTACT SENSORS --- R0: "<< contactmsg.at(R0_fs) << ", L0: "<< contactmsg.at(L0_fs) << " @ " << zeit << "s" << endl;
 
   // >> i/o operations here <<
-  outFilenpp1 << in0.at(L0_fs) << ' ' << in0.at(L1_fs) << ' ' << ' ' << in0.at(L2_fs) << endl;
-
-  //*******************************************************
-  //Preprocessing US sensors FRONT (Eduard)
-  //*******************************************************
-
-
+  //outFilenpp1 << in0.at(L0_fs) << ' ' << in0.at(L1_fs) << ' ' << ' ' << in0.at(L2_fs) << endl;
 
 
   //3)****Prepro IR leg sensors for elevator reflexes********
@@ -255,6 +269,31 @@ std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::v
     preprosensor.at(i).at(0) = in0.at(i);
   }
   //---------------------------//
+
+
+
+//Eduard
+  //Obstacle avoidance, both sensors have the same network so I just use the FR_us
+     sensor_output.at(FR_us)=(in0.at(FR_us)*2.0-1.0);
+     sensor_output.at(FL_us)=(in0.at(FL_us)*2.0-1.0);
+     preproobjvect.at(FR_us).at(1)->setInput(0,4.1*sensor_output.at(FR_us));//4.1
+     preproobjvect.at(FR_us).at(1)->setInput(1,4.1*sensor_output.at(FL_us));//4.1 is good
+     if(preproobjvect.at(FR_us).at(1)->getOutput(2)<0.05)preprosensor.at(FR_us).at(1)=-1;else      preprosensor.at(FR_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(2);
+     if(preproobjvect.at(FR_us).at(1)->getOutput(3)<0.05)preprosensor.at(FL_us).at(1)=-1;else      preprosensor.at(FL_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(3);
+
+    // outFilenpp2 << sensor_output.at(FR_us) << ' ' << sensor_output.at(FL_us) << ' '<< preprosensor.at(FR_us).at(1) << ' '<<preprosensor.at(FL_us).at(1) <<' '<<preproobjvect.at(FR_us).at(1)->getOutput(0)<<' '<<preproobjvect.at(FR_us).at(1)->getOutput(1)<<  endl;
+ //END obstacle-avoidance
+
+
+
+
+	//Do the Timestep for every Neuron!
+	// for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect.at(i).at(0)->step();
+	preproobjvect.at(FR_us).at(1)->step();
+//Eduard END
+
+
+
 
   return preprosensor;
 

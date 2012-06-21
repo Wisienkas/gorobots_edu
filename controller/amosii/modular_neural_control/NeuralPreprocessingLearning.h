@@ -17,7 +17,6 @@
 #include <ode_robots/amosiisensormotordefinition.h>
 #include "delayline.h"
 #include "../../utils/ann-framework/ann.h"
-#include "../../utils/ann-library/so2cpg.h"
 
 //Save files
 #include <iostream>
@@ -25,6 +24,15 @@
 #include <string.h>
 using namespace std;
 //Save files
+
+
+  //1) Class for Obstacle avoidance------------
+
+class US_Obstacleavoidance: public ANN {
+
+public:
+        US_Obstacleavoidance();
+};
 
   //1) Class for Neural preprocessing and learning------------
 
@@ -51,6 +59,7 @@ using namespace std;
     std::vector<double> sensor_activity;
     std::vector<double> sensor_output;
     std::vector< vector<double> > preprosensor;
+    std::vector< vector<ANN*> > preproobjvect;
     std::vector<double> ir_predic_activity;
     std::vector<double> ir_reflex_activity;
     std::vector<double> ir_predic_output;
@@ -72,8 +81,6 @@ using namespace std;
     std::vector< Delayline* > us_delayline;
     std::vector< Delayline* > irs_delayline;
 
-    //Propressing neural module for US sensors (obstacle avoidance)
-    SO2CPG* sensorprepro_us;
 
     //Save files
     ofstream outFilenpp1;

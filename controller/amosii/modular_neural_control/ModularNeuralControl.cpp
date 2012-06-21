@@ -1,3 +1,10 @@
+/*
+ *  Created on: Apr 10, 2012
+ *      Author: eduard grinke
+ *
+ *  edited by degoldschmidt
+ */
+
 #include "ModularNeuralControl.h"
 #include "ann-library/so2cpg.h"
 #include "ann-library/pcpg.h"

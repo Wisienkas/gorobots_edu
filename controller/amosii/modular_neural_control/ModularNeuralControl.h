@@ -1,3 +1,11 @@
+/*
+ *  Created on: Apr 10, 2012
+ *      Author: Eduard Grinke
+ *
+ *      Edited by Dennis Goldschmidt
+ *      Apr 27, 2012
+ */
+
 #ifndef MODULARNEURALCONTROL_H_
 #define MODULARNEURALCONTROL_H_
 

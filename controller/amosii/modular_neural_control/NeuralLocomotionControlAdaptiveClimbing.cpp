@@ -3,6 +3,12 @@
  *
  *  Created on: May 2, 2011
  *      Author: poramate
+ *
+ *      Edited by Dennis Goldschmidt
+ *      Apr 27, 2012
+ *
+ *      Edited by Eduard Grinke
+ *      May 10, 2012
  */
 
 #include "NeuralLocomotionControlAdaptiveClimbing.h"
@@ -198,8 +204,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
    *******************************************************************************/
 
   for (unsigned int i = 0; i < 5; i++) {
-    nlc->setInputNeuronInput(i, input.at(i));
+	//without obstacle avoidance, deactivate the lines below
+	nlc->setInputNeuronInput(i, input.at(i));
   }
+
+  //for obstacle avoidance
+  nlc->setInputNeuronInput(3, in0[FL_us][1]);
+  nlc->setInputNeuronInput(4, in0[FR_us][1]);
+
 
   nlc->step();
 

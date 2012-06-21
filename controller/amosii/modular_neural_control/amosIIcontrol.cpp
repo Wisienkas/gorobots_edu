@@ -49,6 +49,7 @@ AmosIIControl::AmosIIControl() :
   plot_post_ctr = false;    /*Plot postprocessed ctr signals for testing*/
   plot_fmodel_errors = false; /*Plot errors of fmodel*/
   plot_fmodel_w = true;    /*Plot weights of fmodel*/
+  plot_ussensor_obstacle_avoidance= true;/*Plot US_sensors for obstacle avoidance*/
   plot_reversegear = false;  /*Plot obstacle avoidance behavior of robot*/
   plot_nlc = false;       /*Plot nlc control signals*/
   plot_testbjc = true;    /*Plot BJC for testing*/
@@ -312,6 +313,13 @@ AmosIIControl::AmosIIControl() :
 //  addInspectableValue("CL0_motorpre",&control_adaptiveclimbing.m_pre.at(CL0_m),"BJ_OUTPUT");
 //  addInspectableValue("CL1_motorpre",&control_adaptiveclimbing.m_pre.at(CL1_m),"BJ_OUTPUT");
 //  addInspectableValue("CL2_motorpre",&control_adaptiveclimbing.m_pre.at(CL2_m),"BJ_OUTPUT");
+
+  if(plot_ussensor_obstacle_avoidance)
+  {
+	  //switched FR FL, cause output neurons are twisted!
+	  addInspectableValue("FL_us",&preprocessing_learning.preprosensor.at(FR_us).at(1),"FL_us");
+	  addInspectableValue("FR_us",&preprocessing_learning.preprosensor.at(FL_us).at(1),"FR_us");
+  }
 
   if(plot_reversegear)
   {
