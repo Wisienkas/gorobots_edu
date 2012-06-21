@@ -1,11 +1,11 @@
 #include "ModularNeuralControl.h"
-#include "../utils/ann-library/so2cpg.h"
-#include "../utils/ann-library/pcpg.h"
-#include "../utils/ann-library/psn.h"
-#include "../utils/ann-library/vrn.h"
-#include "../utils/ann-library/pmn.h"
-#include "../utils/ann-framework/neuron.h"
-#include "../utils/ann-library/adaptiveso2cpgsynplas.h"
+#include "ann-library/so2cpg.h"
+#include "ann-library/pcpg.h"
+#include "ann-library/psn.h"
+#include "ann-library/vrn.h"
+#include "ann-library/pmn.h"
+#include "ann-framework/neuron.h"
+#include "ann-library/adaptiveso2cpgsynplas.h"
 
 
 
@@ -42,7 +42,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
       cpg_bias = 0.0;
       //From 0.02-1.5
       //Control_input = 0.02;// slow Wave
-      Control_input = 0.05;// slow Wave OK USED
+      Control_input = 0.03;// slow Wave OK USED
       //Control_input = 0.05;//slow stable Tetrapod OK USED
       //Control_input = 0.14; //terapod OK USED
       //Control_input = 0.18; //Tripod fast OK USED

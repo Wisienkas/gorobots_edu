@@ -1,7 +1,7 @@
 #ifndef MODULARNEURALCONTROL_H_
 #define MODULARNEURALCONTROL_H_
 
-#include "../../utils/ann-framework/ann.h"
+#include "ann-framework/ann.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <map>
 

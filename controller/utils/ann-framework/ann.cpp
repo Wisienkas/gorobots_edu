@@ -30,6 +30,9 @@ LogisticFunction const * const ANN::logisticFunctionPointer =
         new LogisticFunction();
 LinearFunction const * const ANN::identityFunctionPointer =
     new LinearFunction(1,0);
+ThresholdFunction const * const ANN::thresholdFunctionPointer =
+    new ThresholdFunction(0.9);
+
 
 ANN::ANN()
 {
@@ -165,6 +168,9 @@ LinearFunction const * const ANN::identityFunction() {
     return identityFunctionPointer;
 }
 
+ThresholdFunction const * const ANN::thresholdFunction() {
+    return thresholdFunctionPointer;
+}
 
 LogisticFunction const * const ANN::logisticFunction() {
     return logisticFunctionPointer;

@@ -235,7 +235,7 @@ std::vector<double> NeuralPreprocessingLearning::step_npp(const std::vector<doub
     }
 
     irlearn_output.at(i) = /*rho0 * irreflex_output.at(i)*/+rho1.at(i) * ir_predic_output.at(i); //first neuron
-    irlearn_output_prolong.at(i) = 0.11 * irlearn_output.at(i) + (1.0 - 0.1) * irlearn_output_prolong.at(i); //prolongation via lowpass
+    irlearn_output_prolong.at(i) = 0.1 * irlearn_output.at(i) + (1.0 - 0.1) * irlearn_output_prolong.at(i); //prolongation via lowpass
 
     //TEST
     for (unsigned int j = 0; j < 5; j++) {

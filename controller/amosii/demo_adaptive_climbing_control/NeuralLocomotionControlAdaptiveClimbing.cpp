@@ -263,7 +263,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       bj_output.at(i) = bjc->getOutput(i);//can be removed when BJC works
       bj_activity.at(i) = bjc->getActivity(i);//can be removed when BJC works
     }
-    if (bj_output.at(0) < 0) {
+    if (bj_output.at(0) < 0.0) {
       bjc->setOutput(0, 0.0);
     }
 

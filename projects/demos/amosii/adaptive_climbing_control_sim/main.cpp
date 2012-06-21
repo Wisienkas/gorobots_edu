@@ -34,7 +34,7 @@
 // the robot
 #include <ode_robots/amosII.h>
 // the controller
-#include "../../../controller/amosII/amosIIcontrol.h"
+#include "amosIIcontrol.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
@@ -82,7 +82,7 @@ class ThisSim : public lpzrobots::Simulation {
       double steplength = 0.43; //AMOS II body length
 
       //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
-      bool climbing_experiment_setup = false;
+      bool climbing_experiment_setup = true;
       if (climbing_experiment_setup) {
         lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
             0.10), 1, false);
