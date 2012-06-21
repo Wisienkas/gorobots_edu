@@ -99,4 +99,20 @@ class LinearFunction : public TransferFunction {
     double b;
 };
 
+class ThresholdFunction : public TransferFunction {
+  public:
+    ThresholdFunction(const double& theta=1):theta(theta) {}
+    inline double operator()(const double& x) const {
+      if(x > theta)
+      return 1.0;
+      else
+      return 0.0;
+    }
+    inline void setTheta(const double &atheta) {theta=atheta;}
+    inline const double& getTheta() const{return theta;}
+  private:
+    double theta;
+
+};
+
 #endif /* TRANSFERFUNCTION_H_ */

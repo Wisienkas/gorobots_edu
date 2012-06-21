@@ -237,6 +237,13 @@ public:
     static LinearFunction const * const identityFunction();
 
     /**
+     * Return pointer to a threshold function object
+     *
+     * @return pointer to threshold function object
+     */
+    static ThresholdFunction const * const thresholdFunction();
+
+    /**
      * Return pointer to a LogisticFunction object
      *
      * @return pointer to LogisticFunction object
@@ -254,6 +261,7 @@ public:
     Neuron* n(unsigned int const index);
 
     /**
+
      * Do stuff at the end of simulation step
      *
      * When using ANN::step() this method is called in every simulation step
@@ -617,7 +625,12 @@ protected:
      */
     const double w(const int& post, const int& pre);
 
+
+
+
 private:
+
+
     // f(x) = tanh(x)
     static TanhFunction const * const tanhFunctionPointer;
 
@@ -626,6 +639,9 @@ private:
 
     // f(x) = x
     static LinearFunction const * const identityFunctionPointer;
+
+    // f(x) = 1 (x > threshold) else 0
+    static ThresholdFunction const * const thresholdFunctionPointer;
 
     typedef std::vector <Neuron*>   NeuronList;
     typedef std::list <ANN*>        AnnList;
