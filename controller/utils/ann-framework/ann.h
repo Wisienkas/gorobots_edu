@@ -162,7 +162,6 @@ public:
     static const double& getOutput(Neuron const * neuron);
 
     /**
-<<<<<<< HEAD
      * Returns synapse between two neurons of this network
      *
      * This methods returns the synapse between the given presynaptic and
@@ -190,8 +189,6 @@ public:
             Neuron const * const pre);
 
     /**
-=======
->>>>>>> a479812ece0a4ab3abe3c6a1a368f5e4b987f31d
      * Returns the number of neurons of this network including sub networks
      *
      * This method returns the number of neurons belonging to this
