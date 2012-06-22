@@ -37,7 +37,7 @@ public:
 
 	double sigmoid(double num)
 	{
-	return 1.0/(1.0+exp(-num));
+		return 1.0/(1.0+exp(-num));
 	}
 
 	double sgn(double num)
@@ -57,41 +57,41 @@ public:
 	}
 
 	double pos(double num) {
-	  if(num > 0.0)
-	    return num;
-	  else
-	    return 0.0;
+		if(num > 0.0)
+			return num;
+		else
+			return 0.0;
 	}
 
 	double neg(double num) {
-    if(num < 0.0)
-      return num;
-    else
-      return 0.0;
-  }
+		if(num < 0.0)
+			return num;
+		else
+			return 0.0;
+	}
 
 	string MotorNames(int num) {
-	  switch(num){
-	    case 6:
-	      return "CR0_m";
-	      break;
-	    case 7:
-	      return "CR1_m";
-	      break;
-	    case 8:
-	      return "CR2_m";
-	      break;
-	    case 9:
-	      return "CL0_m";
-	      break;
-	    case 10:
-	      return "CL1_m";
-	      break;
-	    case 11:
-	      return "CL2_m";
-	      break;
-	  }
-    return 0;
+		switch(num){
+		case 6:
+			return "CR0_m";
+			break;
+		case 7:
+			return "CR1_m";
+			break;
+		case 8:
+			return "CR2_m";
+			break;
+		case 9:
+			return "CL0_m";
+			break;
+		case 10:
+			return "CL1_m";
+			break;
+		case 11:
+			return "CL2_m";
+			break;
+		}
+		return 0;
 	}
 
 
@@ -130,87 +130,44 @@ public:
 
 
 	//TESTING
-  std::vector<double> test_cpg_output;
-  std::vector<double> test_pcpg_output;
-  std::vector<double> test_psn_output;
-  std::vector<double> test_vrn_output;
-  std::vector<double> test_motor_activity;
-  double test_sensorinput;
-  double test_outputfinal;
+	std::vector<double> test_cpg_output;
+	std::vector<double> test_pcpg_output;
+	std::vector<double> test_psn_output;
+	std::vector<double> test_vrn_output;
+	std::vector<double> test_motor_activity;
+	double test_sensorinput;
+	double test_outputfinal;
 
-  //---turning
-  bool turning;
-  int counter_turn;
+	//---turning
+	bool turning;
+	int counter_turn;
 
 	//---Input neurons
 	std::vector<double> input;
 
 	//---MODULE 1 CPG
-//	std::vector<double> cpg_activity; 					//CPG neural activities
 	std::vector<double> cpg_output;						//CPG neural outputs
-//	std::vector< std::vector<double> > cpg_w; 			//CPG neural weights
-//	double cpg_bias;									//CPG bias
+
 	double Control_input;								//Console
 
 	//---MODULE 2 CPG POST-PROCESSING
-//	std::vector<double> set;
-//	std::vector<double> setold;
-//	std::vector<double> diffset;
+
 	std::vector<double> pcpg_output;					//pCPG neural outputs
-//	std::vector<double> pcpg_input;						//Input to pCPG from CPG
-//	std::vector<double> pcpg_step;			   	        //Step function pCPG
-//	std::vector<double> dstep;			   		    	//Derivative of step function
-//
-//	std::vector<double> countup; 						//counter
-//	std::vector<double> countupold;						//counter
-//	std::vector<double> countdown;						//counter
-//	std::vector<double> countdownold; 					//counter
-//	std::vector<double> count;							//generalized counter
-//
-//	std::vector<double> deltaxup;						//delta
-//	std::vector<double> deltaxdown;						//delta
-//	std::vector<double> deltax;							//delta*
-//
-//	std::vector<double> xup;							//delta
-//	std::vector<double> xdown;							//delta
-//	std::vector<double> dx;								//delta x
-//
-//	std::vector<double> yup;							//delta
-//	std::vector<double> ydown;							//delta
-//	std::vector<double> dy;								//delta y
 
 
 
 	//---MODULE 3 PSN
-//	std::vector<double> psn_input;						//PSN Input from pCPG
-//	std::vector<double> psn_activity; 					//PSN neural activities
+
 	std::vector<double> psn_output;						//PSN neural outputs
-//	std::vector< std::vector<double> > psn_w;			//PSN neural weights
-//	std::vector<double> psn_bias;						//PSN bias
 
 	//---MODULE 4 VRN
-//	std::vector<double> vrn_input;						//VRN Input from PSN
-//	std::vector<double> vrn_activity; 					//VRN neural activities
-	std::vector<double> vrn_output;						//VRN neural outputs
-//	std::vector< std::vector<double> > vrn_w; 			//VRN neural weights
-//	double vrn_bias;
-//
-//	//---Interconnections
-//	std::vector< std::vector<double> > psn_pcpg_w; 		//PSN neural weights
-//	std::vector< std::vector<double> > vrn_psn_w; 		//VRN neural weights
 
-	//---Interconnections--input2 to PSN
-//	std::vector< std::vector<double> > psn_input2_w;    //PSN neural weights
-//	double vrn_input3_w;
-//	double vrn_input4_w;
+	std::vector<double> vrn_output;						//VRN neural outputs
+
+
 
 	//---MODULE 5 Motor neurons
-//	std::vector<double> tr_activity; 				    //motor neural activities
-//	std::vector<double> tl_activity;					//motor neural activities
-//	std::vector<double> cr_activity; 				    //motor neural activities
-//	std::vector<double> cl_activity;					//motor neural activities
-//	std::vector<double> fr_activity; 				    //motor neural activities
-//	std::vector<double> fl_activity;					//motor neural activities
+
 	std::vector<double> bj_activity;					//motor neural activities
 	double bias_bjc;
 
@@ -222,34 +179,25 @@ public:
 	std::vector<double> fl_output;						//motor neural outputs
 	std::vector<double> bj_output;						//motor neural outputs
 
-//	std::vector<double> diffcr_output; 					//diff motor neural outputs
-//	std::vector<double> diffcl_output;					//diff motor neural outputs
-//
+
 	std::vector<double> postcr;							//postCL motor neural outputs
 	std::vector<double> postcl;							//postCR motor neural outputs
 	std::vector<double> postcrold;						//postCL motor neural outputs
 	std::vector<double> postclold;						//postCR motor neural outputs
-//	double threshold_c;
-//	double check;
-//
-//	std::vector<double> buffer_tr;						//delay buffer vector thoracal right
-//	std::vector<double> buffer_tl;						// left
-//	std::vector<double> buffer_c;						//delay buffer vector coxa
-//	std::vector<double> buffer_f;						//delay buffer vector fibia
+
 
 	std::vector<double> m_pre;							//pre motor outputs (19 motors)
 	std::vector<double> m_reflex;						//reflex motor outputs  (19 motors)
 	std::vector<double> m;								//motor outputs as neural activation (19 motors)
 	std::vector<double> m_deg;							//motor outputs in deg (19 motors)
 	std::vector<double> delta_m_pre;       //delta of pre motor output (19 motors)
-//  std::vector<double> m_reflex_t;           //reflex motor outputs  (19 motors)
-//  std::vector<double> m_deg_t;              //motor outputs in deg (19 motors)
+
 
 	//---Reflex motor neurons
 	std::vector<double> fmodel_cmr_activity;			//coxa motor right neural activities
 	std::vector<double> fmodel_cmr_output; 				//coxa motor right neural outputs
 	std::vector<double> fmodel_error;			    //error coxa motor right and foot right
-  std::vector<double> fmodel_lerror;         //error coxa motor right and foot right
+	std::vector<double> fmodel_lerror;         //error coxa motor right and foot right
 	std::vector<double> fmodel_cmr_outputfinal; 		//coxa motor right neural outputs
 
 
@@ -272,14 +220,8 @@ public:
 	std::vector<double> reflex_fs;
 
 
-//	//---Reflex IR leg sensors for duration
-//	std::vector<double> reflex_R_irs;
-//	std::vector<double> reflex_L_irs;
+	//---Reflex IR leg sensors for duration
 	std::vector<double> reflex_irs;
-//
-//	//---Reflex IR leg sensors for activation
-//	std::vector<double> reflex_R_irs_act;
-//	std::vector<double> reflex_L_irs_act;
 
 	//---Reflex speed sensors
 	std::vector<double> reflex_speed;
@@ -296,9 +238,9 @@ public:
 	std::vector<double>  deri_acc_cmr_error;			//forward model biases
 	std::vector<double>  acc_cmr_error_elev;			//error for elevator reflex
 	std::vector<double>  error_cmr_elev;				//error for elevator reflex
-  std::vector<double>  acc_cmr_error_posi_neg;    //forward model biases
-  std::vector<double>  dervi_fmodel_cmr_output;
-  double lowpass_error_gain;
+	std::vector<double>  acc_cmr_error_posi_neg;    //forward model biases
+	std::vector<double>  dervi_fmodel_cmr_output;
+	double lowpass_error_gain;
 
 
 
@@ -313,8 +255,8 @@ public:
 	std::vector<double>  deri_acc_cml_error;			//forward model biases
 	std::vector<double>  acc_cml_error_elev;			//error for elevator reflex
 	std::vector<double>  error_cml_elev;				//error for elevator reflex
-  std::vector<double>  acc_cml_error_posi_neg;    //forward model biases
-  std::vector<double>  dervi_fmodel_cml_output;
+	std::vector<double>  acc_cml_error_posi_neg;    //forward model biases
+	std::vector<double>  dervi_fmodel_cml_output;
 
 	std::vector<double> lowpass_cmr_error_activity;		//lowpass neuron activities
 	std::vector<double> lowpass_cmr__error_output; 		//lowpass neuron outputs
@@ -332,48 +274,48 @@ public:
 	std::vector<double> low_pass_fmodel_cml_error_old;
 	std::vector<double> low_pass_fmodel_cml_error;
 
-  std::vector<double> fmodel_cmr_errorW;
+	std::vector<double> fmodel_cmr_errorW;
 	std::vector<double> fmodel_cml_errorW;
 	std::vector<double> fmodel_cmr_output_old;
 	std::vector<double> fmodel_cml_output_old;
 
-  std::vector<double> acc_error; //forward model class output
-  std::vector<double> fmodel_counter;
-  std::vector<double> fmodel_b;
-  std::vector<double> fmodel_w;
-  std::vector<double> fmodel_output;
-  std::vector<double> fmodel_outputfinal;
-  std::vector<string> converge;
+	std::vector<double> acc_error; //forward model class output
+	std::vector<double> fmodel_counter;
+	std::vector<double> fmodel_b;
+	std::vector<double> fmodel_w;
+	std::vector<double> fmodel_output;
+	std::vector<double> fmodel_outputfinal;
+	std::vector<string> converge;
 
-  //Neural Locomotion Control
-  ModularNeuralControl* nlc;
+	//Neural Locomotion Control
+	ModularNeuralControl* nlc;
 
-  //Backbone Joint Control
-  BackboneJointControl* bjc;
+	//Backbone Joint Control
+	BackboneJointControl* bjc;
 
-  //Delayline constructor
-  Delayline* tr_delayline;
-  Delayline* tl_delayline;
-  Delayline* ctr_delayline;
-  Delayline* fti_delayline;
-  Delayline* ftim_delayline;
-  std::vector< Forwardmodel* > fmodel;       //fmodel object vector
-  std::vector< Mapping* > motormap;              //motor mapping object vector
+	//Delayline constructor
+	Delayline* tr_delayline;
+	Delayline* tl_delayline;
+	Delayline* ctr_delayline;
+	Delayline* fti_delayline;
+	Delayline* ftim_delayline;
+	std::vector< Forwardmodel* > fmodel;       //fmodel object vector
+	std::vector< Mapping* > motormap;              //motor mapping object vector
 
-  std::vector<double> ctr_oldvalue;
+	std::vector<double> ctr_oldvalue;
 
-  //TEST
+	//TEST
 
-  double cpg_act_0;
-  double cpg_act_1;
-  double cpg_w_0;
-  double cpg_w_1;
-  double cpg_bias_0;
-  double cpg_bias_1;
-  double cpg_rec_0;
-  double cpg_rec_1;
+	double cpg_act_0;
+	double cpg_act_1;
+	double cpg_w_0;
+	double cpg_w_1;
+	double cpg_bias_0;
+	double cpg_bias_1;
+	double cpg_rec_0;
+	double cpg_rec_1;
 
-  bool switchon_backbonejoint;
+	bool switchon_backbonejoint;
 
 
 	//---End Define vector----//
@@ -427,8 +369,8 @@ private:
 	bool switchon_reactivebjc;
 
 	enum{ //CPG option
-	    SO2cpg = 1,
-	    AdaptiveSO2cpg = 2,
+		SO2cpg = 1,
+		AdaptiveSO2cpg = 2,
 	};
 
 

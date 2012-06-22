@@ -27,20 +27,14 @@ Mapping::Mapping() {
   ctr_walk_deg.resize(2);
   ctr_walk.resize(2);
 
-  //    for(unsigned int i=0; i < ctr_walk.size(); i++) {
-  //      ctr_walk_deg.at(i).resize(3);
-  //      ctr_walk.at(i).resize(3);
-  //    }
+
 
   //FTi resizing
   fti.resize(2);
   fti_walk_deg.resize(2);
   fti_walk.resize(2);
 
-  //    for(unsigned int i=0; i < fti_walk.size(); i++) {
-  //      fti_walk_deg.at(i).resize(3);
-  //      fti_walk.at(i).resize(3);
-  //    }
+
 
   //TC parameters
   tc.at(min) = -0.91;
@@ -93,24 +87,7 @@ double Mapping::getDegrees(int motor, double reflex) {
 
   //*****Motor mapping
 
-  //  //TC
-  //  if (TC(motor)) {
-  //    if ((motor % 3) == middle) //middle
-  //      return 60 * getReflex(motor, motorvalue, fmodel_error); //convert from activation to deg
-  //    else
-  //      return 70 * getReflex(motor, motorvalue, fmodel_error); //convert from activation to deg
-  //  }
-  //  //CTr
-  //  if (CTr(motor)) {
-  //    return 75 * getReflex(motor, motorvalue, fmodel_error); //convert from activation to deg
-  //  }
-  //  //FTi
-  //  if (FTi(motor)) {
-  //    return 55 * getReflex(motor, motorvalue, fmodel_error) - 75; //convert from activation to deg
-  //  }
-  //  return 0;
-  //  std::cout << endl << "out of motor number range (no return value)" << endl << endl; //warning when none of the if cases matches
-  //TC
+ //TC
   if (TC(motor)) {
     if ((motor % 3) == middle) //middle
       return 60 * reflex; //convert from activation to deg

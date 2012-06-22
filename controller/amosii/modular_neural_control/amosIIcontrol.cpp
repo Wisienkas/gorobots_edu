@@ -40,7 +40,6 @@ AmosIIControl::AmosIIControl() :
 
   testing = false;
   plot_irlearning = true;   /*Plot IR learning for experiments or testing*/
-  plot_irsignals = false;   /*Plot IR signals for experiments or testing*/
   plot_preprofc = true;    /*Plot preprocessed foot contact sensor signals for testing*/
   plot_preproirs = true;    /*Plot preprocessed IR sensor signals for testing*/
   plot_preproirleg = false; /*Plot preprocessed IR leg sensor signals for testing*/
@@ -68,20 +67,10 @@ AmosIIControl::AmosIIControl() :
   {
     addInspectableValue("CPGtest0",&control_adaptiveclimbing.cpg_output.at(0),"CPGtest0");
     addInspectableValue("CPGtest1",&control_adaptiveclimbing.cpg_output.at(1),"CPGtest1");
-//    addInspectableValue("pCPGtest0",&control_adaptiveclimbing.test_pcpg_output.at(0),"pCPGtest0");
-//    addInspectableValue("pCPGtest1",&control_adaptiveclimbing.test_pcpg_output.at(1),"pCPGtest1");
     addInspectableValue("PSN0",&control_adaptiveclimbing.psn_output.at(10),"PSN0");
     addInspectableValue("PSN1",&control_adaptiveclimbing.psn_output.at(11),"PSN1");
     addInspectableValue("VRN0",&control_adaptiveclimbing.vrn_output.at(12),"VRN0");
     addInspectableValue("VRN1",&control_adaptiveclimbing.vrn_output.at(13),"VRN1");
-//    addInspectableValue("CPGact0", &control_adaptiveclimbing.cpg_act_0, "CPGtest0");
-//    addInspectableValue("CPGact1", &control_adaptiveclimbing.cpg_act_1, "CPGtest1");
-//    addInspectableValue("CPGw10", &control_adaptiveclimbing.cpg_w_0, "CPGtest0");
-//    addInspectableValue("CPGw01", &control_adaptiveclimbing.cpg_w_1, "CPGtest1");
-//    addInspectableValue("CPGrec0", &control_adaptiveclimbing.cpg_rec_0, "CPGtest0");
-//    addInspectableValue("CPGrec1", &control_adaptiveclimbing.cpg_rec_1, "CPGtest1");
-//    addInspectableValue("CPGbias0", &control_adaptiveclimbing.cpg_bias_0, "CPGtest0");
-//    addInspectableValue("CPGbias1", &control_adaptiveclimbing.cpg_bias_1, "CPGtest1");
 
   }
 
@@ -104,91 +93,16 @@ AmosIIControl::AmosIIControl() :
     addInspectableValue("L1_irs",&preprocessing_learning.preprosensor.at(L1_irs).at(0),"L1_irs");
     addInspectableValue("L2_irs",&preprocessing_learning.preprosensor.at(L2_irs).at(0),"L2_irs");
   }
-//  addInspectableValue("CR0_fs", &control_adaptiveclimbing.reflex_fs.at(R0_fs), "CL1_fs");
-//  addInspectableValue("CR1_fs", &control_adaptiveclimbing.reflex_fs.at(R1_fs), "CL1_fs");
-//  addInspectableValue("CR2_fs", &control_adaptiveclimbing.reflex_fs.at(R2_fs), "CL1_fs");
-//  addInspectableValue("CL0_fs", &control_adaptiveclimbing.reflex_fs.at(L0_fs), "CL1_fs");
-//  addInspectableValue("CL1_fs", &control_adaptiveclimbing.reflex_fs.at(L1_fs), "CL1_fs");
-//  addInspectableValue("CL2_fs", &control_adaptiveclimbing.reflex_fs.at(L2_fs), "CL1_fs");
-//
-//  addInspectableValue("CR0_m", &control_adaptiveclimbing.m_pre.at(CR0_m), "CL1_fs");
-//  addInspectableValue("CR1_m", &control_adaptiveclimbing.m_pre.at(CR1_m), "CL1_fs");
-//  addInspectableValue("CR2_m", &control_adaptiveclimbing.m_pre.at(CR2_m), "CL1_fs");
-//  addInspectableValue("CL0_m", &control_adaptiveclimbing.m_pre.at(CL0_m), "CL1_fs");
-//  addInspectableValue("CL1_m", &control_adaptiveclimbing.m_pre.at(CL1_m), "CL1_fs");
-//  addInspectableValue("CL2_m", &control_adaptiveclimbing.m_pre.at(CL2_m), "CL1_fs");
-//
-//  addInspectableValue("CR0_output", &control_adaptiveclimbing.fmodel.at(CR0_m)->output, "CL1_fs");
-//  addInspectableValue("CR1_output", &control_adaptiveclimbing.fmodel.at(CR1_m)->output, "CL1_fs");
-//  addInspectableValue("CR2_output", &control_adaptiveclimbing.fmodel.at(CR2_m)->output, "CL1_fs");
-//  addInspectableValue("CL0_output", &control_adaptiveclimbing.fmodel.at(CL0_m)->output, "CL1_fs");
-//  addInspectableValue("CL1_output", &control_adaptiveclimbing.fmodel.at(CL1_m)->output, "CL1_fs");
-//  addInspectableValue("CL2_output", &control_adaptiveclimbing.fmodel.at(CL2_m)->output, "CL1_fs");
-//
+
   addInspectableValue("CR0_outputfinal", &control_adaptiveclimbing.fmodel.at(CR0_m)->outputfinal, "CL1_fs");
   addInspectableValue("CR1_outputfinal", &control_adaptiveclimbing.fmodel.at(CR1_m)->outputfinal, "CL1_fs");
   addInspectableValue("CR2_outputfinal", &control_adaptiveclimbing.fmodel.at(CR2_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL0_outputfinal", &control_adaptiveclimbing.fmodel.at(CL0_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL1_outputfinal", &control_adaptiveclimbing.fmodel.at(CL1_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL2_outputfinal", &control_adaptiveclimbing.fmodel.at(CL2_m)->outputfinal, "CL1_fs");
-//
-//  addInspectableValue("CR0_w", &control_adaptiveclimbing.fmodel.at(CR0_m)->input_w, "CL1_fs");
-//  addInspectableValue("CR1_w", &control_adaptiveclimbing.fmodel.at(CR1_m)->input_w, "CL1_fs");
-//  addInspectableValue("CR2_w", &control_adaptiveclimbing.fmodel.at(CR2_m)->input_w, "CL1_fs");
-//  addInspectableValue("CL0_w", &control_adaptiveclimbing.fmodel.at(CL0_m)->input_w, "CL1_fs");
-//  addInspectableValue("CL1_w", &control_adaptiveclimbing.fmodel.at(CL1_m)->input_w, "CL1_fs");
-//  addInspectableValue("CL2_w", &control_adaptiveclimbing.fmodel.at(CL2_m)->input_w, "CL1_fs");
-//
-//  addInspectableValue("CR0_rec_w", &control_adaptiveclimbing.fmodel.at(CR0_m)->rec_w, "CL1_fs");
-//  addInspectableValue("CR1_rec_w", &control_adaptiveclimbing.fmodel.at(CR1_m)->rec_w, "CL1_fs");
-//  addInspectableValue("CR2_rec_w", &control_adaptiveclimbing.fmodel.at(CR2_m)->rec_w, "CL1_fs");
-//  addInspectableValue("CL0_rec_w", &control_adaptiveclimbing.fmodel.at(CL0_m)->rec_w, "CL1_fs");
-//  addInspectableValue("CL1_rec_w", &control_adaptiveclimbing.fmodel.at(CL1_m)->rec_w, "CL1_fs");
-//  addInspectableValue("CL2_rec_w", &control_adaptiveclimbing.fmodel.at(CL2_m)->rec_w, "CL1_fs");
-//
-//  addInspectableValue("CR0_bias", &control_adaptiveclimbing.fmodel.at(CR0_m)->bias, "CL1_fs");
-//  addInspectableValue("CR1_bias", &control_adaptiveclimbing.fmodel.at(CR1_m)->bias, "CL1_fs");
-//  addInspectableValue("CR2_bias", &control_adaptiveclimbing.fmodel.at(CR2_m)->bias, "CL1_fs");
-//  addInspectableValue("CL0_bias", &control_adaptiveclimbing.fmodel.at(CL0_m)->bias, "CL1_fs");
-//  addInspectableValue("CL1_bias", &control_adaptiveclimbing.fmodel.at(CL1_m)->bias, "CL1_fs");
-//  addInspectableValue("CL2_bias", &control_adaptiveclimbing.fmodel.at(CL2_m)->bias, "CL1_fs");
-//
-//  addInspectableValue("CR0_error", &control_adaptiveclimbing.fmodel.at(CR0_m)->error, "CL1_fs");
-//  addInspectableValue("CR1_error", &control_adaptiveclimbing.fmodel.at(CR1_m)->error, "CL1_fs");
-//  addInspectableValue("CR2_error", &control_adaptiveclimbing.fmodel.at(CR2_m)->error, "CL1_fs");
-//  addInspectableValue("CL0_error", &control_adaptiveclimbing.fmodel.at(CL0_m)->error, "CL1_fs");
-//  addInspectableValue("CL1_error", &control_adaptiveclimbing.fmodel.at(CL1_m)->error, "CL1_fs");
-//  addInspectableValue("CL2_error", &control_adaptiveclimbing.fmodel.at(CL2_m)->error, "CL1_fs");
-//
-//  addInspectableValue("CR0_errorW", &control_adaptiveclimbing.fmodel.at(CR0_m)->learning_error, "CL1_fs");
-//  addInspectableValue("CR1_errorW", &control_adaptiveclimbing.fmodel.at(CR1_m)->learning_error, "CL1_fs");
-//  addInspectableValue("CR2_errorW", &control_adaptiveclimbing.fmodel.at(CR2_m)->learning_error, "CL1_fs");
-//  addInspectableValue("CL0_errorW", &control_adaptiveclimbing.fmodel.at(CL0_m)->learning_error, "CL1_fs");
-//  addInspectableValue("CL1_errorW", &control_adaptiveclimbing.fmodel.at(CL1_m)->learning_error, "CL1_fs");
-//  addInspectableValue("CL2_errorW", &control_adaptiveclimbing.fmodel.at(CL2_m)->learning_error, "CL1_fs");
-//
-//  addInspectableValue("CR0_lperror", &control_adaptiveclimbing.fmodel.at(CR0_m)->lowpass_error, "CL1_fs");
-//  addInspectableValue("CR1_lperror", &control_adaptiveclimbing.fmodel.at(CR1_m)->lowpass_error, "CL1_fs");
-//  addInspectableValue("CR2_lperror", &control_adaptiveclimbing.fmodel.at(CR2_m)->lowpass_error, "CL1_fs");
-//  addInspectableValue("CL0_lperror", &control_adaptiveclimbing.fmodel.at(CL0_m)->lowpass_error, "CL1_fs");
-//  addInspectableValue("CL1_lperror", &control_adaptiveclimbing.fmodel.at(CL1_m)->lowpass_error, "CL1_fs");
-//  addInspectableValue("CL2_lperror", &control_adaptiveclimbing.fmodel.at(CL2_m)->lowpass_error, "CL1_fs");
-//
-//  addInspectableValue("CR0_acc_error", &control_adaptiveclimbing.fmodel.at(CR0_m)->acc_error, "CL1_fs");
-//  addInspectableValue("CR1_acc_error", &control_adaptiveclimbing.fmodel.at(CR1_m)->acc_error, "CL1_fs");
-//  addInspectableValue("CR2_acc_error", &control_adaptiveclimbing.fmodel.at(CR2_m)->acc_error, "CL1_fs");
-//  addInspectableValue("CL0_acc_error", &control_adaptiveclimbing.fmodel.at(CL0_m)->acc_error, "CL1_fs");
-//  addInspectableValue("CL1_acc_error", &control_adaptiveclimbing.fmodel.at(CL1_m)->acc_error, "CL1_fs");
-//  addInspectableValue("CL2_acc_error", &control_adaptiveclimbing.fmodel.at(CL2_m)->acc_error, "CL1_fs");
-  //2) Neural learning and memory plotting-----
+//2) Neural learning and memory plotting-----
 
-  if(plot_irsignals)
-  {
-//    addInspectableValue("IR_Predic_R",&learningmemory_IRDistance.ir_predic.at(25),"IR_Predic_R");
-//    addInspectableValue("IR_Reflex_R",&learningmemory_IRDistance.ir_reflex.at(25),"IR_Reflex_R");
-//    addInspectableValue("IR_Predic_L",&learningmemory_IRDistance.ir_predic.at(26),"IR_Predic_L");
-//    addInspectableValue("IR_Reflex_L",&learningmemory_IRDistance.ir_reflex.at(26),"IR_Reflex_L");
-  }
+
 
   if(plot_irlearning)
     {
@@ -248,12 +162,6 @@ AmosIIControl::AmosIIControl() :
     addInspectableValue("ctr_L0_fs", &control_adaptiveclimbing.m_pre.at(CL0_m), "ctr_L0_fs");
     addInspectableValue("ctr_L1_fs", &control_adaptiveclimbing.m_pre.at(CL1_m), "ctr_L1_fs");
     addInspectableValue("ctr_L2_fs", &control_adaptiveclimbing.m_pre.at(CL2_m), "ctr_L2_fs");
-//    addInspectableValue("postCR0",&control_adaptiveclimbing.fmodel_outputfinal.at(CR0_m),"postCR0");
-//    addInspectableValue("postCR1",&control_adaptiveclimbing.fmodel_outputfinal.at(CR1_m),"postCR1");
-//    addInspectableValue("postCR2",&control_adaptiveclimbing.fmodel_outputfinal.at(CR2_m),"postCR2");
-//    addInspectableValue("postCL0",&control_adaptiveclimbing.fmodel_outputfinal.at(CL0_m),"postCL0");
-//    addInspectableValue("postCL1",&control_adaptiveclimbing.fmodel_outputfinal.at(CL1_m),"postCL1");
-//    addInspectableValue("postCL2",&control_adaptiveclimbing.fmodel_outputfinal.at(CL2_m),"postCL2");
   }
   if(plot_fmodel_errors)
   {
@@ -296,23 +204,6 @@ AmosIIControl::AmosIIControl() :
     addInspectableValue("MODULE8OUTPUTpre",&control_adaptiveclimbing.m_pre.at(TR1_m),"MODULE8OUTPUTpre");
     addInspectableValue("MODULE8OUTPUT",&control_adaptiveclimbing.m_reflex.at(TR1_m),"MODULE8OUTPUT");
   }
-//  addInspectableValue("TCR_buffer",&control_adaptiveclimbing.tr_output.at(2),"BJ_OUTPUT");
-//  addInspectableValue("FTI_buffer",&control_adaptiveclimbing.fr_output.at(2),"BJ_OUTPUT");
-//  addInspectableValue("FR0_motorpre",&control_adaptiveclimbing.m_pre.at(FR0_m),"BJ_OUTPUT");
-//  addInspectableValue("FR1_motorpre",&control_adaptiveclimbing.m_pre.at(FR1_m),"BJ_OUTPUT");
-//  addInspectableValue("FR2_motorpre",&control_adaptiveclimbing.m_pre.at(FR2_m),"BJ_OUTPUT");
-//  addInspectableValue("CR0",&control_adaptiveclimbing.postcr.at(CR0_m),"CR2");
-//  addInspectableValue("CR0_old",&control_adaptiveclimbing.postcrold.at(CR0_m),"CR2_old");
-//  addInspectableValue("CR0_motorpre",&control_adaptiveclimbing.m_pre.at(CR0_m),"BJ_OUTPUT");
-//  addInspectableValue("CR1",&control_adaptiveclimbing.postcr.at(CR1_m),"CR2");
-//  addInspectableValue("CR1_old",&control_adaptiveclimbing.postcrold.at(CR1_m),"CR2_old");
-//  addInspectableValue("CR1_motorpre",&control_adaptiveclimbing.m_pre.at(CR1_m),"BJ_OUTPUT");
-//  addInspectableValue("CR2",&control_adaptiveclimbing.postcr.at(CR2_m),"CR2");
-//  addInspectableValue("CR2_old",&control_adaptiveclimbing.postcrold.at(CR2_m),"CR2_old");
-//  addInspectableValue("CR2_motorpre",&control_adaptiveclimbing.m_pre.at(CR2_m),"BJ_OUTPUT");
-//  addInspectableValue("CL0_motorpre",&control_adaptiveclimbing.m_pre.at(CL0_m),"BJ_OUTPUT");
-//  addInspectableValue("CL1_motorpre",&control_adaptiveclimbing.m_pre.at(CL1_m),"BJ_OUTPUT");
-//  addInspectableValue("CL2_motorpre",&control_adaptiveclimbing.m_pre.at(CL2_m),"BJ_OUTPUT");
 
   if(plot_ussensor_obstacle_avoidance)
   {
@@ -347,28 +238,6 @@ AmosIIControl::AmosIIControl() :
     addInspectableValue("BJ_TEST3",&preprocessing_learning.test_output.at(3),"BJ_OUTPUT");
     addInspectableValue("BJ_TEST4",&preprocessing_learning.test_output.at(4),"BJ_OUTPUT");
   }
-//  addInspectableValue("T",&control_adaptiveclimbing.m_reflex.at(TL0_m),"BJ_OUTPUT");
-//  addInspectableValue("C",&control_adaptiveclimbing.m_reflex.at(CL0_m),"BJ_OUTPUT");
-//  addInspectableValue("F",&control_adaptiveclimbing.m_reflex.at(FL0_m),"BJ_OUTPUT");
-////  addInspectableValue("T2",&control_adaptiveclimbing.m_reflex_t.at(TL0_m),"BJ_OUTPUT");
-////  addInspectableValue("C2",&control_adaptiveclimbing.m_reflex_t.at(CL0_m),"BJ_OUTPUT");
-////  addInspectableValue("F2",&control_adaptiveclimbing.m_reflex_t.at(FL0_m),"BJ_OUTPUT");
-//  addInspectableValue("Tdeg",&control_adaptiveclimbing.m_deg.at(TL0_m),"BJ_OUTPUT");
-//    addInspectableValue("Cdeg",&control_adaptiveclimbing.m_deg.at(CL0_m),"BJ_OUTPUT");
-//    addInspectableValue("Fdeg",&control_adaptiveclimbing.m_deg.at(FL0_m),"BJ_OUTPUT");
-////    addInspectableValue("T2deg",&control_adaptiveclimbing.m_deg_t.at(TL0_m),"BJ_OUTPUT");
-////    addInspectableValue("C2deg",&control_adaptiveclimbing.m_deg_t.at(CL0_m),"BJ_OUTPUT");
-////    addInspectableValue("F2deg",&control_adaptiveclimbing.m_deg_t.at(FL0_m),"BJ_OUTPUT");
-////  addInspectableValue("dELTAm",&control_adaptiveclimbing.delta_m_reflex.at(TR0_m),"BJ_OUTPUT");
-//  addInspectableValue("VRNR",&control_adaptiveclimbing.vrn_output.at(13),"");
-//  addInspectableValue("VRNL",&control_adaptiveclimbing.vrn_output.at(12),"BJ_OUTPUT");
-//  addInspectableValue("TCR",&control_adaptiveclimbing.tr_output.at(2),"");
-//  addInspectableValue("TCL",&control_adaptiveclimbing.tl_output.at(2),"BJ_OUTPUT");
-//
-//  addInspectableValue("FTI",&control_adaptiveclimbing.fr_output.at(2),"BJ_OUTPUT");
-//
-//  addInspectableValue("TC0",&control_adaptiveclimbing.test_motor_activity.at(0),"TC0_MOTOR_ACTIVITY");
-
 
 
   //Add edit parameter on terminal
@@ -417,20 +286,14 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
   std::vector <vector<double> > x_prep = preprocessing_learning.step_npp(x);
 
 
-//  //2) Neural learning and memory-----
-//
-//
-//  std::vector<double> memory_out = learningmemory_IRDistance.step_nlm(x);
 
-
-  //3) Neural locomotion control------
+  //2) Neural locomotion control------
 
 
      y = control_adaptiveclimbing.step_nlc(x, x_prep,/*Footinhibition = false, true*/false);
 
-  /*************************************/
 
-  //4) Motor postprocessing/scaling   ----------------
+
 
 
   /***Don't touch****Set Motor outputs begin *******************/

@@ -127,7 +127,6 @@ class AmosIIControl : public AbstractController {
     bool plot_post_ctr;
     bool plot_fmodel_errors;
     bool plot_fmodel_w;
-    bool plot_irsignals;
     bool plot_ussensor_obstacle_avoidance;
     bool plot_reversegear;
     bool plot_nlc;

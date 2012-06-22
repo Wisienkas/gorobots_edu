@@ -109,10 +109,6 @@ double Forwardmodel::step(double motor_output, double sensor_input, bool learnin
     error = sensor_input + 1.0; //target - output // only positive error
   }
 
-  // Error threshold
-//  if (error < error_threshold) {
-//    error = 0.0;
-//  }
 
   //Accumulating positive errors for controlling searching reflexes
   acc_error += abs(error);
