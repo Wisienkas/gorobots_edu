@@ -51,7 +51,7 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
   irsensor_w_pfs_pfs = 0.5;//1.0 - irsensor_w_pfs_rfs;
   threshold = 0.9;//0.7;
   ir_learnrate = 1.0;//0.35;//1.0//1.5 if > 0.10
-  switchon_IRlearning = true;
+  switchon_IRlearning = false;
   if (!switchon_IRlearning) {
     rho1.at(FR_us) = 2.0;
     rho1.at(FL_us) = 2.0;
