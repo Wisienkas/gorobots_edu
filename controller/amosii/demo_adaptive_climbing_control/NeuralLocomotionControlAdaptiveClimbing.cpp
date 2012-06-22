@@ -268,8 +268,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }
 
     m_pre.at(BJ_m) = bjc->getOutput(5);
-    bjc_offset = /*0.5*/0.5 * bjc->getOutput(0);//0.75 for > 0.10
-
+    bjc_offset = /*0.5*/0.0 * bjc->getOutput(0);//0.75 for > 0.10 // Middle leg extension control
+    //Set this to 0.5  to push middle leg a lot or 0.0 for not pushing middle leg
   }
   if (!switchon_backbonejoint) {
     m_pre.at(BJ_m) = 0.0;
