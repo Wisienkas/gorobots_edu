@@ -316,6 +316,11 @@ public:
 	double cpg_rec_1;
 
 	bool switchon_backbonejoint;
+	bool switchon_obstacle;
+	bool switchon_reflexes;
+	bool switchon_purefootsignal;
+	bool switchon_irreflexes;
+	bool switchon_allreflexactions;
 
 
 	//---End Define vector----//
@@ -360,10 +365,7 @@ private:
 	int option_fmodel;
 	int option_cpg;
 	bool switchon_footinhibition;
-	bool switchon_reflexes;
-	bool switchon_purefootsignal;
 	bool switchon_learnweights;
-	bool switchon_irreflexes;
 	bool softlanding;
 	bool switchon_learningcycle;
 	bool switchon_reactivebjc;

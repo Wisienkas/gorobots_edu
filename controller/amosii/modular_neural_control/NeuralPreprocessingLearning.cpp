@@ -24,10 +24,10 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 	ThresholdFunction().setTheta(0.5);
 
 	// synaptic weights
-	w(0, 0,  1.8);//1.8
+	w(0, 0,  2.2);//1.8
 	w(0, 1,  -3.6);
 	w(1, 0,  -3.6);
-	w(1, 1,  1.8);//1.8
+	w(1, 1,  2.2);//1.8
 
 	w(3,0,      1.0);
 	w(2,1,      1.0);
@@ -94,7 +94,7 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
 	irsensor_w_pfs_pfs = 0.5;//1.0 - irsensor_w_pfs_rfs;
 	threshold = 0.9;//0.7;
 	ir_learnrate = 1.0;//0.35;//1.0//1.5 if > 0.10
-	switchon_IRlearning = true;
+	switchon_IRlearning = false;
 	if (!switchon_IRlearning) {
 		rho1.at(FR_us) = 2.0;
 		rho1.at(FL_us) = 2.0;
@@ -260,8 +260,8 @@ std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::v
 	//Obstacle avoidance, both sensors have the same network so I just use the FR_us
 	sensor_output.at(FR_us)=(in0.at(FR_us)*2.0-1.0);
 	sensor_output.at(FL_us)=(in0.at(FL_us)*2.0-1.0);
-	preproobjvect.at(FR_us).at(1)->setInput(0,4.1*sensor_output.at(FR_us));//4.1
-	preproobjvect.at(FR_us).at(1)->setInput(1,4.1*sensor_output.at(FL_us));//4.1 is good
+	preproobjvect.at(FR_us).at(1)->setInput(0,4.3*sensor_output.at(FR_us));//4.1
+	preproobjvect.at(FR_us).at(1)->setInput(1,4.3*sensor_output.at(FL_us));//4.1 is good
 	preprosensor.at(FR_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(1);
 	preprosensor.at(FL_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(0);
 

@@ -166,24 +166,66 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   /*******************************************************************************
    *  CONTROL OPTION!!!!
    *******************************************************************************/
+  switchon_allreflexactions=false;
+//  if(switchon_allreflexactions)
+//  {
+//	  //Switch on or off backbone joint control
+//	  switchon_backbonejoint = true;//true;
+//
+//	  //Switch on or off reflexes
+//	  switchon_reflexes = true;//true;//true;//1;// true==on, false == off
+//
+//	  //Switch on pure foot signal
+//	  switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+//
+//	  //Switch on or off IR reflexes
+//	  switchon_irreflexes = true;//true;
+//
+//	  //Switch on foot inhibition
+//	  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+//
+//	  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+//	  softlanding = false;
+//  }
+//  else
+//  {
+//	  //Switch on or off backbone joint control
+//	  switchon_backbonejoint = false;
+//
+//	  //Switch on or off reflexes
+//	  switchon_reflexes = false;//true;//1;// true==on, false == off
+//
+//	  //Switch on pure foot signal
+//	  switchon_purefootsignal = false;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+//
+//	  //Switch on or off IR reflexes
+//	  switchon_irreflexes = false;
+//
+//	  //Switch on foot inhibition
+//	  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+//
+//	  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+//	  softlanding = false;
+//  }
 
-  //Switch on or off backbone joint control
-  switchon_backbonejoint = true;
 
-  //Switch on or off reflexes
-  switchon_reflexes = true;//true;//1;// true==on, false == off
+	  //Switch on or off backbone joint control
+	  switchon_backbonejoint = true;//true;
 
-  //Switch on pure foot signal
-  switchon_purefootsignal = true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+	  //Switch on or off reflexes
+	  switchon_reflexes = true;//true;//true;//1;// true==on, false == off
 
-  //Switch on or off IR reflexes
-  switchon_irreflexes = true;
+	  //Switch on pure foot signal
+	  switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
 
-  //Switch on foot inhibition
-  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+	  //Switch on or off IR reflexes
+	  switchon_irreflexes = true;//true;
 
-  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
-  softlanding = false;
+	  //Switch on foot inhibition
+	  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+
+	  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+	  softlanding = false;
 
 }
 ;
@@ -199,6 +241,48 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> inreflex,
     const std::vector< vector<double> > in0, bool Footinhibition) {
 
+
+	  if(switchon_allreflexactions)
+	  {
+		  //Switch on or off backbone joint control
+		  switchon_backbonejoint = true;//true;
+
+		  //Switch on or off reflexes
+		  switchon_reflexes = true;//true;//true;//1;// true==on, false == off
+
+		  //Switch on pure foot signal
+		  switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+
+		  //Switch on or off IR reflexes
+		  switchon_irreflexes = true;//true;
+
+		  //Switch on foot inhibition
+		  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+
+		  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+		  softlanding = false;
+	  }
+	  else
+	  {
+		  //Switch on or off backbone joint control
+		  switchon_backbonejoint = false;
+
+		  //Switch on or off reflexes
+		  switchon_reflexes = false;//true;//1;// true==on, false == off
+
+		  //Switch on pure foot signal
+		  switchon_purefootsignal = false;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+
+		  //Switch on or off IR reflexes
+		  switchon_irreflexes = false;
+
+		  //Switch on foot inhibition
+		  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+
+		  //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+		  softlanding = false;
+	  }
+
   /*******************************************************************************
    *  MODULE 1 NEURAL LOCOMOTION CONTROL (ANN framework)
    *******************************************************************************/
@@ -208,10 +292,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 	nlc->setInputNeuronInput(i, input.at(i));
   }
 
+  if( switchon_obstacle){
   //for obstacle avoidance
   nlc->setInputNeuronInput(3, in0[FL_us][1]);
   nlc->setInputNeuronInput(4, in0[FR_us][1]);
-
+  }
 
   nlc->step();
 
