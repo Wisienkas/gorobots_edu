@@ -39,19 +39,19 @@ AmosIIControl::AmosIIControl() :
   //---PLOT OPTIONS---//
 
   testing = false;
-  plot_irlearning = true;   /*Plot IR learning for experiments or testing*/
+  plot_irlearning = false;   /*Plot IR learning for experiments or testing*/
   plot_preprofc = true;    /*Plot preprocessed foot contact sensor signals for testing*/
-  plot_preproirs = true;    /*Plot preprocessed IR sensor signals for testing*/
+  plot_preproirs =false;    /*Plot preprocessed IR sensor signals for testing*/
   plot_preproirleg = false; /*Plot preprocessed IR leg sensor signals for testing*/
   plot_fmodel_ctr = false;  /*Plot fmodel signals of ctr joints for testing*/
   plot_reflex_fs = false;   /*Plot fs signals used for reflexes*/
   plot_post_ctr = false;    /*Plot postprocessed ctr signals for testing*/
   plot_fmodel_errors = false; /*Plot errors of fmodel*/
-  plot_fmodel_w = true;    /*Plot weights of fmodel*/
+  plot_fmodel_w = false;    /*Plot weights of fmodel*/
   plot_ussensor_obstacle_avoidance= true;/*Plot US_sensors for obstacle avoidance*/
   plot_reversegear = false;  /*Plot obstacle avoidance behavior of robot*/
   plot_nlc = false;       /*Plot nlc control signals*/
-  plot_testbjc = true;    /*Plot BJC for testing*/
+  plot_testbjc = false;    /*Plot BJC for testing*/
   plot_cpg = false;    /*Plot CPG for testing*/
   plot_fmodel_counter = false;
 
@@ -94,12 +94,32 @@ AmosIIControl::AmosIIControl() :
     addInspectableValue("L2_irs",&preprocessing_learning.preprosensor.at(L2_irs).at(0),"L2_irs");
   }
 
+
   addInspectableValue("CR0_outputfinal", &control_adaptiveclimbing.fmodel.at(CR0_m)->outputfinal, "CL1_fs");
   addInspectableValue("CR1_outputfinal", &control_adaptiveclimbing.fmodel.at(CR1_m)->outputfinal, "CL1_fs");
   addInspectableValue("CR2_outputfinal", &control_adaptiveclimbing.fmodel.at(CR2_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL0_outputfinal", &control_adaptiveclimbing.fmodel.at(CL0_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL1_outputfinal", &control_adaptiveclimbing.fmodel.at(CL1_m)->outputfinal, "CL1_fs");
   addInspectableValue("CL2_outputfinal", &control_adaptiveclimbing.fmodel.at(CL2_m)->outputfinal, "CL1_fs");
+
+  addInspectableValue("TR0_outputfinal", &control_adaptiveclimbing.fmodel.at(TR0_m)->outputfinal, "TL1_fs");
+  addInspectableValue("TR1_outputfinal", &control_adaptiveclimbing.fmodel.at(TR1_m)->outputfinal, "TL1_fs");
+  addInspectableValue("TR2_outputfinal", &control_adaptiveclimbing.fmodel.at(TR2_m)->outputfinal, "TL1_fs");
+  addInspectableValue("TL0_outputfinal", &control_adaptiveclimbing.fmodel.at(TL0_m)->outputfinal, "TL1_fs");
+  addInspectableValue("TL1_outputfinal", &control_adaptiveclimbing.fmodel.at(TL1_m)->outputfinal, "TL1_fs");
+  addInspectableValue("TL2_outputfinal", &control_adaptiveclimbing.fmodel.at(TL2_m)->outputfinal, "TL1_fs");
+
+  addInspectableValue("FR0_outputfinal", &control_adaptiveclimbing.fmodel.at(FR0_m)->outputfinal, "FL1_fs");
+  addInspectableValue("FR1_outputfinal", &control_adaptiveclimbing.fmodel.at(FR1_m)->outputfinal, "FL1_fs");
+  addInspectableValue("FR2_outputfinal", &control_adaptiveclimbing.fmodel.at(FR2_m)->outputfinal, "FL1_fs");
+  addInspectableValue("FL0_outputfinal", &control_adaptiveclimbing.fmodel.at(FL0_m)->outputfinal, "FL1_fs");
+  addInspectableValue("FL1_outputfinal", &control_adaptiveclimbing.fmodel.at(FL1_m)->outputfinal, "FL1_fs");
+  addInspectableValue("FL2_outputfinal", &control_adaptiveclimbing.fmodel.at(FL2_m)->outputfinal, "FL1_fs");
+
+
+
+
+
 //2) Neural learning and memory plotting-----
 
 

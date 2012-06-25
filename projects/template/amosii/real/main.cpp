@@ -105,8 +105,8 @@ int main(int argc, char** argv) {
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 	for (unsigned int i = TR0_m; i < (BJ_m); i++) {
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 150;//130.0;
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 140;//120.0;
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 130.0;//150;//
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 120.0;//140;//
 	}
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) = 1.5;
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) = 1.5;
@@ -178,9 +178,21 @@ int main(int argc, char** argv) {
 		if (key==101){
 			if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = false;
+//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
+//				((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
+//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 				std::cout << "Reflex is OFF" << endl;
 			} else {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = true;
+//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
+				//((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes= true;// true;
+//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 				std::cout << "Reflex is ON" << endl;
 			}
 		}

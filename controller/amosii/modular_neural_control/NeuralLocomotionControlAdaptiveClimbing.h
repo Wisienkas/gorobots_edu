@@ -321,6 +321,7 @@ public:
 	bool switchon_purefootsignal;
 	bool switchon_irreflexes;
 	bool switchon_allreflexactions;
+	bool switchon_footinhibition;
 
 
 	//---End Define vector----//
@@ -364,7 +365,6 @@ private:
 	int option_pcpg;
 	int option_fmodel;
 	int option_cpg;
-	bool switchon_footinhibition;
 	bool switchon_learnweights;
 	bool softlanding;
 	bool switchon_learningcycle;

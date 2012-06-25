@@ -84,6 +84,8 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
       cpg = cpg_s;
 
+      break;
+
   };
 
 	//for updating the subnets (to do the time step)

@@ -192,7 +192,7 @@ public:
 		agent->init(controller, amos, wiring);
 
 		// Possibility to add tracking for robot
-		bool track = false;
+		bool track = true;
 		if (track)
 			agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 		//if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
@@ -254,10 +254,23 @@ public:
 
 			case 'e':
 				if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions) {
+
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
+					((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 					std::cout << "Reflex is OFF" << endl;
 				} else {
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
+					((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 					std::cout << "Reflex is ON" << endl;
 				}
 				break;
@@ -267,6 +280,7 @@ public:
 				break;
 			}
 		}
+
 		return false;
 	}
 
