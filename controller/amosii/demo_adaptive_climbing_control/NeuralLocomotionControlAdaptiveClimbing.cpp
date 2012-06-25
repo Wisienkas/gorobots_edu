@@ -165,7 +165,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_backbonejoint = true;
 
   //Switch on or off reflexes
-  switchon_reflexes = true;//true;//1;// true==on, false == off
+  switchon_reflexes = true;//1;// true==on, false == off
 
   //Switch on pure foot signal
   switchon_purefootsignal = true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
@@ -398,13 +398,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       fmodel_lerror.at(i) = fmodel.at(i)->learning_error;
     }
 
-    if(!switchon_reflexes) {
-      for (unsigned int i = CR0_m; i < (FL2_m + 1); i++) {
-        acc_error.at(i) = 0.0;
-      }
-    }
-
   }
+
+  if(!switchon_reflexes) {
+    for (unsigned int i = CR0_m; i < (FL2_m + 1); i++) {
+      acc_error.at(i) = 0.0;
+    }
+    bjc_offset = 0.0;
+  }
+
   // >> i/o operations here <<
   outFilenlc1 << m_pre.at(CL0_m) << ' ' << reflex_fs.at(L0_fs) << ' ' << m_pre.at(CL1_m) << ' ' << reflex_fs.at(L1_fs)
       << ' ' << m_pre.at(CL2_m) << ' ' << reflex_fs.at(L2_fs) << endl;
