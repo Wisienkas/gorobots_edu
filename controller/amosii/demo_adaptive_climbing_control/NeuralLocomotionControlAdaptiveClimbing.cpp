@@ -165,7 +165,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_backbonejoint = true;
 
   //Switch on or off reflexes
-  switchon_reflexes = true;//true;//1;// true==on, false == off
+  switchon_reflexes = true;//1;// true==on, false == off
 
   //Switch on pure foot signal
   switchon_purefootsignal = true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
@@ -336,10 +336,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //postprocessing
   m_pre.at(FR1_m) = -1.2 * ftim_delayline->Read(tau - 1);
   m_pre.at(FL1_m) = -1.2 * ftim_delayline->Read(tau + tau_l - 1);
-  m_pre.at(FR0_m) *= -1.5;
-  m_pre.at(FL0_m) *= -1.5;
-  m_pre.at(FR2_m) *= 1.5;
-  m_pre.at(FL2_m) *= 1.5;
+  m_pre.at(FR0_m) *= -1.5 * -input.at(4);
+  m_pre.at(FL0_m) *= -1.5 * -input.at(3);
+  m_pre.at(FR2_m) *= 1.5 * -input.at(4);
+  m_pre.at(FL2_m) *= 1.5 * -input.at(3);
+
+  /*  for(unsigned int i = TR0_m; i < (TL2_m + 1); i++) {
+   m_pre.at(i) *= input.at(0);
+   }
+   */
 
   //take one step
   tr_delayline->Step();
@@ -394,6 +399,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }
 
   }
+
+  if(!switchon_reflexes) {
+    for (unsigned int i = CR0_m; i < (FL2_m + 1); i++) {
+      acc_error.at(i) = 0.0;
+    }
+    bjc_offset = 0.0;
+  }
+
   // >> i/o operations here <<
   outFilenlc1 << m_pre.at(CL0_m) << ' ' << reflex_fs.at(L0_fs) << ' ' << m_pre.at(CL1_m) << ' ' << reflex_fs.at(L1_fs)
       << ' ' << m_pre.at(CL2_m) << ' ' << reflex_fs.at(L2_fs) << endl;
