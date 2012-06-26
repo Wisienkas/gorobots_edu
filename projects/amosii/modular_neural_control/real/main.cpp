@@ -105,8 +105,8 @@ int main(int argc, char** argv) {
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 	for (unsigned int i = TR0_m; i < (BJ_m); i++) {
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 130;//
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 120;//
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 130;
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 120;
 	}
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) = 1.5;
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) = 1.5;
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
 		key = wgetch (stdscr);
 
 		//KEYBOARD BJC OPTION
-		if (key==98){
+		if (key==98){ //B
 			if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
 				std::cout << "BJC is OFF" << endl;
@@ -163,35 +163,31 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		if (key==97){
+		if (key==97){ //A
 			if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle = false;
 				std::cout << "OA is OFF" << endl;
 			} else {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle = true;
-
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 				std::cout << "OA is ON" << endl;
 			}
 		}
 
 
-		if (key==101){
+		if (key==101){ //E
 			if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = false;
-//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
-//				((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
-//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 				std::cout << "Reflex is OFF" << endl;
 			} else {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = true;
-//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
-				//((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = true;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes= false;// true;
-//				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes= true;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 				std::cout << "Reflex is ON" << endl;
 			}

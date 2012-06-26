@@ -248,28 +248,24 @@ public:
 					std::cout << "OA is OFF" << endl;
 				} else {
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 					std::cout << "OA is ON" << endl;
 				}
 				break;
 
 			case 'e':
 				if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions) {
-
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
-					((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
 					std::cout << "Reflex is OFF" << endl;
 				} else {
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
-					((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = true;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =true;
 					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 					std::cout << "Reflex is ON" << endl;
 				}
