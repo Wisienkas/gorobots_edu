@@ -187,6 +187,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 	//Switch on soft landing  = reset to normal walking as  soon as acc error = 0
 	softlanding = false;
 
+	switchon_obstacle = false;
+
 }
 ;
 
@@ -210,6 +212,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 	for (unsigned int i = 0; i < 5; i++) {
 		//without obstacle avoidance, deactivate the lines below
+
+		input.at(0) = 0;
+		input.at(1) = 0;
+		input.at(2) = 1; // 0, or 1
+		input.at(3) = -1;
+		input.at(4) = -1;
 		nlc->setInputNeuronInput(i, input.at(i));
 	}
 
@@ -219,8 +227,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		input.at(4) = in0[FR_us][1];
 		nlc->setInputNeuronInput(3,input.at(3));//in0[FL_us][1]);
 		nlc->setInputNeuronInput(4,input.at(4));// in0[FR_us][1]);
-		//nlc->setInputNeuronInput(3, in0[FL_us][1]);
-		//nlc->setInputNeuronInput(4, in0[FR_us][1]);
 
 	}
 
@@ -291,7 +297,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		}
 
 		m_pre.at(BJ_m) = bjc->getOutput(5);
-		bjc_offset = /*0.5*/0.5 * bjc->getOutput(0);//0.75 for > 0.10
+		bjc_offset = /*0.5*/0.1 * bjc->getOutput(0);//0.75 for > 0.10
 
 	}
 	if (!switchon_backbonejoint) {

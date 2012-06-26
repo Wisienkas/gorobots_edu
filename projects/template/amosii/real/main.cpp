@@ -105,14 +105,14 @@ int main(int argc, char** argv) {
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 	for (unsigned int i = TR0_m; i < (BJ_m); i++) {
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 130.0;//150;//
-		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 120.0;//140;//
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr = 130;//
+		((AmosIIControl*) controller)->control_adaptiveclimbing.motormap.at(i)->max_ctr_offset = 120;//
 	}
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) = 1.5;
 	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) = 1.5;
 
 	//robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
-	robot = new AmosIISerialV2("/dev/ttyUSB0"); // using USB-to-serial adapter
+	robot = new AmosIISerialV2("/dev/ttyUSB1"); // using USB-to-serial adapter
 
 
 	agent = new Agent(plotoptions);
@@ -190,7 +190,7 @@ int main(int argc, char** argv) {
 //				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
 				//((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = true;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes= true;// true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes= false;// true;
 //				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_footinhibition =false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 				std::cout << "Reflex is ON" << endl;
