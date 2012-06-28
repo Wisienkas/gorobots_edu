@@ -1,0 +1,7 @@
+Real folders:
+This program uses camera (hardware) for landmark detection.
+It requires opencv and aprilTag for camera interface. 
+
+Simulation folders:
+This program uses relative positions to goals as landmark detection.
+
