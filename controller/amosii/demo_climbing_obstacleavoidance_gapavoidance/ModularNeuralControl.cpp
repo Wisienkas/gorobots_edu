@@ -3,6 +3,9 @@
  *      Author: eduard grinke
  *
  *  edited by degoldschmidt
+ *
+ *  edited by Patrick Kesper
+ *  July 23, 2012
  */
 
 #include "ModularNeuralControl.h"

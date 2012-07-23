@@ -9,6 +9,11 @@
  *
  *      Edited by Eduard Grinke
  *      May 10, 2012
+ *
+ *      Edited By Eduard Grinke and Patrick Kesper
+ *      July 23, 2012 - Climbing - Avoiding Obstacles and Gap- Using Laserscanner
+ *
+ *
  */
 
 #include "NeuralLocomotionControlAdaptiveClimbing.h"
