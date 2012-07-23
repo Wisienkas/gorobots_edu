@@ -60,6 +60,11 @@ class ExampleController : public AbstractController {
     SensorNumbers numOfSensor;
     MotorNumbers numOfMotor;
     EPuckConf conf;
+
+    double buffer[300]; //buffer microphone signals
+    double micData[3][200]; //buffer interpolated microphone signals 
+    double corr[3][100]; //buffer correlation functions
+
 };
 
 
