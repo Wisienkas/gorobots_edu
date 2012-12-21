@@ -1,0 +1,25 @@
+# This contains the Parameters of this simulation 
+ 
+Information of Controller 
+ Type    : Simplified CPG
+ CnctType: Straight Connect
+ ControllFrequency(Hz): 20
+ Bias start time(s): 20
+ TwoCPGcnctCoef: 0.05, TwoCPGPhaseDiff: 3.14159
+
+Parameter for CPG 
+Elements           : CPG0 value,  CPG1 Value,  CPG2 Value ############################
+ RobotFrequency(Hz): 0.3,  0.3,  0.3
+ StanceRatio       : 0.6,  0.6,  0.6
+ initialPhase      : 0,  0,  3.14159
+ inhibiCoef        : 0.1,  0.1,  0.1
+
+
+Parameter for Trajectory making 
+ In this simulation CPG0 is ignored 
+Elements           : CPG0 value,  CPG1 Value,  CPG2 Value ############################
+ CenterPos(m)      : (0.15,0,-0.1)(0.0899038,-0.144282,-0.12)(0.0899038,0.144282,-0.12)
+ Direction Vector  : (0,1,0)(-0.5,-0.866025,0)(-0.5,0.866025,0)
+ Swing Height      : 0,  0.06,  0.06
+ Stance Height     : 0,  0,  0
+ walk Length       : 0,  0.1,  0.1

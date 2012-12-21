@@ -1,0 +1,57 @@
+<!DOCTYPE ConfigurableStateTypeDefinition>
+<ConfigurableStates>
+ <ConfigurableState name=" TestController.cpp,v - 0.1 _0">
+  <ConfigurableWidget isCollapsed="false" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets/>
+  </ConfigurableWidget>
+  <Configurable revision="$Id: testController.cpp,v 0.1 $" id="808318525" name=" TestController.cpp,v - 0.1 " autosaveFunction="1">
+   <!--While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.-->
+   <paramvals/>
+   <paramints/>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="Simulation Environment_0">
+  <ConfigurableWidget tileWidgetWidth="210" isCollapsed="false" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="cameraspeed" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="1" name="controlinterval" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="2" name="fps" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="0" name="gravity" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="1" name="motionpersistence" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="2" name="noise" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="0" name="randomseed" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="1" name="realtimefactor" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="2" name="simstepsize" isVisible="true"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$Id$" id="846930886" name="Simulation Environment" autosaveFunction="1">
+   <!--While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.-->
+   <paramvals>
+    <paramval name="cameraspeed"/>
+    <paramval name="fps"/>
+    <paramval name="gravity"/>
+    <paramval name="motionpersistence"/>
+    <paramval name="noise"/>
+    <paramval name="randomseed"/>
+    <paramval value="22.67442" name="realtimefactor"/>
+    <paramval name="simstepsize"/>
+   </paramvals>
+   <paramints>
+    <paramint name="controlinterval"/>
+   </paramints>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="Ashigaru_0">
+  <ConfigurableWidget isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets/>
+  </ConfigurableWidget>
+  <Configurable revision="$Id$" id="1951317657" name="Ashigaru" autosaveFunction="1">
+   <!--While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.-->
+   <paramvals/>
+   <paramints/>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+</ConfigurableStates>
