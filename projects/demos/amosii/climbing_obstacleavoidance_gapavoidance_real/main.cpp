@@ -157,8 +157,11 @@ int main(int argc, char** argv) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
 				std::cout << "BJC is OFF" << endl;
 			} else {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
-				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
+			  ((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
+			  ((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
+			  ((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
+			  ((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
+			  ((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
 				std::cout << "BJC is ON" << endl;
 			}
 		}

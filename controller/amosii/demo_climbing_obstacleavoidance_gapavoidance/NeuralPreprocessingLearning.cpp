@@ -260,8 +260,8 @@ std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::v
 	//Obstacle avoidance, both sensors have the same network so I just use the FR_us
 	sensor_output.at(FR_us)=(in0.at(FR_us)*2.0-1.0);
 	sensor_output.at(FL_us)=(in0.at(FL_us)*2.0-1.0);
-	preproobjvect.at(FR_us).at(1)->setInput(0,4.3*sensor_output.at(FR_us));//4.1
-	preproobjvect.at(FR_us).at(1)->setInput(1,4.3*sensor_output.at(FL_us));//4.1 is good
+	preproobjvect.at(FR_us).at(1)->setInput(0,4.1*sensor_output.at(FR_us));//4.1 //used 4.3
+	preproobjvect.at(FR_us).at(1)->setInput(1,4.1*sensor_output.at(FL_us));//4.1 is good // used 4.3
 	preprosensor.at(FR_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(1);
 	preprosensor.at(FL_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(0);
 
