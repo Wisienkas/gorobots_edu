@@ -51,9 +51,9 @@ AmosIIControl::AmosIIControl(int amosVersion)
   //Add edit parameter on terminal
   Configurable::addParameter("cin", &control_adaptiveclimbing->Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
 		  "test discription" );
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
-		  "$Revision: 0.1 $");
+//  // prepare name;
+//  Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
+//		  "$Revision: 0.1 $");
 
 
 

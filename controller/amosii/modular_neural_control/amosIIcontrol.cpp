@@ -268,8 +268,8 @@ AmosIIControl::AmosIIControl() :
   Configurable::addParameter("input4", &control_adaptiveclimbing.input.at(4),  /*minBound*/ -1,  /*maxBound*/ 1,
       "test description" );
   // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
-      "$Revision: 0.1 $");
+//  Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
+//      "$Revision: 0.1 $");
 
 
 }
