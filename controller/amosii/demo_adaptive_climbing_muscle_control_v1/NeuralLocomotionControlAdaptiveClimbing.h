@@ -24,8 +24,22 @@
 #include <string.h>
 using namespace std;
 //Save files
+//#define SWICTRTOPUSH
+#define DAMPERFORPUSH 0.6 // 0.3 or 0.4 = most soft and stable
 
+#ifndef SWICTRTOPUSH
+#define CRMAXANG ((-100.0/180.0)*3.14159265358979)//((100.0/180.0)*3.14159265358979)
+#define CRMINANG ((45.0/180.0)*3.14159265358979)//((-30.0/180.0)*3.14159265358979)
+#define PUSHBEHA 0//1 = push, 0 = walk
+#endif
+
+#ifdef SWICTRTOPUSH
+#define CRMAXANG ((100.0/180.0)*3.14159265358979)//((100.0/180.0)*3.14159265358979)
+#define CRMINANG ((-45.0/180.0)*3.14159265358979)//((-30.0/180.0)*3.14159265358979)
+#define PUSHBEHA 1//1 = push, 0 = walk
+#endif
 //muscles parameters
+//#define PUSHBEHA 0//1 = push, 0 = walk
 #define PURENEURON 0
 #define STNEUACT -0.6
 #define NUMFOOT 6
@@ -35,8 +49,8 @@ using namespace std;
 #define TIMECOUNT 5000
 #define CRMAXOUT 1
 #define CRMINOUT -1
-#define CRMAXANG ((-100.0/180.0)*3.14159265358979)//((100.0/180.0)*3.14159265358979)
-#define CRMINANG ((45.0/180.0)*3.14159265358979)//((-30.0/180.0)*3.14159265358979)
+//#define CRMAXANG ((-100.0/180.0)*3.14159265358979)//((100.0/180.0)*3.14159265358979)
+//#define CRMINANG ((45.0/180.0)*3.14159265358979)//((-30.0/180.0)*3.14159265358979)
 #define FRMAXOUT 1
 #define FRMINOUT -1
 #define FRMAXANG ((55.0/180.0)*3.14159265358979)//((75.0/180.0)*3.14159265358979)

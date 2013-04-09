@@ -18,80 +18,104 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   reflex_R_fs.resize(3);
   reflex_L_fs.resize(3);
   reflex_R_fs_old.resize(3);//KOH add after the GIT version
-   reflex_L_fs_old.resize(3);//KOH add after the GIT version
-    Raw_R_fs.resize(3);
-    Raw_L_fs.resize(3);
-    Raw_R_fs_old.resize(3);
-    Raw_L_fs_old.resize(3);
+  reflex_L_fs_old.resize(3);//KOH add after the GIT version
+  Raw_R_fs.resize(3);
+  Raw_L_fs.resize(3);
+  Raw_R_fs_old.resize(3);
+  Raw_L_fs_old.resize(3);
 
-    m_reflex_muscle.resize(19);
-    m_Prereflex.resize(19);
+  m_reflex_muscle.resize(19);
+  m_Prereflex.resize(19);
 
-    JointAng.resize(19);
-    PreJointAng.resize(19);
+  JointAng.resize(19);
+  PreJointAng.resize(19);
 
-    JointVel.resize(19);
-    PreJointVel.resize(19);
+  JointVel.resize(19);
+  PreJointVel.resize(19);
 
 
-    Mass = 0.1;
-    KneeLength = 0.075;
-    HipLength = 0.115;
-    Radius = 0.1;
-    SampleTime = 0.01;
+  Mass = 0.1;
+  KneeLength = 0.075;
+  HipLength = 0.115;
+  Radius = 0.1;
+  SampleTime = 0.01;
 
-    CJMaxOut = 1;
-    CJMinOut = -1;
-    CJMaxAng = ((-100.0/180.0)*3.14159265358979);
-    CJMinAng = ((45.0/180.0)*3.14159265358979);
+  CJMaxOut = 1;
+  CJMinOut = -1;
+  CJMaxAng = ((-100.0/180.0)*3.14159265358979);
+  CJMinAng = ((45.0/180.0)*3.14159265358979);
 
-    FJMaxOut = 1;
-    FJMinOut = -1;
-    FJMaxAng = ((55.0/180.0)*3.14159265358979);
-    FJMinAng = ((-70.0/180.0)*3.14159265358979);
+  FJMaxOut = 1;
+  FJMinOut = -1;
+  FJMaxAng = ((55.0/180.0)*3.14159265358979);
+  FJMinAng = ((-70.0/180.0)*3.14159265358979);
 
-    FMusclActFac = 0.0;
+  FMusclActFac = 0.0;
+  if (PUSHBEHA == 1)
+  {
+    CMusclActFac = 0.0;
+  }
+  else
+  {
     CMusclActFac = 1.0;
+  }
 
+  //K11 = 3.5;//5.0;//4.0;//3.0;
+  //K22 = 7.0;//10.0;//8.0;//6.0;
+
+  if (PUSHBEHA == 1)
+  {
+    K11 = 5.0;//5.0;//4.0;//3.0;
+    K22 = 5.0;//10.0;//8.0;//6.0;
+
+    KPlusHind = 0.0;
+    D11 = DAMPERFORPUSH;
+    D22 = DAMPERFORPUSH;
+
+  }
+  else
+  {
 
     K11 = 3.5;//5.0;//4.0;//3.0;
     K22 = 7.0;//10.0;//8.0;//6.0;
-
+    KPlusHind = 2.4;//2.0;
     D11 = 1.0;
     D22 = 1.0;
+  }
 
-    KPlusHind = 2.4;//2.0;
 
-    K1[0] = K11;
-    K1[1] = K11;
-    K1[2] = K11 + KPlusHind + 0.4;
-    K1[3] = K11;
-    K1[4] = K11;
-    K1[5] = K11 + KPlusHind;
 
-    K2[0] = K22;
-    K2[1] = K22;
-    K2[2] = K22;
-    K2[3] = K22;
-    K2[4] = K22;
-    K2[5] = K22;
 
-    D1[0] = D11;
-    D1[1] = D11;
-    D1[2] = D11;
-    D1[3] = D11;
-    D1[4] = D11;
-    D1[5] = D11;
+  K1[0] = K11;
+  K1[1] = K11;
+  K1[2] = K11 + KPlusHind;
+  K1[3] = K11;
+  K1[4] = K11;
+  K1[5] = K11 + KPlusHind;
 
-    D2[0] = D22;
-    D2[1] = D22;
-    D2[2] = D22;
-    D2[3] = D22;
-    D2[4] = D22;
-    D2[5] = D22;
+  K2[0] = K22;
+  K2[1] = K22;
+  K2[2] = K22 + 1.6;
+  K2[3] = K22;
+  K2[4] = K22;
+  K2[5] = K22 + 1.6;
 
-    dSWFTiOffset = 0.5;
-    dSWFTiFac = -0.1;
+  D1[0] = D11;
+  D1[1] = D11;
+  D1[2] = D11;
+  D1[3] = D11;
+  D1[4] = D11;
+  D1[5] = D11;
+
+  D2[0] = D22;
+  D2[1] = D22;
+  D2[2] = D22;
+  D2[3] = D22;
+  D2[4] = D22;
+  D2[5] = D22;
+
+  dSWFTiOffset = 0.5;
+  dSWFTiFac = -0.1;
 
   //Save files
   outFilenlc1.open("Neurallocomotion.txt");
@@ -244,7 +268,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
    *******************************************************************************/
 
   //Switch on or off backbone joint control
-  switchon_backbonejoint = true;//false;
+  switchon_backbonejoint = false;
 
   //Switch on or off reflexes
   switchon_reflexes = false;//1;// true==on, false == off
@@ -284,9 +308,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   }
 
   for(unsigned int i=0; i<m_pre.size();i++)
-       {
-         m_preold.at(i) = m_pre.at(i);
-       }
+  {
+    m_preold.at(i) = m_pre.at(i);
+  }
 
   nlc->step();
 
@@ -338,7 +362,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
    *  MODULE 2 BACKBONE JOINT CONTROL
    *******************************************************************************/
 
-  if (switchon_backbonejoint && global_count > 50) {
+  if (switchon_backbonejoint && global_count > 10) {
 
     bjc->setInput(0, 0.5 * (in0.at(FR_us) + in0.at(FL_us)));
     bjc->setInput(1, 0.5 * (in0.at(R0_fs) + in0.at(L0_fs)));
@@ -496,7 +520,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   // >> i/o operations here <<
   outFilenlc1 << m_pre.at(CL0_m) << ' ' << reflex_fs.at(L0_fs) << ' ' << m_pre.at(CL1_m) << ' ' << reflex_fs.at(L1_fs)
-      << ' ' << m_pre.at(CL2_m) << ' ' << reflex_fs.at(L2_fs) << endl;
+              << ' ' << m_pre.at(CL2_m) << ' ' << reflex_fs.at(L2_fs) << endl;
 
   /*******************************************************************************
    *  MODULE 5 REFLEX MECHANISMS
@@ -544,8 +568,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   }
 
   /*******************************************************************************
-    *  REFLEX XIOAFENG MODULe 6
-    *******************************************************************************/
+   *  REFLEX XIOAFENG MODULe 6
+   *******************************************************************************/
 
 
 
@@ -563,32 +587,32 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   Raw_L_fs_old.at(1) = Raw_L_fs.at(1); //L1_fs = 23
   Raw_L_fs_old.at(2) = Raw_L_fs.at(2); //L2_fs = 24
 
-      m_Prereflex.at(TR0_m) = m_pre.at(TR0_m);//*1.2-0.3;
-      m_Prereflex.at(TR1_m) = m_pre.at(TR1_m);//*1.2+0.2;
-      m_Prereflex.at(TR2_m) = m_pre.at(TR2_m);//*1.2+0.5;
+  m_Prereflex.at(TR0_m) = m_pre.at(TR0_m);//*1.2-0.3;
+  m_Prereflex.at(TR1_m) = m_pre.at(TR1_m);//*1.2+0.2;
+  m_Prereflex.at(TR2_m) = m_pre.at(TR2_m);//*1.2+0.5;
 
-      m_Prereflex.at(TL0_m) = m_pre.at(TL0_m);//*1.2-0.3;
-      m_Prereflex.at(TL1_m) = m_pre.at(TL1_m);//*1.2+0.2;
-      m_Prereflex.at(TL2_m) = m_pre.at(TL2_m);//*1.2+0.5;
+  m_Prereflex.at(TL0_m) = m_pre.at(TL0_m);//*1.2-0.3;
+  m_Prereflex.at(TL1_m) = m_pre.at(TL1_m);//*1.2+0.2;
+  m_Prereflex.at(TL2_m) = m_pre.at(TL2_m);//*1.2+0.5;
 
-      m_Prereflex.at(CL0_m) = m_pre.at(CL0_m);
-      m_Prereflex.at(CL1_m) = m_pre.at(CL1_m);
-      m_Prereflex.at(CL2_m) = m_pre.at(CL2_m);
+  m_Prereflex.at(CL0_m) = m_pre.at(CL0_m);
+  m_Prereflex.at(CL1_m) = m_pre.at(CL1_m);
+  m_Prereflex.at(CL2_m) = m_pre.at(CL2_m);
 
-      m_Prereflex.at(CR0_m) = m_pre.at(CR0_m);
-      m_Prereflex.at(CR1_m) = m_pre.at(CR1_m);
-      m_Prereflex.at(CR2_m) = m_pre.at(CR2_m);
+  m_Prereflex.at(CR0_m) = m_pre.at(CR0_m);
+  m_Prereflex.at(CR1_m) = m_pre.at(CR1_m);
+  m_Prereflex.at(CR2_m) = m_pre.at(CR2_m);
 
 
-      m_Prereflex.at(FR0_m) = m_pre.at(FR0_m);
-      m_Prereflex.at(FR1_m) = m_pre.at(FR1_m);
-      m_Prereflex.at(FR2_m) = m_pre.at(FR2_m);
+  m_Prereflex.at(FR0_m) = m_pre.at(FR0_m);
+  m_Prereflex.at(FR1_m) = m_pre.at(FR1_m);
+  m_Prereflex.at(FR2_m) = m_pre.at(FR2_m);
 
-      m_Prereflex.at(FL0_m) = m_pre.at(FL0_m);
-      m_Prereflex.at(FL1_m) = m_pre.at(FL1_m);
-      m_Prereflex.at(FL2_m) = m_pre.at(FL2_m);
+  m_Prereflex.at(FL0_m) = m_pre.at(FL0_m);
+  m_Prereflex.at(FL1_m) = m_pre.at(FL1_m);
+  m_Prereflex.at(FL2_m) = m_pre.at(FL2_m);
 
-      m_Prereflex.at(BJ_m) =  m_pre.at(BJ_m);
+  m_Prereflex.at(BJ_m) =  m_pre.at(BJ_m);
 
 
 
@@ -610,305 +634,517 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
   /*******************************************************************************
-    *  muscles module 8
-    *******************************************************************************/
-
-  MusclePara CR0Out, FR0Out;
+   *  muscles module 8
+   *******************************************************************************/
+  if (PUSHBEHA == 0)
+  {
+    MusclePara CR0Out, FR0Out;
 
     if (m_pre.at(TR0_m) < m_preold.at(TR0_m))// && (Raw_R_fs.at(1) > FSERR)
-     {
-  //    m_Prereflex.at(FR0_m) = Scaling(m_Prereflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
-  //    m_Prereflex.at(CR0_m) = Scaling(m_Prereflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
-  //    m_reflex.at(FR0_m) = Scaling(m_reflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
-  //    m_reflex.at(CR0_m) = Scaling(m_reflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
+    {
+      //    m_Prereflex.at(FR0_m) = Scaling(m_Prereflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
+      //    m_Prereflex.at(CR0_m) = Scaling(m_Prereflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
+      //    m_reflex.at(FR0_m) = Scaling(m_reflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
+      //    m_reflex.at(CR0_m) = Scaling(m_reflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
 
-       MusclePara ParaR11 = RungeKutta41(PreJointAng.at(FR0_m), PreJointVel.at(FR0_m), SampleTime , Raw_R_fs_old.at(0),
-           Raw_R_fs.at(0), m_preold.at(FR0_m), m_pre.at(FR0_m), 0, K1[0], D1[0], HipLength, 0, FMusclActFac);
+      MusclePara ParaR11 = RungeKutta41(PreJointAng.at(FR0_m), PreJointVel.at(FR0_m), SampleTime , Raw_R_fs_old.at(0),
+          Raw_R_fs.at(0), m_preold.at(FR0_m), m_pre.at(FR0_m), 0, K1[0], D1[0], HipLength, 0, FMusclActFac);
 
-       FR0Out.Pos = ParaR11.Pos;
-       PreJointAng.at(FR0_m) = ParaR11.Pos;
-       m_reflex_muscle.at(FR0_m) = Scaling(FR0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-       FR0Out.Vel = ParaR11.Vel;
-       PreJointVel.at(FR0_m) =  ParaR11.Vel;
+      FR0Out.Pos = ParaR11.Pos;
+      PreJointAng.at(FR0_m) = ParaR11.Pos;
+      m_reflex_muscle.at(FR0_m) = Scaling(FR0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FR0Out.Vel = ParaR11.Vel;
+      PreJointVel.at(FR0_m) =  ParaR11.Vel;
 
-       double DisVe = (HipLength + Radius) * sin(ParaR11.Pos);
-  //     MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
-  //         Raw_R_fs.at(0), m_Prereflex.at(CR0_m), m_reflex.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
+      double DisVe = (HipLength + Radius) * sin(ParaR11.Pos);
+      //     MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
+      //         Raw_R_fs.at(0), m_Prereflex.at(CR0_m), m_reflex.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
 
-       MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
-           Raw_R_fs.at(0), m_preold.at(CR0_m), m_pre.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
+      MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
+          Raw_R_fs.at(0), m_preold.at(CR0_m), m_pre.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
 
-       CR0Out.Pos = ParaR12.Pos;
-       PreJointAng.at(CR0_m) = ParaR12.Pos;
-       m_reflex_muscle.at(CR0_m) = Scaling(CR0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-       CR0Out.Vel = ParaR12.Vel;
-       PreJointVel.at(CR0_m) = ParaR12.Vel;
-
-
-     }
-     else
-     {
+      CR0Out.Pos = ParaR12.Pos;
+      PreJointAng.at(CR0_m) = ParaR12.Pos;
+      m_reflex_muscle.at(CR0_m) = Scaling(CR0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CR0Out.Vel = ParaR12.Vel;
+      PreJointVel.at(CR0_m) = ParaR12.Vel;
 
 
-       m_reflex_muscle.at(FR0_m) = dSWFTiFac * m_reflex.at(FR0_m) - dSWFTiOffset;
-       //m_reflex_muscle.at(FR0_m) = m_reflex.at(FR0_m);
-       PreJointAng.at(FR0_m) = Scaling(m_reflex.at(FR0_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-       PreJointVel.at(FR0_m) = 0;
-       m_reflex_muscle.at(CR0_m) = m_reflex.at(CR0_m);
-       PreJointAng.at(CR0_m) = Scaling(m_reflex.at(CR0_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-       PreJointVel.at(CR0_m) = 0;
+    }
+    else
+    {
 
-     }
+
+      m_reflex_muscle.at(FR0_m) = dSWFTiFac * m_reflex.at(FR0_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FR0_m) = m_reflex.at(FR0_m);
+      PreJointAng.at(FR0_m) = Scaling(m_reflex.at(FR0_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FR0_m) = 0;
+      m_reflex_muscle.at(CR0_m) = m_reflex.at(CR0_m);
+      PreJointAng.at(CR0_m) = Scaling(m_reflex.at(CR0_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CR0_m) = 0;
+
+    }
 
     MusclePara CR1Out, FR1Out;
 
-     if (m_pre.at(TR1_m) < m_preold.at(TR1_m))// && (Raw_R_fs.at(1) > FSERR)
-      {
-  //     m_Prereflex.at(FR1_m) = Scaling(m_Prereflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
-  //     m_reflex.at(FR1_m) = Scaling(m_reflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
-  //     m_Prereflex.at(CR1_m) = Scaling(m_Prereflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
-  //     m_reflex.at(CR1_m) = Scaling(m_reflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
+    if (m_pre.at(TR1_m) < m_preold.at(TR1_m))// && (Raw_R_fs.at(1) > FSERR)
+    {
+      //     m_Prereflex.at(FR1_m) = Scaling(m_Prereflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
+      //     m_reflex.at(FR1_m) = Scaling(m_reflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
+      //     m_Prereflex.at(CR1_m) = Scaling(m_Prereflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
+      //     m_reflex.at(CR1_m) = Scaling(m_reflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
 
-        MusclePara ParaR21 = RungeKutta41(PreJointAng.at(FR1_m), PreJointVel.at(FR1_m), SampleTime , Raw_R_fs_old.at(1),
-            Raw_R_fs.at(1), m_preold.at(FR1_m), m_pre.at(FR1_m), 0, K1[1], D1[1], HipLength, 0, FMusclActFac);
+      MusclePara ParaR21 = RungeKutta41(PreJointAng.at(FR1_m), PreJointVel.at(FR1_m), SampleTime , Raw_R_fs_old.at(1),
+          Raw_R_fs.at(1), m_preold.at(FR1_m), m_pre.at(FR1_m), 0, K1[1], D1[1], HipLength, 0, FMusclActFac);
 
-        FR1Out.Pos = ParaR21.Pos;
-        PreJointAng.at(FR1_m) = ParaR21.Pos;
-        m_reflex_muscle.at(FR1_m) = Scaling(FR1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-        FR1Out.Vel = ParaR21.Vel;
-        PreJointVel.at(FR1_m) = ParaR21.Vel;
+      FR1Out.Pos = ParaR21.Pos;
+      PreJointAng.at(FR1_m) = ParaR21.Pos;
+      m_reflex_muscle.at(FR1_m) = Scaling(FR1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FR1Out.Vel = ParaR21.Vel;
+      PreJointVel.at(FR1_m) = ParaR21.Vel;
 
-        double DisVe1 = (HipLength + Radius) * sin(ParaR21.Pos);
-  //      MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
-  //          Raw_R_fs.at(1), m_Prereflex.at(CR1_m), m_reflex.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
+      double DisVe1 = (HipLength + Radius) * sin(ParaR21.Pos);
+      //      MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
+      //          Raw_R_fs.at(1), m_Prereflex.at(CR1_m), m_reflex.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
 
-        MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
-            Raw_R_fs.at(1),  m_preold.at(CR1_m), m_pre.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
+      MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
+          Raw_R_fs.at(1),  m_preold.at(CR1_m), m_pre.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
 
-        CR1Out.Pos = ParaR22.Pos;
-        PreJointAng.at(CR1_m) = ParaR22.Pos;
-        m_reflex_muscle.at(CR1_m) = Scaling(CR1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-        CR1Out.Vel = ParaR22.Vel;
-        PreJointVel.at(CR1_m) = ParaR22.Vel;
-
-
-      }
-      else
-      {
+      CR1Out.Pos = ParaR22.Pos;
+      PreJointAng.at(CR1_m) = ParaR22.Pos;
+      m_reflex_muscle.at(CR1_m) = Scaling(CR1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CR1Out.Vel = ParaR22.Vel;
+      PreJointVel.at(CR1_m) = ParaR22.Vel;
 
 
-        m_reflex_muscle.at(FR1_m) = dSWFTiFac * m_reflex.at(FR1_m) - dSWFTiOffset;
-        //m_reflex_muscle.at(FR1_m) = m_reflex.at(FR1_m);
-        PreJointAng.at(FR1_m) = Scaling(m_reflex.at(FR1_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-        PreJointVel.at(FR1_m) = 0;
-        m_reflex_muscle.at(CR1_m) = m_reflex.at(CR1_m);
-        PreJointAng.at(CR1_m) = Scaling(m_reflex.at(CR1_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-        PreJointVel.at(CR1_m) = 0;
-
-      }
-
-     MusclePara CR2Out, FR2Out;
-
-      if (m_pre.at(TR2_m) < m_preold.at(TR2_m))// && (Raw_R_fs.at(1) > FSERR)
-       {
-
-  //      m_Prereflex.at(FR2_m) = Scaling(m_Prereflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
-  //      m_reflex.at(FR2_m) = Scaling(m_reflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
-  //      m_Prereflex.at(CR2_m) = Scaling(m_Prereflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
-  //      m_reflex.at(CR2_m) = Scaling(m_reflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
-
-         MusclePara ParaR31 = RungeKutta41(PreJointAng.at(FR2_m), PreJointVel.at(FR2_m), SampleTime , Raw_R_fs_old.at(2),
-             Raw_R_fs.at(2), m_preold.at(FR2_m), m_pre.at(FR2_m), 0, K1[2], D1[2], HipLength, 0, FMusclActFac);
-
-         FR2Out.Pos = ParaR31.Pos;
-         PreJointAng.at(FR2_m) = ParaR31.Pos;
-         m_reflex_muscle.at(FR2_m) = Scaling(FR2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-         FR2Out.Vel = ParaR31.Vel;
-         PreJointVel.at(FR2_m) = ParaR31.Vel;
-
-         double DisVe2 = (HipLength + Radius) * sin(ParaR31.Pos);
-  //       MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
-  //           Raw_R_fs.at(2), m_Prereflex.at(CR2_m), m_reflex.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
-
-         MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
-                  Raw_R_fs.at(2), m_preold.at(CR2_m), m_pre.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
+    }
+    else
+    {
 
 
-         CR2Out.Pos = ParaR32.Pos;
-         PreJointAng.at(CR2_m) = ParaR32.Pos;
-         m_reflex_muscle.at(CR2_m) = Scaling(CR2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-         CR2Out.Vel = ParaR32.Vel;
-         PreJointVel.at(CR2_m) = ParaR32.Vel;
+      m_reflex_muscle.at(FR1_m) = dSWFTiFac * m_reflex.at(FR1_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FR1_m) = m_reflex.at(FR1_m);
+      PreJointAng.at(FR1_m) = Scaling(m_reflex.at(FR1_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FR1_m) = 0;
+      m_reflex_muscle.at(CR1_m) = m_reflex.at(CR1_m);
+      PreJointAng.at(CR1_m) = Scaling(m_reflex.at(CR1_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CR1_m) = 0;
+
+    }
+
+    MusclePara CR2Out, FR2Out;
+
+    if (m_pre.at(TR2_m) < m_preold.at(TR2_m))// && (Raw_R_fs.at(1) > FSERR)
+    {
+
+      //      m_Prereflex.at(FR2_m) = Scaling(m_Prereflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
+      //      m_reflex.at(FR2_m) = Scaling(m_reflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
+      //      m_Prereflex.at(CR2_m) = Scaling(m_Prereflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
+      //      m_reflex.at(CR2_m) = Scaling(m_reflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
+
+      MusclePara ParaR31 = RungeKutta41(PreJointAng.at(FR2_m), PreJointVel.at(FR2_m), SampleTime , Raw_R_fs_old.at(2),
+          Raw_R_fs.at(2), m_preold.at(FR2_m), m_pre.at(FR2_m), 0, K1[2], D1[2], HipLength, 0, FMusclActFac);
+
+      FR2Out.Pos = ParaR31.Pos;
+      PreJointAng.at(FR2_m) = ParaR31.Pos;
+      m_reflex_muscle.at(FR2_m) = Scaling(FR2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FR2Out.Vel = ParaR31.Vel;
+      PreJointVel.at(FR2_m) = ParaR31.Vel;
+
+      double DisVe2 = (HipLength + Radius) * sin(ParaR31.Pos);
+      //       MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
+      //           Raw_R_fs.at(2), m_Prereflex.at(CR2_m), m_reflex.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
+
+      MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
+          Raw_R_fs.at(2), m_preold.at(CR2_m), m_pre.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
 
 
-       }
-       else
-       {
+      CR2Out.Pos = ParaR32.Pos;
+      PreJointAng.at(CR2_m) = ParaR32.Pos;
+      m_reflex_muscle.at(CR2_m) = Scaling(CR2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CR2Out.Vel = ParaR32.Vel;
+      PreJointVel.at(CR2_m) = ParaR32.Vel;
 
 
-         m_reflex_muscle.at(FR2_m) = dSWFTiFac * m_reflex.at(FR2_m) - dSWFTiOffset;
-         //m_reflex_muscle.at(FR2_m) = m_reflex.at(FR2_m);
-         PreJointAng.at(FR2_m) = Scaling(m_reflex.at(FR2_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-         PreJointVel.at(FR2_m) = 0;
-         m_reflex_muscle.at(CR2_m) = m_reflex.at(CR2_m);
-         PreJointAng.at(CR2_m) = Scaling(m_reflex.at(CR2_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-         PreJointVel.at(CR2_m) = 0;
-
-       }
+    }
+    else
+    {
 
 
-      MusclePara CL0Out, FL0Out;
+      m_reflex_muscle.at(FR2_m) = dSWFTiFac * m_reflex.at(FR2_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FR2_m) = m_reflex.at(FR2_m);
+      PreJointAng.at(FR2_m) = Scaling(m_reflex.at(FR2_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FR2_m) = 0;
+      m_reflex_muscle.at(CR2_m) = m_reflex.at(CR2_m);
+      PreJointAng.at(CR2_m) = Scaling(m_reflex.at(CR2_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CR2_m) = 0;
 
-       if (m_pre.at(TL0_m) < m_preold.at(TL0_m))// && (Raw_R_fs.at(1) > FSERR)
-        {
-
-  //       m_Prereflex.at(FL0_m) = Scaling(m_Prereflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
-  //       m_reflex.at(FL0_m) = Scaling(m_reflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
-  //       m_Prereflex.at(CL0_m) = Scaling(m_Prereflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
-  //       m_reflex.at(CL0_m) = Scaling(m_reflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
-  //
-           MusclePara ParaR41 = RungeKutta41(PreJointAng.at(FL0_m), PreJointVel.at(FL0_m), SampleTime , Raw_L_fs_old.at(0),
-               Raw_L_fs.at(0), m_preold.at(FL0_m), m_pre.at(FL0_m), 0, K1[3], D1[3], HipLength, 0, FMusclActFac);
-
-           FL0Out.Pos = ParaR41.Pos;
-           PreJointAng.at(FL0_m) = ParaR41.Pos;
-           m_reflex_muscle.at(FL0_m) = Scaling(FL0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-           FL0Out.Vel = ParaR41.Vel;
-           PreJointVel.at(FL0_m) = ParaR41.Vel;
-
-           double DisVe3 = (HipLength + Radius) * sin(ParaR41.Pos);
-  //         MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
-  //             Raw_L_fs.at(0), m_Prereflex.at(CL0_m), m_reflex.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
-
-           MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
-               Raw_L_fs.at(0), m_preold.at(CL0_m), m_pre.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
-
-           CL0Out.Pos = ParaR42.Pos;
-           PreJointAng.at(CL0_m) = ParaR42.Pos;
-           m_reflex_muscle.at(CL0_m) = Scaling(CL0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-           CL0Out.Vel = ParaR42.Vel;
-           PreJointVel.at(CL0_m) = ParaR42.Vel;
+    }
 
 
-         }
-         else
-         {
+    MusclePara CL0Out, FL0Out;
+
+    if (m_pre.at(TL0_m) < m_preold.at(TL0_m))// && (Raw_R_fs.at(1) > FSERR)
+    {
+
+      //       m_Prereflex.at(FL0_m) = Scaling(m_Prereflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
+      //       m_reflex.at(FL0_m) = Scaling(m_reflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
+      //       m_Prereflex.at(CL0_m) = Scaling(m_Prereflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
+      //       m_reflex.at(CL0_m) = Scaling(m_reflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
+      //
+      MusclePara ParaR41 = RungeKutta41(PreJointAng.at(FL0_m), PreJointVel.at(FL0_m), SampleTime , Raw_L_fs_old.at(0),
+          Raw_L_fs.at(0), m_preold.at(FL0_m), m_pre.at(FL0_m), 0, K1[3], D1[3], HipLength, 0, FMusclActFac);
+
+      FL0Out.Pos = ParaR41.Pos;
+      PreJointAng.at(FL0_m) = ParaR41.Pos;
+      m_reflex_muscle.at(FL0_m) = Scaling(FL0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FL0Out.Vel = ParaR41.Vel;
+      PreJointVel.at(FL0_m) = ParaR41.Vel;
+
+      double DisVe3 = (HipLength + Radius) * sin(ParaR41.Pos);
+      //         MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
+      //             Raw_L_fs.at(0), m_Prereflex.at(CL0_m), m_reflex.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
+
+      MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
+          Raw_L_fs.at(0), m_preold.at(CL0_m), m_pre.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
+
+      CL0Out.Pos = ParaR42.Pos;
+      PreJointAng.at(CL0_m) = ParaR42.Pos;
+      m_reflex_muscle.at(CL0_m) = Scaling(CL0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CL0Out.Vel = ParaR42.Vel;
+      PreJointVel.at(CL0_m) = ParaR42.Vel;
 
 
-           m_reflex_muscle.at(FL0_m) = dSWFTiFac * m_reflex.at(FL0_m) - dSWFTiOffset;
-           //m_reflex_muscle.at(FL0_m) = m_reflex.at(FL0_m);
-           PreJointAng.at(FL0_m) = Scaling(m_reflex.at(FL0_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-           PreJointVel.at(FL0_m) = 0;
-           m_reflex_muscle.at(CL0_m) = m_reflex.at(CL0_m);
-           PreJointAng.at(CL0_m) = Scaling(m_reflex.at(CL0_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-           PreJointVel.at(CL0_m) = 0;
-
-         }
-
-       MusclePara CL1Out, FL1Out;
-
-        if (m_pre.at(TL1_m) < m_preold.at(TL1_m))// && (Raw_R_fs.at(1) > FSERR)
-         {
-  //        m_Prereflex.at(FL1_m) = Scaling(m_Prereflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
-  //        m_reflex.at(FL1_m) = Scaling(m_reflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
-  //        m_Prereflex.at(CL1_m) = Scaling(m_Prereflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
-  //        m_reflex.at(CL1_m) = Scaling(m_reflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
-
-            MusclePara ParaR51 = RungeKutta41(PreJointAng.at(FL1_m), PreJointVel.at(FL1_m), SampleTime , Raw_L_fs_old.at(1),
-                Raw_L_fs.at(1), m_preold.at(FL1_m), m_pre.at(FL1_m), 0, K1[4], D1[4], HipLength, 0, FMusclActFac);
-
-            FL1Out.Pos = ParaR51.Pos;
-            PreJointAng.at(FL1_m) = ParaR51.Pos;
-            m_reflex_muscle.at(FL1_m) = Scaling(FL1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-            FL1Out.Vel = ParaR51.Vel;
-            PreJointVel.at(FL1_m) = ParaR51.Vel;
-
-            double DisVe4 = (HipLength + Radius) * sin(ParaR51.Pos);
-  //          MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
-  //              Raw_L_fs.at(1), m_Prereflex.at(CL1_m), m_reflex.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
-
-            MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
-                Raw_L_fs.at(1), m_preold.at(CL1_m), m_pre.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
-
-            CL1Out.Pos = ParaR52.Pos;
-            PreJointAng.at(CL1_m) = ParaR52.Pos;
-            m_reflex_muscle.at(CL1_m) = Scaling(CL1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-            CL1Out.Vel = ParaR52.Vel;
-            PreJointVel.at(CL1_m) = ParaR52.Vel;
+    }
+    else
+    {
 
 
-          }
-          else
-          {
+      m_reflex_muscle.at(FL0_m) = dSWFTiFac * m_reflex.at(FL0_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FL0_m) = m_reflex.at(FL0_m);
+      PreJointAng.at(FL0_m) = Scaling(m_reflex.at(FL0_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FL0_m) = 0;
+      m_reflex_muscle.at(CL0_m) = m_reflex.at(CL0_m);
+      PreJointAng.at(CL0_m) = Scaling(m_reflex.at(CL0_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CL0_m) = 0;
+
+    }
+
+    MusclePara CL1Out, FL1Out;
+
+    if (m_pre.at(TL1_m) < m_preold.at(TL1_m))// && (Raw_R_fs.at(1) > FSERR)
+    {
+      //        m_Prereflex.at(FL1_m) = Scaling(m_Prereflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
+      //        m_reflex.at(FL1_m) = Scaling(m_reflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
+      //        m_Prereflex.at(CL1_m) = Scaling(m_Prereflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
+      //        m_reflex.at(CL1_m) = Scaling(m_reflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
+
+      MusclePara ParaR51 = RungeKutta41(PreJointAng.at(FL1_m), PreJointVel.at(FL1_m), SampleTime , Raw_L_fs_old.at(1),
+          Raw_L_fs.at(1), m_preold.at(FL1_m), m_pre.at(FL1_m), 0, K1[4], D1[4], HipLength, 0, FMusclActFac);
+
+      FL1Out.Pos = ParaR51.Pos;
+      PreJointAng.at(FL1_m) = ParaR51.Pos;
+      m_reflex_muscle.at(FL1_m) = Scaling(FL1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FL1Out.Vel = ParaR51.Vel;
+      PreJointVel.at(FL1_m) = ParaR51.Vel;
+
+      double DisVe4 = (HipLength + Radius) * sin(ParaR51.Pos);
+      //          MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
+      //              Raw_L_fs.at(1), m_Prereflex.at(CL1_m), m_reflex.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
+
+      MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
+          Raw_L_fs.at(1), m_preold.at(CL1_m), m_pre.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
+
+      CL1Out.Pos = ParaR52.Pos;
+      PreJointAng.at(CL1_m) = ParaR52.Pos;
+      m_reflex_muscle.at(CL1_m) = Scaling(CL1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CL1Out.Vel = ParaR52.Vel;
+      PreJointVel.at(CL1_m) = ParaR52.Vel;
 
 
-            m_reflex_muscle.at(FL1_m) = dSWFTiFac * m_reflex.at(FL1_m) - dSWFTiOffset;
-            //m_reflex_muscle.at(FL1_m) = m_reflex.at(FL1_m);
-            PreJointAng.at(FL1_m) = Scaling(m_reflex.at(FL1_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-            PreJointVel.at(FL1_m) = 0;
-            m_reflex_muscle.at(CL1_m) = m_reflex.at(CL1_m);
-            PreJointAng.at(CL1_m) = Scaling(m_reflex.at(CL1_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-            PreJointVel.at(CL1_m) = 0;
-
-          }
-
-        MusclePara CL2Out, FL2Out;
-
-           if (m_pre.at(TL2_m) < m_preold.at(TL2_m))// && (Raw_R_fs.at(1) > FSERR)
-            {
-
-  //           m_Prereflex.at(CL2_m) = Scaling(m_Prereflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
-  //           m_Prereflex.at(FL2_m) = Scaling(m_Prereflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
-  //           m_reflex.at(FL2_m) = Scaling(m_reflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
-  //           m_reflex.at(CL2_m) = Scaling(m_reflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
-
-               MusclePara ParaR61 = RungeKutta41(PreJointAng.at(FL2_m), PreJointVel.at(FL2_m), SampleTime , Raw_L_fs_old.at(2),
-                   Raw_L_fs.at(2), m_preold.at(FL2_m), m_pre.at(FL2_m), 0, K1[5], D1[5], HipLength, 0, FMusclActFac);
-
-               FL2Out.Pos = ParaR61.Pos;
-               PreJointAng.at(FL2_m) = ParaR61.Pos;
-               m_reflex_muscle.at(FL2_m) = Scaling(FL2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
-               FL2Out.Vel = ParaR61.Vel;
-               PreJointVel.at(FL2_m) = ParaR61.Vel;
-
-               double DisVe5 = (HipLength + Radius) * sin(ParaR61.Pos);
-  //             MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
-  //                 Raw_L_fs.at(2), m_Prereflex.at(CL2_m), m_reflex.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
-
-               MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
-                                Raw_L_fs.at(2), m_preold.at(CL2_m), m_pre.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
-
-               CL2Out.Pos = ParaR62.Pos;
-               PreJointAng.at(CL2_m) = ParaR62.Pos;
-               m_reflex_muscle.at(CL2_m) = Scaling(CL2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
-               CL2Out.Vel = ParaR62.Vel;
-               PreJointVel.at(CL2_m) = ParaR62.Vel;
+    }
+    else
+    {
 
 
-             }
-             else
-             {
+      m_reflex_muscle.at(FL1_m) = dSWFTiFac * m_reflex.at(FL1_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FL1_m) = m_reflex.at(FL1_m);
+      PreJointAng.at(FL1_m) = Scaling(m_reflex.at(FL1_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FL1_m) = 0;
+      m_reflex_muscle.at(CL1_m) = m_reflex.at(CL1_m);
+      PreJointAng.at(CL1_m) = Scaling(m_reflex.at(CL1_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CL1_m) = 0;
+
+    }
+
+    MusclePara CL2Out, FL2Out;
+
+    if (m_pre.at(TL2_m) < m_preold.at(TL2_m))// && (Raw_R_fs.at(1) > FSERR)
+    {
+
+      //           m_Prereflex.at(CL2_m) = Scaling(m_Prereflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
+      //           m_Prereflex.at(FL2_m) = Scaling(m_Prereflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
+      //           m_reflex.at(FL2_m) = Scaling(m_reflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
+      //           m_reflex.at(CL2_m) = Scaling(m_reflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
+
+      MusclePara ParaR61 = RungeKutta41(PreJointAng.at(FL2_m), PreJointVel.at(FL2_m), SampleTime , Raw_L_fs_old.at(2),
+          Raw_L_fs.at(2), m_preold.at(FL2_m), m_pre.at(FL2_m), 0, K1[5], D1[5], HipLength, 0, FMusclActFac);
+
+      FL2Out.Pos = ParaR61.Pos;
+      PreJointAng.at(FL2_m) = ParaR61.Pos;
+      m_reflex_muscle.at(FL2_m) = Scaling(FL2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+      FL2Out.Vel = ParaR61.Vel;
+      PreJointVel.at(FL2_m) = ParaR61.Vel;
+
+      double DisVe5 = (HipLength + Radius) * sin(ParaR61.Pos);
+      //             MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
+      //                 Raw_L_fs.at(2), m_Prereflex.at(CL2_m), m_reflex.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
+
+      MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
+          Raw_L_fs.at(2), m_preold.at(CL2_m), m_pre.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
+
+      CL2Out.Pos = ParaR62.Pos;
+      PreJointAng.at(CL2_m) = ParaR62.Pos;
+      m_reflex_muscle.at(CL2_m) = Scaling(CL2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+      CL2Out.Vel = ParaR62.Vel;
+      PreJointVel.at(CL2_m) = ParaR62.Vel;
 
 
-               m_reflex_muscle.at(FL2_m) = dSWFTiFac * m_reflex.at(FL2_m) - dSWFTiOffset;
-               //m_reflex_muscle.at(FL2_m) = m_reflex.at(FL2_m);
-               PreJointAng.at(FL2_m) = Scaling(m_reflex.at(FL2_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
-               PreJointVel.at(FL2_m) = 0;
-               m_reflex_muscle.at(CL2_m) = m_reflex.at(CL2_m);
-               PreJointAng.at(CL2_m) = Scaling(m_reflex.at(CL2_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
-               PreJointVel.at(CL2_m) = 0;
+    }
+    else
+    {
 
-             }
 
+      m_reflex_muscle.at(FL2_m) = dSWFTiFac * m_reflex.at(FL2_m) - dSWFTiOffset;
+      //m_reflex_muscle.at(FL2_m) = m_reflex.at(FL2_m);
+      PreJointAng.at(FL2_m) = Scaling(m_reflex.at(FL2_m), FRMAXOUT, FRMINOUT, FRMAXANG, FRMINANG);
+      PreJointVel.at(FL2_m) = 0;
+      m_reflex_muscle.at(CL2_m) = m_reflex.at(CL2_m);
+      PreJointAng.at(CL2_m) = Scaling(m_reflex.at(CL2_m), CRMAXOUT, CRMINOUT, CRMAXANG, CRMINANG);
+      PreJointVel.at(CL2_m) = 0;
+
+    }
+  }
+  else
+  {
+    MusclePara CR0Out, FR0Out;
+
+    //    m_Prereflex.at(FR0_m) = Scaling(m_Prereflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
+    //    m_Prereflex.at(CR0_m) = Scaling(m_Prereflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
+    //    m_reflex.at(FR0_m) = Scaling(m_reflex.at(FR0_m), -0.67, -1.0, 1.0, -0.9);
+    //    m_reflex.at(CR0_m) = Scaling(m_reflex.at(CR0_m), 1.0, 0.71, 1.0, -1.0);
+
+    MusclePara ParaR11 = RungeKutta41(PreJointAng.at(FR0_m), PreJointVel.at(FR0_m), SampleTime , Raw_R_fs_old.at(0),
+        Raw_R_fs.at(0), m_preold.at(FR0_m), m_pre.at(FR0_m), 0, K1[0], D1[0], HipLength, 0, FMusclActFac);
+
+    FR0Out.Pos = ParaR11.Pos;
+    PreJointAng.at(FR0_m) = ParaR11.Pos;
+    m_reflex_muscle.at(FR0_m) = Scaling(FR0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FR0Out.Vel = ParaR11.Vel;
+    PreJointVel.at(FR0_m) =  ParaR11.Vel;
+
+    double DisVe = (HipLength + Radius) * sin(ParaR11.Pos);
+    //     MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
+    //         Raw_R_fs.at(0), m_Prereflex.at(CR0_m), m_reflex.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR12 = RungeKutta42(PreJointAng.at(CR0_m), PreJointVel.at(CR0_m), SampleTime , Raw_R_fs_old.at(0),
+        Raw_R_fs.at(0), m_preold.at(CR0_m), m_pre.at(CR0_m), DisVe, K2[0], D2[0], KneeLength, 0, CMusclActFac);
+
+    CR0Out.Pos = ParaR12.Pos;
+    PreJointAng.at(CR0_m) = ParaR12.Pos;
+    m_reflex_muscle.at(CR0_m) = Scaling(CR0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CR0Out.Vel = ParaR12.Vel;
+    PreJointVel.at(CR0_m) = ParaR12.Vel;
+
+
+
+    MusclePara CR1Out, FR1Out;
+
+    //     m_Prereflex.at(FR1_m) = Scaling(m_Prereflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
+    //     m_reflex.at(FR1_m) = Scaling(m_reflex.at(FR1_m), -0.67, -1.0, 1.0, -0.9);
+    //     m_Prereflex.at(CR1_m) = Scaling(m_Prereflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
+    //     m_reflex.at(CR1_m) = Scaling(m_reflex.at(CR1_m), 1.0, 0.71, 1.0, -1.0);
+
+    MusclePara ParaR21 = RungeKutta41(PreJointAng.at(FR1_m), PreJointVel.at(FR1_m), SampleTime , Raw_R_fs_old.at(1),
+        Raw_R_fs.at(1), m_preold.at(FR1_m), m_pre.at(FR1_m), 0, K1[1], D1[1], HipLength, 0, FMusclActFac);
+
+    FR1Out.Pos = ParaR21.Pos;
+    PreJointAng.at(FR1_m) = ParaR21.Pos;
+    m_reflex_muscle.at(FR1_m) = Scaling(FR1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FR1Out.Vel = ParaR21.Vel;
+    PreJointVel.at(FR1_m) = ParaR21.Vel;
+
+    double DisVe1 = (HipLength + Radius) * sin(ParaR21.Pos);
+    //      MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
+    //          Raw_R_fs.at(1), m_Prereflex.at(CR1_m), m_reflex.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR22 = RungeKutta42(PreJointAng.at(CR1_m), PreJointVel.at(CR1_m), SampleTime , Raw_R_fs_old.at(1),
+        Raw_R_fs.at(1),  m_preold.at(CR1_m), m_pre.at(CR1_m), DisVe1, K2[1], D2[1], KneeLength, 0, CMusclActFac);
+
+    CR1Out.Pos = ParaR22.Pos;
+    PreJointAng.at(CR1_m) = ParaR22.Pos;
+    m_reflex_muscle.at(CR1_m) = Scaling(CR1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CR1Out.Vel = ParaR22.Vel;
+    PreJointVel.at(CR1_m) = ParaR22.Vel;
+
+
+
+    MusclePara CR2Out, FR2Out;
+
+
+
+    //      m_Prereflex.at(FR2_m) = Scaling(m_Prereflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
+    //      m_reflex.at(FR2_m) = Scaling(m_reflex.at(FR2_m), -0.67, -1.0, 1.0, -0.9);
+    //      m_Prereflex.at(CR2_m) = Scaling(m_Prereflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
+    //      m_reflex.at(CR2_m) = Scaling(m_reflex.at(CR2_m), 1.0, 0.71, 1.0, -1.0);
+
+    MusclePara ParaR31 = RungeKutta41(PreJointAng.at(FR2_m), PreJointVel.at(FR2_m), SampleTime , Raw_R_fs_old.at(2),
+        Raw_R_fs.at(2), m_preold.at(FR2_m), m_pre.at(FR2_m), 0, K1[2], D1[2], HipLength, 0, FMusclActFac);
+
+    FR2Out.Pos = ParaR31.Pos;
+    PreJointAng.at(FR2_m) = ParaR31.Pos;
+    m_reflex_muscle.at(FR2_m) = Scaling(FR2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FR2Out.Vel = ParaR31.Vel;
+    PreJointVel.at(FR2_m) = ParaR31.Vel;
+
+    double DisVe2 = (HipLength + Radius) * sin(ParaR31.Pos);
+    //       MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
+    //           Raw_R_fs.at(2), m_Prereflex.at(CR2_m), m_reflex.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR32 = RungeKutta42(PreJointAng.at(CR2_m), PreJointVel.at(CR2_m), SampleTime , Raw_R_fs_old.at(2),
+        Raw_R_fs.at(2), m_preold.at(CR2_m), m_pre.at(CR2_m), DisVe2, K2[2], D2[2], KneeLength, 0, CMusclActFac);
+
+
+    CR2Out.Pos = ParaR32.Pos;
+    PreJointAng.at(CR2_m) = ParaR32.Pos;
+    m_reflex_muscle.at(CR2_m) = Scaling(CR2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CR2Out.Vel = ParaR32.Vel;
+    PreJointVel.at(CR2_m) = ParaR32.Vel;
+
+
+
+
+
+
+    MusclePara CL0Out, FL0Out;
+
+
+    //       m_Prereflex.at(FL0_m) = Scaling(m_Prereflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
+    //       m_reflex.at(FL0_m) = Scaling(m_reflex.at(FL0_m), -0.67, -1.0, 1.0, -0.9);
+    //       m_Prereflex.at(CL0_m) = Scaling(m_Prereflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
+    //       m_reflex.at(CL0_m) = Scaling(m_reflex.at(CL0_m), 1.0, 0.71, 1.0, -1.0);
+    //
+    MusclePara ParaR41 = RungeKutta41(PreJointAng.at(FL0_m), PreJointVel.at(FL0_m), SampleTime , Raw_L_fs_old.at(0),
+        Raw_L_fs.at(0), m_preold.at(FL0_m), m_pre.at(FL0_m), 0, K1[3], D1[3], HipLength, 0, FMusclActFac);
+
+    FL0Out.Pos = ParaR41.Pos;
+    PreJointAng.at(FL0_m) = ParaR41.Pos;
+    m_reflex_muscle.at(FL0_m) = Scaling(FL0Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FL0Out.Vel = ParaR41.Vel;
+    PreJointVel.at(FL0_m) = ParaR41.Vel;
+
+    double DisVe3 = (HipLength + Radius) * sin(ParaR41.Pos);
+    //         MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
+    //             Raw_L_fs.at(0), m_Prereflex.at(CL0_m), m_reflex.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR42 = RungeKutta42(PreJointAng.at(CL0_m), PreJointVel.at(CL0_m), SampleTime , Raw_L_fs_old.at(0),
+        Raw_L_fs.at(0), m_preold.at(CL0_m), m_pre.at(CL0_m), DisVe3, K2[3], D2[3], KneeLength, 0, CMusclActFac);
+
+    CL0Out.Pos = ParaR42.Pos;
+    PreJointAng.at(CL0_m) = ParaR42.Pos;
+    m_reflex_muscle.at(CL0_m) = Scaling(CL0Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CL0Out.Vel = ParaR42.Vel;
+    PreJointVel.at(CL0_m) = ParaR42.Vel;
+
+
+
+    MusclePara CL1Out, FL1Out;
+
+
+    //        m_Prereflex.at(FL1_m) = Scaling(m_Prereflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
+    //        m_reflex.at(FL1_m) = Scaling(m_reflex.at(FL1_m), -0.67, -1.0, 1.0, -0.9);
+    //        m_Prereflex.at(CL1_m) = Scaling(m_Prereflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
+    //        m_reflex.at(CL1_m) = Scaling(m_reflex.at(CL1_m), 1.0, 0.71, 1.0, -1.0);
+
+    MusclePara ParaR51 = RungeKutta41(PreJointAng.at(FL1_m), PreJointVel.at(FL1_m), SampleTime , Raw_L_fs_old.at(1),
+        Raw_L_fs.at(1), m_preold.at(FL1_m), m_pre.at(FL1_m), 0, K1[4], D1[4], HipLength, 0, FMusclActFac);
+
+    FL1Out.Pos = ParaR51.Pos;
+    PreJointAng.at(FL1_m) = ParaR51.Pos;
+    m_reflex_muscle.at(FL1_m) = Scaling(FL1Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FL1Out.Vel = ParaR51.Vel;
+    PreJointVel.at(FL1_m) = ParaR51.Vel;
+
+    double DisVe4 = (HipLength + Radius) * sin(ParaR51.Pos);
+    //          MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
+    //              Raw_L_fs.at(1), m_Prereflex.at(CL1_m), m_reflex.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR52 = RungeKutta42(PreJointAng.at(CL1_m), PreJointVel.at(CL1_m), SampleTime , Raw_L_fs_old.at(1),
+        Raw_L_fs.at(1), m_preold.at(CL1_m), m_pre.at(CL1_m), DisVe4, K2[4], D2[4], KneeLength, 0, CMusclActFac);
+
+    CL1Out.Pos = ParaR52.Pos;
+    PreJointAng.at(CL1_m) = ParaR52.Pos;
+    m_reflex_muscle.at(CL1_m) = Scaling(CL1Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CL1Out.Vel = ParaR52.Vel;
+    PreJointVel.at(CL1_m) = ParaR52.Vel;
+
+
+
+
+    MusclePara CL2Out, FL2Out;
+
+
+
+    //           m_Prereflex.at(CL2_m) = Scaling(m_Prereflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
+    //           m_Prereflex.at(FL2_m) = Scaling(m_Prereflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
+    //           m_reflex.at(FL2_m) = Scaling(m_reflex.at(FL2_m), -0.67, -1.0, 1.0, -0.9);
+    //           m_reflex.at(CL2_m) = Scaling(m_reflex.at(CL2_m), 1.0, 0.71, 1.0, -1.0);
+
+    MusclePara ParaR61 = RungeKutta41(PreJointAng.at(FL2_m), PreJointVel.at(FL2_m), SampleTime , Raw_L_fs_old.at(2),
+        Raw_L_fs.at(2), m_preold.at(FL2_m), m_pre.at(FL2_m), 0, K1[5], D1[5], HipLength, 0, FMusclActFac);
+
+    FL2Out.Pos = ParaR61.Pos;
+    PreJointAng.at(FL2_m) = ParaR61.Pos;
+    m_reflex_muscle.at(FL2_m) = Scaling(FL2Out.Pos, FRMAXANG, FRMINANG, FRMAXOUT, FRMINOUT);
+    FL2Out.Vel = ParaR61.Vel;
+    PreJointVel.at(FL2_m) = ParaR61.Vel;
+
+    double DisVe5 = (HipLength + Radius) * sin(ParaR61.Pos);
+    //             MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
+    //                 Raw_L_fs.at(2), m_Prereflex.at(CL2_m), m_reflex.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
+
+    MusclePara ParaR62 = RungeKutta42(PreJointAng.at(CL2_m), PreJointVel.at(CL2_m), SampleTime , Raw_L_fs_old.at(2),
+        Raw_L_fs.at(2), m_preold.at(CL2_m), m_pre.at(CL2_m), DisVe5, K2[5], D2[5], KneeLength, 0, CMusclActFac);
+
+    CL2Out.Pos = ParaR62.Pos;
+    PreJointAng.at(CL2_m) = ParaR62.Pos;
+    m_reflex_muscle.at(CL2_m) = Scaling(CL2Out.Pos, CRMAXANG, CRMINANG, CRMAXOUT, CRMINOUT);
+    CL2Out.Vel = ParaR62.Vel;
+    PreJointVel.at(CL2_m) = ParaR62.Vel;
+
+
+
+
+
+  }
   /*******************************************************************************
-    *  FINAL MOTOR OUTPUTS TO MOTOR NEURONS
-    *******************************************************************************/
+   *  FINAL MOTOR OUTPUTS TO MOTOR NEURONS
+   *******************************************************************************/
 
   for (unsigned int i = TR0_m; i < (BJ_m + 1); i++) {
     m.at(i) = m_reflex.at(i);
   }
 
-// muscle outputs
+  // muscle outputs
+  //standing muscle test
+  if (PUSHBEHA == 1)
+  {
+    for (unsigned int i = TR0_m; i < (TL2_m +1); i++)
+    {
+      m.at(i) = 0.0;
+    }
+  }
+  //standing muscle test
   for (unsigned int i = CR0_m; i < (CL2_m +1); i++)
   {
     m.at(i) = m_reflex_muscle.at(i);
@@ -919,7 +1155,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m.at(i) = m_reflex_muscle.at(i);
   }
 
-//
+  //
 
   m.at(BJ_m) = m_pre.at(BJ_m);
 
