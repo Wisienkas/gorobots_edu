@@ -25,7 +25,7 @@
 using namespace std;
 //Save files
 //#define SWICTRTOPUSH
-#define DAMPERFORPUSH 0.6 // 0.3 or 0.4 = most soft and stable
+#define DAMPERFORPUSH 0.6 // 0.3 or 0.4 = most soft and stable // 0.6 hard
 
 #ifndef SWICTRTOPUSH
 #define CRMAXANG ((-100.0/180.0)*3.14159265358979)//((100.0/180.0)*3.14159265358979)
