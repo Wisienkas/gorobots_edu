@@ -65,6 +65,10 @@ class ExampleController : public AbstractController {
     double micData[3][200]; //buffer interpolated microphone signals 
     double corr[3][100]; //buffer correlation functions
 
+    bool testing_sensor_motor;
+    bool obstacle_avoidance;
+    bool sound_direction_detection;
+
 };
 
 
