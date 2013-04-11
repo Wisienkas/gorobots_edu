@@ -228,8 +228,8 @@ TestController5::TestController5(std::string name, double ini, const TestControl
 
 
   // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: TestController5.cpp,v $",
-      "$Revision: 0.1 $");
+//  Configurable::insertCVSInfo(name, "$RCSfile: TestController5.cpp,v $",
+//      "$Revision: 0.1 $");
 }
 
 

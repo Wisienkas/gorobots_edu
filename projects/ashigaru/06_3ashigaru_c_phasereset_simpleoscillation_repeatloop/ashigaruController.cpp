@@ -133,8 +133,8 @@ AshigaruController::AshigaruController(std::string name, const AshigaruConf& _aC
 
 
   // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: AshigaruController.cpp,v $",
-      "$Revision: 0.1 $");
+//  Configurable::insertCVSInfo(name, "$RCSfile: AshigaruController.cpp,v $",
+//      "$Revision: 0.1 $");
 }
 
 

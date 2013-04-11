@@ -61,8 +61,8 @@ TestController2::TestController2(std::string name, double ini, const TestControl
   ofs << "# time(s),  outPutH1[1], outPutH2[1], bias[1], footContact[1], outPutH1[2], outPutH2[2], bias[2], footContact[2]" << std::endl;
 
   // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: TestController2.cpp,v $",
-      "$Revision: 0.1 $");
+//  Configurable::insertCVSInfo(name, "$RCSfile: TestController2.cpp,v $",
+//      "$Revision: 0.1 $");
 }
 
 
