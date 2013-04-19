@@ -269,7 +269,7 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 		//turn on for POMDP scenario (for fully observable case equal weghtage works best)
 		learn_combined_weights = true; //true ; //true /*true*/;
 
-		scenario_flag = 2  ; // default case full observable; set to 2 for POMDP
+		scenario_flag = 1;  // default case full observable 1; set to 2 for POMDP
 
 		reduce_noise = 0;
 		reduce_noise_ICO = 0;
@@ -866,6 +866,10 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			//Blue
 			xt[_ias1] =xt_ico_lowpass3;
+
+			break;
+
+			std::cout<<"\n I am here \n";
 		}
 
 		case 2:
@@ -884,6 +888,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			else
 				xt[_ias1] = 0.0;
+
+			break;
 
 		}
 
@@ -1138,6 +1144,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 					//Blue
 					xt[_ias1] =xt_ico_lowpass3;
+
+					break;
 				}
 
 				case 2:
@@ -1156,6 +1164,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 					else
 						xt[_ias1] = 0.0;
+
+					break;
 
 				}
 

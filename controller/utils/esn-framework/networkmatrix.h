@@ -236,6 +236,8 @@ class ESNetwork{
       bool feedbackConnections;//whether outputs feed back to hidden layer
       bool leak; // enable or disable leaky integrated neurons
 
+      int withRL;
+
       /*Intrinsic plasticity parameters para_a and para_b*/
 
       double para_a;
