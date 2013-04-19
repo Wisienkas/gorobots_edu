@@ -15,7 +15,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
- *   AMOSII v2 has now only 18 sensors                                     *
+ *   AMOSII v2 has now only 18 sensors
+ *   Testing                                  *
  ***************************************************************************/
 
 #include <selforg/agent.h>
