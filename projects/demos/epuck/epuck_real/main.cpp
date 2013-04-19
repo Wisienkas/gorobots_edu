@@ -25,7 +25,6 @@
 #include "epuckbluetooth.h"
 
 #include "examplecontroller.h"
-//#include "simple_avoid_obstacle.h"
 
 
 using namespace std;
