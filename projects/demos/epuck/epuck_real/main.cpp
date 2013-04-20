@@ -2,6 +2,8 @@
 /*
  * This file was created by Tobias Jahn on Tuesday May 01, 2012
  *
+ * Modify by Poramate Manoonpong on  20 April 2013
+ *
  * This example shows the usage of the real epuck interface
  *
  *To run the program at terminal type:
