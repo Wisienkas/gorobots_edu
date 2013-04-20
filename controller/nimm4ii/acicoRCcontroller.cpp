@@ -863,7 +863,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		switch (scenario_flag) {
 
 		case 1:
-		{
+		//{
 			//Green
 			xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
 
@@ -874,10 +874,10 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
       break;
 
-		}
+		//}
 
 		case 2:
-		{
+		//{
 			/* partial observable case */
 
 			if (xt_ico2[_ias1] < 0.6)
@@ -897,7 +897,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			break;
 
-		}
+		//}
 
 		}
 
@@ -1144,7 +1144,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		switch (scenario_flag) {
 
 				case 1:
-				{
+				//{
 					//Green
 					xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
 
@@ -1154,10 +1154,10 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 				  std::cout<<"\n fully observe ico \n";
 
 					break;
-				}
+				//}
 
 				case 2:
-				{
+				//{
 					/* partial observable case */
 
 					if (xt_ico2[_ias1] < 0.6)
@@ -1177,7 +1177,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 					break;
 
-				}
+				//}
 
 				}
 		 printf("xt[_ias0]= %f \n xt[_ias1]= %f \n", xt[_ias0],xt[_ias1]);

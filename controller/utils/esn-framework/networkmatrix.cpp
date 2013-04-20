@@ -362,7 +362,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	switch (withRL){/* Set to td_error for actor-critic learning and otherwise to default */
 	case 1 :
-	{
+	//{
 		for (int i = 0; i < outputNeurons; i++)
 		{
 			onlineError->val(0,i) = td_error;//(atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
@@ -370,9 +370,9 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 		}
 		break;
-	}
+	//}
 	case 2:
-	{
+	//{
 		for (int i = 0; i < outputNeurons; i++)
 		{
 			onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
@@ -380,7 +380,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 		}
 		break;
-	}
+	//}
 
 	}
 
