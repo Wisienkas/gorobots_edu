@@ -6,11 +6,40 @@
  *
  *To run the program at terminal type:
  *
- *./start /dev/rfcomm0 for Epuck 2358
- *./start /dev/rfcomm1 for Epuck 0990
- *./start /dev/rfcomm2 for Epuck 3202
- *./start /dev/rfcomm3 for Epuck 2899
- *./start /dev/rfcomm4 for Epuck 3068
+ *./start -g 1 -p /dev/rfcomm0 for Epuck 2358
+ *./start -g 1 -p /dev/rfcomm1 for Epuck 0990
+ *./start -g 1 -p /dev/rfcomm2 for Epuck 3202
+ *./start -g 1 -p /dev/rfcomm3 for Epuck 2899
+ *./start -g 1 -p /dev/rfcomm4 for Epuck 3068
+ *
+ * GUI logger
+ * xR[0]= accX
+ * xR[1]= accY
+ * xR[2]= accZ
+ * xR[3]= ir_front_right
+ * xR[4]= ir_middle_front_right
+ * xR[5]= ir_middle_right
+ * xR[6]= ir_back_right
+ * xR[7]= ir_back_left
+ * xR[8]= ir_middle_left
+ * xR[9]= ir_middle_front_left
+ * xR[10]= ir_front_left
+ *
+ * xR[11]= AMBIENT_LIGHT_front_right
+ * xR[12]= AMBIENT_LIGHT_middle_front_right
+ * xR[13]= AMBIENT_LIGHT_middle_right
+ * xR[14]= AMBIENT_LIGHT_back_right
+ * xR[15]= AMBIENT_LIGHT_back_left
+ * xR[16]= AMBIENT_LIGHT_middle_left
+ * xR[17]= AMBIENT_LIGHT_middle_front_left
+ * xR[18]= AMBIENT_LIGHT_front_left
+ *
+ * xR[19]= Ground0 sensor left
+ * xR[20]= Ground1 sensor middle
+ * xR[21]= Ground2 sensor right
+ *
+ * xR[22].... = MIC0, MIC1, MIC02, CAM
+ *
  */
 
 #include <iostream>
@@ -33,6 +62,18 @@ using namespace lpzrobots;
 volatile bool abortLoop;
 void endLoop(int){abortLoop=1;}
 
+bool singleline = true; // whether to display the state in a single line
+
+
+// Helper
+int contains(char **list, int len, const char *str) {
+  for (int i = 0; i < len; i++) {
+    if (strcmp(list[i], str) == 0)
+      return i + 1;
+  }
+  return 0;
+}
+;
 
 int main(int argc, char** argv)
 {
@@ -53,7 +94,31 @@ int main(int argc, char** argv)
   //40x40 = 1600 pixel or 2x10 = 20 pixel * 3 colors
   //maximum of Pixels is 3200
 
-  if (argc !=1)  conf.port = argv[1];
+//********Adding for plotting graph ************************//
+  list<PlotOption> plotoptions;
+  int port = 1;
+
+  int index = contains(argv, argc, "-g");
+  if (index > 0 && argc > index) {
+    plotoptions.push_back(PlotOption(GuiLogger, atoi(argv[index])));
+  }
+  if (contains(argv, argc, "-f") != 0)
+    plotoptions.push_back(PlotOption(File));
+  if (contains(argv, argc, "-n") != 0)
+    plotoptions.push_back(PlotOption(MatrixViz));
+  if (contains(argv, argc, "-l") != 0)
+    singleline = false;
+  index = contains(argv, argc, "-p");
+
+//********Adding for interfacing to a robot*******************//
+  index = contains(argv, argc, "-p");
+  if (index > 0 && argc > index)
+    conf.port = argv[index];
+
+
+
+
+ // if (argc !=1)  conf.port = argv[1];
 
 
 
@@ -61,8 +126,11 @@ int main(int argc, char** argv)
   EPuckBluetooth *robot = new EPuckBluetooth(conf);
   AbstractWiring *wiring = new One2OneWiring(new WhiteUniformNoise(),true);
   ExampleController *controller = new ExampleController();
-  Agent* agent = new Agent();
+  Agent* agent = new Agent(plotoptions);
+  //Agent* agent = new Agent();
   agent->init(controller, robot, wiring);
+
+
 
   cout << "Created. Embedded softwareversion:\n\t" << (char*)robot->version;
   usleep(1e6);
