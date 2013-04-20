@@ -870,9 +870,10 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			//Blue
 			xt[_ias1] =xt_ico_lowpass3;
 
-			break;
+      std::cout<<"\n fully observe \n";
 
-			std::cout<<"\n I am here \n";
+      break;
+
 		}
 
 		case 2:
@@ -891,6 +892,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			else
 				xt[_ias1] = 0.0;
+
+		  std::cout<<"\n partially observe \n";
 
 			break;
 
@@ -1148,6 +1151,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 					//Blue
 					xt[_ias1] =xt_ico_lowpass3;
 
+				  std::cout<<"\n fully observe ico \n";
+
 					break;
 				}
 
@@ -1167,6 +1172,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 					else
 						xt[_ias1] = 0.0;
+
+					std::cout<<"\n partial observe ico \n";
 
 					break;
 
