@@ -91,7 +91,7 @@ bool drawtrace_on = false;//true;//---------------------------------------------
 bool random_positon_spheres = false;
 bool random_positon = false;//true;
 bool random_positon_frist = false;//-------------------------------------------------CH
-bool random_orientation = false;
+bool random_orientation = true;
 
 #define MAX_x   11.0//10.0 //11.0//9.0	//Max range-------------------------------------------------CH VERY IMPORTANT FACTOR
 #define MIN_x   4.0  //5.0 (TEST) //Min range-------------------------------------------------CH VERY IMPORTANT FACTOR

@@ -343,6 +343,9 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 			k[i] = 0.0;
 		}
 
+		//k[0]= -0.01;
+		//k[1]= 0.01;
+
 		//		double MAX_k0, MIN_k0;
 		//		double MAX_k1, MIN_k1;
 		//
@@ -1395,16 +1398,16 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		u_ico_lowpass = u_ico_old*0.9 + u_ico[0]*w_ico*0.1;
 		ut_lowpass = ut_old*0.9 + ut[0]*w_ac*0.1;
 
-		//  u_ico_lowpass = u_ico_lowpass*0.9 + u_ico[0]*0.1;
+		 // u_ico_lowpass = u_ico_lowpass*0.9 + u_ico[0]*0.1;
 		// ut_lowpass = ut_lowpass*0.9 + ut[0]*0.1;
 
 
 		//  if(exp_output[0]<0.0001) learn_combined_weights = false;  // stop learning combined  weights once the robot converges to the correct goal
 
 		if(learn_combined_weights){
-			if(rt>0)
-			{ w_ico = w_ico + rate*(rt*(u_ico_lowpass));
-			w_ac =  w_ac + rate*(rt*(ut_lowpass));
+			//if(rt>0)
+			{ w_ico = w_ico + rate*(rt*abs(u_ico[0]-u_ico_lowpass));
+			w_ac =  w_ac + rate*(rt*abs(ut[0]-ut_lowpass));
 
 			//Synaptic normalization
 
@@ -1501,7 +1504,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 
 			y = (V1-Vt)/(V1-V0);
 			max_value = max(0, y);
-			min_value = min(/*0.1*/0.1 ,max_value); //changing from 1 to 0.1
+			min_value = min(/*0.1*/0.5 ,max_value); //changing from 1 to 0.1
 
 			//   if(min_value ==0) min_value = 0.1;
 
