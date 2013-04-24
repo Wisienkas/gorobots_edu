@@ -50,6 +50,7 @@ ESNetwork * ESN;
 float * ESinput;
 float * ESTrainOutput;
 
+double EXP_keep_value;
 
 //----AC network parameters------------//
 
@@ -402,7 +403,7 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 		gam = 0.98;//0.98;//0.98; // discount factor of Vt (critic)
 		error_thresh = 0.1; // threshold for critic weight changes
 		unit_activation_thresh = 0.3;//0.3;//0.6; // threshold for critic weight changes
-		lambda_v = 0.0;//0.9;//0.7;// E trace of Vt value: 0.0<= lambda_v < 1.0, if lambda_v ~> 1.0 = high low pass, if lambda_v ~> 0.0 = no low pass (critic)
+		lambda_v = 0.0;//0.9;//0.7;// E trace of Vt value: 0.0<= lambda_v < 1.0, if lambda_v ~> 1.0 = hqigh low pass, if lambda_v ~> 0.0 = no low pass (critic)
 		Vt = 0.0;
 		td_error_old = 0.0;
 		deri_td_error = 0.0;
@@ -863,21 +864,20 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		switch (scenario_flag) {
 
 		case 1:
-		//{
+		{
 			//Green
 			xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
 
 			//Blue
 			xt[_ias1] =xt_ico_lowpass3;
 
-      std::cout<<"\n fully observe \n";
+			break;
 
-      break;
-
-		//}
+			std::cout<<"\n I am here \n";
+		}
 
 		case 2:
-		//{
+		{
 			/* partial observable case */
 
 			if (xt_ico2[_ias1] < 0.6)
@@ -893,11 +893,9 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			else
 				xt[_ias1] = 0.0;
 
-		  std::cout<<"\n partially observe \n";
-
 			break;
 
-		//}
+		}
 
 		}
 
@@ -1144,20 +1142,18 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		switch (scenario_flag) {
 
 				case 1:
-				//{
+				{
 					//Green
 					xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
 
 					//Blue
 					xt[_ias1] =xt_ico_lowpass3;
 
-				  std::cout<<"\n fully observe ico \n";
-
 					break;
-				//}
+				}
 
 				case 2:
-				//{
+				{
 					/* partial observable case */
 
 					if (xt_ico2[_ias1] < 0.6)
@@ -1173,11 +1169,9 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 					else
 						xt[_ias1] = 0.0;
 
-					std::cout<<"\n partial observe ico \n";
-
 					break;
 
-				//}
+				}
 
 				}
 		 printf("xt[_ias0]= %f \n xt[_ias1]= %f \n", xt[_ias0],xt[_ias1]);
@@ -1194,7 +1188,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		//input_distance_s4 = normalized distance from Goal 4 [0,...,1]
 
 		//2) Exploration noise
-
+		 if(!combinecontrol){
 		double lp_gain =  0.99;//0.6;
 		double sig_nolearning = 5.0;
 		//Exploration gradient output
@@ -1211,6 +1205,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			//printf("ICO %d \n\n", nrepeat);
 		}
 
+		printf("\n inside loop ************************");
+		 }
 
 		//Check state
 		failure_flag_ico = 0;
@@ -1336,7 +1332,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			if(abs(exp_output[0])< 0.0001)
 				exp_output[0] = 0.0;
 
-			//printf("exp_output[0] = %f : reduce_noise_ICO = %d\n", exp_output[0], reduce_noise_ICO);
+			printf("exp_output[0] in !combine = %f : reduce_noise_ICO = %d\n", exp_output[0], reduce_noise_ICO);
 
 
 		}
@@ -1352,6 +1348,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			if(abs(exp_output_decay_ICO)< 0.0001)
 				exp_output_decay_ICO = 0.0;
 
+			printf("\n exp_output in combined loop = %f",exp_output[0]);
 
 			u_ico[0] = 1.0*u_ico_in[1]+1.0*u_ico_in[2];
 
@@ -1408,12 +1405,11 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		 // u_ico_lowpass = u_ico_lowpass*0.9 + u_ico[0]*0.1;
 		// ut_lowpass = ut_lowpass*0.9 + ut[0]*0.1;
 
+        printf("\n EXP_crazy_output[0] = %g EXP_keep_value float = %f",exp_output[0], EXP_keep_value);
+
+	//	if(!(exp_output[0]<0.0001)){ //learn_combined_weights = false;  // stop learning combined  weights once the robot converges to the correct goal
 
 		if(learn_combined_weights){
-
-		  //if(abs(exp_output[0])==0.0)  // stop learning combined  weights once the robot converges to the correct goal
-		  //  rate = 0.0;
-
 			//if(rt>0)
 			{ w_ico = w_ico + rate*(rt*abs(u_ico[0]-u_ico_lowpass));
 			w_ac =  w_ac + rate*(rt*abs(ut[0]-ut_lowpass));
@@ -1428,7 +1424,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			}
 		}
-
+	//	}
 
 
 		y_[0] = w_ico*y_ico[0]+w_ac*y_ac[0]; // left front wheel
@@ -1513,9 +1509,10 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 
 			y = (V1-Vt)/(V1-V0);
 			max_value = max(0, y);
-			min_value = min(/*0.1*/0.5 ,max_value); //changing from 1 to 0.1
+			min_value = min(/*0.1*/0.33 ,max_value); //changing from 1 to 0.1
 
 			//   if(min_value ==0) min_value = 0.1;
+
 
 			sig_nolearning = sig0_nolearning*min_value;
 
@@ -1526,6 +1523,13 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 			{
 				exp_output[i]= exp_output_decay*sig_nolearning*exploration_lowpass_g[i]*(lp_gain);
 			}
+
+			if((exp_output[0]<0.0001)) learn_combined_weights = false;
+			else
+				learn_combined_weights = true;
+
+			EXP_keep_value = exp_output[0];
+			printf("\n EXP Keep_value in noise calc = %f",EXP_keep_value);
 
 			//printf("no learning low pass noise:  max_value= %f, min_value= %f, exp_output[0]= %f Vt= %f\n", max_value, min_value, exp_output[0], Vt);
 
@@ -1601,7 +1605,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 
 		for(int i =0; i< UDIM /*2*/; i++)
 		{
-
+            printf("\n exp_output in AC loop = %f",exp_output[1]);
 			u[i] = u_tmp[i]+exp_output[i];
 		}
 
