@@ -1409,8 +1409,6 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		// ut_lowpass = ut_lowpass*0.9 + ut[0]*0.1;
 
 
-		//if(exp_output[0]<0.0001) learn_combined_weights = false;  // stop learning combined  weights once the robot converges to the correct goal
-
 		if(learn_combined_weights){
 
 		  //if(abs(exp_output[0])==0.0)  // stop learning combined  weights once the robot converges to the correct goal
