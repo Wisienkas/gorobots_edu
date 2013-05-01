@@ -1,0 +1,3 @@
+This is a controller having 6 CPGs for the six legged robot amosiiv2.
+This program is for testing learned periods for compensating leg malfunctions.
+The implementation and algorithm can be seen in the TRO2013 paper.
