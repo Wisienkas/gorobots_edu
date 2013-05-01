@@ -1,0 +1,2 @@
+This is a controller which combines 6 CPGs and simulated annealing for the six legged robot amosiiv2.
+The implementation and algorithm can be seen in the TRO2013 paper.
