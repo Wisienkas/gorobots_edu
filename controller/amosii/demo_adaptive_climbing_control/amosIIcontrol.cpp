@@ -23,7 +23,7 @@
 #include <selforg/controller_misc.h>
 #include <math.h>
 #include "amosIIcontrol.h"
-#include <ode_robots/amosII.h>
+//#include <ode_robots/amosII.h>
 using namespace matrix;
 using namespace std;
 
