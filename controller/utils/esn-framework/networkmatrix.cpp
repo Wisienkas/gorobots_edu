@@ -21,6 +21,9 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 {
 	enable_IP = param4;
 
+	nonlinearity = 1; // sigmoid default
+	outnonlinearity = 0; //linear default
+
 	//parameters:
 	throughputConnections = param1; //if this boolean is true, the input matrix is added to
 	feedbackConnections = param2; //param2;//true;
@@ -28,7 +31,7 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	// turn on RLS learning for combinatorial learning
 	withRL=1; // change to '2' for standard ESN
 
-	double leak_rate = param3; // rate of leakage of neurons
+	 leak_rate = param3; // rate of leakage of neurons
 	if (leak_rate ==0)
 		leak = false;
 	else
@@ -59,8 +62,10 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	//input weight matrix
 	startweights = new matrix::Matrix(networkNeurons, inputNeurons);
 
+	feedweights = new matrix::Matrix(networkNeurons, outputNeurons);
+
 	//Reservoir weight matrix. Matrix is bigger if the output feeds back
-	int temp =  networkNeurons + (feedbackConnections ?  outputNeurons : 0);
+	int temp =  networkNeurons ;//+ (feedbackConnections ?  outputNeurons : 0);
 	innerweights = new matrix::Matrix(temp, temp);
 
 	//Output weight matrix. Matrix is bigger, if the output feeds back
@@ -78,7 +83,7 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 		for(j=0;j< networkNeurons; j++)
 		{
 			if(i==j)
-				onlineLearningAutocorrelation->val(i,j)= 1;//pow(10,2); // Need to set to a high value depending on task at hand. In general for artificial data set to high and for NIMM4 leave as it is
+				onlineLearningAutocorrelation->val(i,j)= 1; //pow(10,5); // Need to set to a high value depending on task at hand. In general for artificial data set to high and for NIMM4 leave as it is
 			else
 				onlineLearningAutocorrelation->val(i,j)= 0.0;
 		}
@@ -151,11 +156,20 @@ void ESNetwork::generate_random_weights(int sparsity, float spectral_radius) //s
 	for(i = 0; i < startweights->getM(); i++)
 		for (j=0; j< startweights->getN();j++)
 		{
-			if ((rand()%100) >= 60/*sparsity*/)
+			if ((rand()%100) >= 50/*sparsity*/)
 			{startweights->val(i,j)= ESNetwork::uniform(-0.5,0.5);} //((double)(rand()%100)/100);}}
 			else
 				startweights->val(i,j)= 0.000;
 		}
+
+	for(i = 0; i < feedweights->getM(); i++)
+			for (j=0; j< feedweights->getN();j++)
+			{
+				//if ((rand()%100) >= 50/*sparsity*/)
+				{feedweights->val(i,j)= ESNetwork::uniform(-0.5,0.5);} //((double)(rand()%100)/100);}}
+			//	else
+					//startweights->val(i,j)= 0.000;
+			}
 
 	//initialise the inner weights
 	j = 0;
@@ -332,16 +346,33 @@ void ESNetwork::trainOutputs(float * Inputs, float * Outputs, int time, int disc
 	delete desiredOutput;
 }
 
+//void ESNetwork::RLSForceLearning(float *Outputs, float td_error)
+//{
+////	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
+////	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
+////	onlineError = new matrix::Matrix(1, outputNeurons);
+////
+////	for (int i = 0; i < outputNeurons; i++)
+////			{
+////				onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
+////
+////
+////			}
+////	transposedIntermediates = new matrix::Matrix(1, networkNeurons);
+////	*transposedIntermediates = *intermediates;
+////	transposedIntermediates->toTranspose();
+//
+
+  //}
 
 
 
-
-void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, float td_error)
+void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, float td_error, double param)
 {
-	//std::cout << "Trained to  "  << Outputs[0] << std::endl;
-	//-----------------The matrices we need-----------------------------//
+
 	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
 	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
+//	matrix::Matrix *outputnoise = new matrix::Matrix(outputNeurons, networkNeurons);
 	//   matrix::Mtrix *scale = new matrix::Matrix(1,networkNeurons);
 
 	onlineError = new matrix::Matrix(1, outputNeurons); //the Error vector between input and output
@@ -362,7 +393,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	switch (withRL){/* Set to td_error for actor-critic learning and otherwise to default */
 	case 1 :
-	//{
+	{
 		for (int i = 0; i < outputNeurons; i++)
 		{
 			onlineError->val(0,i) = td_error;//(atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
@@ -370,9 +401,9 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 		}
 		break;
-	//}
+	}
 	case 2:
-	//{
+	{
 		for (int i = 0; i < outputNeurons; i++)
 		{
 			onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
@@ -380,30 +411,30 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 		}
 		break;
-	//}
+	}
 
 	}
 
 	/*
 	 *  Step 2:Output weights change delta W_out is set to   onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
 	 */
-	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
-	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
-	temp2->mult(*temp,*intermediates);
-
-	double scale = 1/(forgettingFactor + temp2->val(0,0));
-	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
-
-
-	/*
-	 * Step 3: the onlineLearningAutocorrelation is diminished by  delta_w * x(t)^T *itself and divided by the forgetting factor
-	 */
-
-	temp->mult(*toChangeOutputWeights, *transposedIntermediates);
-	temp2->mult(*temp, *onlineLearningAutocorrelation);
-
-	*temp = *onlineLearningAutocorrelation - *temp2;
-	onlineLearningAutocorrelation->mult(*temp, 1/forgettingFactor); //end STEP 3
+//	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
+//	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
+//	temp2->mult(*temp,*intermediates);
+//
+//	double scale = 1/(forgettingFactor + temp2->val(0,0));
+//	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
+//
+//
+//	/*
+//	 * Step 3: the onlineLearningAutocorrelation is diminished by  delta_w * x(t)^T *itself and divided by the forgetting factor
+//	 */
+//
+//	temp->mult(*toChangeOutputWeights, *transposedIntermediates);
+//	temp2->mult(*temp, *onlineLearningAutocorrelation);
+//
+//	*temp = *onlineLearningAutocorrelation - *temp2;
+//	onlineLearningAutocorrelation->mult(*temp, 1/forgettingFactor); //end STEP 3
 
 
 
@@ -411,15 +442,23 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	/*
 	 * Finally, the weights are updated and temporary matrices are deleted
 	 */
-	toChangeOutputWeights->toTranspose();
-	temp->mult(*onlineError,*toChangeOutputWeights);
+//	toChangeOutputWeights->toTranspose();
+//	temp->mult(*onlineError,*toChangeOutputWeights);
 
 	/* FOR Least Means Squares Learning*/
-	//    temp->mult(*onlineError,*transposedIntermediates);
-	//    temp->mult(*temp,forgettingFactor);
+	   temp->mult(*onlineError,*transposedIntermediates);
+	//    temp->mult(*temp,*inputs);
+	    temp->mult(*temp,forgettingFactor);
 
+    if (param)
+    	temp->mult(*temp, param);
 
-	*endweights = *endweights + *temp;
+//    for(int i = 0; i < outputNeurons; i++)
+//    	for(int j =0; j< networkNeurons; j++)
+//    outputnoise->val(i,j) = ESNetwork::uniform(-0.0005,0.0005);
+
+	*endweights = *endweights + *temp  ;
+//	*endweights = *endweights + *outputnoise;
 
 	//std::cout << "online learning step finished \n \n \n";
 
@@ -438,14 +477,18 @@ void ESNetwork::trainBackpropagationDecorrelation(float * Outputs, float learnin
 
 
 //computes the new state of all neurons except input
-void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , bool learn, int timestep)
+void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , bool learn, int timestep, double param)
 {
 
 	matrix::Matrix * temp = new matrix::Matrix(1,networkNeurons);
+	matrix::Matrix * feed = new matrix::Matrix(1,networkNeurons);
 	matrix::Matrix * temp2 = new matrix::Matrix(1,networkNeurons);
 	matrix::Matrix * temp3 = new matrix::Matrix(1,inputNeurons+networkNeurons);
 	matrix::Matrix * temp4 = new matrix::Matrix(networkNeurons, networkNeurons);
 	matrix::Matrix * temp5 = new matrix::Matrix(1,networkNeurons);
+	matrix::Matrix * old_intermediates = new matrix::Matrix(networkNeurons,1);
+	matrix::Matrix * temp6 = new matrix::Matrix(networkNeurons,1);
+	matrix::Matrix * transposeoutputs = new matrix::Matrix(1,networkNeurons);
 
 
 	if(leak== false)
@@ -454,25 +497,43 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 
 		if (feedbackConnections)
 		{
-			temp2->mult(*innerweights, intermediates->above(*outputs))  ;
-			temp2->removeRows(networkNeurons);
+			//temp2->mult(*innerweights, intermediates->above(*outputs))  ;
+			//temp2->removeRows(networkNeurons);
+
+			feed->mult(*feedweights,*outputs);
+			temp2->mult( *innerweights, *intermediates);
 		}
 		else
 		{
 			temp2->mult( *innerweights, *intermediates);
 		}
-		intermediates->add(*temp, *temp2);
+		if(!feedbackConnections) intermediates->add(*temp, *temp2);
+
+		else if(feedbackConnections)
+		{
+			intermediates->add(*temp, *temp2);
+     	intermediates->add(*intermediates,*feed);
+		}
 		//std::cout <<  "inner Neurons computed:\n";
 
+		// For noise to every neuron
+				 for(int i = 0; i < networkNeurons; i++)
+		    	                  	  for(int j = 0; j < 1; j++)
+		    	                    noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
+
+
 		//Add noise to the inner reservoir
+
 		intermediates->add(*intermediates, *noise);
 
 		ESNetwork::cullInnerVector(0.6);
 
 		if (throughputConnections)
 		{
-			*temp3 = *inputs;
-			*temp3 = temp3->beside(*intermediates);
+			//*temp3 = *inputs;
+			*temp3 = *intermediates;
+		//	*temp3 = temp3->beside(*intermediates);
+			*temp3 = temp3->beside(*inputs);
 
 
 		}
@@ -484,36 +545,59 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	}
 	if (leak == true)
 	{
+        *old_intermediates = *intermediates;
+
 
 		temp->mult(*startweights, *inputs);
 
+	//	*transposeoutputs = *outputs;
+	//	transposeoutputs->toTranspose();
+
 		if (feedbackConnections)
-		{
-			temp2->mult(*innerweights, intermediates->above(*outputs))  ;
-			temp2->removeRows(networkNeurons);
+		{     temp2->mult(*innerweights, intermediates->above(*outputs))  ;
+		      temp2->removeRows(networkNeurons);
+//			temp6->mult(*innerweights, outputs->val(0,0) /*intermediates->above(*outputs)*/)  ;
+		//	temp2->removeRows(networkNeurons);
 		}
 		else
 		{
-			temp2->mult( *innerweights, *intermediates);
+			temp2->mult( *innerweights, *old_intermediates /**intermediates*/);
 		}
+
+
 		intermediates->add(*temp, *temp2);
-		//std::cout <<  "inner Neurons computed:\n";
+
+		//intermediates->add(*intermediates, *temp6);
 
 		// For noise to every neuron
-		/* for(int i = 0; i < networkNeurons; i++)
-    	                  	  for(int j = 0; j < 1; j++)
-    	                    noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
-		 */
+				 for(int i = 0; i < networkNeurons; i++)
+		    	     for(int j = 0; j < 1; j++)
+		    	        noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
 
-		// adding bias to reservoir neurons
-		//	        intermediates->add(*intermediates, *noise);
+
+				// adding bias to reservoir neurons
+					        intermediates->add(*intermediates, *noise);
 
 		ESNetwork::cullInnerVector(0.6);
 
+		//temp6->mult(*old_intermediates, 1-leak_rate);
 
-		temp5->mult(*leak_mat,*intermediates);
+		intermediates->mult(*intermediates, 1-leak_rate);
 
-		intermediates->add(*temp5, *intermediates);
+
+	//	intermediates->add(*temp6, *intermediates);
+
+
+		//std::cout <<  "inner Neurons computed:\n";
+
+
+
+	//	ESNetwork::cullInnerVector(0.6);
+
+
+	//	temp5->mult(*leak_mat,*intermediates);
+
+	//	intermediates->add(*temp5, *intermediates);
 
 
 
@@ -538,13 +622,13 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 		if (td_error!= 0)
 		{
 
-			trainOnlineRecursive(Outputs, learningRate, (td_error));
+			trainOnlineRecursive(Outputs, learningRate, (td_error), param);
 
 			outputs->mult(*endweights, *temp3);
 
 			//       outputsCollection[timestep] = outputs->val(0,0);
 
-			//         printMatrix(endweights);
+			    //     printMatrix(endweights);
 
 		}
 	}
@@ -562,12 +646,15 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 
 	ESNetwork::cullOutput(0.6);
 
-
+    delete feed;
 	delete temp;
 	delete temp2;
 	delete temp3;
 	delete temp4;
 	delete temp5;
+	delete temp6;
+	delete old_intermediates;
+	delete transposeoutputs;
 }
 
 float ESNetwork::evaluatePerformance(int start,int end, float * desiredOutputs)
@@ -659,20 +746,35 @@ void ESNetwork::cullInnerVector(float treshold /*unused*/)
 {
 	for(unsigned int i = 0; i < intermediates->getM(); i++)
 	{
-		// intermediates->val(i,0) = ESNetwork::sigmoid(intermediates->val(i,0));
-		intermediates->val(i,0) = ESNetwork::tanh(intermediates->val(i,0),true);
+
+		if (nonlinearity == 0 )
+			intermediates->val(i,0) = intermediates->val(i,0);
+
+		else if (nonlinearity == 1 )
+		{intermediates->val(i,0) = ESNetwork::sigmoid(intermediates->val(i,0));}
+
+		else if (nonlinearity == 2)
+		intermediates->val(i,0) = ESNetwork::tanh(intermediates->val(i,0),false);
 
 		//Keep flag set to true for intrinsic plasticity, otherwise False
 
-		//   if (intermediates->val(i,0)*intermediates->val(i,0)<=0.0001) intermediates->val(i,0) = 0;
+		  if (intermediates->val(i,0)*intermediates->val(i,0)<=0.0001) intermediates->val(i,0) = 0;
 	}
 }
+
 void ESNetwork::cullOutput(float treshold /*unused*/)
 {
 	for( unsigned int i = 0; i < outputs->getM(); i++)
 	{
-		//	  outputs->val(i,0) = ESNetwork::sigmoid(outputs->val(i,0));
-		outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), false);
+
+	 if (outnonlinearity == 0) outputs->val(i,0) = outputs->val(i,0);
+
+	else if (outnonlinearity == 1 )
+			  outputs->val(i,0) = ESNetwork::sigmoid(outputs->val(i,0));
+	else if (outnonlinearity == 2)
+		     outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), false);
+
+			 // if (outputs->val(i,0)*outputs->val(i,0)<=0.0001) outputs->val(i,0) = 0;
 	}
 }
 float ESNetwork::sigmoid(float x)

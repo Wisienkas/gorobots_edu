@@ -85,21 +85,24 @@ using namespace lpzrobots;
 //ACICOControllerV13* qcontroller;
 ACICOControllerV14* qcontroller;
 
-bool obstacle_on = false;
-bool drawtrace_on = false;//true;//---------------------------------------------------------------------------TEST
+bool obstacle_on = true; //true;//true;
+bool drawtrace_on = true;//true;//---------------------------------------------------------------------------TEST
 
 bool random_positon_spheres = false;
 bool random_positon = false;//true;
 bool random_positon_frist = false;//-------------------------------------------------CH
-bool random_orientation = true;
+bool random_orientation = false;
+
+int shiftObstacle = 0;
 
 #define MAX_x   11.0//10.0 //11.0//9.0	//Max range-------------------------------------------------CH VERY IMPORTANT FACTOR
-#define MIN_x   4.0  //5.0 (TEST) //Min range-------------------------------------------------CH VERY IMPORTANT FACTOR
+#define MIN_x   4.0//4.0  //5.0 (TEST) //Min range-------------------------------------------------CH VERY IMPORTANT FACTOR
 
 #define MAX_y   2.5//5.0 // 9.0 	//Max range
 #define MIN_y   -2.5//-5.0//-9.0 	//Min range
-#define pos_obstacle_x 5.0 //7
-#define pos_obstacle_y 3.0
+
+int pos_obstacle_x = 7.0; //5.0; //7.0; //7
+int pos_obstacle_y = 0;//5.0; //0; //7.0;//0; //0 //-7.0 // 0
 
 #define MAX_or	M_PI/3 // 60 deg
 #define MIN_or	-M_PI/3 // 60 deg
@@ -116,7 +119,7 @@ int number_boxes = 1; // SET NUMBER of BOXES obstacles
 
 bool repeat_experiment = true;//true; //if select true then set the follwing parameters
 int repeat_number = 500;// 1000;
-double time_factor = 0.25/2;//0.25/2;
+double time_factor = 0.25/2; ///2;//0.25/2;
 
 //0.25/4 = 7.5s
 //0.25/2 = 15 s
@@ -227,11 +230,17 @@ public:
 			//Target 2
 
 			//if (i==1) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S+10, 0.5/*0*/));
+
 			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 0.5/*0*/)); //Green Sphere
+
+			//if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/)); //Green Sphere
 
 			//Target 3
 			//if (i==2) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S-10, 0.5/*0*/));
+
 			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/)); //Blue sphere
+
+			//if (i==2) s1->setPosition(osg::Vec3(22.0 /*position_S*/, position_S+15, 0.5/*0*/)); //Blue sphere
 
 
 			//Target 4
@@ -287,7 +296,7 @@ public:
 
 
 		PassiveBox* b1;
-		double length = 1.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
+		double length = 6.5; //6.5 ; //20.0;//20.0; //4.5; //6.0 ; //4.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
 		double width = 1.0;
 		double height = 1.0;
 
@@ -295,6 +304,8 @@ public:
 
 		if(obstacle_on)
 		{
+			random_position_S = 0.0;
+
 			for (int i=0; i < number_boxes /*SET NUMBER OF OBSTACLES*/; i++){
 				b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(length, width, height /*size*/));
 				//b1->setTexture("dusty.rgb");
@@ -303,7 +314,11 @@ public:
 				//osg::Matrix pose;
 				//			pose.setTrans(osg::Vec3(/*-4.5+*/i*4.5,3+i,0));
 				//b1->setPose(osg::Matrix::rotate(0.5*(M_PI/2), 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*4.5,3+i,0.5) /* pose*/);
-				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+i*-pos_obstacle_y*2.0/*0+i*/,height/2) /* pose*/);
+
+
+				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), random_position_S /*0*/,0,1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+random_position_S*i/*i*-pos_obstacle_y*2.0*//*0+i*/,height/2) /* pose*/);
+
+				random_position_S  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
 				global.obstacles.push_back(b1);
 				fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
 				fixator.at(i)->init(odeHandle, osgHandle);
@@ -403,10 +418,13 @@ public:
 
 				Pos pos(position_x-5.0/*, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
 
+			//	Pos pos(position_x-5.0/*, +x = to left, -x = to right*/,-2.0/*y*/,0.0/*z*/);
 				std::cout << "random_or1: " << random_or << std::endl;
 
 				//setting position and orientation
 				vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
+			//	vehicle3->place(osg::Matrix::rotate(1, 0, 0, -1) *osg::Matrix::translate(pos));
+			//	vehicle3->place(osg::Matrix::rotate(0, 0, 0, -1) *osg::Matrix::translate(pos));
 				//setting only position
 				//vehicle3->place(Pos(position_x-5.0/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
 
@@ -454,18 +472,20 @@ public:
 			plotoptions.push_back(PlotOption(NoPlot /*select "File" to save signals, "NoPlot" to not save*/));
 			OdeAgent* agent3 = new OdeAgent(plotoptions);
 
-			if(drawtrace_on)
-			{
-				TrackRobot* track3 = new TrackRobot(/*bool trackPos*/true,
-						/*bool trackSpeed*/false,
-						/*bool trackOrientation*/false,
-						/*bool displayTrace*/true //,
-				/*const char *scene="", int interval=1*/);
-				agent3->setTrackOptions(*track3);
-			}
+
 
 			agent3->init(qcontroller, vehicle3, wiring3);///////////// Initial controller!!!
 			global.agents.push_back(agent3);
+
+			if(drawtrace_on)
+						{
+							TrackRobot* track3 = new TrackRobot(/*bool trackPos*/true,
+									/*bool trackSpeed*/false,
+									/*bool trackOrientation*/false,
+									/*bool displayTrace*/true
+							/*const char *scene="", int interval=1*/,"",60);
+							agent3->setTrackOptions(*track3);
+						}
 
 		}
 
@@ -501,7 +521,7 @@ public:
 //		}
 
 		////////////////////////////////////Another set up and Control//////////////////////////////////////////////
-		bool manually_steered_robot = false;
+//		bool manually_steered_robot = false;
 //		if (manually_steered_robot){
 //			// 2nd robot
 //			OdeRobot* vehicle2 = new Nimm4(odeHandle, osgHandle, "Nimm4",
@@ -777,6 +797,8 @@ public:
 		{
 			vehicle3->place(Pos(position_x-5.0/*x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
 
+		//	vehicle3->place(Pos(position_x-5.0/*x, +x = to left, -x = to right*/,-3.0/*y*/,0.0/*z*/));
+
 		}
 
 
@@ -807,6 +829,8 @@ public:
 
 			//setting position and orientation
 			vehicle3->place(osg::Matrix::rotate(0.0, 0, 0, 1) *osg::Matrix::translate(pos));
+
+		//	vehicle3->place(osg::Matrix::rotate(0, 0, 0, -1) *osg::Matrix::translate(pos));
 			//setting only position
 			//vehicle3->place(Pos(position_x-5.0/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
 		}
@@ -871,15 +895,37 @@ public:
 		//OdeAgent* agent3 = new OdeAgent(global);
 		agent3->init(qcontroller, vehicle3, wiring3);
 
+//		if (shiftObstacle ==1 && obstacle_on == true)
+//			{
+//			   pos_obstacle_y = 2;
+//
+//			   shiftObstacle =0;
+//
+//			for (int i=0; i < number_boxes /*SET NUMBER OF OBSTACLES*/; i++){
+//				b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(length, width, height /*size*/));
+//				//b1->setTexture("dusty.rgb");
+//				b1->setColor(Color(1,0,0));
+//				//b1->setPosition(osg::Vec3(/*-4.5+*/i*4.5,3+i,0)); // Fixed robot position
+//				//osg::Matrix pose;
+//				//			pose.setTrans(osg::Vec3(/*-4.5+*/i*4.5,3+i,0));
+//				//b1->setPose(osg::Matrix::rotate(0.5*(M_PI/2), 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*4.5,3+i,0.5) /* pose*/);
+//				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+i*-pos_obstacle_y*2.0/*0+i*/,height/2) /* pose*/);
+//				global.obstacles.push_back(b1);
+//				fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
+//				fixator.at(i)->init(odeHandle, osgHandle);
+//			    }
+//
+//	      }
+
 		if(drawtrace_on)
-		{
-			TrackRobot* track3 = new TrackRobot(/*bool trackPos*/true/*true*/,
-					/*bool trackSpeed*/false,
-					/*bool trackOrientation*/false,
-					/*bool displayTrace*/ true //,
-			/*const char *scene="", int interval=1*/);
-			agent3->setTrackOptions(*track3);
-		}
+								{
+									TrackRobot* track3 = new TrackRobot(/*bool trackPos*/true,
+											/*bool trackSpeed*/false,
+											/*bool trackOrientation*/false,
+											/*bool displayTrace*/true
+									/*const char *scene="", int interval=1*/,"",60);
+									agent3->setTrackOptions(*track3);
+								}
 		global.agents.push_back(agent3);
 
 		std::cout << "\n end restart " << currentCycle << "\n";
@@ -907,11 +953,15 @@ public:
 		{
 			/***********************Reset Function*********************************************/
 
-			if (globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <5/*10*/|| qcontroller->failure_flag==1)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
+			if (globalData.sim_step>=(time_factor*/*60.0*/60.0*200.000) || qcontroller->distance <5 /*5*/ || qcontroller->failure_flag==1)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
 			//if (globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <5/*10*/|| qcontroller->failure_flag_ico==1)
 			//if (globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->failure_flag_ico==1 || qcontroller->failure_flag==1)
 			//if (globalData.sim_step>=(time_factor*100*60.0*200.000))
 			{
+
+
+
+
 				qcontroller->resetlearing(0);
 
 				//qcontroller->setReset(repeat_number);//(10);

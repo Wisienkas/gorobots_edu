@@ -103,12 +103,19 @@ public:
 	double w_ico;
 	double w_ac;
 	double rate;
+	double rate_ss;
 	double ss_rate;
+	bool exploreEnd;
 
 	bool learn_combined_weights;
 
 	double u_ico_lowpass;
 	double ut_lowpass;
+
+	double ut0_lowpass;
+	double ut1_lowpass;
+	double ut2_lowpass;
+	double ut3_lowpass;
 
 	double u_ico_old;
 	double ut_old;
@@ -381,6 +388,9 @@ public:
 	double xt[XDIM];
 	double ut[UDIM];
 	double old_ut;
+	double old_ut1;
+	double old_ut2;
+	double old_ut3;
 	double k[WDIM]; //Weights of actor = XDIM*UDIM
 	double si;
 	double exp_output[UDIM];
@@ -418,6 +428,8 @@ public:
 
 	//Toggle between RBF critic and ESN critic Flag value
 	bool ESN_critic;
+
+	long int start_time;
 
 	//sensor1 -> angle sensor
 	double theta_limit;

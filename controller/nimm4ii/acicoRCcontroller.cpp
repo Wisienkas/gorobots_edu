@@ -46,9 +46,14 @@ Cell VALUE;
 
 //-----ESN network-----//
 
-ESNetwork * ESN;
+ESNetwork * ESN, * ESN_actor;
+
 float * ESinput;
+float * EAinput;
+float * EATrainOutput;
 float * ESTrainOutput;
+
+double gain0, gain1, rate_rls, roh0, roh1;
 
 double EXP_keep_value;
 
@@ -57,20 +62,47 @@ double EXP_keep_value;
 using namespace matrix;
 using namespace std;
 
+bool learn_critic;
+bool learn_actor;
 
+double r_total = 0.0;
+
+double accum_error = 0.0;
 
 ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 : AbstractController("ACICOControllerV14", "$Id: "), conf(_conf)
 {
 	//added:
+//
+	ESN = new ESNetwork(3/*+1*/,1,100, false, false, 0); // try with 50,100, 200, 300 reservoir neurons
+//
+	ESN->generate_random_weights(10 /*90*/);
 
-	ESN = new ESNetwork(3/*+1*/,1,100); // try with 50,100, 200, 300 reservoir neurons
+	ESN_actor = new ESNetwork(4,1,100, false, false, 0);
+//
+	ESN_actor->generate_random_weights(90 /*90*/);
 
-	ESN->generate_random_weights(90);
+//	ESN_actor->leak = false;
+
+//	ESN->leak = false;
+
+	ESN->outnonlinearity = 2;//2; //2 ; //1;
+	ESN_actor->outnonlinearity = 2;
+
+	ESN->nonlinearity = 2;// 2;
+	ESN_actor->nonlinearity = 0;
+
+   exploreEnd = false;
+
+	int time;
+
+
 
 	td_error=0.0;
 
 	ESinput = new float[3];//sizeof(xt)];   // size of input as number of robot sensors
+
+	EAinput = new float[4];
 
 	cout << "ESN generated" << endl;
 
@@ -81,11 +113,27 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 		ESinput[i] = 0.0;
 
 	}
+//
+	for(unsigned int i = 0; i < 4; i++)
+		{
+			EAinput[i] = 0.0;
 
+	}
+//
+//
 	ESTrainOutput = new float[1]; // single ouput neuron
-
+//
 	ESTrainOutput[0] = 0.0;
+//
+	EATrainOutput = new float[1];
 
+
+//
+	for(unsigned int i = 0; i < 1; i++)
+			{
+		EATrainOutput[i] = 0.0;
+
+			}
 
 	preprogrammed_steering_control_active =false;
 	t=0;
@@ -209,6 +257,7 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 	addInspectableValue("exploration_lowpass_g",&exploration_lowpass_g[0],"exploration_lowpass");
 	addInspectableValue("exploration_lowpass_g1",&exploration_lowpass_g[1],"exploration_lowpass1");
 	addInspectableValue("xt[_ias0]",&xt[_ias0],"xt[_ias0]");
+	addInspectableValue("irl_lowpass",&irl_lowpass,"irl_lowpass");
 
 	//----Protecting Reset parameters------//
 	initialized = false; //-----------------------------------------------(FRANK)
@@ -216,7 +265,7 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 	large_input_rangev2 = false;
 
 	//No learning noise
-	no_learning_noise = true;
+	no_learning_noise = true ; //true;
 	//----Protecting Reset parameters------//
 
 };
@@ -246,6 +295,10 @@ ACICOControllerV14::~ACICOControllerV14()
 	delete []ESinput;
 	delete []ESTrainOutput;
 
+	delete []ESN_actor;
+	delete []EAinput;
+	delete []EATrainOutput;
+
 	cout << "ESN unloaded" << endl;
 
 
@@ -259,21 +312,30 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 	stepnumber_t = 0;
 	if(!initialized) //-----------------------------------------------(FRANK)
 	{
-		w_ico = 0.5;
-		w_ac= 0.5;
+		roh0 = 0.01;//1000;//0.001;//pow(10,5);
+		roh1 = 0.01; //1000;//0.001;//pow(10,5);
+
+		rate_rls = 0.9998; //0.99998; //0.995;
+
+		w_ico = 0.5; //0.1;//0.5; //0.5;
+		w_ac= 0.5; //0.1;//0.5; //0.5;
 		rate = 0.0005;
+		rate_ss = 0.000005; // 0.0005
+
 		ss_rate = 0.0005;
 
 		//Change between ESN and RBF critic
-		ESN_critic = true;
+		ESN_critic = true; //true; //false; //true; //true; //true; //true; //false; //true;//true;
 
 		//turn on for POMDP scenario (for fully observable case equal weghtage works best)
-		learn_combined_weights = true; //true ; //true /*true*/;
+		learn_combined_weights = true; //false ; //true ;//true; //true ; //true /*true*/;
 
-		scenario_flag = 1;  // default case full observable 1; set to 2 for POMDP
+		scenario_flag = 1; //2;//1  // default case full observable 1; set to 2 for POMDP
 
 		reduce_noise = 0;
 		reduce_noise_ICO = 0;
+
+		start_time = time(NULL);
 
 
 		number_sensors = sensornumber;
@@ -344,8 +406,8 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 			k[i] = 0.0;
 		}
 
-		//k[0]= -0.01;
-		//k[1]= 0.01;
+	//	k[0]= 0.0;
+	//	k[1]= 0.0;
 
 		//		double MAX_k0, MIN_k0;
 		//		double MAX_k1, MIN_k1;
@@ -424,7 +486,7 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 		//----AC network parameters------------//
 
 		//---ICO learning----------------------//
-		rate_ico = 0.005;   // 0.005;// ICO         0.001; // ICO_AC
+		rate_ico = 0.001; //0.001; //0.005;   // 0.005;// ICO         0.001; // ICO_AC
 		range_reflex = 0.2;
 
 		checkreset = 0;
@@ -713,14 +775,15 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 	u_ico_old = u_ico[0]*w_ico;
 	ut_old = ut[0]*w_ac;
+
 	double scale = 0.5;// 1.0;
 
-	bool combinecontrol = true; // if set combine = true ,  actor_critic_control and ico_control  must be true
+	bool combinecontrol = true; //true; //false ; //true; // if set combine = true ,  actor_critic_control and ico_control  must be true
 	// if set combine = false ,  actor_critic_control or ico_control  must be true
 
 	bool manual_control = false;
-	bool actor_critic_control =  true;
-	bool ico_control =  true;
+	bool actor_critic_control = true; //true; // true;
+	bool ico_control = true; //true ;//true; // false; //true;
 
 	//  position_robot = getPosition();
 
@@ -866,10 +929,14 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		case 1:
 		{
 			//Green
-			xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
+			xt[_ias0] = xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
 
 			//Blue
-			xt[_ias1] =xt_ico_lowpass3;
+			xt[_ias1] = xt_ico_lowpass3;
+
+			xt[_ias2] = irl_lowpass*1.5;
+
+			xt[_ias3] = irr_lowpass*1.5;
 
 			break;
 
@@ -880,18 +947,24 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		{
 			/* partial observable case */
 
-			if (xt_ico2[_ias1] < 0.6)
-				xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
+			xt[_ias2] = irl_lowpass*1.5;
 
+			xt[_ias3] = irr_lowpass*1.5;
+
+
+			if (xt_ico2[_ias1] <= 0.8 || xt_ico3[_ias1] <=0.8/*&& xt_ico2[_ias1] > 0.5*/)
+				{xt[_ias0] = xt_ico_lowpass2 ;// input to controller Set sensory signal of robot (State) to actor input xt
+
+				}
 			else
-				xt[_ias0] = 0.0;
-
+				{xt[_ias0] = 0.0 ; //xt_ico_lowpass2;
+				}
 			//Blue
-			if(xt_ico3[_ias1] < 0.6)
-				xt[_ias1] =xt_ico_lowpass3;
+			if(xt_ico3[_ias1] <=0.8 || xt_ico2[_ias1] <= 0.8/*&& xt_ico3[_ias1] > 0.5*/ )
+				xt[_ias1] = xt_ico_lowpass3; //0.0;
 
 			else
-				xt[_ias1] = 0.0;
+				xt[_ias1] = 0.0 ; //xt_ico_lowpass3;
 
 			break;
 
@@ -932,9 +1005,32 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			ntrial++;
 			iter = 0;
-			acum_reward = 0.0; // RESET acc reward // may need to analyze or evaluate system
+		//	acum_reward = 0.0; // RESET acc reward // may need to analyze or evaluate system
+
+			accum_error = 0.0;
 			sig_out_log[ntrial] = sig_out[0]; // may need to analyze or evaluate system
 			resetLearning_RL++;
+
+//			ESN->takeStep(ESTrainOutput, 0.0055/*1.5*//*1.8*/, 1, true/*learn_critic*/, 0);
+//
+//			Vt = ESN->outputs->val(0, 0) * 50;
+
+//
+//			for(int i = 0; i < ESN->networkNeurons; i++)
+//				for(int j=0;j< 1; j++)
+//				{
+//					ESN->intermediates->val(i,j)= 0.0;
+//				}
+////////////
+//			for(int i = 0; i < ESN_actor->networkNeurons; i++)
+//							for(int j=0;j< 1; j++)
+//							{
+//								ESN_actor->intermediates->val(i,j)= 0.0;
+//							}
+
+
+		//	acum_reward = 0.0;
+
 		}
 
 
@@ -944,10 +1040,15 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 		{
 
 			/*---(1) Output from current policy--------------*/
-			old_ut = ut[0];
+			old_ut = ut[0]; //*k[0];
+		//	old_ut1 = ut[0]*k[1];
+//			old_ut2 = ut[0]*k[2];
+//			old_ut3 = ut[0]*k[3];;
 
 			output_policy(xt /*in*/, ut /*steering control, return*/);
 			ut[0] = clip(ut[0], -1.0, 1.0); /// CLIP limit ut0
+
+
 			//ut[1] = clip(ut[1], -1.0, 1.0); /// CLIP limit ut1
 
 			/*---(2) Move robot------------------------------*/
@@ -965,8 +1066,10 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 			//acum_reward += rt;
 
-			acum_reward += pow(gam,iter)*rt;
+			//acum_reward = rt + pow(gam,iter)*rt;
 
+			acum_reward = (1-0.0022)*acum_reward + 0.0022*rt;
+		//	acum_reward = (1-0.07)*acum_reward + 0.07*rt;
 			//with discount
 			//acum_reward += pow(gam,iter)*rt;
 			//printf("rt =  %f   \n\n\n acum_reward = %f \n\n\n xt_ico2: %f xt_ico3: %f \n\n", rt, acum_reward, xt_ico2[_ias1], xt_ico3[_ias1]);
@@ -986,36 +1089,68 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			// *********** commented ESN ****************
 			if (ESN_critic){
 
-				ESTrainOutput[0]= Vt_old; //acum_reward;//rt;//acum_reward;
+				//*******************
 
-				ESinput[0] = xt[_ias0];
-				ESinput[1] = xt[_ias1];
+				//*****************************
+
+				ESTrainOutput[0]= acum_reward; //Vt_old; //acum_reward;//rt;//acum_reward;
+
+
+				ESinput[0] = xt[_ias0] ; //+ gauss();
+				ESinput[1] = xt[_ias1] ; //+ gauss();
+
 				ESinput[2] = rt;
-				// ESinput[2] = ut[0];  Feedback output to reservoir (not needed)
+
+			//	if(ESinput[0] == 0.0) ESinput[0] = gauss();
+			//	if(ESinput[1] == 0.0) ESinput[1] = gauss();
+
+			//	ESinput[3] = Vt_old;
+		//		ESinput[4] = xt[_ias3];
+//				if (scenario_flag == 2)
+//				{
+//					if (xt[_ias0] == 0) ESinput[0] = 0.1 ;
+//					if (xt[_ias1]== 0) ESinput[1] = 0.1;
+//
+//				}
+			 //   ESinput[3] = ut[0];  // Feedback output to reservoir (not_ needed)
 
 
 				if (!ESN) cout<< "critical failure: ESN not loaded" <<std::endl;
 
-				ESN->setInput(ESinput, 3);// sizeof(xt)/*+1*/
+				ESN->setInput(ESinput, 3 /*3*/);// sizeof(xt)/*+1*/
 
 
-				// bool learn = true;
-				bool learn = false;
-				if (abs(rt) >0) learn = true;
+			   bool learn = true;
+//				bool learn = false;
+
+		 		//if (rt !=0) learn = true;
+
+				//if (rt >0) learn = true;
 
 				if(exp_output[0]< 0.0001) learn = false;
+//
+//				else
+//					learn_critic = true;
 
+        //        accum_error += (td_error);
 
-				ESN->takeStep(ESTrainOutput, 1.5, td_error, learn);
+				ESN->takeStep(ESTrainOutput, 0.00022 /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, td_error, learn/*learn_critic*/, 0);
 
 
 				//    std::cout<< "output: " << ESN->outputs->val(0, 0) <<std::endl;
 
-				Vt = ESN->outputs->val(0, 0)* 50  ; // * 20;
+				Vt = ESN->outputs->val(0, 0) * 50; //*10; //50; //* 50  ; // * 20;
+
+                std::cout<<"acum_reward "<<acum_reward<<"\n";
+
+
+				//Vt = clip(Vt, -3, 3);
 			}
 			// *********** commented ESN ****************
 
-			std::cout<<"Vt : "<<Vt<<"accum_reward: "<<acum_reward<<std::endl;
+			std::cout<<"vt = "<<Vt<<endl;
+			std::cout<<"irl_lowpass"<<irl_lowpass<<std::endl;
+			std::cout<<"irr_lowpass"<<irr_lowpass<<std::endl;
 
 
 
@@ -1036,14 +1171,16 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 				//	acum_reward=0;
 				td_error = 0.0;//rt- Vt_old;//gam*Vt - Vt_old;
-				Vt_old =  gam*Vt;//Vt; // = Vt or may be smaller NOT Important!!!!
+				Vt_old =   Vt; //gam*Vt;//Vt; // = Vt or may be smaller NOT Important!!!!
 				//printf("acum_reward = %f  rt = %f  td_error = %f Vt = %f : gam*Vt = %f, Vt_old = %f\n", acum_reward, rt, td_error, Vt, gam*Vt,Vt_old);
 				//   td_error_old = td_error;
 				td_error = clip(td_error, -td_limit /*-1*/, td_limit /*1*/); /// CLIP limit TD error
 			}
 			else
 			{
-				td_error = rt + gam*Vt - Vt_old;
+				//td_error = rt + gam*Vt - Vt_old;
+				td_error = rt - acum_reward + Vt - Vt_old;
+
 				//     td_error_old = td_error;
 				td_error = clip(td_error, -td_limit /*-1*/, td_limit /*1*/); /// CLIP limit TD error
 			}
@@ -1056,7 +1193,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 
 			//	printf("Save1 acum_reward = %f   rt = %f  td_error = %f Vt = %f : gam*Vt = %f, Vt_old = %f\n", acum_reward, rt, td_error, Vt, gam*Vt, Vt_old);
-			outFiletd<<td_error<<' '<<rt<<' '<<Vt<<' '<<exp_output[0]<<' '<<k[0]<<' '<<k[1]<<' '<<nrepeat<<' '<<k_ico[1]<<' '<<k_ico[2]<<' '<<xt[_ias0]<<' '<<xt[_ias1]<<' '<<ut[0]<<' '<<u_ico[0]<<' '<<w_ico<<' '<<w_ac<<endl;
+			outFiletd<<td_error<<' '<<rt<<' '<<Vt<<' '<<exp_output[0]<<' '<<k[0]<<' '<<k[1]<<' '<<k[2]<<' '<<k[3]<<' '<<nrepeat<<' '<<k_ico[1]<<' '<<k_ico[2]<<' '<<xt[_ias0]<<' '<<xt[_ias1]<<' '<<xt[_ias2]<<' '<<xt[_ias3]<<' '<<ut[0]<<' '<<u_ico[0]<<' '<<w_ico<<' '<<w_ac<<' '<<rate<<' '<<rate_ss<<' '<<rate_policy<<' '<<y_[0]<<' '<<y_ac[0]<<' '<<y_ico[0]<<endl;
 			outFilevtcurve<<x_[12 /* x*/]<<' '<<x_[13/*y*/]<<' '<<Vt<<endl; //actual robot positions
 
 			//			outFilevtcurveGR<<x_[12 /* x*/]<<' '<<x_[13/*y*/]<<' '<<Vt<<endl; // R
@@ -1073,7 +1210,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			//deri_td_error = td_error- td_error_old; //NOT USED
 			//td_error_old = td_error;
 
-			printf("exp_output[0] = %f : td_error = %f : output_grad[0] = %f : nbasis = %d \n\n: repeat= %d  k[0] = %f  k[1] = %f\n w_ico=%f \n w_ac = %f \n u_ac = %f \n u_ico = %f \n xt[_ias0]= %f \n xt[_ias1]= %f \n k_ico[1] = %f\n k_ico[2]= %f \n ",exp_output[0], td_error, output_grad[0], nbasis, nrepeat, k[0], k[1],w_ico,w_ac,ut[0],u_ico[0],xt[_ias0],xt[_ias1],k_ico[1],k_ico[2]);
+			printf("exp_output[0] = %f : td_error = %f : output_grad[0] = %f : iter = %d \n\n: repeat= %d  k[0] = %f  k[1] = %f k[2] = %f k[3] = %f \n w_ico=%f \n w_ac = %f \n u_ac = %f \n u_ico = %f \n xt[_ias0]= %f \n xt[_ias1]= %f \n k_ico[1] = %f\n k_ico[2]= %f \n ",exp_output[0], td_error, output_grad[0], iter, nrepeat, k[0], k[1], k[2], k[3], w_ico,w_ac,ut[0],u_ico[0],xt[_ias0],xt[_ias1],k_ico[1],k_ico[2]);
 			//printf("ut0 %f   \n k[0]= %f () \n k[1]= %f ()  \n", ut[0],  k[0], k[1]);
 
 
@@ -1091,7 +1228,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 				//output_grad[i] = clip(exp_output[i]/(sig[i]*sig[i]),-1.0, 1.0); // with noise learning
 
 				//Kimura & no learning noise version
-				output_grad[i] = clip(exp_output[i],-1.0, 1.0); // with noise learning
+				output_grad[i] = clip(exp_output[i],-1.0, 1.0); // without noise learning
 			}
 
 
@@ -1149,27 +1286,68 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 					//Blue
 					xt[_ias1] =xt_ico_lowpass3;
 
+					xt[_ias2] = irl_lowpass*1.5 ;
+
+					xt[_ias3] = irr_lowpass*1.5 ;
+
 					break;
 				}
 
 				case 2:
 				{
 					/* partial observable case */
+					xt[_ias2] = irl_lowpass*1.5;
 
-					if (xt_ico2[_ias1] < 0.6)
-						xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
+								xt[_ias3] = irr_lowpass*1.5;
 
-					else
-						xt[_ias0] = 0.0;
 
-					//Blue
-					if(xt_ico3[_ias1] < 0.6)
-						xt[_ias1] =xt_ico_lowpass3;
+								if (xt_ico2[_ias1] <= 0.8 || xt_ico3[_ias1] <=0.8/*&& xt_ico2[_ias1] > 0.5*/)
+									{xt[_ias0] = xt_ico_lowpass2; //0.0 ;// input to controller Set sensory signal of robot (State) to actor input xt
 
-					else
-						xt[_ias1] = 0.0;
+									}
+								else
+									{xt[_ias0] = 0.0 ;//xt_ico_lowpass2;
+									}
+								//Blue
+								if(xt_ico3[_ias1] <=0.8 || xt_ico2[_ias1] <= 0.8/*&& xt_ico3[_ias1] > 0.5*/ )
+									xt[_ias1] = xt_ico_lowpass3; //0.0;
 
-					break;
+								else
+									xt[_ias1] = 0.0; //xt_ico_lowpass3;
+
+								break;
+
+
+//					if (xt_ico2[_ias1] < 0.6  )
+//									{xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
+//
+//									}
+//								else
+//									{xt[_ias0] = 0.0;
+//									}
+//								//Blue
+//								if(xt_ico3[_ias1] < 0.6)
+//									xt[_ias1] =xt_ico_lowpass3;
+//
+//								else
+//									xt[_ias1] = 0.0;
+//
+//								break;
+//
+//					if (xt_ico2[_ias1] < 0.6)
+//						xt[_ias0] =xt_ico_lowpass2;// input to controller Set sensory signal of robot (State) to actor input xt
+//
+//					else
+//						xt[_ias0] = 0.0;
+//
+//					//Blue
+//					if(xt_ico3[_ias1] < 0.6)
+//						xt[_ias1] =xt_ico_lowpass3;
+//
+//					else
+//						xt[_ias1] = 0.0;
+//
+//					break;
 
 				}
 
@@ -1285,7 +1463,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 		////std::cout<<"AF derireflex2:" <<deri_xt_reflex_angle2<<"\n"<< "derireflex3:" <<deri_xt_reflex_angle3 <<"\n"<<std::endl;
 
-		//printf("k_ico[0]_red = %f \n k_ico[1]_green = %f \n k_ico[2]_blue=%f \n deri_xt_reflex_angle2: %f \n deri_xt_reflex_angle3: %f\n", k_ico[0], k_ico[1], k_ico[2], deri_xt_reflex_angle2, deri_xt_reflex_angle3);
+		//printf("k_ico[0]_red = %f \n k_ico[1]_green = %f \n [2]_blue=%f \n deri_xt_reflex_angle2: %f \n deri_xt_reflex_angle3: %f\n", k_ico[0], k_ico[1], k_ico[2], deri_xt_reflex_angle2, deri_xt_reflex_angle3);
 
 
 		if(!combinecontrol)
@@ -1409,28 +1587,32 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 	//	if(!(exp_output[0]<0.0001)){ //learn_combined_weights = false;  // stop learning combined  weights once the robot converges to the correct goal
 
-		if(learn_combined_weights){
+		if(learn_combined_weights == true){
 			//if(rt>0)
-			{ w_ico = w_ico + rate*(rt*abs(u_ico[0]-u_ico_lowpass));
-			w_ac =  w_ac + rate*(rt*abs(ut[0]-ut_lowpass));
+			 w_ico = w_ico + rate*(rt*abs(u_ico[0]-u_ico_lowpass))*ut[0];
+		//	  w_ico = w_ico + rate*(rt*u_ico[0]) + rate_ss*abs(u_ico_lowpass-u_ico[0])*pow(w_ico,2); //pow(w_ico,2);
+
+			  w_ac =  w_ac + rate*(rt*abs(ut[0]-ut_lowpass))*u_ico[0];
+
+// 			  w_ac = w_ac + rate*(rt*ut[0]) + rate_ss*abs(ut_lowpass-ut[0])*pow(w_ac,2); //pow(w_ac,2);
 
 			//Synaptic normalization
 
-			double w_ico_old = w_ico / (w_ico + w_ac);
+		double w_ico_old = w_ico / (w_ico + w_ac);
 			double w_ac_old = w_ac/ (w_ico+ w_ac);
 
 			w_ico = w_ico_old;
 			w_ac = w_ac_old;
 
-			}
+
 		}
 	//	}
 
 
-		y_[0] = w_ico*y_ico[0]+w_ac*y_ac[0]; // left front wheel
-		y_[1] =	w_ico*y_ico[1]+w_ac*y_ac[1]; // right front wheel
-		y_[2] =	w_ico*y_ico[2]+w_ac*y_ac[2]; // left rear wheel
-		y_[3] =	w_ico*y_ico[3]+w_ac*y_ac[3]; // right rear wheel
+		y_[0] = (w_ico)*y_ico[0]+(w_ac)*y_ac[0]; // left front wheel
+		y_[1] =	(w_ico)*y_ico[1]+(w_ac)*y_ac[1]; // right front wheel
+		y_[2] =	(w_ico)*y_ico[2]+(w_ac)*y_ac[2]; // left rear wheel
+		y_[3] =	(w_ico)*y_ico[3]+(w_ac)*y_ac[3]; // right rear wheel
 
 		/*
     y_[0] = 0.5*y_ico[0]+0.5*y_ac[0]; // left front wheel
@@ -1475,6 +1657,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 	double max_value, min_value;
 	double sig_nolearning;
 	double sig0_nolearning;
+	double online_error;
 
 	double u_tmp[UDIM /*2*/];
 
@@ -1483,8 +1666,52 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 		u_tmp[i] = 0.0;
 	}
 
+	//******************
+//	ut0_lowpass = old_ut*0.8+ ut[0]*0.2;
+//
+//    EAinput[0] = xt[_ias0];
+//    EAinput[1] = xt[_ias1];
+//    EAinput[2] = xt[_ias2]; //irl_lowpass ;//old_ut;
+//    EAinput[3] = xt[_ias3] ; //irr_lowpass; //ut[0];
+////
+//    EATrainOutput[0] = 1.0;
+////
+//	ESN_actor->setInput(ESinput, 4 /*3*/);// sizeof(xt)/*+1*/
+////
+//	 //true;
+//        learn_actor = false;
+//		if (rt!=0) learn_actor=true;
+////
+//					if(exp_output[0]< 0.0001) learn_actor = false;
+//
+//				//	else
+//					//	learn_actor = true;
+////
+//////                if (td_error == 0) {online_error = output_grad[0]; }
+////  //              else
+//
+////0.0033 old stable rate
+//
+//				ESN_actor->takeStep(ESTrainOutput, /*0.0035*/0.0033/*1.5*/, td_error, learn_actor, output_grad[0]/*ut0_lowpass*/);
+////
+//               ESN_actor->printMatrix(ESN_actor->endweights);
+////
+//				//    std::cout<< "output: " << ESN->outputs->val(0, 0) <<std::endl;
+////
+//			u_tmp[0] = ESN_actor->outputs->val(0, 0);
+////////
 
-	u_tmp[0] = k[0]*x[0]+k[1]*x[1];
+
+//			std::cout<<"/n********************************u_tmp[0] = "<<u_tmp[0]<<std::endl;
+
+	//***********************
+
+	u_tmp[0] = k[0]*x[0]+k[1]*x[1] + k[2]*xt[_ias2] + k[3]*xt[_ias3];
+
+	//std::cout<<"x[0] = "<<x[0];
+//			u_tmp[0] = k[0]*xt[_ias0] + k[1]*xt[_ias1];
+
+//	std::cout<<"********************************u_tmp[0] = "<<u_tmp[0];
 
 	exploration_output(sig /*2D*/, si /*10*/, x /*2D*/);
 
@@ -1503,13 +1730,13 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 		//--------------------
 		if(no_learning_noise)
 		{
-			V1 = 50.0; //50.0;//1.0;//50.0;//50.0;//1.0;//50.0;//50.0;//50.0;//70.0;//50.0;//1.0;//50.0;//50.0;//1.0; // Max expected value//---------------------------------**** Change
-			V0 = -50.0; //-1.0;//0.0;//0;//0.0;//-125;//0.5; // Min expected value//---------------------------------****  Change
-			sig0_nolearning = 5.0;//5.0;//si;
+			V1 = 50;//50.0; //50.0;//1.0;//50.0;//50.0;//1.0;//50.0;//50.0;//50.0;//70.0;//50.0;//1.0;//50.0;//50.0;//1.0; // Max expected value//---------------------------------**** Change
+			V0 = -50; //-50.0 ; //0.0 ;//-50.0 ;//0.00; //-50 ;//-3.5;//-50.0; //0.0; //-50.0; //-1.0;//0.0;//0;//0.0;//-125;//0.5; // Min expected value//---------------------------------****  Change
+			sig0_nolearning = 5.0 ;//5.0 ; //5.0 ;//5.0;//5.0;//si;
 
 			y = (V1-Vt)/(V1-V0);
 			max_value = max(0, y);
-			min_value = min(/*0.1*/0.33 ,max_value); //changing from 1 to 0.1
+			min_value = min(1,max_value); //changing from 1 to 0.1 (0.1,0.33)
 
 			//   if(min_value ==0) min_value = 0.1;
 
@@ -1524,9 +1751,13 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 				exp_output[i]= exp_output_decay*sig_nolearning*exploration_lowpass_g[i]*(lp_gain);
 			}
 
-			if((exp_output[0]<0.0001)) learn_combined_weights = false;
+			if((exp_output[0] == 0.0)) learn_combined_weights = false;
 			else
 				learn_combined_weights = true;
+
+			if((exp_output[0] == 0.0)) exploreEnd = true;
+
+		//	if (exp_output[0]<0.0001) std::cout<<time(NULL)-start_time<<std::endl;
 
 			EXP_keep_value = exp_output[0];
 			printf("\n EXP Keep_value in noise calc = %f",EXP_keep_value);
@@ -1539,7 +1770,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 			for(int i =0; i< UDIM /*2*/; i++)
 			{
 				//Morimoto
-				//exp_output[i]=sig[i]*exploration_lowpass_g[i]*(lp_gain);
+			//	exp_output[i]=sig[i]*exploration_lowpass_g[i]*(lp_gain);
 
 				//Kimura
 				exp_output[i]= exploration_lowpass_g[i]*(lp_gain);
@@ -1606,7 +1837,8 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 		for(int i =0; i< UDIM /*2*/; i++)
 		{
             printf("\n exp_output in AC loop = %f",exp_output[1]);
-			u[i] = u_tmp[i]+exp_output[i];
+
+            /*u[i]*/u[i] = u_tmp[i] + exp_output[i];
 		}
 
 	}
@@ -1648,17 +1880,40 @@ double ACICOControllerV14::gauss()
 double ACICOControllerV14::reward_function(double *x /*state*/, double *u /*action*/)
 {
 
-	double r_total = 0.0;
+	r_total = 0.0;
 
 
 	//xt_ico2[_ias1], xt_ico3[_ias1]
 
-	//if(xt[_ias1]< range_reflex/*Blue*/)
-	if(xt_ico2[_ias1]< range_reflex/*Green*/)
-		r_total += 1.0;
+// if(exploreEnd == true)
+// {
+//	//if(xt[_ias1]< range_reflex/*Blue*/)
+//	if(xt_ico2[_ias1]< range_reflex/*Green*/)
+//		r_total += 1.0; //1.0;
+//
+//	//else
+//		//r_total = 0;
+//
+//	if(xt_ico3[_ias1]< range_reflex /*|| irl_lowpass > 0.05 || irr_lowpass > 0.05/*Blue*/)
+//		r_total -= 1.0 ; //0.0 ;//1.0;
+//
+// }
 
-	if(xt_ico3[_ias1]< range_reflex/*Blue*/)
+ //else
+ //{
+	 if(xt_ico2[_ias1]< range_reflex/*Green*/)
+	 		r_total += 1.0; //1.0;
+
+	 	//else
+	 		//r_total = 0;
+
+	 if(xt_ico3[_ias1]< range_reflex /*|| irl_lowpass > 0.05 || irr_lowpass > 0.05/*Blue*/)
+	 		r_total -= 1.0 ; //0.0 ;//1.0;
+ //}
+
+	if(irl_lowpass > 1.0 /*1.0*/  || irr_lowpass > 1.0 /*1.0*/)
 		r_total -= 1.0;
+
 	//r_total +=0.01;
 	return r_total;
 }
@@ -1673,11 +1928,18 @@ int ACICOControllerV14::check_limit(double *x)//, double irr_back, double irl_ba
 
 
 
-	if( xt_ico2[_ias1] < 0.03 || xt_ico3[_ias1] < 0.03 || irl_lowpass*1.5 > 0.2 || irr_lowpass*1.5 > 0.2)
-	{
-		flag = 1;
+//	if( xt_ico2[_ias1] < 0.03 || xt_ico3[_ias1] < 0.03 || irl_lowpass*1.5 > 0.2 || irr_lowpass*1.5 > 0.2)
+//	{
+//		flag = 1;
+//
+//	}
 
-	}
+	if( xt_ico2[_ias1] < 0.03 || xt_ico3[_ias1] < 0.03 || irl_lowpass > 1.5 || irr_lowpass > 1.5)
+		{
+			flag = 1;
+
+		}
+
 
 
 
@@ -1954,11 +2216,15 @@ void ACICOControllerV14::update_policy_trace(double *xt, double lambda)
 
 	// output_elig = noise * input => Dimension of output_elig = WDIM
 
-	output_elig[0] *= lambda;
-	output_elig[0] += output_grad[0]*xt[0]; /*noise0 of output0 x input0, AC-RL*/ // U = XW
 
-	output_elig[1] *= lambda;
-	output_elig[1] += output_grad[0]*xt[1]; /*noise0 of output0 x input0, AC-RL*/ // U = XW
+
+//**********************************
+//	output_elig[0] *= lambda;
+//	output_elig[0] += /*output_grad[0]*//*exp_output[0]*/*xt[0]; /*noise0 of output0 x input0, AC-RL*/ // U = XW
+////
+//	output_elig[1] *= lambda;
+//	output_elig[1] += /*output_grad[0]*//*exp_output[1]*/*xt[1]; /*noise0 of output0 x input0, AC-RL*/ // U = XW
+//**********************************
 
 	//	output_elig[2] *= lambda;
 	//	output_elig[2] += output_grad[0]*xt[1]; /*noise1 of output1 x input1, AC-RL*/ // U = XW
@@ -2039,9 +2305,41 @@ void ACICOControllerV14::update_policy(double td_error, double rate)
 	//		k[i] += rate*td_error*output_elig[i]; // Actor weights = lr*TDerror*(input*noise)
 	//	}
 
+// RLS TD(0) learning
 
-	k[0] += rate*td_error*output_elig[0];
-	k[1] += rate*td_error*output_elig[1];
+/*if(exp_output[0]>0.0005)
+{
+	gain0 = (roh0*xt[0])/(rate_rls + roh0*xt[0]*xt[0]);
+
+	roh0 = (1/rate_rls)*(roh0 - gain0*xt[0]*roh0);
+
+	gain1 = (roh1*xt[0])/(rate_rls + roh1*xt[1]*xt[1]);
+
+	roh1 = (1/rate_rls)*(roh1 - gain1*xt[1]*roh1);
+
+	k[0] += gain0*(td_error)*output_grad[0];
+
+	k[1] += gain1*(td_error)*output_grad[0];
+
+}*/
+//*************************
+	ut0_lowpass = old_ut*0.8+ ut[0]*0.2;
+//	ut0_lowpass = old_ut*0.8+ ut[0]*k[0]*0.2;
+//	ut1_lowpass = old_ut1*0.8+ ut[0]*k[1]*0.2;
+//	ut2_lowpass = old_ut2*0.8+ ut[0]*k[2]*0.2;
+//	ut3_lowpass = old_ut3*0.8+ ut[0]*k[3]*0.2;
+
+
+
+	k[0] += rate*(td_error)*/*xt[0]*/xt[_ias0]/*(ut0_lowpass)*/*output_grad[0]; //exp_output[0]; //*output_grad[0]; //*output_elig[0];
+	k[1] += rate*(td_error)*/*xt[1]*/xt[_ias1]/*(ut0_lowpass)*/*output_grad[0]; //exp_output[0]; //*output_grad[0]; //output_elig[1];
+
+	k[2] += rate*(td_error)*/*xt[1]*/xt[_ias2]/*(ut0_lowpass)*/*output_grad[0];
+	k[3] += rate*(td_error)*/*xt[1]*/xt[_ias3]/*(ut0_lowpass)*/*output_grad[0];
+
+
+//	if(k[0] && k[1] < 0) k[0]=k[1]=0;
+//****************************
 	//	k[2] += rate*td_error*output_elig[2];
 	//	k[3] += rate*td_error*output_elig[3];
 	//
@@ -2052,8 +2350,8 @@ void ACICOControllerV14::update_policy(double td_error, double rate)
 	//	k[7] += rate_ico*deri_reflex_irr*xt[_ias3];
 
 
-	sig_out[0] += rate*td_error*sig_elig[0];
-	sig_out[1] += rate*td_error*sig_elig[1];
+//	sig_out[0] += rate*td_error*sig_elig[0];
+//	sig_out[1] += rate*td_error*sig_elig[1];
 	//printf("sig_elig[0] = %f : sig_out = %f Dtd_error = %f td_error = %f\n", sig_elig[0],sig_out[0],td_error-td_error_old, td_error);
 
 }

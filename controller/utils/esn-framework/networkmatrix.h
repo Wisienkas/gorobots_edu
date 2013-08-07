@@ -41,7 +41,7 @@ class ESNetwork{
      * Default destructor - handle or dangling objects
      **/
 
-    void generate_random_weights(int sparsity = 90 /*95*/, float spectral_radius = 0.90 /*0.95*/);
+    void generate_random_weights(int sparsity = 90 /*95*/, float spectral_radius = 0.95 /*0.95*/);
 
     /**
      * Generating function for the input, reservoir and output weights. Sparsity governs percentage of matrix sparseness.
@@ -75,7 +75,7 @@ class ESNetwork{
      **/
 
 
-    void trainOnlineRecursive(float * Outputs, float forgettingFactor, float td_error);
+    void trainOnlineRecursive(float * Outputs, float forgettingFactor, float td_error, double param = 0.0);
 
     /**
      *  Online training of the output weights using the Recursive least squares algorithm. For algorithm introduction
@@ -89,7 +89,7 @@ class ESNetwork{
      * Backpropagation-Decorrelation learning function. This is intended for online learning purposes. Note that this is not fully functional yet.
      */
 
-    void takeStep(float * Outputs, float learningRate, float td_error, bool learn = true, int timestep = 1);
+    void takeStep(float * Outputs, float learningRate, float td_error, bool learn = true, int timestep = 1, double param = 0.0);
     /*
      * Called at every discrete time step, calculating the inner neuron activations and outputs for the next discrete timestep.
      * If "learn_online" is true, the ESN learns the outputs specified in
@@ -231,6 +231,7 @@ class ESNetwork{
       /*startweights = new */matrix::Matrix * startweights;
       /*innerweights = new */matrix::Matrix * innerweights;
       /*endweights = new */matrix::Matrix * endweights;
+                           matrix::Matrix * feedweights;
 
       bool throughputConnections; //whether inputs connect to outputs
       bool feedbackConnections;//whether outputs feed back to hidden layer
@@ -247,6 +248,10 @@ class ESNetwork{
       double store_para_a[100000];
       double store_para_b[100000];
       double outputsCollection[10000];
+
+      double leak_rate;
+      int nonlinearity;
+      int outnonlinearity;
 
 };
 #endif
