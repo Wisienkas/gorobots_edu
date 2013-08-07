@@ -25,7 +25,7 @@
 
 class AdaptiveSO2CPGSynPlas : public ExtendedSO2CPG{
 public:
-    AdaptiveSO2CPGSynPlas(Neuron* perturbingNeuron);
+    AdaptiveSO2CPGSynPlas(Neuron* perturbingNeuron=0);
     void updateWeights();
     void setBetaDynamics   (const double& hebbRate, const double& decayRate, const double& zero);
     void setGammaDynamics  (const double& hebbRate, const double& decayRate, const double& zero);
