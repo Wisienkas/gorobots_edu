@@ -22,6 +22,8 @@
 #include "neuron.h"
 #include "synapse.h"
 #include <algorithm>
+#include <set>
+#include <iostream>
 
 /** initialization of static const member variables */
 TanhFunction const * const ANN::tanhFunctionPointer =
@@ -82,6 +84,25 @@ const double& ANN::b (const int neuron)
     return getBias(neuron);
 }
 
+void ANN::backpropagationStep()
+{
+  for (NeuronList::reverse_iterator rit= topologicalSort.rbegin();
+      rit<topologicalSort.rend(); rit++)
+  {
+    (*rit)->updateError();
+  }
+}
+
+void ANN::feedForwardStep()
+{
+  for (NeuronList::iterator it = topologicalSort.begin();
+      it!=topologicalSort.end(); it++)
+  {
+    (*it)->updateActivity();
+    (*it)->updateOutput();
+  }
+}
+
 const double& ANN::getActivity(const int neuron) const
 {
     return getActivity(neurons[neuron]);
@@ -89,6 +110,35 @@ const double& ANN::getActivity(const int neuron) const
 const double& ANN::getActivity(Neuron const * neuron)
 {
     return neuron->getActivity();
+}
+
+std::vector<Neuron*> ANN::getAllNeurons() const
+{
+  std::vector<Neuron*> v;
+  v.insert(v.begin(), neurons.begin(), neurons.end());
+  for (AnnList::const_iterator it=subnets.begin(); it!=subnets.end(); it++)
+  {
+    std::vector<Neuron*> subV = (*it)->getAllNeurons();
+    v.insert(v.begin(),subV.begin(), subV.end());
+  }
+  return v;
+}
+
+std::vector<Synapse*> ANN::getAllSynapses() const
+{
+  std::vector<Synapse*> v;
+  for (NeuronList::const_iterator it=neurons.begin(); it<neurons.end(); it++)
+  {
+    std::vector<Synapse*> s = (*it)->getSynapsesOut();
+    v.insert(v.begin(), s.begin(), s.end());
+  }
+
+  for (AnnList::const_iterator it=subnets.begin(); it!=subnets.end(); it++)
+  {
+    std::vector<Synapse*> subV = (*it)->getAllSynapses();
+    v.insert(v.begin(),subV.begin(), subV.end());
+  }
+  return v;
 }
 
 const double& ANN::getBias(const int neuron) const
@@ -134,6 +184,11 @@ Synapse* ANN::getSynapse(const unsigned int& post, const unsigned int& pre)
 Synapse* ANN::getSynapse(Neuron const * const post, Neuron const * const pre)
 {
     return post->getSynapseFrom(pre);
+}
+
+std::vector<Neuron*> ANN::getTopologicalSort()
+{
+  return topologicalSort;
 }
 
 unsigned int ANN::getTotalNeuronNumber() const
@@ -324,6 +379,53 @@ void ANN::updateOutputs()
         (*it)->updateOutputs();
     }
 }
+
+bool ANN::updateTopologicalSort()
+{
+  typedef std::set<Neuron*>            NeuronSet;
+  typedef std::vector<Synapse*>        SynapseVector;
+  typedef std::map<Neuron*, NeuronSet> SynapticMap;
+
+  topologicalSort.clear();
+  NeuronList  neurons = getAllNeurons();
+  SynapticMap synapsesIn;
+  SynapticMap synapsesOut;
+  NeuronSet   noIncomes;
+
+  // run over all neurons and pouplate the containers
+  for (NeuronList::iterator neuronIt = neurons.begin(); neuronIt!=neurons.end();
+      neuronIt++)
+  {
+    Neuron* const n = *neuronIt;
+    SynapseVector ins = n->getSynapsesIn();
+    SynapseVector outs = n->getSynapsesOut();
+    for (SynapseVector::iterator sIt = ins.begin(); sIt!=ins.end(); sIt++)
+      synapsesIn[n].insert((*sIt)->getPre());
+    for (SynapseVector::iterator sIt = outs.begin(); sIt!=outs.end(); sIt++)
+      synapsesOut[n].insert((*sIt)->getPost());
+    if (ins.size()==0) noIncomes.insert(n);
+  }
+
+  // start the algorithm
+  while (noIncomes.size()>0)
+  {
+    Neuron* n = (*noIncomes.begin());
+    noIncomes.erase(n);
+    topologicalSort.push_back(n);
+    while (synapsesOut.find(n) != synapsesOut.end())
+    {
+      Neuron* post = *(synapsesOut[n].begin());
+      synapsesOut[n].erase(post);
+      synapsesIn[post].erase(n);
+      if (synapsesIn[post].size()==0) noIncomes.insert(post);
+      if (synapsesOut[n].size()==0) synapsesOut.erase(n);
+      if (synapsesIn[post].size()==0) synapsesIn[post].erase(post);
+    }
+  }
+
+  return (synapsesOut.size()==0);
+}
+
 
 void ANN::updateWeights()
 {

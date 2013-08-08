@@ -20,6 +20,9 @@
 #ifndef TRANSFERFUNCTION_H_
 #define TRANSFERFUNCTION_H_
 
+// _USE_MATH_DEFINES is neccessary to make e.g. M_PI available in Microsoft
+// Visual Studio
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 /**
@@ -52,6 +55,17 @@ public:
      * @return the new output value of the neuron
      */
     virtual double operator()(const double& a) const = 0;
+
+    /**
+     * Method for derivative call
+     *
+     * This method calculates the derivative of the transfer function at
+     * the activity level a. This is needed for backpropagation.
+     *
+     * @param a activity value of the nruon
+     * @return derivative of the transfer function at activity a
+     */
+    virtual double derivative(const double& a) const = 0;
 };
 
 
@@ -65,6 +79,9 @@ public:
     inline double operator()(const double& x) const {
         return std::tanh(x);
     }
+    inline double derivative(const double& x) const {
+      return 1-std::pow(std::tanh(x),2);
+    }
 };
 
 /*
@@ -76,6 +93,10 @@ class LogisticFunction : public TransferFunction {
 public:
     inline double operator()(const double& x) const {
         return 1./(1+std::exp(-x));
+    }
+    inline double derivative(const double& x) const {
+      const double f = (*this)(x);
+      return f*(1.0-f);
     }
 };
 
@@ -89,6 +110,9 @@ class LinearFunction : public TransferFunction {
     LinearFunction(const double& m=1, const double& b=0):m(m),b(b) {}
     inline double operator()(const double& x) const {
       return m*x+b;
+    }
+    inline double derivative(const double& x) const {
+      return m;
     }
     inline void setM(const double &am) {m=am;}
     inline void setB(const double &ab) {b=ab;}
@@ -104,9 +128,15 @@ class ThresholdFunction : public TransferFunction {
     ThresholdFunction(const double& theta=1):theta(theta) {}
     inline double operator()(const double& x) const {
       if(x > theta)
-      return 1.0;
+        return 1.0;
       else
-      return 0.0;
+        return 0.0;
+    }
+    inline double derivative(const double& x) const {
+      if (x==theta)
+        return INFINITY;
+      else
+        return 0.0;
     }
     inline void setTheta(const double &atheta) {theta=atheta;}
     inline const double& getTheta() const{return theta;}

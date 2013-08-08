@@ -21,6 +21,7 @@
 #define NEURON_H_
 
 #include <map>
+#include <vector>
 #include "transferfunction.h"
 
 // forward declarations
@@ -96,6 +97,13 @@ public:
     const double& getBias() const;
 
     /**
+     * Returns back propagated error
+     *
+     * @return error
+     */
+    const double& getError() const;
+
+    /**
      * Returns input
      *
      * This method returns the input value of the neuron. The returned
@@ -127,6 +135,10 @@ public:
      * @return pointer to synapse or NULL if no such synapse exists
      */
     Synapse* getSynapseFrom(Neuron const * pre) const;
+
+    std::vector<Synapse*> getSynapsesIn() const;
+
+    std::vector<Synapse*> getSynapsesOut() const;
 
     /**
      * Returns outgoing synapse to a given neuron
@@ -173,13 +185,22 @@ public:
     void setActivity(const double& aactivity);
 
     /**
-     * Sets the bis
+     * Sets the bias
      *
      * This method sets the bias value of the neuron.
      *
      * @param abias new bias value
      */
     void setBias(const double& abias);
+
+    /**
+     * Sets the error value
+     *
+     * This method sets the error value used in back propagation algorithm
+     *
+     * @param aerror new error value
+     */
+    void setErrorInput(const double& aerror);
 
     /**
      * Sets the external input
@@ -221,6 +242,14 @@ public:
     void updateActivity();
 
     /**
+     * Updates back propagated error
+     *
+     * This method calculates the back propagated error for the neuron based
+     * on the error values of all postsynaptic neurons.
+     */
+    void updateError();
+
+    /**
      * Updates neural output
      *
      * This method calculates and sets the new output value of the neuron
@@ -240,6 +269,10 @@ private:
     double bias;
     /** input value of the neuron */
     double input;
+    /** back propagated error of the neuron */
+    double error;
+    /** external set error */
+    double errorInput;
     /** list of outgoing synapses */
     SynapseList synapsesOut;
     /** list of incoming synapses */

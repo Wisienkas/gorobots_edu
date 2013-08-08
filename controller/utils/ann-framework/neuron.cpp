@@ -30,11 +30,13 @@ TanhFunction const * const Neuron::tanhFunction = new TanhFunction();
 
 Neuron::Neuron()
 {
-    activity = 0;
-    output   = 0;
-    bias     = 0;
-    input    = 0;
-    func     = tanhFunction;
+    activity   = 0;
+    output     = 0;
+    bias       = 0;
+    input      = 0;
+    error      = 0;
+    errorInput = 0;
+    func       = tanhFunction;
 }
 
 Neuron::~Neuron()
@@ -63,6 +65,11 @@ const double& Neuron::getBias() const
     return bias;
 }
 
+const double& Neuron::getError() const
+{
+  return error;
+}
+
 const double& Neuron::getInput() const
 {
     return input;
@@ -78,6 +85,24 @@ Synapse* Neuron::getSynapseFrom(Neuron const * pre) const
     SynapseList::const_iterator it=synapsesIn.find(pre);
     if (it == synapsesIn.end()) return NULL;
     return it->second;
+}
+
+std::vector<Synapse*> Neuron::getSynapsesIn() const
+{
+  std::vector<Synapse*> v;
+  for (SynapseList::const_iterator it=synapsesIn.begin();
+      it!=synapsesIn.end(); it++)
+    v.push_back(it->second);
+  return v;
+}
+
+std::vector<Synapse*> Neuron::getSynapsesOut() const
+{
+  std::vector<Synapse*> v;
+  for (SynapseList::const_iterator it=synapsesOut.begin();
+      it!=synapsesOut.end(); it++)
+    v.push_back(it->second);
+  return v;
 }
 
 Synapse* Neuron::getSynapseTo(Neuron const * post) const
@@ -111,6 +136,11 @@ void Neuron::setBias(const double & abias)
     bias = abias;
 }
 
+void Neuron::setErrorInput(const double & aerror)
+{
+  errorInput = aerror;
+}
+
 void Neuron::setInput(double const & ainput)
 {
     input = ainput;
@@ -135,6 +165,17 @@ void Neuron::updateActivity()
         newActivity += it->second->getWeight() * it->first->getOutput();
     }
     activity = newActivity;
+}
+
+void Neuron::updateError()
+{
+  double arrivingError = errorInput;
+  for (SynapseList::iterator it = synapsesOut.begin(); it != synapsesOut.end();
+      it++)
+  {
+      arrivingError += it->second->getWeight() * it->first->getError();
+  }
+  error = func->derivative(activity) * arrivingError;
 }
 
 void Neuron::updateOutput()

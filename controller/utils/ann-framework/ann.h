@@ -22,6 +22,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 #include "transferfunction.h"
 
 // forward declarations
@@ -49,6 +50,9 @@ public:
      */
     virtual ~ANN();
 
+    void backpropagationStep();
+    void feedForwardStep();
+
     /**
      * Returns the activity of the neuron with the given number
      *
@@ -75,6 +79,18 @@ public:
      * @return activity value
      */
     static const double& getActivity(Neuron const * neuron);
+
+    /**
+     * Returns all neurons
+     *
+     * This method returns a vector with pointers to all neurons in this network
+     * and all of its sub networks
+     *
+     * @return vector containing pointers to all neurons
+     */
+    std::vector<Neuron*> getAllNeurons() const;
+
+    std::vector<Synapse*> getAllSynapses() const;
 
     /**
      * Returns the bias of the neuron with the given number
@@ -187,6 +203,17 @@ public:
      */
     static Synapse* getSynapse(Neuron const * const post,
             Neuron const * const pre);
+
+    /**
+     * Returns the topological sort
+     *
+     * This method can be used to obtain the topological sort of all neurons
+     * in a feed forward network. The result is undefined if the network is
+     * not a feed forward network
+     *
+     * @return vector representing the topological sort
+     */
+    std::vector<Neuron*> getTopologicalSort();
 
     /**
      * Returns the number of neurons of this network including sub networks
@@ -512,6 +539,18 @@ public:
     virtual void updateOutputs();
 
     /**
+     * Update the topological sort
+     *
+     * This method updates the topological sort of the neurons in this network.
+     * As a topological sort only exists for feed-forward networks, this method
+     * returns false if the creation of the sort fails indicating that there
+     * exists a loop in the network
+     *
+     * @return boolean value indicating if network is feed-forward
+     */
+    bool updateTopologicalSort();
+
+    /**
      * Updates synaptic weights
      *
      * This method can be overriden if you want to include synaptic plasticity.
@@ -648,6 +687,7 @@ private:
     NeuronList              neurons;
     AnnList                 subnets;
     TransferFunction const* defaultTransferFunction;
+    NeuronList              topologicalSort;
 };
 
 
