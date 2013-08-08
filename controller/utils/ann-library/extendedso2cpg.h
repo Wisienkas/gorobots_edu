@@ -44,7 +44,7 @@ public:
     /**
      * The constructor
      */
-    ExtendedSO2CPG(Neuron* perturbingNeuron);
+    ExtendedSO2CPG(Neuron* perturbingNeuron=0);
 
     /**
      * The destructor
@@ -112,6 +112,8 @@ public:
      * @return the value of the perturbation
      */
     const double& getPerturbation();
+
+    Neuron* getPerturbingNeuron();
 
     /**
      * Sets the synaptic weight beta
@@ -196,8 +198,8 @@ protected:
 private:
     /** flag to decide if resets are allowed*/
     bool resetsAllowed;
-    /** value of the external perturbation */
-    double P;
+    /** neuron that delivers external perturbation by synapse epsilon */
+    Neuron* P;
     /** learning rate */
     double mu;
     /** synaptic weight from perturbation to neuron 2 */

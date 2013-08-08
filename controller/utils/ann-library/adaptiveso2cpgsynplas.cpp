@@ -20,7 +20,8 @@
 
 #include <cmath>
 
-AdaptiveSO2CPGSynPlas::AdaptiveSO2CPGSynPlas(Neuron* perturbingNeuron):ExtendedSO2CPG(perturbingNeuron){
+AdaptiveSO2CPGSynPlas::AdaptiveSO2CPGSynPlas(Neuron* perturbingNeuron)
+: ExtendedSO2CPG(perturbingNeuron){
     setAlpha(1.01);
     setPhi(0.3);
     setMu(1.00);

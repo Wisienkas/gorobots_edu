@@ -18,14 +18,30 @@
 
 
 #include "extendedso2cpg.h"
-#include "../ann-framework/synapse.h"
+#include "utils/ann-framework/synapse.h"
+#include "utils/ann-framework/neuron.h"
 
 #include <cmath>
 
 ExtendedSO2CPG::ExtendedSO2CPG(Neuron* perturbingNeuron):SO2CPG()
 {
-    // add the additional neuron
-    addNeuron();
+  // add the additional neuron with index 2
+  addNeuron();
+
+  // if a neuron was given, this one is used the perturbing neuron. If not, a
+  // new neuron with a linear transfer function is created. It will have the
+  // index 3
+  if (perturbingNeuron)
+  {
+    P = perturbingNeuron;
+  }
+  else
+  {
+    P = addNeuron();
+    P->setTransferFunction(identityFunction());
+  }
+
+
     setAlpha(1.01);
     setPhi(0.3);
     setMu(1.00);
@@ -47,7 +63,7 @@ const double& ExtendedSO2CPG::getBeta()
 
 const double& ExtendedSO2CPG::getEpsilon()
 {
-    return epsilon;
+    return getSynapse(n(2), P)->getWeight();
 }
 
 const double& ExtendedSO2CPG::getGamma()
@@ -62,8 +78,15 @@ const double& ExtendedSO2CPG::getMu()
 
 const double& ExtendedSO2CPG::getPerturbation()
 {
-    return P;
+    return P->getOutput();
 }
+
+Neuron* ExtendedSO2CPG::getPerturbingNeuron()
+{
+  return P;
+
+}
+
 
 void ExtendedSO2CPG::postProcessing()
 {
@@ -75,7 +98,7 @@ void ExtendedSO2CPG::setBeta(const double& aBeta) {
 }
 
 void ExtendedSO2CPG::setEpsilon(const double& aepsilon) {
-    epsilon = aepsilon;
+    setWeight(n(2), P, aepsilon);
 }
 
 void ExtendedSO2CPG::setGamma(const double& agamma) {
@@ -89,6 +112,6 @@ void ExtendedSO2CPG::setMu(const double& amu)
 
 void ExtendedSO2CPG::setPerturbation(const double& aP)
 {
-    P=aP;
-    setInput(2, epsilon*P);
+  P->setInput(aP);
+  P->setOutput(aP);
 }
