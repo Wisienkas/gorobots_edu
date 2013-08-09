@@ -49,7 +49,7 @@ using namespace std;
 
 //----AC network parameters------------//
 
-#define XDIM 2//4 // number of inputs ** Set for different system
+#define XDIM 4//4 // number of inputs ** Set for different system
 #define UDIM 1//2 // number of output ** Set for different system
 #define WDIM UDIM*XDIM//8 // number of actor weight ** Set for different system
 

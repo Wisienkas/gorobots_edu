@@ -119,7 +119,7 @@ int number_boxes = 1; // SET NUMBER of BOXES obstacles
 
 bool repeat_experiment = true;//true; //if select true then set the follwing parameters
 int repeat_number = 500;// 1000;
-double time_factor = 0.25/2; ///2;//0.25/2;
+double time_factor = 0.25;//0.25/2;
 
 //0.25/4 = 7.5s
 //0.25/2 = 15 s

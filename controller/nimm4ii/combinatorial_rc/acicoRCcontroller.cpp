@@ -406,8 +406,9 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 			k[i] = 0.0;
 		}
 
-	//	k[0]= 0.0;
-	//	k[1]= 0.0;
+		//Adding initial bias to let the robot reacts to obstacle
+		k[2]= 0.5;
+		k[3]= 0.5;
 
 		//		double MAX_k0, MIN_k0;
 		//		double MAX_k1, MIN_k1;
