@@ -214,6 +214,7 @@ class ThisSim : public lpzrobots::Simulation {
 //          amos->place(osg::Matrix::translate(.0, .0, 0.2));
 //        }
         if (!((AmosIIControl*) controller)->control_adaptiveclimbing.getlearning()) {
+          std::cout<<"simulation stopped according to specified condition"<<std::endl;
           simulation_time_reached = true;
         }
 //      }
