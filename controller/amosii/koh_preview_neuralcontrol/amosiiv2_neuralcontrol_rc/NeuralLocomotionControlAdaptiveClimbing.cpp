@@ -1663,7 +1663,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
   ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
   ESN->setInput(ESinput, 1/* no. input*/);
-  ESN->takeStep(ESTrainOutput, 0.9 /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+  ESN->takeStep(ESTrainOutput, 0.9/*0.9*RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
 
   //temp = ESN->outputs->val(0, 0);
   fmodel_cmr_output_rc.at(0) = ESN->outputs->val(0, 0);

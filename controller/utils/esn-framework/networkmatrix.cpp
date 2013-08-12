@@ -156,10 +156,15 @@ void ESNetwork::generate_random_weights(int sparsity, float spectral_radius) //s
 	for(i = 0; i < startweights->getM(); i++)
 		for (j=0; j< startweights->getN();j++)
 		{
-			if ((rand()%100) >= 50/*sparsity*/)
-			{startweights->val(i,j)= ESNetwork::uniform(-0.5,0.5);} //((double)(rand()%100)/100);}}
-			else
-				startweights->val(i,j)= 0.000;
+			//if ((rand()%100) >= 50/*sparsity*/)
+
+		  //Input weights from to-------------------------------------------------------------------------------------------------------CHANG 1
+		  //if ((rand()%100) >= 0/*sparsity*/)
+
+			//Input weights from to-------------------------------------------------------------------------------------------------------CHANG 1
+			{startweights->val(i,j)= ESNetwork::uniform(-0.15,0.15);}//(-0.5,0.5);} //((double)(rand()%100)/100);}}
+			//else
+			//	startweights->val(i,j)= 0.000;
 		}
 
 	for(i = 0; i < feedweights->getM(); i++)
@@ -415,26 +420,28 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	}
 
+
+	//---------------------------------------------------------CHANGE 3
 	/*
 	 *  Step 2:Output weights change delta W_out is set to   onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
 	 */
-//	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
-//	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
-//	temp2->mult(*temp,*intermediates);
-//
-//	double scale = 1/(forgettingFactor + temp2->val(0,0));
-//	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
-//
-//
-//	/*
-//	 * Step 3: the onlineLearningAutocorrelation is diminished by  delta_w * x(t)^T *itself and divided by the forgetting factor
-//	 */
-//
-//	temp->mult(*toChangeOutputWeights, *transposedIntermediates);
-//	temp2->mult(*temp, *onlineLearningAutocorrelation);
-//
-//	*temp = *onlineLearningAutocorrelation - *temp2;
-//	onlineLearningAutocorrelation->mult(*temp, 1/forgettingFactor); //end STEP 3
+	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
+	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
+	temp2->mult(*temp,*intermediates);
+
+	double scale = 1/(forgettingFactor + temp2->val(0,0));
+	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
+
+
+	/*
+	 * Step 3: the onlineLearningAutocorrelation is diminished by  delta_w * x(t)^T *itself and divided by the forgetting factor
+	 */
+
+	temp->mult(*toChangeOutputWeights, *transposedIntermediates);
+	temp2->mult(*temp, *onlineLearningAutocorrelation);
+
+	*temp = *onlineLearningAutocorrelation - *temp2;
+	onlineLearningAutocorrelation->mult(*temp, 1/forgettingFactor); //end STEP 3
 
 
 
@@ -442,16 +449,18 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	/*
 	 * Finally, the weights are updated and temporary matrices are deleted
 	 */
-//	toChangeOutputWeights->toTranspose();
-//	temp->mult(*onlineError,*toChangeOutputWeights);
+	toChangeOutputWeights->toTranspose();
+	temp->mult(*onlineError,*toChangeOutputWeights);
+
+	//---------------------------------------------------------CHANGE 3
 
 	/* FOR Least Means Squares Learning*/
-	   temp->mult(*onlineError,*transposedIntermediates);
-	//    temp->mult(*temp,*inputs);
-	    temp->mult(*temp,forgettingFactor);
-
-    if (param)
-    	temp->mult(*temp, param);
+//	   temp->mult(*onlineError,*transposedIntermediates);
+//	//    temp->mult(*temp,*inputs);
+//	    temp->mult(*temp,forgettingFactor);
+//
+//    if (param)
+//    	temp->mult(*temp, param);
 
 //    for(int i = 0; i < outputNeurons; i++)
 //    	for(int j =0; j< networkNeurons; j++)
@@ -516,11 +525,13 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 		}
 		//std::cout <<  "inner Neurons computed:\n";
 
-		// For noise to every neuron
-				 for(int i = 0; i < networkNeurons; i++)
-		    	                  	  for(int j = 0; j < 1; j++)
-		    	                    noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
 
+		//-------------------------------------------------------------------------------------------CHANGE 2
+		// For noise to every neuron
+//				 for(int i = 0; i < networkNeurons; i++)
+//		    	                  	  for(int j = 0; j < 1; j++)
+//		    	                    noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
+		//-------------------------------------------------------------------------------------------CHANGE 2
 
 		//Add noise to the inner reservoir
 
