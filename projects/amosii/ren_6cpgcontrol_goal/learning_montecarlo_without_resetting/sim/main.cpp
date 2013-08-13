@@ -213,10 +213,22 @@ class ThisSim : public lpzrobots::Simulation {
 //          //simulation_time_reached=true;
 //          amos->place(osg::Matrix::translate(.0, .0, 0.2));
 //        }
-        if (!((AmosIIControl*) controller)->control_adaptiveclimbing.getlearning()) {
-          std::cout<<"simulation stopped according to specified condition"<<std::endl;
-          simulation_time_reached = true;
-        }
+
+
+
+
+
+      //-------------Do not need this for continuous learning (no reset)------------KOH-------------------------------------//
+
+//      if (!((AmosIIControl*) controller)->control_adaptiveclimbing.getlearning()) {
+//          std::cout<<"simulation stopped according to specified condition"<<std::endl;
+//          simulation_time_reached = true;
+//        }
+      //-------------Do not need this for continuous learning (no reset)------------KOH-------------------------------------//
+
+
+
+
 //      }
 //      //-----------------------------------------------------------------------------------
     }
