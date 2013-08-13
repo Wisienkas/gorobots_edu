@@ -2,7 +2,7 @@
  * networkmatrix.h
  *
  *  Created on: Mar 22, 2012
- *  Last Modified on: May 22,2012
+ *  Last Modified on: Aug 13,2013
  *      Authors: Andrej fillipow and Sakyasingha Dasgupta
  *
  *      Please refer to Readme for basic details
@@ -29,7 +29,7 @@ class ESNetwork{
 
     /**
      * Generate the ESN network with all internal parameters defined
-     * Takes the number of input, output and hidden neurons, whethet inputs should feed into outputs, whether outputs
+     * Takes the number of input, output and hidden neurons, whether inputs should feed into outputs, whether outputs
      * should feed back, and how quickly neurons should leak, in that order. Remember to initialize the weights!
      *
      **/
@@ -83,6 +83,11 @@ class ESNetwork{
      *
      **/
 
+    void trainOnlineLMS(float * Outputs, float forgettingFactor, float td_error, double param = 0.0);
+
+    /*
+     * Least Means squared learning of Endweights
+     */
 
     void trainBackpropagationDecorrelation(float * Outputs, float learningRate);
     /*
@@ -236,6 +241,8 @@ class ESNetwork{
       bool throughputConnections; //whether inputs connect to outputs
       bool feedbackConnections;//whether outputs feed back to hidden layer
       bool leak; // enable or disable leaky integrated neurons
+      bool RCneuronNoise;
+      bool Loadweight;
 
       int withRL;
 
@@ -250,8 +257,18 @@ class ESNetwork{
       double outputsCollection[10000];
 
       double leak_rate;
+      double autocorr;
       int nonlinearity;
       int outnonlinearity;
+
+      float InputWeightRange;
+      float RCWeightRange;
+      float FeedbackWeightRange;
+      float NoiseRange;
+
+      int InputSparsity;
+      int RCsparsity;
+      int LearnMode;
 
 };
 #endif

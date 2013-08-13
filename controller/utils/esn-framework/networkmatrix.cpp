@@ -3,7 +3,7 @@
  *  Contains the ESNetwork class member function definitions
  *
  *  Created on: Mar 22, 2012
- *  modified on: April 19th, 2013
+ *  modified on: Aug 13th, 2013
  *  Author: Andrej Fillipow and Sakyasingha Dasgupta
  */
 #include <fstream>
@@ -19,19 +19,28 @@ std::ofstream out1; //the program prints inputs and outputs into the file "outpu
 
 ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double param3, bool param4)
 {
+	RCneuronNoise = false;
+	Loadweight == false;
 	enable_IP = param4;
 
-	nonlinearity = 1; // sigmoid default
-	outnonlinearity = 0; //linear default
+	autocorr = 1;
+
+	LearnMode == 1 ;// RLS Learning default, choose '2' for LMS learning
+
+	nonlinearity = 2;        // RC neuron nonlinearity- ('0'- linear, '1'-sigmoid, '2'-tanh(default))
+	outnonlinearity = 2;     // output neuron nonlinearity- ('0'- linear, '1'-sigmoid, '2'-tanh(default))
 
 	//parameters:
-	throughputConnections = param1; //if this boolean is true, the input matrix is added to
-	feedbackConnections = param2; //param2;//true;
-	stepsRun = 0;
+	throughputConnections = param1; // input to output direct connection
+	feedbackConnections = param2; //output to RC connections
+
+	stepsRun = 0;    //Washout - run RC for some timesteps initially
+
 	// turn on RLS learning for combinatorial learning
 	withRL=1; // change to '2' for standard ESN
 
-	 leak_rate = param3; // rate of leakage of neurons
+	leak_rate = param3; // rate of leakage of neurons
+
 	if (leak_rate ==0)
 		leak = false;
 	else
@@ -72,6 +81,7 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	//temp = (throughputConnections?  inputNeurons : 0)+ networkNeurons;
 	endweights   = new matrix::Matrix(outputNeurons, networkNeurons/*temp*/);
 
+	//declare noise matrix
 	noise = new matrix::Matrix(networkNeurons,1);
 
 	//Matrix for online recursive learning
@@ -79,11 +89,12 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 
 	unsigned int i,j = 0; // initialise the function to a positive number
 
+	//Initialization of RLS autocorrelation matrix
 	for(i = 0; i < networkNeurons; i++)
 		for(j=0;j< networkNeurons; j++)
 		{
 			if(i==j)
-				onlineLearningAutocorrelation->val(i,j)= 1; //pow(10,5); // Need to set to a high value depending on task at hand. In general for artificial data set to high and for NIMM4 leave as it is
+				onlineLearningAutocorrelation->val(i,j)= autocorr; //pow(10,5); // Need to set to a high value depending on task at hand. In general for artificial data set to high and for NIMM4 leave as it is
 			else
 				onlineLearningAutocorrelation->val(i,j)= 0.0;
 		}
@@ -123,6 +134,18 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	std::cout<<"Arrays initialised" << "\n";
 	out.open("output_matrix");
 
+	/*-------------------- Weight Parameters -------------------------------*/
+
+		 InputWeightRange = 0.15;
+		 RCWeightRange = 1.0;
+		 FeedbackWeightRange = 0.5;
+		 NoiseRange = 0.001;
+
+		 InputSparsity = 0; //50
+		 RCsparsity = 90;
+
+		/*-------------------- Weight Parameters ------------------------------*/
+
 
 }
 
@@ -148,58 +171,67 @@ ESNetwork::~ESNetwork()
 //Generate connection weights
 void ESNetwork::generate_random_weights(int sparsity, float spectral_radius) //sparsity from 1-100, density 0-1, all connections random
 {
+	RCsparsity = sparsity;
+
 	std::cout << "generating full-random weighting. \n \n";
 	srand(time(NULL));
 
 	unsigned int i,j = 0;
 
-	for(i = 0; i < startweights->getM(); i++)
+	if (InputSparsity == 0)
+	{
+		for(i = 0; i < startweights->getM(); i++)
 		for (j=0; j< startweights->getN();j++)
 		{
-			//if ((rand()%100) >= 50/*sparsity*/)
+			startweights->val(i,j)= ESNetwork::uniform(-InputWeightRange,InputWeightRange);
 
-		  //Input weights from to-------------------------------------------------------------------------------------------------------CHANG 1
-		  //if ((rand()%100) >= 0/*sparsity*/)
-
-			//Input weights from to-------------------------------------------------------------------------------------------------------CHANG 1
-			{startweights->val(i,j)= ESNetwork::uniform(-0.15,0.15);}//(-0.5,0.5);} //((double)(rand()%100)/100);}}
-			//else
-			//	startweights->val(i,j)= 0.000;
 		}
 
+	}
+
+	else {
+
+		for(i = 0; i < startweights->getM(); i++)
+				for (j=0; j< startweights->getN();j++)
+				{
+					if ((rand()%100) >= InputSparsity)
+					{startweights->val(i,j)= ESNetwork::uniform(-InputWeightRange,InputWeightRange);}
+					else
+						startweights->val(i,j)= 0.0;
+
+				}
+
+	}
+
+ //Feedback connections to all inner neurons
 	for(i = 0; i < feedweights->getM(); i++)
 			for (j=0; j< feedweights->getN();j++)
 			{
-				//if ((rand()%100) >= 50/*sparsity*/)
-				{feedweights->val(i,j)= ESNetwork::uniform(-0.5,0.5);} //((double)(rand()%100)/100);}}
-			//	else
-					//startweights->val(i,j)= 0.000;
+				{feedweights->val(i,j)= ESNetwork::uniform(-FeedbackWeightRange,FeedbackWeightRange);}
+
 			}
 
-	//initialise the inner weights
+	//initialise the Reservoir weights
 	j = 0;
 	for(i = 0; i < innerweights->getM(); i++)
 		for(j = 0; j < innerweights->getN(); j++)
 		{
-			if ((rand()%100) >= sparsity) { innerweights->val(i,j)= ESNetwork::uniform(-1,1);}//((double)(rand()%100)/100);}
+			if ((rand()%100) >= RCsparsity) { innerweights->val(i,j)= ESNetwork::uniform(-RCWeightRange,RCWeightRange);}
 			else
 				innerweights->val(i,j)= 0.000;
 		}
 
-
-
-	//finally initialise the output weights
+	//Initialise the output weights
 	j = 0;
 	for(i = 0; i < endweights->getM(); i++)
 		for(j = 0; j < endweights->getN(); j++)
-			//   if ((rand()%100) >= sparsity)
-		{ endweights->val(i,j)=0.000;/*((double)(rand()%100)/300);*/}
+			{ endweights->val(i,j)=0.000;}
 
 
 	//initialize noise matrix
 	for(i = 0; i < networkNeurons; i++)
 		for(j = 0; j < 1; j++)
-			noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
+			noise->val(i,j) = ESNetwork::uniform(-NoiseRange,NoiseRange);
 
 	ESNetwork::normalizeInnerWeights(spectral_radius);
 
@@ -222,153 +254,198 @@ void ESNetwork::setInput(float *Input, int size)// sets the input neurons, calle
 
 void ESNetwork::trainOutputs(float * Inputs, float * Outputs, int time, int discardedTimesteps)
 {
-	// Offline learning not used.  USE RLS online learning instead (trainOnlineRecurssive function)
+//*********************************************************************************************************
+//	// Off-line batch mode learning not used.  USE RLS online learning instead (trainOnlineRecurssive function)
+// ********************************************************************************************************
+//	matrix::Matrix * stateMatrix = new
+//			matrix::Matrix(time-discardedTimesteps, networkNeurons
+//			/*+(feedbackConnections?outputNeurons:0)*/); //stateMatrix is the matrix ofstates
+//	//std::cout << "initiated Training \n \n";
+//
+//	for(int i = 0; i < time; i++) //record states into state matrix
+//	{
+//		ESNetwork::setInput(Inputs+(i*inputNeurons), inputNeurons);
+//		for (unsigned int j = 0; j < outputNeurons;j++)
+//		{
+//			outputs->val(j,0) = Outputs[i*outputNeurons+j];
+//		}
+//
+//
+//		ESNetwork::takeStep();
+//		if (i >= discardedTimesteps)
+//		{
+//			int j = 0;
+//
+//			/*for(; j <  inputNeurons; j++)
+//              {
+//                stateMatrix->val(i-discardedTimesteps,j)= inputs->val(j,0);
+//              }
+//			 */
+//			for(; j <  networkNeurons; j++)
+//			{
+//				stateMatrix->val(i-discardedTimesteps,j)=
+//						intermediates->val(j,0)+ESNetwork::uniform(-0.05,0.05);
+//			}
+//			/*if (feedbackConnections)  //this part is tricky: if the outputs
+//    feed back, they must be part of the state matrix
+//              {
+//                for  (; j <  networkNeurons+outputNeurons; j++)
+//                {
+//                  stateMatrix->val(i-discardedTimesteps,j)=
+//    outputs->val(j-networkNeurons,0);
+//                }
+//              }*/
+//		}
+//	}
+//	std::cout << "states found \n";
+//	std::cout << "states matrix is: " << stateMatrix->getM() <<" times " <<
+//			stateMatrix->getN() << std::endl;
+//	/*
+//	 *Here, the teacher outputs are collected
+//	 *
+//	 */
+//	matrix::Matrix * desiredOutput = new
+//			matrix::Matrix(time-discardedTimesteps, outputNeurons);
+//	for(int i = discardedTimesteps; i < time; i++)
+//	{
+//		for(int j = 0; j < outputNeurons; j++)
+//		{
+//			desiredOutput->val(i-discardedTimesteps,j) =
+//					Outputs[i*outputNeurons+j];
+//		}
+//	}
+//	std::cout<<"desired outputs found \n";
+//
+//	/* generating: (s?¹ s)?¹ s^t D
+//	 *
+//	 */
+//
+//	matrix::Matrix * temp2 = new matrix::Matrix(inputNeurons +
+//			networkNeurons, time-discardedTimesteps);
+//	*temp2 = *stateMatrix;
+//	// here was the mistake:
+//	//*temp2 = temp2->pseudoInverse();
+//	*temp2 = temp2->toExp(0xFF);
+//	matrix::Matrix * temp3 = new matrix::Matrix(time-discardedTimesteps,
+//			time-discardedTimesteps);
+//	temp3->mult(*temp2, *stateMatrix);               // is (s' s) now
+//
+//
+//
+//	/*
+//          matrix::Matrix * Eigens = new matrix::Matrix;
+//	 *Eigens =  eigenValuesRealSym(*temp3);
+//          temp3->mult(*temp3, (1/Eigens->val(0,0))*20);
+//          delete Eigens;
+//	 */
+//
+//
+//	temp3->pseudoInverse();                           // is (s' s)?¹ now WARNING takes long time to compute
+//	std::cout << "pseudo-Inverse is: " << temp3->getM() <<" times " <<
+//			temp3->getN() << std::endl;
+//
+//	matrix::Matrix * temp4 = new matrix::Matrix(time-discardedTimesteps,
+//			inputNeurons + networkNeurons);
+//	*temp4 = *stateMatrix;
+//	temp4->toExp(0xFF);                               //is s' now
+//	temp4->mult(*temp4, *desiredOutput);              //is s' * D now
+//	//temp4->mult(*temp4, *temp3);                      //is (s' s)?¹ s' now
+//
+//
+//	std::cout << " s^T * D is "<<temp4->getM() <<" times "<<temp4->getN()<< std::endl;
+//
+//	temp4->mult(*temp3, *temp4);
+//	std::cout << "(s?¹ s)?¹ s^t D is: " << temp4->getM() <<" times " <<
+//			temp4->getN() << std::endl;
+//	*endweights = *temp4;
+//
+//	/*
+//          //alternate method:
+//          matrix::Matrix * temp2 = new matrix::Matrix(inputNeurons +
+//    networkNeurons, time-discardedTimesteps);
+//	 *temp2 = *stateMatrix;
+//	 *temp2 = temp2->pseudoInverse();
+//
+//
+//          endweights->mult(*temp2, *desiredOutput);*/
+//
+//	endweights->toExp(0xFF);
+//	std::cout << "endweights is: " << endweights->getM() <<" times " <<
+//			endweights->getN() << std::endl;
+//
+//	delete stateMatrix;
+//	delete temp2;
+//	//delete temp3;
+//	//delete temp4;
+//	delete desiredOutput;
 
-	matrix::Matrix * stateMatrix = new
-			matrix::Matrix(time-discardedTimesteps, networkNeurons
-			/*+(feedbackConnections?outputNeurons:0)*/); //stateMatrix is the matrix ofstates
-	//std::cout << "initiated Training \n \n";
-
-	for(int i = 0; i < time; i++) //record states into state matrix
-	{
-		ESNetwork::setInput(Inputs+(i*inputNeurons), inputNeurons);
-		for (unsigned int j = 0; j < outputNeurons;j++)
-		{
-			outputs->val(j,0) = Outputs[i*outputNeurons+j];
-		}
-
-
-		ESNetwork::takeStep();
-		if (i >= discardedTimesteps)
-		{
-			int j = 0;
-
-			/*for(; j <  inputNeurons; j++)
-              {
-                stateMatrix->val(i-discardedTimesteps,j)= inputs->val(j,0);
-              }
-			 */
-			for(; j <  networkNeurons; j++)
-			{
-				stateMatrix->val(i-discardedTimesteps,j)=
-						intermediates->val(j,0)+ESNetwork::uniform(-0.05,0.05);
-			}
-			/*if (feedbackConnections)  //this part is tricky: if the outputs
-    feed back, they must be part of the state matrix
-              {
-                for  (; j <  networkNeurons+outputNeurons; j++)
-                {
-                  stateMatrix->val(i-discardedTimesteps,j)=
-    outputs->val(j-networkNeurons,0);
-                }
-              }*/
-		}
-	}
-	std::cout << "states found \n";
-	std::cout << "states matrix is: " << stateMatrix->getM() <<" times " <<
-			stateMatrix->getN() << std::endl;
-	/*
-	 *Here, the teacher outputs are collected
-	 *
-	 */
-	matrix::Matrix * desiredOutput = new
-			matrix::Matrix(time-discardedTimesteps, outputNeurons);
-	for(int i = discardedTimesteps; i < time; i++)
-	{
-		for(int j = 0; j < outputNeurons; j++)
-		{
-			desiredOutput->val(i-discardedTimesteps,j) =
-					Outputs[i*outputNeurons+j];
-		}
-	}
-	std::cout<<"desired outputs found \n";
-
-	/* generating: (s?¹ s)?¹ s^t D
-	 *
-	 */
-
-	matrix::Matrix * temp2 = new matrix::Matrix(inputNeurons +
-			networkNeurons, time-discardedTimesteps);
-	*temp2 = *stateMatrix;
-	// here was the mistake:
-	//*temp2 = temp2->pseudoInverse();
-	*temp2 = temp2->toExp(0xFF);
-	matrix::Matrix * temp3 = new matrix::Matrix(time-discardedTimesteps,
-			time-discardedTimesteps);
-	temp3->mult(*temp2, *stateMatrix);               // is (s' s) now
-
-
-
-	/*
-          matrix::Matrix * Eigens = new matrix::Matrix;
-	 *Eigens =  eigenValuesRealSym(*temp3);
-          temp3->mult(*temp3, (1/Eigens->val(0,0))*20);
-          delete Eigens;
-	 */
-
-
-	temp3->pseudoInverse();                           // is (s' s)?¹ now WARNING takes long time to compute
-	std::cout << "pseudo-Inverse is: " << temp3->getM() <<" times " <<
-			temp3->getN() << std::endl;
-
-	matrix::Matrix * temp4 = new matrix::Matrix(time-discardedTimesteps,
-			inputNeurons + networkNeurons);
-	*temp4 = *stateMatrix;
-	temp4->toExp(0xFF);                               //is s' now
-	temp4->mult(*temp4, *desiredOutput);              //is s' * D now
-	//temp4->mult(*temp4, *temp3);                      //is (s' s)?¹ s' now
-
-
-	std::cout << " s^T * D is "<<temp4->getM() <<" times "<<temp4->getN()<< std::endl;
-
-	temp4->mult(*temp3, *temp4);
-	std::cout << "(s?¹ s)?¹ s^t D is: " << temp4->getM() <<" times " <<
-			temp4->getN() << std::endl;
-	*endweights = *temp4;
-
-	/*
-          //alternate method:
-          matrix::Matrix * temp2 = new matrix::Matrix(inputNeurons +
-    networkNeurons, time-discardedTimesteps);
-	 *temp2 = *stateMatrix;
-	 *temp2 = temp2->pseudoInverse();
-
-
-          endweights->mult(*temp2, *desiredOutput);*/
-
-	endweights->toExp(0xFF);
-	std::cout << "endweights is: " << endweights->getM() <<" times " <<
-			endweights->getN() << std::endl;
-
-
-
-
-
-	delete stateMatrix;
-	delete temp2;
-	//delete temp3;
-	//delete temp4;
-	delete desiredOutput;
 }
 
-//void ESNetwork::RLSForceLearning(float *Outputs, float td_error)
-//{
-////	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
-////	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
-////	onlineError = new matrix::Matrix(1, outputNeurons);
-////
-////	for (int i = 0; i < outputNeurons; i++)
-////			{
-////				onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
-////
-////
-////			}
-////	transposedIntermediates = new matrix::Matrix(1, networkNeurons);
-////	*transposedIntermediates = *intermediates;
-////	transposedIntermediates->toTranspose();
-//
+void ESNetwork::trainOnlineLMS(float * Outputs, float forgettingFactor, float td_error, double param)
+{
+	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
+		matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
 
-  //}
+		//the Error vector between input and output
+		onlineError = new matrix::Matrix(1, outputNeurons);
+
+		transposedIntermediates = new matrix::Matrix(1, networkNeurons);
+		toChangeOutputWeights = new matrix::Matrix(endweights->getM(), endweights->getN());
+		/*
+		 * Step 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
+		 *
+		 */
+
+		*transposedIntermediates = *intermediates;
+		transposedIntermediates->toTranspose();
+		*temp = *endweights;
+		temp->toTranspose();
+
+		temp2->mult(*transposedIntermediates, *temp);
+
+		switch (withRL){/* Set to td_error for actor-critic learning and otherwise to default */
+		case 1 :
+		{
+			for (int i = 0; i < outputNeurons; i++)
+			{
+				onlineError->val(0,i) = td_error;//(atan(Outputs[i])-temp2->val(0,i));
+
+
+			}
+			break;
+		}
+		case 2:
+		{
+			for (int i = 0; i < outputNeurons; i++)
+			{
+				if (outnonlinearity == 2)
+				onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
+
+				else if(outnonlinearity == 0 || outnonlinearity == 1)
+					onlineError->val(0,i) = ((Outputs[i])-temp2->val(0,i));
+
+			}
+			break;
+		}
+
+		}
+
+		 temp->mult(*onlineError,*transposedIntermediates);
+
+				   temp->mult(*temp,forgettingFactor);
+
+			    if (param)
+			    	temp->mult(*temp, param);
+
+			    *endweights = *endweights + *temp;
+
+			        delete temp;
+			    	delete temp2;
+			    	delete onlineError;
+			    	delete transposedIntermediates;
+			    	delete toChangeOutputWeights;
+
+}
 
 
 
@@ -377,17 +454,16 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
 	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
-//	matrix::Matrix *outputnoise = new matrix::Matrix(outputNeurons, networkNeurons);
-	//   matrix::Mtrix *scale = new matrix::Matrix(1,networkNeurons);
 
-	onlineError = new matrix::Matrix(1, outputNeurons); //the Error vector between input and output
+	//the Error vector between input and output
+	onlineError = new matrix::Matrix(1, outputNeurons);
+
 	transposedIntermediates = new matrix::Matrix(1, networkNeurons);
 	toChangeOutputWeights = new matrix::Matrix(endweights->getM(), endweights->getN());
 	/*
 	 * Step 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
 	 *
 	 */
-	//  printMatrix(onlineError);
 
 	*transposedIntermediates = *intermediates;
 	transposedIntermediates->toTranspose();
@@ -401,7 +477,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	{
 		for (int i = 0; i < outputNeurons; i++)
 		{
-			onlineError->val(0,i) = td_error;//(atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
+			onlineError->val(0,i) = td_error;//(atan(Outputs[i])-temp2->val(0,i));
 
 
 		}
@@ -411,8 +487,11 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	{
 		for (int i = 0; i < outputNeurons; i++)
 		{
+			if (outnonlinearity == 2)
 			onlineError->val(0,i) = (atan(Outputs[i])-temp2->val(0,i)); //compute the Error between output and desired output -- end STEP 1
 
+			else if(outnonlinearity == 0 || outnonlinearity == 1)
+				onlineError->val(0,i) = ((Outputs[i])-temp2->val(0,i));
 
 		}
 		break;
@@ -421,7 +500,6 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	}
 
 
-	//---------------------------------------------------------CHANGE 3
 	/*
 	 *  Step 2:Output weights change delta W_out is set to   onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
 	 */
@@ -444,27 +522,12 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	onlineLearningAutocorrelation->mult(*temp, 1/forgettingFactor); //end STEP 3
 
 
-
-
 	/*
 	 * Finally, the weights are updated and temporary matrices are deleted
 	 */
 	toChangeOutputWeights->toTranspose();
 	temp->mult(*onlineError,*toChangeOutputWeights);
 
-	//---------------------------------------------------------CHANGE 3
-
-	/* FOR Least Means Squares Learning*/
-//	   temp->mult(*onlineError,*transposedIntermediates);
-//	//    temp->mult(*temp,*inputs);
-//	    temp->mult(*temp,forgettingFactor);
-//
-//    if (param)
-//    	temp->mult(*temp, param);
-
-//    for(int i = 0; i < outputNeurons; i++)
-//    	for(int j =0; j< networkNeurons; j++)
-//    outputnoise->val(i,j) = ESNetwork::uniform(-0.0005,0.0005);
 
 	*endweights = *endweights + *temp  ;
 //	*endweights = *endweights + *outputnoise;
@@ -496,7 +559,7 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	matrix::Matrix * temp4 = new matrix::Matrix(networkNeurons, networkNeurons);
 	matrix::Matrix * temp5 = new matrix::Matrix(1,networkNeurons);
 	matrix::Matrix * old_intermediates = new matrix::Matrix(networkNeurons,1);
-	matrix::Matrix * temp6 = new matrix::Matrix(networkNeurons,1);
+	matrix::Matrix * temp6 = new matrix::Matrix(1,networkNeurons);
 	matrix::Matrix * transposeoutputs = new matrix::Matrix(1,networkNeurons);
 
 
@@ -525,14 +588,16 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 		}
 		//std::cout <<  "inner Neurons computed:\n";
 
+		// For noise to every neuron. If set to False, only constant bias noise will be added. Default is False
+     if(RCneuronNoise == true)
+     {
 
-		//-------------------------------------------------------------------------------------------CHANGE 2
-		// For noise to every neuron
-//				 for(int i = 0; i < networkNeurons; i++)
-//		    	                  	  for(int j = 0; j < 1; j++)
-//		    	                    noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
-		//-------------------------------------------------------------------------------------------CHANGE 2
 
+				 for(int i = 0; i < networkNeurons; i++)
+		    	                  	  for(int j = 0; j < 1; j++)
+		    	                    noise->val(i,j) = ESNetwork::uniform(-NoiseRange,NoiseRange);
+
+     }
 		//Add noise to the inner reservoir
 
 		intermediates->add(*intermediates, *noise);
@@ -580,23 +645,26 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 
 		//intermediates->add(*intermediates, *temp6);
 
-		// For noise to every neuron
-				 for(int i = 0; i < networkNeurons; i++)
-		    	     for(int j = 0; j < 1; j++)
-		    	        noise->val(i,j) = ESNetwork::uniform(-0.001,0.001);
+		if(RCneuronNoise == true)
+		     {
+               for(int i = 0; i < networkNeurons; i++)
+				 for(int j = 0; j < 1; j++)
+				  noise->val(i,j) = ESNetwork::uniform(-NoiseRange,NoiseRange);
 
-
+		     }
 				// adding bias to reservoir neurons
 					        intermediates->add(*intermediates, *noise);
 
 		ESNetwork::cullInnerVector(0.6);
 
-		//temp6->mult(*old_intermediates, 1-leak_rate);
+		temp6->mult(*old_intermediates, 1-leak_rate);
 
-		intermediates->mult(*intermediates, 1-leak_rate);
+	    temp6->toTranspose();
+
+		intermediates->mult(*intermediates, leak_rate);
 
 
-	//	intermediates->add(*temp6, *intermediates);
+		intermediates->add(*temp6, *intermediates);
 
 
 		//std::cout <<  "inner Neurons computed:\n";
@@ -632,10 +700,18 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	{
 		if (td_error!= 0)
 		{
+           if (LearnMode == 1) //Chooses whether RLS or LMS learning, default is 1-RLS learning
+			 {trainOnlineRecursive(Outputs, learningRate, (td_error), param);
 
-			trainOnlineRecursive(Outputs, learningRate, (td_error), param);
+			  outputs->mult(*endweights, *temp3);
+			 }
 
-			outputs->mult(*endweights, *temp3);
+           else if (LearnMode == 2) //LMS
+           {
+        	   trainOnlineLMS(Outputs, learningRate, (td_error), param);
+
+        	   outputs->mult(*endweights, *temp3);
+           }
 
 			//       outputsCollection[timestep] = outputs->val(0,0);
 
@@ -645,12 +721,14 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	}
 
 	else {
-		outputs->mult(*endweights, *temp3);
+		   if(Loadweight == false)
+		    outputs->mult(*endweights, *temp3);
 
-		// 	   if(timestep >50)
-		//	 outputsCollection[timestep] = outputs->val(0,0);
+		   else if (Loadweight == true)
+		   {
+			//   outputs->mult(*storedweights, *temp3);
+		   }
 
-		//   printMatrix(endweights);
 	}
 
 
@@ -783,7 +861,7 @@ void ESNetwork::cullOutput(float treshold /*unused*/)
 	else if (outnonlinearity == 1 )
 			  outputs->val(i,0) = ESNetwork::sigmoid(outputs->val(i,0));
 	else if (outnonlinearity == 2)
-		     outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), false);
+		     outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), enable_IP);
 
 			 // if (outputs->val(i,0)*outputs->val(i,0)<=0.0001) outputs->val(i,0) = 0;
 	}

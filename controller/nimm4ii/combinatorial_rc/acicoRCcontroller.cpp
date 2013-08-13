@@ -2,7 +2,7 @@
  * Continous actor-critic controller with Reservoir critic
  * Needs the networkmatrix.cpp and networkmatrix.h files to call the ESN network
  *
- * Created/modified by Sakyasingha Dasgupta April 19, 2013
+ * Created/modified by Sakyasingha Dasgupta August 13, 2013
  */
 
 /**************************************************************************
@@ -74,23 +74,45 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 {
 	//added:
 //
-	ESN = new ESNetwork(3/*+1*/,1,100, false, false, 0); // try with 50,100, 200, 300 reservoir neurons
-//
-	ESN->generate_random_weights(10 /*90*/);
+	ESN = new ESNetwork(5/*+1*/,1,100, false, false, 0, false); // try with 50,100, 200, 300 reservoir neurons
 
-	ESN_actor = new ESNetwork(4,1,100, false, false, 0);
+	//********************* RC Parameters ********************
+	ESN->InputSparsity = 50;
+	ESN->InputWeightRange = 0.5;
+	ESN->LearnMode = 2;
+	ESN->Loadweight = false;
+	ESN->NoiseRange = 0.001;
+	ESN->RCneuronNoise = true;
+//	ESN->withRL = 1;
+
+	//********************* RC Parameters ********************
+
+	ESN->generate_random_weights(10 /*90*/, 0.95);
+
+//	matrix::Matrix *storedweights;
 //
-	ESN_actor->generate_random_weights(90 /*90*/);
+//	storedweights = new matrix::Matrix(1,100);
+//
+//	//initialize store weights to null
+//
+//	for (int i = 0; i<100; i++)
+//		for (int j = 0; j < 1; j++)
+//			storedweights->val(i,j) = 0.0;
+
+
+//	ESN_actor = new ESNetwork(4,1,100, false, false, 0);
+//
+//	ESN_actor->generate_random_weights(90 /*90*/);
 
 //	ESN_actor->leak = false;
 
 //	ESN->leak = false;
 
 	ESN->outnonlinearity = 2;//2; //2 ; //1;
-	ESN_actor->outnonlinearity = 2;
+//	ESN_actor->outnonlinearity = 2;
 
 	ESN->nonlinearity = 2;// 2;
-	ESN_actor->nonlinearity = 0;
+//	ESN_actor->nonlinearity = 0;
 
    exploreEnd = false;
 
@@ -100,40 +122,40 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 
 	td_error=0.0;
 
-	ESinput = new float[3];//sizeof(xt)];   // size of input as number of robot sensors
+	ESinput = new float[5];//sizeof(xt)];   // size of input as number of robot sensors
 
-	EAinput = new float[4];
+//	EAinput = new float[4];
 
 	cout << "ESN generated" << endl;
 
 
 	/* initialize inputs to 0 */
-	for(unsigned int i = 0; i < 3; i++)
+	for(unsigned int i = 0; i < 5; i++)
 	{
 		ESinput[i] = 0.0;
 
 	}
 //
-	for(unsigned int i = 0; i < 4; i++)
-		{
-			EAinput[i] = 0.0;
-
-	}
+//	for(unsigned int i = 0; i < 4; i++)
+//		{
+//			EAinput[i] = 0.0;
+//
+//	}
 //
 //
 	ESTrainOutput = new float[1]; // single ouput neuron
 //
 	ESTrainOutput[0] = 0.0;
 //
-	EATrainOutput = new float[1];
+//	EATrainOutput = new float[1];
 
 
 //
-	for(unsigned int i = 0; i < 1; i++)
-			{
-		EATrainOutput[i] = 0.0;
-
-			}
+//	for(unsigned int i = 0; i < 1; i++)
+//			{
+//		EATrainOutput[i] = 0.0;
+//
+//			}
 
 	preprogrammed_steering_control_active =false;
 	t=0;
@@ -1105,8 +1127,8 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 			//	if(ESinput[0] == 0.0) ESinput[0] = gauss();
 			//	if(ESinput[1] == 0.0) ESinput[1] = gauss();
 
-			//	ESinput[3] = Vt_old;
-		//		ESinput[4] = xt[_ias3];
+				ESinput[3] = xt[_ias2];
+				ESinput[4] = xt[_ias3];
 //				if (scenario_flag == 2)
 //				{
 //					if (xt[_ias0] == 0) ESinput[0] = 0.1 ;
@@ -1118,7 +1140,7 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 
 				if (!ESN) cout<< "critical failure: ESN not loaded" <<std::endl;
 
-				ESN->setInput(ESinput, 3 /*3*/);// sizeof(xt)/*+1*/
+				ESN->setInput(ESinput, 5 /*3*/);// sizeof(xt)/*+1*/
 
 
 			   bool learn = true;

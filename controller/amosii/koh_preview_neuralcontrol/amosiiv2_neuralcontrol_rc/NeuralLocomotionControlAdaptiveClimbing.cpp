@@ -697,11 +697,21 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //--------------------------Add ENS network--(2)-----------------------------------//
   //Setting ENS parameters
-  ESN = new ESNetwork(1/*no. input*/,1 /*no. output*/,50 /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0 /*leak = 0.0*/);
-  ESN->generate_random_weights(90 /*10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
-  ESN->outnonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN = new ESNetwork(1/*no. input*/,1 /*no. output*/,250 /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0 /*leak = 0.0*/, false);
+
+  ESN->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
   ESN->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+  ESN->InputSparsity = 0;
+  ESN->autocorr = pow(10,3);
+  ESN->InputWeightRange = 0.15;
+  ESN->LearnMode = 1;//RLS = 1. LMS =2
+  ESN->Loadweight = false;
+  ESN->NoiseRange = 0.001;
+  ESN->RCneuronNoise = false;
+
+  ESN->generate_random_weights(50 /*10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
 
   //Create ESN input vector
   ESinput = new float[1];
@@ -1657,8 +1667,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   bool learn;
   learn = true;
-//  if(global_count>500)//100)
-//    learn = false;
+  if(global_count>1000)//100)
+    learn = false;
   //------------Add ESN training (3)----------------------------------//
   ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
   ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
