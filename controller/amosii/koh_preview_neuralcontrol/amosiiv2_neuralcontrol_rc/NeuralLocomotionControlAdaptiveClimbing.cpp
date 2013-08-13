@@ -697,19 +697,19 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //--------------------------Add ENS network--(2)-----------------------------------//
   //Setting ENS parameters
-  ESN = new ESNetwork(1/*no. input*/,1 /*no. output*/,250 /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0 /*leak = 0.0*/, false);
+  ESN = new ESNetwork(1/*no. input*/,1 /*no. output*/,250 /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0 /*leak = 0.0*/, false /*IP*/);
 
   ESN->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
   ESN->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN->InputSparsity = 0;
-  ESN->autocorr = pow(10,3);
-  ESN->InputWeightRange = 0.15;
+  ESN->InputSparsity = 0; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN->autocorr = pow(10,3); // set as high as possible, default = 1
+  ESN->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN->LearnMode = 1;//RLS = 1. LMS =2
-  ESN->Loadweight = false;
-  ESN->NoiseRange = 0.001;
-  ESN->RCneuronNoise = false;
+  ESN->Loadweight = false; // true = loading learned weights
+  ESN->NoiseRange = 0.001; //
+  ESN->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
 
   ESN->generate_random_weights(50 /*10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
 
@@ -1665,11 +1665,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   reflex_L_fs.at(2) = in0.at(L2_fs); //L2_fs = 24
 
 
+
+  //------------Add ESN training (3)----------------------------------//
+
   bool learn;
   learn = true;
   if(global_count>1000)//100)
     learn = false;
-  //------------Add ESN training (3)----------------------------------//
+
   ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
   ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
   ESN->setInput(ESinput, 1/* no. input*/);
