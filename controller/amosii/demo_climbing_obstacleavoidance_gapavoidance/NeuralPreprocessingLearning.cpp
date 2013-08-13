@@ -24,9 +24,14 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 	ThresholdFunction().setTheta(0.5);
 
 	// synaptic weights
+//	w(0, 0,  2.4);//2.2
+//	w(0, 1,  -3.6);
+//	w(1, 0,  -3.6);
+//	w(1, 1,  2.4);//2.2
+
 	w(0, 0,  2.4);//2.2
-	w(0, 1,  -3.6);
-	w(1, 0,  -3.6);
+	w(0, 1,  -3.2);
+	w(1, 0,  -3.2);
 	w(1, 1,  2.4);//2.2
 
 	w(3,0,      1.0);

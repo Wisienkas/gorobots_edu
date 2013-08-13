@@ -111,9 +111,9 @@ int main(int argc, char** argv) {
   ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) = 1.5;
   ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) = 1.5;
 
-  //robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
+  robot         = new AmosIISerialV1("/dev/ttyS0");     // using serial port
 //  robot = new AmosIISerialV2("/dev/ttyUSB1"); // using USB-to-serial adapter
-  robot = new AmosIISerialV1("/dev/ttyUSB0"); // using USB-to-serial adapter
+  //robot = new AmosIISerialV1("/dev/ttyUSB0"); // using USB-to-serial adapter
 
   agent = new Agent(plotoptions);
   agent->init(controller, robot, wiring);
