@@ -61,24 +61,24 @@ std::vector<double> NeuralPreprocessingReflex::step_npp(const std::vector<double
 		//Mapping foot sensor to +-1
 		mappingsensor.at(i)=(((in0.at(i)-1)/(0-1))*2.0-1.0);
 
-		if (mappingsensor.at(i)>0.9)
-		{
-		  mappingsensor.at(i)=1;
-		}
-		if (mappingsensor.at(i)<=0.9)
-		{
-		  mappingsensor.at(i)=-1;
-		}
+		bool step;
 
+		step = false;
+		if(step)
+		{
+		  if (mappingsensor.at(i)>0.9)
+		  {
+		    mappingsensor.at(i)=1;
+		  }
+		  if (mappingsensor.at(i)<=0.9)
+		  {
+		    mappingsensor.at(i)=-1;
+		  }
+		}
 			//Preprocessing
 		sensor_activity.at(i) = mappingsensor.at(i)*sensor_w_pfs_rfs+sensor_output.at(i)*sensor_w_pfs_pfs;//*presyFL3+biasFL3+ac_OutPostprocessFL3*recurrentFL3;
 	  sensor_output.at(i) = tanh(sensor_activity.at(i));
 	  preprosensor.at(i) = sensor_output.at(i);
-
-
-//		sensor_activity.at(i) = mappingsensor.at(i)*sensor_w_pfs_rfs+sensor_output.at(i)*sensor_w_pfs_pfs-0.80;//*presyFL3+biasFL3+ac_OutPostprocessFL3*recurrentFL3;
-//		sensor_output.at(i) = tanh(sensor_activity.at(i));
-//		preprosensor.at(i) = tanh(sensor_output.at(i)*100);
 
 	}
 
