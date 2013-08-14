@@ -59,12 +59,18 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	outputs = new matrix::Matrix(outputNeurons,1);
 	intermediates = new matrix::Matrix(networkNeurons,1);
 	leak_mat = new matrix::Matrix(networkNeurons,networkNeurons);
+	inverse_leak_mat = new matrix::Matrix(networkNeurons, networkNeurons);
 
 	//Initializing leak matrix
 	for (int i =0;i<networkNeurons;i++)
 		for (int j=0;j<networkNeurons;j++)
-			if (i==j) leak_mat->val(i,j) = 1-leak_rate;
+			if (i==j) leak_mat->val(i,j) = leak_rate;
 			else leak_mat->val(i,j)=0.0;
+
+	for (int i =0;i<networkNeurons;i++)
+			for (int j=0;j<networkNeurons;j++)
+				if (i==j) inverse_leak_mat->val(i,j) = 1-leak_rate;
+				else leak_mat->val(i,j)=0.0;
 
 	//**********Weight matrices for the ESN framework****************//
 
@@ -143,6 +149,8 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 
 		 InputSparsity = 0; //50
 		 RCsparsity = 90;
+
+		 input_scaling = 0.5;
 
 		/*-------------------- Weight Parameters ------------------------------*/
 
@@ -234,6 +242,8 @@ void ESNetwork::generate_random_weights(int sparsity, float spectral_radius) //s
 			noise->val(i,j) = ESNetwork::uniform(-NoiseRange,NoiseRange);
 
 	ESNetwork::normalizeInnerWeights(spectral_radius);
+
+	//ESNetwork::normalizeInputWeights(input_scaling);
 
 	std::cout <<" finished \n";
 }
@@ -559,7 +569,7 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	matrix::Matrix * temp4 = new matrix::Matrix(networkNeurons, networkNeurons);
 	matrix::Matrix * temp5 = new matrix::Matrix(1,networkNeurons);
 	matrix::Matrix * old_intermediates = new matrix::Matrix(networkNeurons,1);
-	matrix::Matrix * temp6 = new matrix::Matrix(1,networkNeurons);
+	matrix::Matrix * temp6 = new matrix::Matrix(networkNeurons,1);
 	matrix::Matrix * transposeoutputs = new matrix::Matrix(1,networkNeurons);
 
 
@@ -621,7 +631,9 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 	}
 	if (leak == true)
 	{
-        *old_intermediates = *intermediates;
+
+        old_intermediates->mult(*inverse_leak_mat, *intermediates);
+
 
 
 		temp->mult(*startweights, *inputs);
@@ -632,18 +644,17 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 		if (feedbackConnections)
 		{     temp2->mult(*innerweights, intermediates->above(*outputs))  ;
 		      temp2->removeRows(networkNeurons);
-//			temp6->mult(*innerweights, outputs->val(0,0) /*intermediates->above(*outputs)*/)  ;
-		//	temp2->removeRows(networkNeurons);
+
 		}
 		else
 		{
-			temp2->mult( *innerweights, *old_intermediates /**intermediates*/);
+			temp2->mult( *innerweights, *intermediates /*old_intermediates*/ /**intermediates*/);
 		}
 
 
 		intermediates->add(*temp, *temp2);
 
-		//intermediates->add(*intermediates, *temp6);
+
 
 		if(RCneuronNoise == true)
 		     {
@@ -657,27 +668,15 @@ void ESNetwork::takeStep(float * Outputs, float learningRate, float td_error , b
 
 		ESNetwork::cullInnerVector(0.6);
 
-		temp6->mult(*old_intermediates, 1-leak_rate);
-
-	    temp6->toTranspose();
-
-		intermediates->mult(*intermediates, leak_rate);
 
 
-		intermediates->add(*temp6, *intermediates);
+		temp5->mult(*leak_mat, *intermediates);
 
 
+
+
+		intermediates->add(*old_intermediates, *temp5);
 		//std::cout <<  "inner Neurons computed:\n";
-
-
-
-	//	ESNetwork::cullInnerVector(0.6);
-
-
-	//	temp5->mult(*leak_mat,*intermediates);
-
-	//	intermediates->add(*temp5, *intermediates);
-
 
 
 		if (throughputConnections)
@@ -843,7 +842,7 @@ void ESNetwork::cullInnerVector(float treshold /*unused*/)
 		{intermediates->val(i,0) = ESNetwork::sigmoid(intermediates->val(i,0));}
 
 		else if (nonlinearity == 2)
-		intermediates->val(i,0) = ESNetwork::tanh(intermediates->val(i,0),false);
+		intermediates->val(i,0) = ESNetwork::tanh(intermediates->val(i,0),enable_IP);
 
 		//Keep flag set to true for intrinsic plasticity, otherwise False
 
@@ -861,7 +860,7 @@ void ESNetwork::cullOutput(float treshold /*unused*/)
 	else if (outnonlinearity == 1 )
 			  outputs->val(i,0) = ESNetwork::sigmoid(outputs->val(i,0));
 	else if (outnonlinearity == 2)
-		     outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), enable_IP);
+		     outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), false);
 
 			 // if (outputs->val(i,0)*outputs->val(i,0)<=0.0001) outputs->val(i,0) = 0;
 	}
@@ -949,6 +948,23 @@ void ESNetwork::normalizeInnerWeights(float density)
 	std::cout<<std::endl;
 	printMatrix(Eigens);
 	delete Eigens;
+}
+
+void ESNetwork::normalizeInputWeights(float density)
+{
+	matrix::Matrix * Eigens = new matrix::Matrix;
+		*Eigens =  eigenValuesRealSym(*startweights);
+
+		// Workaround for Eigen value decomposition NULL matrix issue from LPZrobot (stupid but works ;))
+		while(Eigens->val(0,0)== 0)
+			*Eigens =  eigenValuesRealSym(*startweights);
+
+		printMatrix(Eigens);
+		startweights->mult(*startweights, (1/Eigens->val(0,0))*density);
+		*Eigens =  eigenValuesRealSym(*startweights);
+		std::cout<<std::endl;
+		printMatrix(Eigens);
+		delete Eigens;
 }
 
 float * ESNetwork::readOutputs()

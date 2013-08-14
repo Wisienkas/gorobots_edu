@@ -205,6 +205,11 @@ class ESNetwork{
      *
      */
 
+    void normalizeInputWeights(float density);
+    /*
+     * This function scales the matrix of start Weights (input to reservoir connections), so that the highest eigenvalue is equal to "density"
+     */
+
       std::ofstream out;
       int inputNeurons;
       int outputNeurons;
@@ -219,6 +224,7 @@ class ESNetwork{
 
       matrix::Matrix * identity;
       matrix::Matrix * leak_mat;
+      matrix::Matrix * inverse_leak_mat;
 
       //matrices needed for online learning. for details, please refer to sakyas paper
       matrix::Matrix * onlineLearningAutocorrelation;
@@ -265,6 +271,7 @@ class ESNetwork{
       float RCWeightRange;
       float FeedbackWeightRange;
       float NoiseRange;
+      float input_scaling;
 
       int InputSparsity;
       int RCsparsity;
