@@ -22,6 +22,7 @@
 #include <map>
 
 /**
+ * "Batch mode learning"
  * Our feed-forward neural network for testing
  *
  *  Neurons 0,1,5 are input neurons
@@ -38,9 +39,9 @@ class TestANN : public ANN
 };
 
 TestANN::TestANN() {
-  setNeuronNumber(6);
+  setNeuronNumber(6); // total number of neurons
 
-  w(2,0, 0.1);
+  w(2,0, 0.1); // synapse from neuron 0 to 2 with weight 0.1
   w(2,1, 0.8);
   w(2,5,-0.5);
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
   const double data[4][3] = {{0, 0, 0},
                              {0, 1, 1},
                              {1, 0, 1},
-                             {1, 1, 0}};
+                             {1, 1, 0}}; // {input 1, input 2, output}
 
   // create backpropagation object
   Backpropagation trainer;
@@ -80,9 +81,9 @@ int main(int argc, char **argv) {
   for (int i=0; i<4; i++)
   {
     TrainingPattern* p = new TrainingPattern;
-    p->inputs[0]  = data[i][0];
+    p->inputs[0]  = data[i][0]; // text file here from your own created inputs
     p->inputs[1]  = data[i][1];
-    p->outputs[0] = data[i][0];
+    p->outputs[0] = data[i][2];
     trainer.addTrainingPattern(p);
   }
 
