@@ -13,7 +13,7 @@
   \node at (8,-6) (AH) [] {amosII.h};
 
 \node at (6, -2.5) (RRrobots) [] {/robots};
-\node at (6, -3.5) (RRutils) [] {/Utils};
+\node at (6, -3.5) (RRutils) [] {/sensors};%Utils};
 
 \node at (8.5, -2) (RRamos) [] {/AMOS};
 \node at (8.5, -2.5) (RRepuk) [] {/Epuk};
@@ -68,9 +68,9 @@
 
    \node at (9,-7) (simS) [] {main.cpp, makefile, makeconfig, \ldots};
    \node at (9,-7.5) (realS) [] {main.cpp, makefile, makeconfig, \ldots};
-   
+
     \node at (5.5, -8.375) (AMOS) [draw] {AMOS};
-    \node at (5.5, -9.875) (EPUK) [draw] {EPUK};    
+    \node at (5.5, -9.875) (EPUK) [draw] {EPUK};
     \node at (5.5, -11.375) (KUKA) [draw] {KUKA};
 
     \node at (7,-8) (AMOSsim) [draw] {sim};
@@ -154,7 +154,7 @@
     (2.5,-13) edge (2.5,-17)
     (AMOSII) edge (5,-15)
     (5,-14) edge (5,-16)
-    
+
     ;
 \draw[dashed,bend right=75] (AMOSIINL) to (10,-16);
 \draw[dashed, ->, bend right] (10,-16) to (AMOSCPG);
@@ -162,4 +162,4 @@
 % \draw (AMOSIINL) to [bend right] (AMOSCPG) node {};
 
 
-\end{tikzpicture}
+\end{tikzpicture} 
