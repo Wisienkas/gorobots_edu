@@ -132,14 +132,43 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("m_pre.at(CR0_m)",&control_adaptiveclimbing.m_pre.at(CR0_m),"ESNoutput_cmr0");
 
 
+  addInspectableValue("ESNoutput_cmr1",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(1),"ESNoutput_cmr1");
+  addInspectableValue("reflex_R_fs.at(1)",&control_adaptiveclimbing.reflex_R_fs.at(1),"ESNoutput_cmr1");
+  addInspectableValue("m_pre.at(CR1_m)",&control_adaptiveclimbing.m_pre.at(CR1_m),"ESNoutput_cmr1");
+
+
+  addInspectableValue("ESNoutput_cmr2",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(2),"ESNoutput_cmr2");
+  addInspectableValue("reflex_R_fs.at(2)",&control_adaptiveclimbing.reflex_R_fs.at(2),"ESNoutput_cmr2");
+  addInspectableValue("m_pre.at(CR2_m)",&control_adaptiveclimbing.m_pre.at(CR2_m),"ESNoutput_cmr2");
+
+
+  addInspectableValue("ESNoutput_cml0",&control_adaptiveclimbing.fmodel_cml_output_rc.at(0),"ESNoutput_cml0");
+  addInspectableValue("reflex_L_fs.at(0)",&control_adaptiveclimbing.reflex_L_fs.at(0),"ESNoutput_cml0");
+  addInspectableValue("m_pre.at(CL0_m)",&control_adaptiveclimbing.m_pre.at(CL0_m),"ESNoutput_cml0");
+
+  addInspectableValue("ESNoutput_cml1",&control_adaptiveclimbing.fmodel_cml_output_rc.at(1),"ESNoutput_cml1");
+  addInspectableValue("reflex_L_fs.at(1)",&control_adaptiveclimbing.reflex_L_fs.at(1),"ESNoutput_cml1");
+  addInspectableValue("m_pre.at(CL1_m)",&control_adaptiveclimbing.m_pre.at(CL1_m),"ESNoutput_cml1");
+
+  addInspectableValue("ESNoutput_cml2",&control_adaptiveclimbing.fmodel_cml_output_rc.at(2),"ESNoutput_cml2");
+  addInspectableValue("reflex_L_fs.at(2)",&control_adaptiveclimbing.reflex_L_fs.at(2),"ESNoutput_cml2");
+  addInspectableValue("m_pre.at(CL2_m)",&control_adaptiveclimbing.m_pre.at(CL2_m),"ESNoutput_cml2");
+
+  addInspectableValue("RCerror_R0",&control_adaptiveclimbing.fmodel_cmr_error.at(0),"error_R0");
+  addInspectableValue("RCerror_R1",&control_adaptiveclimbing.fmodel_cmr_error.at(1),"error_R1");
+  addInspectableValue("RCerror_R2",&control_adaptiveclimbing.fmodel_cmr_error.at(2),"error_R2");
+  addInspectableValue("RCerror_L0",&control_adaptiveclimbing.fmodel_cml_error.at(0),"error_L0");
+  addInspectableValue("RCerror_L1",&control_adaptiveclimbing.fmodel_cml_error.at(1),"error_L1");
+  addInspectableValue("RCerror_L2",&control_adaptiveclimbing.fmodel_cml_error.at(2),"error_L2");
+
 
   //Add edit parameter on terminal
   Configurable::addParameter("cin", &control_adaptiveclimbing.Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
       "test discription" );
   Configurable::addParameter("input3", &control_adaptiveclimbing.input.at(3),  /*minBound*/ -10,  /*maxBound*/ 10,
-        "test discription" );
+      "test discription" );
   Configurable::addParameter("input4", &control_adaptiveclimbing.input.at(4),  /*minBound*/ -10,  /*maxBound*/ 10,
-          "test discription" );
+      "test discription" );
   // prepare name;
   //Configurable::insertCVSInfo(name, "$RCSfile: amosIIcontrol.cpp,v $",
   //  "$Revision: 0.1 $");

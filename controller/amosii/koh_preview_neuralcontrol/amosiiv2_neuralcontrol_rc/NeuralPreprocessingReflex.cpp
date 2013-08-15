@@ -84,7 +84,7 @@ std::vector<double> NeuralPreprocessingReflex::step_npp(const std::vector<double
 		preprosensor.at(i) = mappingsensor.at(i);
 
 
-		double weight = 0.1;//0.5;
+		double weight = 0.8;
 
 		sensor_activity.at(i) = mappingsensor.at(i)*(1-weight)+sensor_output.at(i)*weight;
 		sensor_output.at(i) = sensor_activity.at(i);

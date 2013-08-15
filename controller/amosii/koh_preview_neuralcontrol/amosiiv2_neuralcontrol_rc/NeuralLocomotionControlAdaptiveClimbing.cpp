@@ -29,14 +29,35 @@ float * ESTrainOutput_R0;
 
 //---------------------ESN module 2
 
+ESNetwork * ESN_R1;
+float * ESinput_R1;
+float * ESTrainOutput_R1;
+
+
 //---------------------ESN module 3
+
+ESNetwork * ESN_R2;
+float * ESinput_R2;
+float * ESTrainOutput_R2;
+
 
 //---------------------ESN module 4
 
+ESNetwork * ESN_L0;
+float * ESinput_L0;
+float * ESTrainOutput_L0;
+
 //---------------------ESN module 5
+
+ESNetwork * ESN_L1;
+float * ESinput_L1;
+float * ESTrainOutput_L1;
 
 //---------------------ESN module 6
 
+ESNetwork * ESN_L2;
+float * ESinput_L2;
+float * ESTrainOutput_L2;
 
 //3) Step function of Neural locomotion control------
 
@@ -710,14 +731,16 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Setting ENS parameters
 
   //---------------------ESN module 1
-  ESN_R0 = new ESNetwork(1/*no. input*/,1 /*no. output*/, 250/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.0 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+  int num_input_ESN_R0 = 1;
+  int num_output_ESN_R0 = 1;
+  ESN_R0 = new ESNetwork(num_input_ESN_R0/*no. input*/,num_output_ESN_R0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
   ESN_R0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
   ESN_R0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_R0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_R0->InputSparsity = 30; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-  ESN_R0->autocorr = pow(10,3); //pow(10,4); set as high as possible, default = 1
+  ESN_R0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_R0->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_R0->LearnMode = 1;//RLS = 1. LMS =2
   ESN_R0->Loadweight = false; // true = loading learned weights
@@ -728,30 +751,215 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //Create ESN input vector
-  ESinput_R0 = new float[1];
+  ESinput_R0 = new float[num_input_ESN_R0];
   //Create ESN target output vector
-  ESTrainOutput_R0 = new float[1];
+  ESTrainOutput_R0 = new float[num_output_ESN_R0];
 
   //Initial values of input and target output
-  for(unsigned int i = 0; i < 1; i++)
+  for(unsigned int i = 0; i < num_input_ESN_R0; i++)
   {
     ESinput_R0[i] = 0.0;
   }
 
-  for(unsigned int i = 0; i< 1; i++)
+  for(unsigned int i = 0; i< num_output_ESN_R0; i++)
   {
     ESTrainOutput_R0[i] = 0.0;
 
   }
   //---------------------ESN module 2
 
+  int num_input_ESN_R1 = 1;
+  int num_output_ESN_R1 = 1;
+
+  ESN_R1 = new ESNetwork(num_input_ESN_R1/*no. input*/,num_output_ESN_R1 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+  ESN_R1->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_R1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_R1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+  ESN_R1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_R1->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_R1->LearnMode = 1;//RLS = 1. LMS =2
+  ESN_R1->Loadweight = false; // true = loading learned weights
+  ESN_R1->NoiseRange = 0.001; //
+  ESN_R1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+  ESN_R1->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+  //Create ESN input vector
+  ESinput_R1 = new float[num_input_ESN_R1];
+  //Create ESN target output vector
+  ESTrainOutput_R1 = new float[num_output_ESN_R1];
+
+  //Initial values of input and target output
+  for(unsigned int i = 0; i < num_input_ESN_R1; i++)
+  {
+    ESinput_R1[i] = 0.0;
+  }
+
+  for(unsigned int i = 0; i< num_output_ESN_R1; i++)
+  {
+    ESTrainOutput_R1[i] = 0.0;
+
+  }
+
   //---------------------ESN module 3
 
-  //---------------------ESN module 4
+    int num_input_ESN_R2 = 1;
+    int num_output_ESN_R2 = 1;
 
-  //---------------------ESN module 5
+    ESN_R2 = new ESNetwork(num_input_ESN_R2/*no. input*/,num_output_ESN_R2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
-  //---------------------ESN module 6
+    ESN_R2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+    ESN_R2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+    ESN_R2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+    ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+    ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+    ESN_R2->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+    ESN_R2->LearnMode = 1;//RLS = 1. LMS =2
+    ESN_R2->Loadweight = false; // true = loading learned weights
+    ESN_R2->NoiseRange = 0.001; //
+    ESN_R2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+    ESN_R2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+    //Create ESN input vector
+    ESinput_R2 = new float[num_input_ESN_R2];
+    //Create ESN target output vector
+    ESTrainOutput_R2 = new float[num_output_ESN_R2];
+
+    //Initial values of input and target output
+    for(unsigned int i = 0; i < num_input_ESN_R2; i++)
+    {
+      ESinput_R2[i] = 0.0;
+    }
+
+    for(unsigned int i = 0; i< num_output_ESN_R2; i++)
+    {
+      ESTrainOutput_R2[i] = 0.0;
+
+    }
+
+    //---------------------ESN module 4
+
+    int num_input_ESN_L0 = 1;
+    int num_output_ESN_L0 = 1;
+
+    ESN_L0 = new ESNetwork(num_input_ESN_L0/*no. input*/,num_output_ESN_L0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+    ESN_L0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+    ESN_L0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+    ESN_L0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+    ESN_L0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+    ESN_L0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+    ESN_L0->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+    ESN_L0->LearnMode = 1;//RLS = 1. LMS =2
+    ESN_L0->Loadweight = false; // true = loading learned weights
+    ESN_L0->NoiseRange = 0.001; //
+    ESN_L0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+    ESN_L0->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+    //Create ESN input vector
+    ESinput_L0 = new float[num_input_ESN_L0];
+    //Create ESN target output vector
+    ESTrainOutput_L0 = new float[num_output_ESN_L0];
+
+    //Initial values of input and target output
+    for(unsigned int i = 0; i < num_input_ESN_L0; i++)
+    {
+      ESinput_L0[i] = 0.0;
+    }
+
+    for(unsigned int i = 0; i< num_output_ESN_L0; i++)
+    {
+      ESTrainOutput_L0[i] = 0.0;
+
+    }
+
+    //---------------------ESN module 5
+
+    int num_input_ESN_L1 = 1;
+    int num_output_ESN_L1 = 1;
+
+    ESN_L1 = new ESNetwork(num_input_ESN_L1/*no. input*/,num_output_ESN_L1 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+    ESN_L1->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+    ESN_L1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+    ESN_L1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+    ESN_L1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+    ESN_L1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+    ESN_L1->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+    ESN_L1->LearnMode = 1;//RLS = 1. LMS =2
+    ESN_L1->Loadweight = false; // true = loading learned weights
+    ESN_L1->NoiseRange = 0.001; //
+    ESN_L1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+    ESN_L1->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+    //Create ESN input vector
+    ESinput_L1 = new float[num_input_ESN_L1];
+    //Create ESN target output vector
+    ESTrainOutput_L1 = new float[num_output_ESN_L1];
+
+    //Initial values of input and target output
+    for(unsigned int i = 0; i < num_input_ESN_L1; i++)
+    {
+      ESinput_L1[i] = 0.0;
+    }
+
+    for(unsigned int i = 0; i< num_output_ESN_L1; i++)
+    {
+      ESTrainOutput_L1[i] = 0.0;
+
+    }
+
+    //---------------------ESN module 6
+
+    int num_input_ESN_L2 = 1;
+    int num_output_ESN_L2 = 1;
+
+    ESN_L2 = new ESNetwork(num_input_ESN_L2/*no. input*/,num_output_ESN_L2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+    ESN_L2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+    ESN_L2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+    ESN_L2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+    ESN_L2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+    ESN_L2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+    ESN_L2->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+    ESN_L2->LearnMode = 1;//RLS = 1. LMS =2
+    ESN_L2->Loadweight = false; // true = loading learned weights
+    ESN_L2->NoiseRange = 0.001; //
+    ESN_L2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+    ESN_L2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+    //Create ESN input vector
+    ESinput_L2 = new float[num_input_ESN_L2];
+    //Create ESN target output vector
+    ESTrainOutput_L2 = new float[num_output_ESN_L2];
+
+    //Initial values of input and target output
+    for(unsigned int i = 0; i < num_input_ESN_L2; i++)
+    {
+      ESinput_L2[i] = 0.0;
+    }
+
+    for(unsigned int i = 0; i< num_output_ESN_L2; i++)
+    {
+      ESTrainOutput_L2[i] = 0.0;
+
+    }
 
   //Forward model ESN
   fmodel_cmr_output_rc.resize(3);
@@ -787,6 +995,31 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
   delete []ESN_R0;
   delete []ESinput_R0;
   delete []ESTrainOutput_R0;
+
+
+  delete []ESN_R1;
+  delete []ESinput_R1;
+  delete []ESTrainOutput_R1;
+
+
+  delete []ESN_R2;
+  delete []ESinput_R2;
+  delete []ESTrainOutput_R2;
+
+
+  delete []ESN_L0;
+  delete []ESinput_L0;
+  delete []ESTrainOutput_L0;
+
+  delete []ESN_L1;
+  delete []ESinput_L1;
+  delete []ESTrainOutput_L1;
+
+
+  delete []ESN_L2;
+  delete []ESinput_L2;
+  delete []ESTrainOutput_L2;
+
 
 
 
@@ -1681,32 +1914,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   reflex_L_fs.at(2) = in0.at(L2_fs); //L2_fs = 24
 
 
-
-  //  //------------Add ESN training (3)----------------------------------//
-  //
-  //  bool learn;
-  //  learn = true;
-  //  if(global_count>1000)//100)
-  //    learn = false;
-  //
-  //  ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
-  //  ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
-  //  ESN->setInput(ESinput, 1/* no. input*/);
-  //  ESN->takeStep(ESTrainOutput, 0.9/*0.9*RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
-  //
-  //  //temp = ESN->outputs->val(0, 0);
-  //  fmodel_cmr_output_rc.at(0) = ESN->outputs->val(0, 0);
-  //  //output_expected_foot = ESN->outputs->val(0, 1) //second output
-  //  //output_expected_foot = ESN->outputs->val(0, 2) //third output
-  //
-  //  //ESN->endweights;
-  //  //------------Add ESN training (3)----------------------------------//
-
-
-
-
-
-
   if(reflex_R_fs.at(0)>0&&reflex_R_fs.at(1)>0&&reflex_R_fs.at(2)>0&&reflex_L_fs.at(0)>0&&reflex_L_fs.at(1)>0&&reflex_L_fs.at(2)>0)
   {
     allfoot_off_ground++; // check if all legs off ground
@@ -1917,7 +2124,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //------------CR Loop---------//
   //-1,..,+1--> tanh
 
-  if(global_count>500)//100)
+  if(global_count>100)//500)
   {
     switch(option_fmodel)
     {
@@ -2866,12 +3073,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         bool learn;
         learn = true;
         if(global_count>2000)//100)
+        {
           learn = false;
+          switchon_reflexes = true;
 
+        }
+        //-----Module ESN 1
         ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
         ESinput_R0[0] = m_pre.at(CR0_m/*6*/);// Input
         ESN_R0->setInput(ESinput_R0, 1/* no. input*/);
-        ESN_R0->takeStep(ESTrainOutput_R0, 0.9/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        ESN_R0->takeStep(ESTrainOutput_R0, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
 
         //temp = ESN->outputs->val(0, 0);
         fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0);
@@ -2879,7 +3090,106 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //output_expected_foot = ESN->outputs->val(0, 2) //third output
 
         //ESN->endweights;
+
+
+        //-----Module ESN 2
+        ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)
+        ESinput_R1[0] = m_pre.at(CR1_m/*6*/);// Input
+        ESN_R1->setInput(ESinput_R1, 1/* no. input*/);
+        ESN_R1->takeStep(ESTrainOutput_R1, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        fmodel_cmr_output_rc.at(1) = ESN_R1->outputs->val(0, 0);
+
+        //-----Module ESN 3
+        ESTrainOutput_R2[0]= reflex_R_fs.at(2); //Training output (target function)
+        ESinput_R2[0] = m_pre.at(CR2_m/*6*/);// Input
+        ESN_R2->setInput(ESinput_R2, 1/* no. input*/);
+        ESN_R2->takeStep(ESTrainOutput_R2, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        fmodel_cmr_output_rc.at(2) = ESN_R2->outputs->val(0, 0);
+
+        //-----Module ESN 4
+        ESTrainOutput_L0[0]= reflex_L_fs.at(0); //Training output (target function)
+        ESinput_L0[0] = m_pre.at(CL0_m/*6*/);// Input
+        ESN_L0->setInput(ESinput_L0, 1/* no. input*/);
+        ESN_L0->takeStep(ESTrainOutput_L0, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        fmodel_cml_output_rc.at(0) = ESN_L0->outputs->val(0, 0);
+
+        //-----Module ESN 5
+        ESTrainOutput_L1[0]= reflex_L_fs.at(1); //Training output (target function)
+        ESinput_L1[0] = m_pre.at(CL1_m/*6*/);// Input
+        ESN_L1->setInput(ESinput_L1, 1/* no. input*/);
+        ESN_L1->takeStep(ESTrainOutput_L1, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        fmodel_cml_output_rc.at(1) = ESN_L1->outputs->val(0, 0);
+
+        //-----Module ESN 6
+        ESTrainOutput_L2[0]= reflex_L_fs.at(2); //Training output (target function)
+        ESinput_L2[0] = m_pre.at(CL2_m/*6*/);// Input
+        ESN_L2->setInput(ESinput_L2, 1/* no. input*/);
+        ESN_L2->takeStep(ESTrainOutput_L2, 0.99/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+        fmodel_cml_output_rc.at(2) = ESN_L2->outputs->val(0, 0);
+
+
         //------------Add ESN training (3)----------------------------------//
+
+        for(unsigned int i=0; i<fmodel_cml_activity.size();i++)
+        {
+          //Calculate error
+          fmodel_cmr_error.at(i) = reflex_R_fs.at(i)-fmodel_cmr_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+          //Calculate error
+          fmodel_cml_error.at(i) = reflex_L_fs.at(i)-fmodel_cml_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+
+
+          //Positive Error signal for controlling searching reflexes
+          acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
+
+          if(abs(fmodel_cmr_error.at(i)) < 0.05)
+            acc_cmr_error_posi_neg.at(i) = 0.0;
+
+          acc_cmr_error_posi_neg.at(i) += fmodel_cmr_error.at(i);
+
+
+          //reset at swing phase
+          if(m_pre.at(i+CR0_m/*6*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+            acc_cmr_error.at(i) = 0;
+
+          //Negative Error signal for controlling elevator reflexes
+          if(acc_cmr_error_old.at(i)<0)
+          {
+            acc_cmr_error_elev.at(i) += abs(acc_cmr_error_old.at(i));
+            error_cmr_elev.at(i) = 1.0;
+          }
+          if(acc_cmr_error_old.at(i)>0)
+          {
+            acc_cmr_error_elev.at(i) = 0.0;
+            error_cmr_elev.at(i) = 0.0;
+          }
+
+
+          //Positive Error signal for controlling searching reflexes
+          acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+
+          if(abs(fmodel_cml_error.at(i)) < 0.05)
+                  acc_cml_error_posi_neg.at(i) = 0.0;
+
+          acc_cml_error_posi_neg.at(i) += fmodel_cml_error.at(i);
+
+          //reset at swing phase
+          if(m_pre.at(i+CL0_m/*9*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+            acc_cml_error.at(i) = 0;
+
+          //Negative Error signal for controlling elevator reflexes
+          if(acc_cml_error_old.at(i)<0)
+          {
+            acc_cml_error_elev.at(i) += abs(acc_cml_error_old.at(i));
+            error_cml_elev.at(i) = 1.0;
+          }
+          if(acc_cml_error_old.at(i)>0)
+          {
+            acc_cml_error_elev.at(i) = 0.0;
+            error_cml_elev.at(i) = 0.0;
+          }
+
+        }
+
         break;
 
     }
