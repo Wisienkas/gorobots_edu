@@ -22,11 +22,20 @@
 
 //-----ESN network-----//
 
-ESNetwork * ESN;
+//---------------------ESN module 1
+ESNetwork * ESN_R0;
+float * ESinput_R0;
+float * ESTrainOutput_R0;
 
-float * ESinput;
-float * ESTrainOutput;
+//---------------------ESN module 2
 
+//---------------------ESN module 3
+
+//---------------------ESN module 4
+
+//---------------------ESN module 5
+
+//---------------------ESN module 6
 
 
 //3) Step function of Neural locomotion control------
@@ -40,12 +49,14 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   option_wiring = 2; //1==Tripod, 2==Delayed line)
 
   //Selecting forward models
-  option_fmodel = 4;
+  option_fmodel = 6; // 4 or 6
+
   //1 == with threshold after fmodel & NO lowpass neuron after error;
   //2 == without threshold after fmodel & with lowpass neuron after error)
   //3 == delay embedded systems 2D
-  //4 == with gradient error learning after fmodel & with lowpass neuron after error _On paper
+  //4 == with gradient error learning after fmodel & with lowpass neuron after error _On paper****** USED
   //5 == with simple clip function
+  //6 == RC network*********************************************************************************USED
 
   //Switch on delay embedded systems 2D
   switchon_ED = false;
@@ -697,38 +708,50 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //--------------------------Add ENS network--(2)-----------------------------------//
   //Setting ENS parameters
-  ESN = new ESNetwork(1/*no. input*/,1 /*no. output*/,250 /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0 /*leak = 0.0*/, false /*IP*/);
 
-  ESN->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-  ESN->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
-  ESN->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+  //---------------------ESN module 1
+  ESN_R0 = new ESNetwork(1/*no. input*/,1 /*no. output*/, 250/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.0 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
-  ESN->InputSparsity = 0; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-  ESN->autocorr = pow(10,3); // set as high as possible, default = 1
-  ESN->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-  ESN->LearnMode = 1;//RLS = 1. LMS =2
-  ESN->Loadweight = false; // true = loading learned weights
-  ESN->NoiseRange = 0.001; //
-  ESN->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+  ESN_R0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_R0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_R0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN->generate_random_weights(50 /*10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+  ESN_R0->InputSparsity = 30; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R0->autocorr = pow(10,3); //pow(10,4); set as high as possible, default = 1
+  ESN_R0->InputWeightRange = 0.15; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_R0->LearnMode = 1;//RLS = 1. LMS =2
+  ESN_R0->Loadweight = false; // true = loading learned weights
+  ESN_R0->NoiseRange = 0.001; //
+  ESN_R0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+  ESN_R0->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
 
   //Create ESN input vector
-  ESinput = new float[1];
+  ESinput_R0 = new float[1];
   //Create ESN target output vector
-  ESTrainOutput = new float[1];
+  ESTrainOutput_R0 = new float[1];
 
   //Initial values of input and target output
   for(unsigned int i = 0; i < 1; i++)
   {
-    ESinput[i] = 0.0;
+    ESinput_R0[i] = 0.0;
   }
 
   for(unsigned int i = 0; i< 1; i++)
   {
-    ESTrainOutput[i] = 0.0;
+    ESTrainOutput_R0[i] = 0.0;
 
   }
+  //---------------------ESN module 2
+
+  //---------------------ESN module 3
+
+  //---------------------ESN module 4
+
+  //---------------------ESN module 5
+
+  //---------------------ESN module 6
 
   //Forward model ESN
   fmodel_cmr_output_rc.resize(3);
@@ -761,9 +784,9 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 
   //----- ESN objects garbage collection ---- //
 
-  delete []ESN;
-  delete []ESinput;
-  delete []ESTrainOutput;
+  delete []ESN_R0;
+  delete []ESinput_R0;
+  delete []ESTrainOutput_R0;
 
 
 
@@ -780,43 +803,43 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   int static iii=0;
   iii++;
 
-//  std::cout<<"counter"<<" "<<iii<< "\n";
-//  if(iii<400)
-//  {
-//  //Forward
-//    input.at(0) = 1; //tc JOINT inhibition = 0
-//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-//    input.at(2) = 1; //PSN control
-//    input.at(3) = -1; //turn left = 1,
-//    input.at(4) = -1; //turn right = 1,
-//  }
-//  else if(iii>400 && iii<600)
-//  {
-//    //Backward
-//    input.at(0) = 1; //tc JOINT inhibition = 0
-//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-//    input.at(2) = 1; //PSN control
-//    input.at(3) = 1; //turn left = 1,
-//    input.at(4) = 1; //turn right = 1,
-//  }
-//  else if(iii>600 && iii<800)
-//  {
-//    //Turn right
-//    input.at(0) = 1; //tc JOINT inhibition = 0
-//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-//    input.at(2) = 1; //PSN control
-//    input.at(3) = -1; //turn left = 1,
-//    input.at(4) = 1; //turn right = 1,
-//  }
-//  else if(iii>800)
-//  {
-//    //Turn left
-//    input.at(0) = 1; //tc JOINT inhibition = 0
-//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-//    input.at(2) = 1; //PSN control
-//    input.at(3) = 1; //turn left = 1,
-//    input.at(4) = -1; //turn right = 1,
-//  }
+  //  std::cout<<"counter"<<" "<<iii<< "\n";
+  //  if(iii<400)
+  //  {
+  //  //Forward
+  //    input.at(0) = 1; //tc JOINT inhibition = 0
+  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+  //    input.at(2) = 1; //PSN control
+  //    input.at(3) = -1; //turn left = 1,
+  //    input.at(4) = -1; //turn right = 1,
+  //  }
+  //  else if(iii>400 && iii<600)
+  //  {
+  //    //Backward
+  //    input.at(0) = 1; //tc JOINT inhibition = 0
+  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+  //    input.at(2) = 1; //PSN control
+  //    input.at(3) = 1; //turn left = 1,
+  //    input.at(4) = 1; //turn right = 1,
+  //  }
+  //  else if(iii>600 && iii<800)
+  //  {
+  //    //Turn right
+  //    input.at(0) = 1; //tc JOINT inhibition = 0
+  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+  //    input.at(2) = 1; //PSN control
+  //    input.at(3) = -1; //turn left = 1,
+  //    input.at(4) = 1; //turn right = 1,
+  //  }
+  //  else if(iii>800)
+  //  {
+  //    //Turn left
+  //    input.at(0) = 1; //tc JOINT inhibition = 0
+  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+  //    input.at(2) = 1; //PSN control
+  //    input.at(3) = 1; //turn left = 1,
+  //    input.at(4) = -1; //turn right = 1,
+  //  }
 
   //Forward
   input.at(0) = 1; //All JOINTS inhibition = 0, 1 activate all joints = I1 in paper
@@ -825,21 +848,21 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   input.at(3) = -1; //turn left = 1,  = I3 in paper
   input.at(4) = -1; //turn right = 1,  = I4 in paper
 
-//  if(iii<=1000)
-//    {
-//    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
-//    }
-//    else if(iii>1000 && iii<=1400)
-//    {
-//      Control_input = 0.06;// slow Wave St **************** Forward model // Stone
-//
-//    }
-//
-//    else if(iii>1400)
-//    {
-//      Control_input = 0.15;// slow Wave St **************** Forward model // Stone
-//
-//    }
+  //  if(iii<=1000)
+  //    {
+  //    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+  //    }
+  //    else if(iii>1000 && iii<=1400)
+  //    {
+  //      Control_input = 0.06;// slow Wave St **************** Forward model // Stone
+  //
+  //    }
+  //
+  //    else if(iii>1400)
+  //    {
+  //      Control_input = 0.15;// slow Wave St **************** Forward model // Stone
+  //
+  //    }
 
 
   //
@@ -861,7 +884,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.01;// slow Wave St
   Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
- // Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
+  // Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
 
   //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
@@ -1123,7 +1146,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(7) = vrn_w.at(7).at(0) * vrn_output.at(0) + vrn_w.at(7).at(1) * vrn_output.at(1) + vrn_bias;
 
   vrn_activity.at(12) = vrn_w.at(12).at(4) * vrn_output.at(4) + vrn_w.at(12).at(5) * vrn_output.at(5) + vrn_w.at(12).at(6) * vrn_output.at(6)
-				                    + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
+				                        + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
 
   //VRN 2 (right)
   vrn_activity.at(2) = vrn_psn_w.at(2).at(11) * psn_output.at(11);
@@ -1135,7 +1158,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(11) = vrn_w.at(11).at(2) * vrn_output.at(2) + vrn_w.at(11).at(3) * vrn_output.at(3) + vrn_bias;
 
   vrn_activity.at(13) = vrn_w.at(13).at(8) * vrn_output.at(8) + vrn_w.at(13).at(9) * vrn_output.at(9) + vrn_w.at(13).at(10) * vrn_output.at(10)
-				                    + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
+				                        + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
 
 
   for(unsigned int i=0; i<vrn_output.size();i++)
@@ -1185,13 +1208,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
   //USED from hind to front legs
-  //  tr_activity.at(2) = -2.5*vrn_output.at(13)+(-10)*input.at(0);/////////////USED
-  //  tl_activity.at(2) = -2.5*vrn_output.at(12)+(-10)*input.at(0);/////////////USED
-  //  cr_activity.at(2) =  5.0*psn_output.at(11)-0.5+10*input.at(0);////////////USED
-  //  //For middle FT joint of left and right!!
-  //  fr_activity.at(1) = 5.0*psn_output.at(10)-0.5+10*input.at(0);/////////////USED
-  //  //For Front and hind FT joint
-  //  fr_activity.at(2) = -5.0*psn_output.at(11)-0.5+10*input.at(0);////////////USED
 
   tr_activity.at(2) = -2.5*vrn_output.at(13);//+(-10)*input.at(0);/////////////USED
   tl_activity.at(2) = -2.5*vrn_output.at(12);//+(-10)*input.at(0);/////////////USED
@@ -1383,7 +1399,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if((buffer_tl.size()-tau_l)>0)
       {
-       m_pre.at(TL2_m) = buffer_tl[buffer_tl.size()-tau_l-1]*input.at(0);//-----------------------------EDurd-----------STOP TC-------------------------------------------Omin_KOH_24_6_2012
+        m_pre.at(TL2_m) = buffer_tl[buffer_tl.size()-tau_l-1]*input.at(0);//-----------------------------EDurd-----------STOP TC-------------------------------------------Omin_KOH_24_6_2012
       }
       else
       {
@@ -1666,25 +1682,25 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
 
-  //------------Add ESN training (3)----------------------------------//
-
-  bool learn;
-  learn = true;
-  if(global_count>1000)//100)
-    learn = false;
-
-  ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
-  ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
-  ESN->setInput(ESinput, 1/* no. input*/);
-  ESN->takeStep(ESTrainOutput, 0.9/*0.9*RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
-
-  //temp = ESN->outputs->val(0, 0);
-  fmodel_cmr_output_rc.at(0) = ESN->outputs->val(0, 0);
-  //output_expected_foot = ESN->outputs->val(0, 1) //second output
-  //output_expected_foot = ESN->outputs->val(0, 2) //third output
-
-  //ESN->endweights;
-  //------------Add ESN training (3)----------------------------------//
+  //  //------------Add ESN training (3)----------------------------------//
+  //
+  //  bool learn;
+  //  learn = true;
+  //  if(global_count>1000)//100)
+  //    learn = false;
+  //
+  //  ESTrainOutput[0]= reflex_R_fs.at(0); //Training output (target function)
+  //  ESinput[0] = m_pre.at(CR0_m/*6*/);// Input
+  //  ESN->setInput(ESinput, 1/* no. input*/);
+  //  ESN->takeStep(ESTrainOutput, 0.9/*0.9*RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+  //
+  //  //temp = ESN->outputs->val(0, 0);
+  //  fmodel_cmr_output_rc.at(0) = ESN->outputs->val(0, 0);
+  //  //output_expected_foot = ESN->outputs->val(0, 1) //second output
+  //  //output_expected_foot = ESN->outputs->val(0, 2) //third output
+  //
+  //  //ESN->endweights;
+  //  //------------Add ESN training (3)----------------------------------//
 
 
 
@@ -1817,12 +1833,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
     //      //Real
-       fmodel_fmodel_cmr_w.at(0)=1.29465; fmodel_cmr_bias.at(0)= 0.723935 ; fmodel_cmr_w.at(0)= 1.13595;//counter2348cin=0.02
-       fmodel_fmodel_cmr_w.at(1)=1.38465; fmodel_cmr_bias.at(1)= 0.870631 ; fmodel_cmr_w.at(1)= 1.14199;//counter2147cin=0.02
-       fmodel_fmodel_cmr_w.at(2)=1.49071; fmodel_cmr_bias.at(2)= 0.519824 ; fmodel_cmr_w.at(2)= 1.06734;//counter1220cin=0.02
-       fmodel_fmodel_cml_w.at(0)=1.26498;fmodel_cml_bias.at(0)= 0.712059 ;fmodel_cml_w.at(0)= 1.17424;//counter2300cin=0.02
-       fmodel_fmodel_cml_w.at(1)=1.34942;fmodel_cml_bias.at(1)= 0.784529 ;fmodel_cml_w.at(1)= 1.1596;//counter2205cin=0.02
-       fmodel_fmodel_cml_w.at(2)=1.58616;fmodel_cml_bias.at(2)= 0.463477 ;fmodel_cml_w.at(2)= 1.0325;//counter744cin=0.02
+    fmodel_fmodel_cmr_w.at(0)=1.29465; fmodel_cmr_bias.at(0)= 0.723935 ; fmodel_cmr_w.at(0)= 1.13595;//counter2348cin=0.02
+    fmodel_fmodel_cmr_w.at(1)=1.38465; fmodel_cmr_bias.at(1)= 0.870631 ; fmodel_cmr_w.at(1)= 1.14199;//counter2147cin=0.02
+    fmodel_fmodel_cmr_w.at(2)=1.49071; fmodel_cmr_bias.at(2)= 0.519824 ; fmodel_cmr_w.at(2)= 1.06734;//counter1220cin=0.02
+    fmodel_fmodel_cml_w.at(0)=1.26498;fmodel_cml_bias.at(0)= 0.712059 ;fmodel_cml_w.at(0)= 1.17424;//counter2300cin=0.02
+    fmodel_fmodel_cml_w.at(1)=1.34942;fmodel_cml_bias.at(1)= 0.784529 ;fmodel_cml_w.at(1)= 1.1596;//counter2205cin=0.02
+    fmodel_fmodel_cml_w.at(2)=1.58616;fmodel_cml_bias.at(2)= 0.463477 ;fmodel_cml_w.at(2)= 1.0325;//counter744cin=0.02
 
   }
   //-----------------------------AMOSiiV2_Config------------------------------------------//
@@ -2843,6 +2859,29 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         break;
 
+      case 6:
+        //------------Add ESN training (3)----------------------------------//
+
+        //ESN module 1
+        bool learn;
+        learn = true;
+        if(global_count>2000)//100)
+          learn = false;
+
+        ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
+        ESinput_R0[0] = m_pre.at(CR0_m/*6*/);// Input
+        ESN_R0->setInput(ESinput_R0, 1/* no. input*/);
+        ESN_R0->takeStep(ESTrainOutput_R0, 0.9/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+
+        //temp = ESN->outputs->val(0, 0);
+        fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0);
+        //output_expected_foot = ESN->outputs->val(0, 1) //second output
+        //output_expected_foot = ESN->outputs->val(0, 2) //third output
+
+        //ESN->endweights;
+        //------------Add ESN training (3)----------------------------------//
+        break;
+
     }
   }
   // >> i/o operations here <<
@@ -2887,12 +2926,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TR0_m) = (((m_pre.at(TR0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
   m_reflex.at(TL0_m) = (((m_pre.at(TL0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
 
-//  //convert from activation to deg
-//  m_deg.at(TR0_m) = 70*m_reflex.at(TR0_m);
-//  m_deg.at(TL0_m) = 70*m_reflex.at(TL0_m);
-//
-//  std::cout<<"motor deg TR0"<<":"<<m_deg.at(TR0_m)<< "\n";
-//  std::cout<<"motor deg TL0"<<":"<<m_deg.at(TL0_m)<< "\n";
+  //  //convert from activation to deg
+  //  m_deg.at(TR0_m) = 70*m_reflex.at(TR0_m);
+  //  m_deg.at(TL0_m) = 70*m_reflex.at(TL0_m);
+  //
+  //  std::cout<<"motor deg TR0"<<":"<<m_deg.at(TR0_m)<< "\n";
+  //  std::cout<<"motor deg TL0"<<":"<<m_deg.at(TL0_m)<< "\n";
 
   //TC_middle//->normal walking range: middle legs 30 deg Max = 0.501, -40 deg Min = -0.668
 
@@ -2903,11 +2942,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tc_m_nwalking-min_tc_m_nwalking))+min_tc_m_nwalking;
 
   //convert from activation to deg
-//  m_deg.at(TR1_m) = 60*m_reflex.at(TR1_m);
-//  m_deg.at(TL1_m) = 60*m_reflex.at(TL1_m);
-//
-//  std::cout<<"motor deg TR1"<<":"<<m_deg.at(TR1_m)<< "\n";
-//  std::cout<<"motor deg TL1"<<":"<<m_deg.at(TL1_m)<< "\n";
+  //  m_deg.at(TR1_m) = 60*m_reflex.at(TR1_m);
+  //  m_deg.at(TL1_m) = 60*m_reflex.at(TL1_m);
+  //
+  //  std::cout<<"motor deg TR1"<<":"<<m_deg.at(TR1_m)<< "\n";
+  //  std::cout<<"motor deg TL1"<<":"<<m_deg.at(TL1_m)<< "\n";
 
   //TC_rear//->normal walking range: hind legs 10 deg Max = 0.143, -60 deg Min = -0.858
 
@@ -2918,11 +2957,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
 
   //convert from activation to deg
-//  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);
-//  m_deg.at(TL2_m) = 70*m_reflex.at(TL2_m);
-//
-//  std::cout<<"motor deg TR2"<<":"<<m_deg.at(TR2_m)<< "\n";
-//  std::cout<<"motor deg TL2"<<":"<<m_deg.at(TL2_m)<< "\n";
+  //  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);
+  //  m_deg.at(TL2_m) = 70*m_reflex.at(TL2_m);
+  //
+  //  std::cout<<"motor deg TR2"<<":"<<m_deg.at(TR2_m)<< "\n";
+  //  std::cout<<"motor deg TL2"<<":"<<m_deg.at(TL2_m)<< "\n";
 
 
   //*****Motor mapping & Searching reflexes
@@ -3216,7 +3255,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //-----------Elevator reflexes END----------------------------------------//
 
     //convert from activation to deg
-   // m_deg.at(i+FL0_m) = 55*m_reflex.at(i+FL0_m)-75;
+    // m_deg.at(i+FL0_m) = 55*m_reflex.at(i+FL0_m)-75;
 
     //m_reflex.at(i+FR0_m/*12*/) = 1; //max = -20 deg
     //m_reflex.at(i+FL0_m/*15*/) = 1; //max = -20 deg
@@ -3452,7 +3491,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m.at(TL1_m) = m_reflex.at(TL1_m);
     m.at(TL2_m) = m_reflex.at(TL2_m);//-1.0
 
- //   m.at(CL0_m) = 1;//m_reflex.at(CL0_m);
+    //   m.at(CL0_m) = 1;//m_reflex.at(CL0_m);
     m.at(CL0_m) = m_reflex.at(CL0_m);
     m.at(CL1_m) = m_reflex.at(CL1_m);
     m.at(CL1_m) = m_reflex.at(CL1_m);
@@ -3463,7 +3502,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m.at(CR1_m) = m_reflex.at(CR1_m);
     m.at(CR2_m) = m_reflex.at(CR2_m);
 
-//    m.at(CR2_m) = 1;//m_reflex.at(CR2_m);
+    //    m.at(CR2_m) = 1;//m_reflex.at(CR2_m);
 
 
     m.at(FR0_m) = m_reflex.at(FR0_m);
@@ -3570,32 +3609,32 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   int data = -1;
 
-//		m.at(TR0_m) = 0.44;//data;//m_reflex.at(TR0_m);
-//		m.at(TR1_m) = 0.0;//data;//m_reflex.at(TR1_m);
-//		m.at(TR2_m) = -0.44;//data//m_reflex.at(TR2_m);
-//
-//		m.at(TL0_m) = 0.44;//data;//m_reflex.at(TL0_m);
-//		m.at(TL1_m) = 0.0;//data;//m_reflex.at(TL1_m);
-//		m.at(TL2_m) = -0.44;//data;//m_reflex.at(TL2_m);
-//
-//		m.at(CL0_m) = 0.45;//data;//m_reflex.at(CL0_m);
-//		m.at(CL1_m) = 0.45;//data;//m_reflex.at(CL1_m);
-//		m.at(CL2_m) = 0.45;//data;//m_reflex.at(CL2_m);
-//
-//		m.at(CR0_m) = 0.45;//data;//m_reflex.at(CR0_m);
-//		m.at(CR1_m) = 0.45;//data;//m_reflex.at(CR1_m);
-//		m.at(CR2_m) = 0.45;//data;//m_reflex.at(CR2_m);
-//
-//
-//		m.at(FR0_m) = -0.65;//data;//m_reflex.at(FR0_m);
-//    m.at(FR1_m) = -0.65;//data;//m_reflex.at(FR1_m);
-//	  m.at(FR2_m) = -0.65;//data;//m_reflex.at(FR2_m);
-//
-//		m.at(FL0_m) = -0.65;//data;//m_reflex.at(FL0_m);
-//		m.at(FL1_m) = -0.65;//data;//m_reflex.at(FL1_m);
-//		m.at(FL2_m) = -0.65;//data;//m_reflex.at(FL2_m);
+  //		m.at(TR0_m) = 0.44;//data;//m_reflex.at(TR0_m);
+  //		m.at(TR1_m) = 0.0;//data;//m_reflex.at(TR1_m);
+  //		m.at(TR2_m) = -0.44;//data//m_reflex.at(TR2_m);
+  //
+  //		m.at(TL0_m) = 0.44;//data;//m_reflex.at(TL0_m);
+  //		m.at(TL1_m) = 0.0;//data;//m_reflex.at(TL1_m);
+  //		m.at(TL2_m) = -0.44;//data;//m_reflex.at(TL2_m);
+  //
+  //		m.at(CL0_m) = 0.45;//data;//m_reflex.at(CL0_m);
+  //		m.at(CL1_m) = 0.45;//data;//m_reflex.at(CL1_m);
+  //		m.at(CL2_m) = 0.45;//data;//m_reflex.at(CL2_m);
+  //
+  //		m.at(CR0_m) = 0.45;//data;//m_reflex.at(CR0_m);
+  //		m.at(CR1_m) = 0.45;//data;//m_reflex.at(CR1_m);
+  //		m.at(CR2_m) = 0.45;//data;//m_reflex.at(CR2_m);
+  //
+  //
+  //		m.at(FR0_m) = -0.65;//data;//m_reflex.at(FR0_m);
+  //    m.at(FR1_m) = -0.65;//data;//m_reflex.at(FR1_m);
+  //	  m.at(FR2_m) = -0.65;//data;//m_reflex.at(FR2_m);
+  //
+  //		m.at(FL0_m) = -0.65;//data;//m_reflex.at(FL0_m);
+  //		m.at(FL1_m) = -0.65;//data;//m_reflex.at(FL1_m);
+  //		m.at(FL2_m) = -0.65;//data;//m_reflex.at(FL2_m);
 
-		//m.at(BJ_m) =  m_reflex.at(BJ_m);//(m_reflex.at(TR0_m)-0.35)*5;//
+  //m.at(BJ_m) =  m_reflex.at(BJ_m);//(m_reflex.at(TR0_m)-0.35)*5;//
 
 
   global_count++;
