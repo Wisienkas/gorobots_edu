@@ -86,7 +86,7 @@ using namespace lpzrobots;
 ACICOControllerV14* qcontroller;
 
 bool obstacle_on = true; //true;//true;
-bool drawtrace_on = true;//true;//---------------------------------------------------------------------------TEST
+bool drawtrace_on = false;//true;//true;//---------------------------------------------------------------------------TEST
 
 bool random_positon_spheres = false;
 bool random_positon = false;//true;

@@ -110,12 +110,12 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 
   ESN_actor->InputSparsity = 50;
   ESN_actor->InputWeightRange = 0.5;
-  ESN_actor->LearnMode = 2; // 1= RLS, 2 =LMS
+  ESN_actor->LearnMode = 1; // 1= RLS, 2 =LMS
   ESN_actor->Loadweight = false;
   ESN_actor->NoiseRange = 0.001;
   ESN_actor->RCneuronNoise = false;
   ESN_actor->withRL = 2; // Supervise
-  ESN_actor->autocorr = pow(10,3);
+  ESN_actor->autocorr = pow(10,4);
 
 
 
@@ -1731,7 +1731,10 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 	ESN_actor->setInput(ESinput, 4 /*3*/);// sizeof(xt)/*+1*/
 
 
+	learn_actor = false;
+  if(nrepeat > 30)
     learn_actor = true;
+
 		//if (rt!=0) learn_actor=true;
 
 					//if(exp_output[0]< 0.0001) learn_actor = false;
@@ -1744,7 +1747,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 
 //0.0033 old stable rate
 
-				ESN_actor->takeStep(ESTrainOutput, 0.00035/*0.0035*//*0.0033*//*1.5*/, td_error, learn_actor, output_grad[0]/*ut0_lowpass, param4*/);
+				ESN_actor->takeStep(ESTrainOutput, 0.999/*0.0035*//*0.0033*//*1.5*/, td_error, learn_actor, output_grad[0]/*ut0_lowpass, param4*/);
 //
                ESN_actor->printMatrix(ESN_actor->endweights); // print weights
 //
@@ -1765,7 +1768,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 
 
 	u_tmp[0] = k[0]*x[0]+k[1]*x[1] + k[2]*xt[_ias2] + k[3]*xt[_ias3];
-	if(nrepeat > 30)
+	if(nrepeat > 100)
 	  u_tmp[0] = u_tmp_non[0];
 
 
