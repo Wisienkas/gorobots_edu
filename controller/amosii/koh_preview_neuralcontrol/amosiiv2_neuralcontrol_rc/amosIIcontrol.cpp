@@ -163,7 +163,33 @@ AmosIIControl::AmosIIControl()
 
 
   addInspectableValue("LTMR0",&control_adaptiveclimbing.fmodel_cmr_output_ltm.at(0),"LTMR0");
+  addInspectableValue("LTMR0",&control_adaptiveclimbing.fmodel_cmr_output_w2.at(0),"LTMR0");
 
+  addInspectableValue("WLTMR0_0",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(0),"LTMR0");
+  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
+  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
+  addInspectableValue("WLTMR0_3",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(3),"LTMR0");
+  addInspectableValue("WLTMR0_4",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(4),"LTMR0");
+  addInspectableValue("WLTMR0_5",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(5),"LTMR0");
+  addInspectableValue("WLTMR0_6",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(6),"LTMR0");
+  addInspectableValue("WLTMR0_7",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(7),"LTMR0");
+  addInspectableValue("WLTMR0_8",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(8),"LTMR0");
+  addInspectableValue("WLTMR0_9",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(9),"LTMR0");
+  addInspectableValue("WLTMR0_10",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(10),"LTMR0");
+  addInspectableValue("WLTMR0_11",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(11),"LTMR0");
+  addInspectableValue("WLTMR0_12",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(12),"LTMR0");
+  addInspectableValue("WLTMR0_13",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(13),"LTMR0");
+  addInspectableValue("WLTMR0_14",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(14),"LTMR0");
+  addInspectableValue("WLTMR0_15",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(15),"LTMR0");
+  addInspectableValue("WLTMR0_16",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(16),"LTMR0");
+  addInspectableValue("WLTMR0_17",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(17),"LTMR0");
+  addInspectableValue("WLTMR0_18",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(18),"LTMR0");
+  addInspectableValue("WLTMR0_19",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(19),"LTMR0");
+  addInspectableValue("WLTMR0_20",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(20),"LTMR0");
+  addInspectableValue("WLTMR0_21",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(21),"LTMR0");
+  addInspectableValue("WLTMR0_22",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(22),"LTMR0");
+  addInspectableValue("WLTMR0_23",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(23),"LTMR0");
+  addInspectableValue("WLTMR0_24",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(24),"LTMR0");
 
 
 

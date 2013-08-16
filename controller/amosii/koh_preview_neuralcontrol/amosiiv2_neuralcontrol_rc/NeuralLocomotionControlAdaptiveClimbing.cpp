@@ -59,6 +59,10 @@ ESNetwork * ESN_L2;
 float * ESinput_L2;
 float * ESTrainOutput_L2;
 
+//------LTM
+int NUM_LTM_R0 = 53;
+int count_neuron = 0;
+
 //3) Step function of Neural locomotion control------
 
 NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(){
@@ -970,6 +974,15 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   fmodel_cmr_output_ltm.resize(3);
   fmodel_cml_output_ltm.resize(3);
 
+  //LTM neuron
+  cmr0_ltm_neuron.resize(NUM_LTM_R0);
+  cmr0_ltm_neuron_w.resize(NUM_LTM_R0);
+  fmodel_cmr_output_w2.resize(NUM_LTM_R0);
+
+  for(unsigned int i = 0; i< NUM_LTM_R0; i++)
+  {
+    cmr0_ltm_neuron_w.at(i) = 0.01;
+  }
 };
 
 
@@ -3075,13 +3088,20 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         //ESN module 1
         bool learn;
+        bool ltm_start;
+
         learn = true;
+        ltm_start = false;
+
         if(global_count>2000)//100)
         {
           learn = false;
           switchon_reflexes = true;
 
         }
+
+        std::cout<<"count neuron"<<count_neuron<< ":"<<NUM_LTM_R0<<std::endl;
+
         //-----Module ESN 1
         ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
         ESinput_R0[0] = m_pre.at(CR0_m/*6*/);// Input
@@ -3092,13 +3112,91 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0);
         //output_expected_foot = ESN->outputs->val(0, 1) //second output
         //output_expected_foot = ESN->outputs->val(0, 2) //third output
-
         //ESN->endweights;
 
         //-----Transfer to LTM 1-------------//
-        //Convert to [0,...,1]
-        fmodel_cmr_output_ltm.at(0) = (fmodel_cmr_output_rc.at(0)+1.0);
-        //(fmodel_cmr_output_rc.at(0)-(0.8/*min*/)/(-1/*max*/-(0.8)/*min*/))*2.0-1.0;
+        if(learn == false)
+          ltm_start = true;
+
+        if(ltm_start == true)
+        {
+//          if(global_count%2==0)
+//          {
+            if(count_neuron<NUM_LTM_R0)
+            {
+              //Convert to [0,...,1]
+              fmodel_cmr_output_ltm.at(0) = (fmodel_cmr_output_rc.at(0)+1.0);
+              cmr0_ltm_neuron.at(count_neuron) = cmr0_ltm_neuron_w.at(count_neuron)*fmodel_cmr_output_ltm.at(0);
+
+              cmr0_ltm_neuron_w.at(count_neuron) += 0.2*(cmr0_ltm_neuron.at(count_neuron)*fmodel_cmr_output_ltm.at(0)-
+                  cmr0_ltm_neuron.at(count_neuron)*cmr0_ltm_neuron_w.at(count_neuron));
+
+
+              fmodel_cmr_output_w2.at(count_neuron) = cmr0_ltm_neuron.at(count_neuron)-cmr0_ltm_neuron_w.at(count_neuron)*cmr0_ltm_neuron_w.at(count_neuron);
+
+              count_neuron++;
+            }
+            else
+              count_neuron = 0;
+
+
+            outFilenlc6<<fmodel_cmr_output_rc.at(0)<<' '<<
+                cmr0_ltm_neuron_w.at(0)<<' '<<
+                cmr0_ltm_neuron_w.at(1)<<' '<<
+                cmr0_ltm_neuron_w.at(2)<<' '<<
+                cmr0_ltm_neuron_w.at(3)<<' '<<
+                cmr0_ltm_neuron_w.at(4)<<' '<<
+                cmr0_ltm_neuron_w.at(5)<<' '<<
+                cmr0_ltm_neuron_w.at(6)<<' '<<
+                cmr0_ltm_neuron_w.at(7)<<' '<<
+                cmr0_ltm_neuron_w.at(8)<<' '<<
+                cmr0_ltm_neuron_w.at(9)<<' '<<
+                cmr0_ltm_neuron_w.at(10)<<' '<<
+                cmr0_ltm_neuron_w.at(11)<<' '<<
+                cmr0_ltm_neuron_w.at(12)<<' '<<
+                cmr0_ltm_neuron_w.at(13)<<' '<<
+                cmr0_ltm_neuron_w.at(14)<<' '<<
+                cmr0_ltm_neuron_w.at(15)<<' '<<
+                cmr0_ltm_neuron_w.at(16)<<' '<<
+                cmr0_ltm_neuron_w.at(17)<<' '<<
+                cmr0_ltm_neuron_w.at(18)<<' '<<
+                cmr0_ltm_neuron_w.at(19)<<' '<<
+                cmr0_ltm_neuron_w.at(20)<<' '<<
+                cmr0_ltm_neuron_w.at(21)<<' '<<
+                cmr0_ltm_neuron_w.at(22)<<' '<<
+                cmr0_ltm_neuron_w.at(23)<<' '<<
+                cmr0_ltm_neuron_w.at(24)<<' '<<
+                cmr0_ltm_neuron_w.at(25)<<' '<<
+                cmr0_ltm_neuron_w.at(26)<<' '<<
+                cmr0_ltm_neuron_w.at(27)<<' '<<
+                cmr0_ltm_neuron_w.at(28)<<' '<<
+                cmr0_ltm_neuron_w.at(29)<<' '<<
+                cmr0_ltm_neuron_w.at(30)<<' '<<
+                cmr0_ltm_neuron_w.at(31)<<' '<<
+                cmr0_ltm_neuron_w.at(32)<<' '<<
+                cmr0_ltm_neuron_w.at(33)<<' '<<
+                cmr0_ltm_neuron_w.at(34)<<' '<<
+                cmr0_ltm_neuron_w.at(35)<<' '<<
+                cmr0_ltm_neuron_w.at(36)<<' '<<
+                cmr0_ltm_neuron_w.at(37)<<' '<<
+                cmr0_ltm_neuron_w.at(38)<<' '<<
+                cmr0_ltm_neuron_w.at(39)<<' '<<
+                cmr0_ltm_neuron_w.at(40)<<' '<<
+                cmr0_ltm_neuron_w.at(41)<<' '<<
+                cmr0_ltm_neuron_w.at(42)<<' '<<
+                cmr0_ltm_neuron_w.at(43)<<' '<<
+                cmr0_ltm_neuron_w.at(44)<<' '<<
+                cmr0_ltm_neuron_w.at(45)<<' '<<
+                cmr0_ltm_neuron_w.at(46)<<' '<<
+                cmr0_ltm_neuron_w.at(47)<<' '<<
+                cmr0_ltm_neuron_w.at(48)<<' '<<
+                cmr0_ltm_neuron_w.at(49)<<' '<<
+                cmr0_ltm_neuron_w.at(50)<<' '<<
+                cmr0_ltm_neuron_w.at(51)<<' '<<
+                cmr0_ltm_neuron_w.at(52)<<' '<<endl;
+            //}
+        }
+
 
         //-----Module ESN 2
         ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)
@@ -3204,13 +3302,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }
   }
   // >> i/o operations here <<
-  outFilenlc1<<m_pre.at(CR0_m)<<' '<<reflex_R_fs.at(0)<<' '<<fmodel_cmr_output.at(0)<<' '<<fmodel_cmr_errorW.at(0)<<' '<<fmodel_cmr_outputfinal.at(0)<<' '<<fmodel_cmr_error.at(0)<<' '<<low_pass_fmodel_cmr_error.at(0)<<' '<<acc_cmr_error_old.at(0)<<' '<<acc_cmr_error.at(0) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(0)<<' '<<fmodel_fmodel_cmr_w.at(0)<<' '<<fmodel_cmr_bias.at(0)<<' '<<endl;
-  outFilenlc2<<m_pre.at(CR1_m)<<' '<<reflex_R_fs.at(1)<<' '<<fmodel_cmr_output.at(1)<<' '<<fmodel_cmr_errorW.at(1)<<' '<<fmodel_cmr_outputfinal.at(1)<<' '<<fmodel_cmr_error.at(1)<<' '<<low_pass_fmodel_cmr_error.at(1)<<' '<<acc_cmr_error_old.at(1)<<' '<<acc_cmr_error.at(1) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(1)<<' '<<fmodel_fmodel_cmr_w.at(1)<<' '<<fmodel_cmr_bias.at(1)<<' '<<endl;
-  outFilenlc3<<m_pre.at(CR2_m)<<' '<<reflex_R_fs.at(2)<<' '<<fmodel_cmr_output.at(2)<<' '<<fmodel_cmr_errorW.at(2)<<' '<<fmodel_cmr_outputfinal.at(2)<<' '<<fmodel_cmr_error.at(2)<<' '<<low_pass_fmodel_cmr_error.at(2)<<' '<<acc_cmr_error_old.at(2)<<' '<<acc_cmr_error.at(2) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(2) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(2)<<' '<<fmodel_fmodel_cmr_w.at(2)<<' '<<fmodel_cmr_bias.at(2)<<' '<<endl;
+//  outFilenlc1<<m_pre.at(CR0_m)<<' '<<reflex_R_fs.at(0)<<' '<<fmodel_cmr_output.at(0)<<' '<<fmodel_cmr_errorW.at(0)<<' '<<fmodel_cmr_outputfinal.at(0)<<' '<<fmodel_cmr_error.at(0)<<' '<<low_pass_fmodel_cmr_error.at(0)<<' '<<acc_cmr_error_old.at(0)<<' '<<acc_cmr_error.at(0) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(0)<<' '<<fmodel_fmodel_cmr_w.at(0)<<' '<<fmodel_cmr_bias.at(0)<<' '<<endl;
+//  outFilenlc2<<m_pre.at(CR1_m)<<' '<<reflex_R_fs.at(1)<<' '<<fmodel_cmr_output.at(1)<<' '<<fmodel_cmr_errorW.at(1)<<' '<<fmodel_cmr_outputfinal.at(1)<<' '<<fmodel_cmr_error.at(1)<<' '<<low_pass_fmodel_cmr_error.at(1)<<' '<<acc_cmr_error_old.at(1)<<' '<<acc_cmr_error.at(1) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(1)<<' '<<fmodel_fmodel_cmr_w.at(1)<<' '<<fmodel_cmr_bias.at(1)<<' '<<endl;
+//  outFilenlc3<<m_pre.at(CR2_m)<<' '<<reflex_R_fs.at(2)<<' '<<fmodel_cmr_output.at(2)<<' '<<fmodel_cmr_errorW.at(2)<<' '<<fmodel_cmr_outputfinal.at(2)<<' '<<fmodel_cmr_error.at(2)<<' '<<low_pass_fmodel_cmr_error.at(2)<<' '<<acc_cmr_error_old.at(2)<<' '<<acc_cmr_error.at(2) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(2) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(2)<<' '<<fmodel_fmodel_cmr_w.at(2)<<' '<<fmodel_cmr_bias.at(2)<<' '<<endl;
+//
+//  outFilenlc4<<m_pre.at(CL0_m)<<' '<<reflex_L_fs.at(0)<<' '<<fmodel_cml_output.at(0)<<' '<<fmodel_cml_errorW.at(0)<<' '<<fmodel_cml_outputfinal.at(0)<<' '<<fmodel_cml_error.at(0)<<' '<<low_pass_fmodel_cml_error.at(0)<<' '<<acc_cml_error_old.at(0)<<' '<<acc_cml_error.at(0) /*searching reflex*/<<' '<<acc_cml_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(0)<<' '<<fmodel_fmodel_cml_w.at(0)<<' '<<fmodel_cml_bias.at(0)<<' '<<endl;
+//  outFilenlc5<<m_pre.at(CL1_m)<<' '<<reflex_L_fs.at(1)<<' '<<fmodel_cml_output.at(1)<<' '<<fmodel_cml_errorW.at(1)<<' '<<fmodel_cml_outputfinal.at(1)<<' '<<fmodel_cml_error.at(1)<<' '<<low_pass_fmodel_cml_error.at(1)<<' '<<acc_cml_error_old.at(1)<<' '<<acc_cml_error.at(1) /*searching reflex*/<<' '<<acc_cml_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(1)<<' '<<fmodel_fmodel_cml_w.at(1)<<' '<<fmodel_cml_bias.at(1)<<' '<<endl;
 
-  outFilenlc4<<m_pre.at(CL0_m)<<' '<<reflex_L_fs.at(0)<<' '<<fmodel_cml_output.at(0)<<' '<<fmodel_cml_errorW.at(0)<<' '<<fmodel_cml_outputfinal.at(0)<<' '<<fmodel_cml_error.at(0)<<' '<<low_pass_fmodel_cml_error.at(0)<<' '<<acc_cml_error_old.at(0)<<' '<<acc_cml_error.at(0) /*searching reflex*/<<' '<<acc_cml_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(0)<<' '<<fmodel_fmodel_cml_w.at(0)<<' '<<fmodel_cml_bias.at(0)<<' '<<endl;
-  outFilenlc5<<m_pre.at(CL1_m)<<' '<<reflex_L_fs.at(1)<<' '<<fmodel_cml_output.at(1)<<' '<<fmodel_cml_errorW.at(1)<<' '<<fmodel_cml_outputfinal.at(1)<<' '<<fmodel_cml_error.at(1)<<' '<<low_pass_fmodel_cml_error.at(1)<<' '<<acc_cml_error_old.at(1)<<' '<<acc_cml_error.at(1) /*searching reflex*/<<' '<<acc_cml_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(1)<<' '<<fmodel_fmodel_cml_w.at(1)<<' '<<fmodel_cml_bias.at(1)<<' '<<endl;
-  outFilenlc6<<m_pre.at(CL2_m)<<' '<<reflex_L_fs.at(2)<<' '<<fmodel_cml_output.at(2)<<' '<<fmodel_cml_errorW.at(2)<<' '<<fmodel_cml_outputfinal.at(2)<<' '<<fmodel_cml_error.at(2)<<' '<<low_pass_fmodel_cml_error.at(2)<<' '<<acc_cml_error_old.at(2)<<' '<<acc_cml_error.at(2) /*searching reflex*/<<' '<<acc_cml_error_elev.at(2) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(2)<<' '<<fmodel_fmodel_cml_w.at(2)<<' '<<fmodel_cml_bias.at(2)<<' '<<endl;
 
 
 
