@@ -6,7 +6,9 @@
 #include <iostream>
 #include <fstream>
 
-#include "dmp.h"
+//#include "dmp.h"
+
+#include <utils/dmp-framework/dmp.h>
 
 using namespace std;
 
@@ -69,7 +71,7 @@ int main(){
    w_y = new float[n];
    int i=0;
    
-   fstream fileIn("w_a.dat.txt");
+   fstream fileIn("w_b.dat.txt");
    while (!fileIn.eof()){
      getline(fileIn,tempStr);
      sscanf(tempStr.c_str(),"%f %f", &w_x[i], &w_y[i]);
@@ -77,7 +79,7 @@ int main(){
    }
    fileIn.close();
    
-   fstream fileIn2("w_b.dat.txt");
+   fstream fileIn2("w_c.dat.txt");
    while (!fileIn2.eof()){
      getline(fileIn2,tempStr);
      sscanf(tempStr.c_str(),"%f %f", &w_x[i], &w_y[i]);
