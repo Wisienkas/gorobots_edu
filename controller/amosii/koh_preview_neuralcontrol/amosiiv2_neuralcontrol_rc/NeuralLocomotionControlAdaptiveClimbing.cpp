@@ -960,11 +960,15 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
       ESTrainOutput_L2[i] = 0.0;
 
     }
+  //--------------------------Add ENS network--(2)-----------------------------------//
 
   //Forward model ESN
   fmodel_cmr_output_rc.resize(3);
   fmodel_cml_output_rc.resize(3);
-  //--------------------------Add ENS network--(2)-----------------------------------//
+
+  //LTM
+  fmodel_cmr_output_ltm.resize(3);
+  fmodel_cml_output_ltm.resize(3);
 
 };
 
@@ -3091,6 +3095,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         //ESN->endweights;
 
+        //-----Transfer to LTM 1-------------//
+        //Convert to [0,...,1]
+        fmodel_cmr_output_ltm.at(0) = (fmodel_cmr_output_rc.at(0)+1.0);
+        //(fmodel_cmr_output_rc.at(0)-(0.8/*min*/)/(-1/*max*/-(0.8)/*min*/))*2.0-1.0;
 
         //-----Module ESN 2
         ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)
@@ -3138,6 +3146,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           fmodel_cml_error.at(i) = reflex_L_fs.at(i)-fmodel_cml_output_rc.at(i) /*regulate error*/; //target - output // only positive error
 
 
+          //------------------Right legs------------------------------------//
           //Positive Error signal for controlling searching reflexes
           acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
 
@@ -3163,7 +3172,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             error_cmr_elev.at(i) = 0.0;
           }
 
-
+          //------------------Left legs------------------------------------//
           //Positive Error signal for controlling searching reflexes
           acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
 

@@ -162,6 +162,11 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("RCerror_L2",&control_adaptiveclimbing.fmodel_cml_error.at(2),"error_L2");
 
 
+  addInspectableValue("LTMR0",&control_adaptiveclimbing.fmodel_cmr_output_ltm.at(0),"LTMR0");
+
+
+
+
   //Add edit parameter on terminal
   Configurable::addParameter("cin", &control_adaptiveclimbing.Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
       "test discription" );

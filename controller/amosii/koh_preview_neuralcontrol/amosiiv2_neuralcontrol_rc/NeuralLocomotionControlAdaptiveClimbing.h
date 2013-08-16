@@ -271,6 +271,10 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double> fmodel_cmr_output_rc;
     std::vector<double> fmodel_cml_output_rc;
 
+    //Learning LTM models to memorize foot sensors from ESN
+    std::vector<double> fmodel_cmr_output_ltm;
+    std::vector<double> fmodel_cml_output_ltm;
+
     //Motor mapping
 
     double min_tc; // network output range
