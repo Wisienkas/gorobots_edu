@@ -46,7 +46,7 @@ void DMP::init_dmp(float start, float goal, float total_t, float delta_t, float 
    s=start;
    g=goal;
    T=total_t;
-   dt=delta_t;
+   dt=delta_t; // Sampling frequency of your system
    tau=temp_scaling;
    n=n_kernels;
    v=1;
@@ -131,17 +131,19 @@ void DMP::calculate_one_step_dmp(float t){
    }
    else{
 
-      a=exp((alpha_v/dt)*(tau*T-t));
-      dv=-(alpha_v*a)/((1+a)*(1+a));
-      if (isnan(dv)){
+     //-----------Calculating v to kill the last end point smoothly at the end position using inverse sigmoid function------------//
+
+     a=exp((alpha_v/dt)*(tau*T-t));
+      dv=-(alpha_v*a)/((1+a)*(1+a)); //Inverse sigmoid
+      if (isnan(dv)){ //A non-zero value (true) if x is a NaN value; and zero (false) otherwise.
          dv=0;
       }    
       v=v+dv;
 
       //-----------Calculating r (base line->goal)------------------//
       if (t<=tau*T){
-        // Delayed goal
-         dr=(1/tau)*(dt/T)*(g-s);
+        // Following trajectory in a linear line
+         dr=(1/tau)*(dt/T)*(g-s); // (goal-start point)/total Time (T), tau = scaling for faster or slower updated step
       }
       else{
          dr=0;
