@@ -411,6 +411,8 @@ class NeuralLocomotionControlAdaptiveClimbing{
     double elevator_th;
     //---End Define vector----//
 
+    double old_pcpg;
+
   private:
 
     double  h;
