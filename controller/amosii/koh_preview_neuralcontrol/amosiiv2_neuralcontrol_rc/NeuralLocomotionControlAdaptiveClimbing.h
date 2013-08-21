@@ -270,6 +270,8 @@ class NeuralLocomotionControlAdaptiveClimbing{
     //Learning forward models to expected foot sensors ESN
     std::vector<double> fmodel_cmr_output_rc;
     std::vector<double> fmodel_cml_output_rc;
+//    std::vector<double> low_p_fmodel_cmr_output_rc;
+//    std::vector<double> low_p_fmodel_cml_output_rc;
 
     //Learning LTM models to memorize foot sensors from ESN
     std::vector<double> fmodel_cmr_output_ltm;
@@ -412,6 +414,9 @@ class NeuralLocomotionControlAdaptiveClimbing{
     //---End Define vector----//
 
     double old_pcpg;
+    double deri;
+    int total_c;
+
 
   private:
 

@@ -130,29 +130,35 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("ESNoutput_cmr0",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(0),"ESNoutput_cmr0");
   addInspectableValue("reflex_R_fs.at(0)",&control_adaptiveclimbing.reflex_R_fs.at(0),"ESNoutput_cmr0");
   addInspectableValue("m_pre.at(CR0_m)",&control_adaptiveclimbing.m_pre.at(CR0_m),"ESNoutput_cmr0");
+//  addInspectableValue("low_p_fmodel_cmr_output_rc",&control_adaptiveclimbing.low_p_fmodel_cmr_output_rc.at(CR0_m),"ESNoutput_cmr0");
 
 
   addInspectableValue("ESNoutput_cmr1",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(1),"ESNoutput_cmr1");
   addInspectableValue("reflex_R_fs.at(1)",&control_adaptiveclimbing.reflex_R_fs.at(1),"ESNoutput_cmr1");
   addInspectableValue("m_pre.at(CR1_m)",&control_adaptiveclimbing.m_pre.at(CR1_m),"ESNoutput_cmr1");
+//  addInspectableValue("low_p_fmodel_cmr_output_rc(CR1_m)",&control_adaptiveclimbing.low_p_fmodel_cmr_output_rc.at(CR1_m),"ESNoutput_cmr0");
 
 
   addInspectableValue("ESNoutput_cmr2",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(2),"ESNoutput_cmr2");
   addInspectableValue("reflex_R_fs.at(2)",&control_adaptiveclimbing.reflex_R_fs.at(2),"ESNoutput_cmr2");
   addInspectableValue("m_pre.at(CR2_m)",&control_adaptiveclimbing.m_pre.at(CR2_m),"ESNoutput_cmr2");
+//  addInspectableValue("low_p_fmodel_cmr_output_rc(CR2_m)",&control_adaptiveclimbing.low_p_fmodel_cmr_output_rc.at(CR2_m),"ESNoutput_cmr0");
 
 
   addInspectableValue("ESNoutput_cml0",&control_adaptiveclimbing.fmodel_cml_output_rc.at(0),"ESNoutput_cml0");
   addInspectableValue("reflex_L_fs.at(0)",&control_adaptiveclimbing.reflex_L_fs.at(0),"ESNoutput_cml0");
   addInspectableValue("m_pre.at(CL0_m)",&control_adaptiveclimbing.m_pre.at(CL0_m),"ESNoutput_cml0");
+ // addInspectableValue("low_p_fmodel_cml_output_rc(CL0_m)",&control_adaptiveclimbing.low_p_fmodel_cml_output_rc.at(CL0_m),"ESNoutput_cmr0");
 
   addInspectableValue("ESNoutput_cml1",&control_adaptiveclimbing.fmodel_cml_output_rc.at(1),"ESNoutput_cml1");
   addInspectableValue("reflex_L_fs.at(1)",&control_adaptiveclimbing.reflex_L_fs.at(1),"ESNoutput_cml1");
   addInspectableValue("m_pre.at(CL1_m)",&control_adaptiveclimbing.m_pre.at(CL1_m),"ESNoutput_cml1");
+ // addInspectableValue("low_p_fmodel_cml_output_rc(CL1_m)",&control_adaptiveclimbing.low_p_fmodel_cml_output_rc.at(CL1_m),"ESNoutput_cmr0");
 
   addInspectableValue("ESNoutput_cml2",&control_adaptiveclimbing.fmodel_cml_output_rc.at(2),"ESNoutput_cml2");
   addInspectableValue("reflex_L_fs.at(2)",&control_adaptiveclimbing.reflex_L_fs.at(2),"ESNoutput_cml2");
   addInspectableValue("m_pre.at(CL2_m)",&control_adaptiveclimbing.m_pre.at(CL2_m),"ESNoutput_cml2");
+ // addInspectableValue("low_p_fmodel_cml_output_rc(CL2_m)",&control_adaptiveclimbing.low_p_fmodel_cml_output_rc.at(CL2_m),"ESNoutput_cmr0");
 
   addInspectableValue("RCerror_R0",&control_adaptiveclimbing.fmodel_cmr_error.at(0),"error_R0");
   addInspectableValue("RCerror_R1",&control_adaptiveclimbing.fmodel_cmr_error.at(1),"error_R1");
@@ -162,38 +168,39 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("RCerror_L2",&control_adaptiveclimbing.fmodel_cml_error.at(2),"error_L2");
 
 
+
   addInspectableValue("LTMR0",&control_adaptiveclimbing.fmodel_cmr_output_ltm.at(0),"LTMR0");
   addInspectableValue("LTMR0",&control_adaptiveclimbing.fmodel_cmr_output_w2.at(0),"LTMR0");
 
   addInspectableValue("WLTMR0_0",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(0),"LTMR0");
-  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
-  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
-  addInspectableValue("WLTMR0_3",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(3),"LTMR0");
-  addInspectableValue("WLTMR0_4",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(4),"LTMR0");
-  addInspectableValue("WLTMR0_5",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(5),"LTMR0");
-  addInspectableValue("WLTMR0_6",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(6),"LTMR0");
-  addInspectableValue("WLTMR0_7",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(7),"LTMR0");
-  addInspectableValue("WLTMR0_8",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(8),"LTMR0");
-  addInspectableValue("WLTMR0_9",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(9),"LTMR0");
-  addInspectableValue("WLTMR0_10",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(10),"LTMR0");
-  addInspectableValue("WLTMR0_11",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(11),"LTMR0");
-  addInspectableValue("WLTMR0_12",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(12),"LTMR0");
-  addInspectableValue("WLTMR0_13",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(13),"LTMR0");
-  addInspectableValue("WLTMR0_14",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(14),"LTMR0");
-  addInspectableValue("WLTMR0_15",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(15),"LTMR0");
-  addInspectableValue("WLTMR0_16",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(16),"LTMR0");
-  addInspectableValue("WLTMR0_17",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(17),"LTMR0");
-  addInspectableValue("WLTMR0_18",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(18),"LTMR0");
-  addInspectableValue("WLTMR0_19",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(19),"LTMR0");
-  addInspectableValue("WLTMR0_20",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(20),"LTMR0");
-  addInspectableValue("WLTMR0_21",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(21),"LTMR0");
-  addInspectableValue("WLTMR0_22",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(22),"LTMR0");
-  addInspectableValue("WLTMR0_23",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(23),"LTMR0");
-  addInspectableValue("WLTMR0_24",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(24),"LTMR0");
+//  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
+//  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
+//  addInspectableValue("WLTMR0_3",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(3),"LTMR0");
+//  addInspectableValue("WLTMR0_4",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(4),"LTMR0");
+//  addInspectableValue("WLTMR0_5",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(5),"LTMR0");
+//  addInspectableValue("WLTMR0_6",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(6),"LTMR0");
+//  addInspectableValue("WLTMR0_7",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(7),"LTMR0");
+//  addInspectableValue("WLTMR0_8",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(8),"LTMR0");
+//  addInspectableValue("WLTMR0_9",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(9),"LTMR0");
+//  addInspectableValue("WLTMR0_10",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(10),"LTMR0");
+//  addInspectableValue("WLTMR0_11",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(11),"LTMR0");
+//  addInspectableValue("WLTMR0_12",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(12),"LTMR0");
+//  addInspectableValue("WLTMR0_13",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(13),"LTMR0");
+//  addInspectableValue("WLTMR0_14",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(14),"LTMR0");
+//  addInspectableValue("WLTMR0_15",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(15),"LTMR0");
+//  addInspectableValue("WLTMR0_16",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(16),"LTMR0");
+//  addInspectableValue("WLTMR0_17",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(17),"LTMR0");
+//  addInspectableValue("WLTMR0_18",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(18),"LTMR0");
+//  addInspectableValue("WLTMR0_19",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(19),"LTMR0");
+//  addInspectableValue("WLTMR0_20",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(20),"LTMR0");
+//  addInspectableValue("WLTMR0_21",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(21),"LTMR0");
+//  addInspectableValue("WLTMR0_22",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(22),"LTMR0");
+//  addInspectableValue("WLTMR0_23",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(23),"LTMR0");
+//  addInspectableValue("WLTMR0_24",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(24),"LTMR0");
 
 
   addInspectableValue("pcpg_output",&control_adaptiveclimbing.pcpg_output.at(1),"LTMR0");
-
+  addInspectableValue("deri",&control_adaptiveclimbing.deri,"LTMR0");
 
 
 

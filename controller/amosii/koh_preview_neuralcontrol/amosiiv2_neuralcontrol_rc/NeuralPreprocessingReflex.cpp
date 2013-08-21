@@ -66,6 +66,8 @@ std::vector<double> NeuralPreprocessingReflex::step_npp(const std::vector<double
 		step = false;
 		if(step)
 		{
+		  std::cout<<"Step Foot sensor signals"<<std::endl;
+
 			if (mappingsensor.at(i)>0.9)
 			{
 				mappingsensor.at(i)=1;
@@ -81,14 +83,19 @@ std::vector<double> NeuralPreprocessingReflex::step_npp(const std::vector<double
 			preprosensor.at(i) = sensor_output.at(i);
 		}
 
-		preprosensor.at(i) = mappingsensor.at(i);
+		//preprosensor.at(i) = mappingsensor.at(i);
 
 
-		double weight = 0.8;
+		if(!step)
+		{
+		  double weight = 0.8;
 
-		sensor_activity.at(i) = mappingsensor.at(i)*(1-weight)+sensor_output.at(i)*weight;
-		sensor_output.at(i) = sensor_activity.at(i);
-		preprosensor.at(i) = sensor_output.at(i);
+		  std::cout<<"Lowpass Raw Foot sensor signals"<<std::endl;
+
+		  sensor_activity.at(i) = mappingsensor.at(i)*(1-weight)+sensor_output.at(i)*weight;
+		  sensor_output.at(i) = sensor_activity.at(i);
+		  preprosensor.at(i) = sensor_output.at(i);
+		}
 
 	}
 
