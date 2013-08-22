@@ -75,6 +75,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //Selecting forward models
   option_fmodel = 6; // 4 or 6
+  sequentiral_learning = false;// learn multiple gait one after the other, false = learn only one gait
 
   //1 == with threshold after fmodel & NO lowpass neuron after error;
   //2 == without threshold after fmodel & with lowpass neuron after error)
@@ -1107,43 +1108,45 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   input.at(3) = -1; //turn left = 1,  = I3 in paper
   input.at(4) = -1; //turn right = 1,  = I4 in paper
 
-  if(iii<=3000)
+  if(sequentiral_learning)
   {
-    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+    if(iii<=3000)
+    {
+      Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+    }
+    else if(iii>3000 && iii<=4000)
+    {
+      Control_input = 0.03;// slow Wave St **************** Forward model // Stone
+
+    }
+
+    else if(iii>4000 && iii<=5000)
+    {
+      Control_input = 0.04;// slow Wave St **************** Forward model // Stone
+
+    }
+    //Testing
+    else if(iii>5000 && iii<=6000)
+    {
+      Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+
+    }
+
+    else if(iii>6000 && iii<=7000)
+    {
+      Control_input = 0.03;// slow Wave St **************** Forward model // Stone
+
+    }
+
+    else if(iii>7000)
+    {
+      Control_input = 0.04;// slow Wave St **************** Forward model // Stone
+
+    }
+
+    if(iii>8000)
+      iii = 0;
   }
-  else if(iii>3000 && iii<=4000)
-  {
-    Control_input = 0.03;// slow Wave St **************** Forward model // Stone
-
-  }
-
-  else if(iii>4000 && iii<=5000)
-  {
-    Control_input = 0.04;// slow Wave St **************** Forward model // Stone
-
-  }
-//Testing
-  else if(iii>5000 && iii<=6000)
-  {
-    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
-
-  }
-
-  else if(iii>6000 && iii<=7000)
-   {
-     Control_input = 0.03;// slow Wave St **************** Forward model // Stone
-
-   }
-
-  else if(iii>7000)
-  {
-    Control_input = 0.04;// slow Wave St **************** Forward model // Stone
-
-  }
-
-  if(iii>8000)
-    iii = 0;
-
   std::cout<<"c_input"<<Control_input<<std::endl;
 
   //
@@ -1158,7 +1161,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
    *  MODULE 1 CPG
    *******************************************************************************/
 
-
+  if(!sequentiral_learning)
+  {
   //**********CPG***************
   //From 0.02-1.5
   //Control_input = 0.0;// slow Wave St
@@ -1166,7 +1170,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
-  //Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
+  Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
 
   //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
@@ -1218,7 +1222,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.14; //terapod OK USED
   //Control_input = 0.18; //Tripod fast OK USED // with Foot inhibition Good
   //Control_input = 0.34; //Faster than tripod
-
+  }
   cpg_w.at(0).at(0) =  1.4;
   cpg_w.at(0).at(1) =  0.18+Control_input;//0.4;
   cpg_w.at(1).at(0) =  -0.18-Control_input;//-0.4
@@ -3119,6 +3123,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //------------Add ESN training (3)----------------------------------//
 
         double fmodel_cmr_output_rc_old;
+        int learning_steps;
+
+        if(sequentiral_learning)
+          learning_steps = 50000;
+        else
+          learning_steps = 3000;
+
         fmodel_cmr_output_rc_old  = fmodel_cmr_output_rc.at(0);
 
         //ESN module 1
@@ -3128,7 +3139,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         bool ltm_v2; // learn frequency
         double learning_rate;
 
-        learning_rate = 0.992;//RLS = 0.99
+        learning_rate = 0.99;//RLS = 0.99
 
         learn = true;
         ltm_start = false;
@@ -3136,16 +3147,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ltm_v2 = true;
 
 
-        if(global_count>50000)//3000)//3500)
+        if(global_count>learning_steps)//3000)//3500)
         {
           learn = false;
           switchon_reflexes = true;
           ltm_start = true;
-          learning_rate = 0.994;
-
+          //learning_rate = 0.994;
         }
 
-
+        std::cout<<"learning_steps"<< ":"<<learning_steps<<std::endl;
 
         //-----Module ESN 1
         ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
