@@ -123,7 +123,7 @@ class ThisSim : public lpzrobots::Simulation {
 
     // Add amosII robot
     lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-    myAmosIIConf.rubberFeet = true;
+    myAmosIIConf.rubberFeet = false;//true;
     myAmosIIConf.useLocalVelSensor = true;
 
     //lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
@@ -131,7 +131,14 @@ class ThisSim : public lpzrobots::Simulation {
 
     //myAmosIIConf.legContactSensorIsBinary = true;
     lpzrobots::OdeHandle rodeHandle = odeHandle;
-    rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+
+    //Change surface property (lpzrobots / ode_robots / osg / substance.cpp)
+    rodeHandle.substance = lpzrobots::Substance(3.0/*3.0*//*roughness*/, 0.0/*0 slip*/, 50.0/*hardness*/, 0.8/*elasticity*/);
+    //rodeHandle.substance = lpzrobots::Substance::getFoam(5/*roughness*/);
+    //rodeHandle.substance = lpzrobots::Substance::getSnow(0.0/*_slip > 1.0 = high slip, <1.0 low slip*/);
+    //rodeHandle.substance = lpzrobots::Substance::Substance::getRubber(50/*_hardness [5-50]*/);
+
+
 
     //------------------- Link the sphere to the Goal Sensor by Ren---------------
     for(int i = 0; i<obst.size(); i++)

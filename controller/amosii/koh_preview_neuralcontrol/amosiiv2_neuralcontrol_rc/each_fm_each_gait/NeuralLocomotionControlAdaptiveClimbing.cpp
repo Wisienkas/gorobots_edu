@@ -76,6 +76,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Selecting forward models
   option_fmodel = 6; // 4 or 6
   sequentiral_learning = false;// learn multiple gait one after the other, false = learn only one gait
+  switchon_searching_pid_control = true; // if true = using pid control to regulate error term. if false = using only acc_error
 
   //1 == with threshold after fmodel & NO lowpass neuron after error;
   //2 == without threshold after fmodel & with lowpass neuron after error)
@@ -381,7 +382,14 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   m_l1_t.resize(8000);
   m_l2_t.resize(8000);
 
-
+  //---PID control------//
+  kp_r.resize(3);
+  ki_r.resize(3);
+  kd_r.resize(3);
+  kp_l.resize(3);
+  ki_l.resize(3);
+  kd_l.resize(3);
+  //---PID control------//
 
   /*******************************************************************************
    *  Initial parameters
@@ -524,6 +532,15 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     counter_cr.at(i) = 0;
     lr_fmodel_cl.at(i) = 0.01;
     counter_cl.at(i) = 0;
+
+    //---PID control------//
+    kp_r.at(i) = 0.0;
+    ki_r.at(i) = 0.0;
+    kd_r.at(i) = 0.0;
+    kp_l.at(i) = 0.0;
+    ki_l.at(i) = 0.0;
+    kd_l.at(i) = 0.0;
+    //---PID control------//
   }
 
 
@@ -971,8 +988,6 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   fmodel_cmr_output_rc.resize(3);
   fmodel_cml_output_rc.resize(3);
 
-//  low_p_fmodel_cmr_output_rc.resize(3);
-//  low_p_fmodel_cml_output_rc.resize(3);
 
   //LTM
   fmodel_cmr_output_ltm.resize(3);
@@ -3325,69 +3340,137 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //------------Add ESN training (3)----------------------------------//
 
 
+
+        //-----------Calculating error--------------------------------------//
+
         for(unsigned int i=0; i<fmodel_cml_activity.size();i++)
         {
+          double lowpass_error_gain;
+          lowpass_error_gain = 0.9;
 
-          //------------Low pass ESN output-----------------------------------//
-//          double weight = 0.7;
-//          low_p_fmodel_cmr_output_rc.at(i) = fmodel_cmr_output_rc.at(i) *(1-weight)+low_p_fmodel_cmr_output_rc.at(i)*weight;
-//          low_p_fmodel_cml_output_rc.at(i) =  fmodel_cml_output_rc.at(i) *(1-weight)+low_p_fmodel_cml_output_rc.at(i)*weight;
+          low_pass_fmodel_cmr_error_old.at(i) = low_pass_fmodel_cmr_error.at(i);
+          low_pass_fmodel_cml_error_old.at(i) = low_pass_fmodel_cml_error.at(i);
 
           //Calculate error
           fmodel_cmr_error.at(i) = reflex_R_fs.at(i)-fmodel_cmr_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+          low_pass_fmodel_cmr_error.at(i) = low_pass_fmodel_cmr_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cmr_error.at(i);
+          acc_cmr_error_old.at(i) = fmodel_cmr_error.at(i);// for elevator reflex
+
+
           //Calculate error
           fmodel_cml_error.at(i) = reflex_L_fs.at(i)-fmodel_cml_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+          low_pass_fmodel_cml_error.at(i) = low_pass_fmodel_cml_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cml_error.at(i);
+          acc_cml_error_old.at(i) = fmodel_cml_error.at(i);// for elevator reflex
 
 
-          //------------------Right legs------------------------------------//
-          //Positive Error signal for controlling searching reflexes
-          acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
 
-          if(abs(fmodel_cmr_error.at(i)) < 0.05)
-            acc_cmr_error_posi_neg.at(i) = 0.0;
-
-          acc_cmr_error_posi_neg.at(i) += fmodel_cmr_error.at(i);
-
-
-          //reset at swing phase
-          if(m_pre.at(i+CR0_m/*6*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
-            acc_cmr_error.at(i) = 0;
-
-          //Negative Error signal for controlling elevator reflexes
-          if(acc_cmr_error_old.at(i)<0)
+          if(switchon_searching_pid_control)
           {
-            acc_cmr_error_elev.at(i) += abs(acc_cmr_error_old.at(i));
-            error_cmr_elev.at(i) = 1.0;
+            std::cout<<"pid_control"<<std::endl;
+            //------------------Right legs------------------------------------//
+            //Positive Error signal for controlling searching reflexes
+            acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
+
+            if(abs(fmodel_cmr_error.at(i)) < 0.05)
+              acc_cmr_error_posi_neg.at(i) = 0.0;
+
+            acc_cmr_error_posi_neg.at(i) += fmodel_cmr_error.at(i);
+
+
+            //reset at swing phase
+            if(m_pre.at(i+CR0_m/*6*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+              acc_cmr_error.at(i) = 0;
+
+            //Negative Error signal for controlling elevator reflexes
+            if(acc_cmr_error_old.at(i)<0)
+            {
+              acc_cmr_error_elev.at(i) += abs(acc_cmr_error_old.at(i));
+              error_cmr_elev.at(i) = 1.0;
+            }
+            if(acc_cmr_error_old.at(i)>0)
+            {
+              acc_cmr_error_elev.at(i) = 0.0;
+              error_cmr_elev.at(i) = 0.0;
+            }
+
+            //------------------Left legs------------------------------------//
+            //Positive Error signal for controlling searching reflexes
+            acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+
+            if(abs(fmodel_cml_error.at(i)) < 0.05)
+              acc_cml_error_posi_neg.at(i) = 0.0;
+
+            acc_cml_error_posi_neg.at(i) += fmodel_cml_error.at(i);
+
+            //reset at swing phase
+            if(m_pre.at(i+CL0_m/*9*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+              acc_cml_error.at(i) = 0;
+
+            //Negative Error signal for controlling elevator reflexes
+            if(acc_cml_error_old.at(i)<0)
+            {
+              acc_cml_error_elev.at(i) += abs(acc_cml_error_old.at(i));
+              error_cml_elev.at(i) = 1.0;
+            }
+            if(acc_cml_error_old.at(i)>0)
+            {
+              acc_cml_error_elev.at(i) = 0.0;
+              error_cml_elev.at(i) = 0.0;
+            }
           }
-          if(acc_cmr_error_old.at(i)>0)
+          else
           {
-            acc_cmr_error_elev.at(i) = 0.0;
-            error_cmr_elev.at(i) = 0.0;
-          }
+            std::cout<<"acc_error_control"<<std::endl;
+            //------------------Right legs------------------------------------//
+            //Positive Error signal for controlling searching reflexes
+            acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
 
-          //------------------Left legs------------------------------------//
-          //Positive Error signal for controlling searching reflexes
-          acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+            if(abs(fmodel_cmr_error.at(i)) < 0.05)
+              acc_cmr_error_posi_neg.at(i) = 0.0;
 
-          if(abs(fmodel_cml_error.at(i)) < 0.05)
-                  acc_cml_error_posi_neg.at(i) = 0.0;
+            acc_cmr_error_posi_neg.at(i) += fmodel_cmr_error.at(i);
 
-          acc_cml_error_posi_neg.at(i) += fmodel_cml_error.at(i);
 
-          //reset at swing phase
-          if(m_pre.at(i+CL0_m/*9*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
-            acc_cml_error.at(i) = 0;
+            //reset at swing phase
+            if(m_pre.at(i+CR0_m/*6*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+              acc_cmr_error.at(i) = 0;
 
-          //Negative Error signal for controlling elevator reflexes
-          if(acc_cml_error_old.at(i)<0)
-          {
-            acc_cml_error_elev.at(i) += abs(acc_cml_error_old.at(i));
-            error_cml_elev.at(i) = 1.0;
-          }
-          if(acc_cml_error_old.at(i)>0)
-          {
-            acc_cml_error_elev.at(i) = 0.0;
-            error_cml_elev.at(i) = 0.0;
+            //Negative Error signal for controlling elevator reflexes
+            if(acc_cmr_error_old.at(i)<0)
+            {
+              acc_cmr_error_elev.at(i) += abs(acc_cmr_error_old.at(i));
+              error_cmr_elev.at(i) = 1.0;
+            }
+            if(acc_cmr_error_old.at(i)>0)
+            {
+              acc_cmr_error_elev.at(i) = 0.0;
+              error_cmr_elev.at(i) = 0.0;
+            }
+
+            //------------------Left legs------------------------------------//
+            //Positive Error signal for controlling searching reflexes
+            acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+
+            if(abs(fmodel_cml_error.at(i)) < 0.05)
+              acc_cml_error_posi_neg.at(i) = 0.0;
+
+            acc_cml_error_posi_neg.at(i) += fmodel_cml_error.at(i);
+
+            //reset at swing phase
+            if(m_pre.at(i+CL0_m/*9*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+              acc_cml_error.at(i) = 0;
+
+            //Negative Error signal for controlling elevator reflexes
+            if(acc_cml_error_old.at(i)<0)
+            {
+              acc_cml_error_elev.at(i) += abs(acc_cml_error_old.at(i));
+              error_cml_elev.at(i) = 1.0;
+            }
+            if(acc_cml_error_old.at(i)>0)
+            {
+              acc_cml_error_elev.at(i) = 0.0;
+              error_cml_elev.at(i) = 0.0;
+            }
           }
 
         }

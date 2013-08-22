@@ -270,8 +270,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     //Learning forward models to expected foot sensors ESN
     std::vector<double> fmodel_cmr_output_rc;
     std::vector<double> fmodel_cml_output_rc;
-//    std::vector<double> low_p_fmodel_cmr_output_rc;
-//    std::vector<double> low_p_fmodel_cml_output_rc;
+
 
     //Learning LTM models to memorize foot sensors from ESN
     std::vector<double> fmodel_cmr_output_ltm;
@@ -279,6 +278,14 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double> cmr0_ltm_neuron;
     std::vector<double> cmr0_ltm_neuron_w;
     std::vector<double> fmodel_cmr_output_w2;
+
+    //P,I,D control for searching
+    std::vector<double> kp_r;
+    std::vector<double> ki_r;
+    std::vector<double> kd_r;
+    std::vector<double> kp_l;
+    std::vector<double> ki_l;
+    std::vector<double> kd_l;
 
     //Motor mapping
 
@@ -459,6 +466,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool lift_body_up;
     bool switchoff_searching_reflexes;
     bool sequentiral_learning;
+    bool switchon_searching_pid_control;
 
 };
 
