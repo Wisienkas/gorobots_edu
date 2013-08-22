@@ -389,6 +389,10 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   kp_l.resize(3);
   ki_l.resize(3);
   kd_l.resize(3);
+  int_l.resize(3);
+  int_r.resize(3);
+  d_l.resize(3);
+  d_r.resize(3);
   //---PID control------//
 
   /*******************************************************************************
@@ -534,12 +538,16 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     counter_cl.at(i) = 0;
 
     //---PID control------//
-    kp_r.at(i) = 0.0;
-    ki_r.at(i) = 0.0;
+    kp_r.at(i) = 1.5;//1.5;
+    ki_r.at(i) = 1.0;
     kd_r.at(i) = 0.0;
-    kp_l.at(i) = 0.0;
-    ki_l.at(i) = 0.0;
+    kp_l.at(i) = 1.5;//1.5;
+    ki_l.at(i) = 1.0;
     kd_l.at(i) = 0.0;
+    int_l.at(i)= 0.0;
+    int_r.at(i)= 0.0;
+    d_l.at(i)= 0.0;
+    d_r.at(i)= 0.0;
     //---PID control------//
   }
 
@@ -3369,7 +3377,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             std::cout<<"pid_control"<<std::endl;
             //------------------Right legs------------------------------------//
             //Positive Error signal for controlling searching reflexes
-            acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
+
+            if(abs(low_pass_fmodel_cmr_error.at(i))<0.15)
+            {
+              acc_cmr_error.at(i) = 0.0;
+            }
+            else
+            {
+              d_r.at(i) = low_pass_fmodel_cmr_error.at(i)-low_pass_fmodel_cmr_error_old.at(i);
+              int_r.at(i) += abs(low_pass_fmodel_cmr_error.at(i));
+              acc_cmr_error.at(i) = abs(low_pass_fmodel_cmr_error.at(i))*kp_r.at(i)+int_r.at(i)*ki_r.at(i)+d_r.at(i)*kd_r.at(i);
+
+              //acc_cmr_error.at(i) += abs(low_pass_fmodel_cmr_error.at(i));
+            }
 
             if(abs(fmodel_cmr_error.at(i)) < 0.05)
               acc_cmr_error_posi_neg.at(i) = 0.0;
@@ -3379,7 +3399,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
             //reset at swing phase
             if(m_pre.at(i+CR0_m/*6*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
+            {
+              low_pass_fmodel_cmr_error.at(i) = 0.0;
               acc_cmr_error.at(i) = 0;
+              int_r.at(i) = 0.0;
+              d_r.at(i) = 0.0;
+            }
+
 
             //Negative Error signal for controlling elevator reflexes
             if(acc_cmr_error_old.at(i)<0)
@@ -3395,7 +3421,21 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
             //------------------Left legs------------------------------------//
             //Positive Error signal for controlling searching reflexes
-            acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+
+            if(abs(low_pass_fmodel_cml_error.at(i))<0.15)
+             {
+               acc_cml_error.at(i) = 0.0;
+             }
+             else
+             {
+               d_l.at(i) = low_pass_fmodel_cml_error.at(i)-low_pass_fmodel_cml_error_old.at(i);
+               int_l.at(i) += abs(low_pass_fmodel_cml_error.at(i));
+               acc_cml_error.at(i) = abs(low_pass_fmodel_cml_error.at(i))*kp_l.at(i)+int_l.at(i)*ki_l.at(i)+d_l.at(i)*kd_l.at(i);
+
+               //acc_cml_error.at(i) += abs(low_pass_fmodel_cml_error.at(i));
+             }
+
+            //acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
 
             if(abs(fmodel_cml_error.at(i)) < 0.05)
               acc_cml_error_posi_neg.at(i) = 0.0;
@@ -3404,7 +3444,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
             //reset at swing phase
             if(m_pre.at(i+CL0_m/*9*/)>-0.7) //Reset error every Swing phase by detecting CR motor signal
-              acc_cml_error.at(i) = 0;
+            {
+              low_pass_fmodel_cml_error.at(i) = 0.0;
+              acc_cml_error.at(i) = 0.0;
+              int_l.at(i) = 0.0;
+              d_l.at(i) = 0.0;
+            }
+
 
             //Negative Error signal for controlling elevator reflexes
             if(acc_cml_error_old.at(i)<0)
@@ -3423,7 +3469,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             std::cout<<"acc_error_control"<<std::endl;
             //------------------Right legs------------------------------------//
             //Positive Error signal for controlling searching reflexes
-            acc_cmr_error.at(i) += abs(fmodel_cmr_error.at(i));
+
+            if(abs(low_pass_fmodel_cmr_error.at(i))<0.1)
+            {
+              acc_cmr_error.at(i) = 0.0;
+            }
+            else
+            {
+              acc_cmr_error.at(i) += abs(low_pass_fmodel_cmr_error.at(i));
+            }
 
             if(abs(fmodel_cmr_error.at(i)) < 0.05)
               acc_cmr_error_posi_neg.at(i) = 0.0;
@@ -3449,7 +3503,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
             //------------------Left legs------------------------------------//
             //Positive Error signal for controlling searching reflexes
-            acc_cml_error.at(i) += abs(fmodel_cml_error.at(i));
+
+            if(abs(low_pass_fmodel_cml_error.at(i))<0.1)
+            {
+              acc_cml_error.at(i) = 0.0;
+            }
+            else
+            {
+              acc_cml_error.at(i) += abs(low_pass_fmodel_cml_error.at(i));
+            }
+
 
             if(abs(fmodel_cml_error.at(i)) < 0.05)
               acc_cml_error_posi_neg.at(i) = 0.0;

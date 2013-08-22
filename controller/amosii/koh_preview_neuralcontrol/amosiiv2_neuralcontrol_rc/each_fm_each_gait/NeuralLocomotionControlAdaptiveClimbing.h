@@ -286,6 +286,10 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double> kp_l;
     std::vector<double> ki_l;
     std::vector<double> kd_l;
+    std::vector<double> int_l;
+    std::vector<double> int_r;
+    std::vector<double> d_l;
+    std::vector<double> d_r;
 
     //Motor mapping
 
