@@ -69,12 +69,13 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("L1final",&control_adaptiveclimbing.fmodel_cml_outputfinal.at(1),"CL2_fs");
   addInspectableValue("L2final",&control_adaptiveclimbing.fmodel_cml_outputfinal.at(2),"CL1_fs");
 
-  addInspectableValue("error_ele_R0",&control_adaptiveclimbing.acc_cmr_error_elev.at(0),"error_eleR0");
-  addInspectableValue("error_ele_R1",&control_adaptiveclimbing.acc_cmr_error_elev.at(1),"error_eleR1");
-  addInspectableValue("error_ele_R2",&control_adaptiveclimbing.acc_cmr_error_elev.at(2),"error_eleR2");
-  addInspectableValue("error_ele_L0",&control_adaptiveclimbing.acc_cml_error_elev.at(0),"error_eleL0");
-  addInspectableValue("error_ele_L1",&control_adaptiveclimbing.acc_cml_error_elev.at(1),"error_eleL1");
-  addInspectableValue("error_ele_L1",&control_adaptiveclimbing.acc_cml_error_elev.at(2),"error_eleL2");
+  addInspectableValue("ac_error_ele_R0",&control_adaptiveclimbing.acc_cmr_error_elev.at(0),"error_eleR0");
+  addInspectableValue("ac_error_ele_R1",&control_adaptiveclimbing.acc_cmr_error_elev.at(1),"error_eleR1");
+  addInspectableValue("ac_error_ele_R2",&control_adaptiveclimbing.acc_cmr_error_elev.at(2),"error_eleR2");
+  addInspectableValue("ac_error_ele_L0",&control_adaptiveclimbing.acc_cml_error_elev.at(0),"error_eleL0");
+  addInspectableValue("ac_error_ele_L1",&control_adaptiveclimbing.acc_cml_error_elev.at(1),"error_eleL1");
+  addInspectableValue("ac_error_ele_L1",&control_adaptiveclimbing.acc_cml_error_elev.at(2),"error_eleL2");
+
 
   addInspectableValue("accerror_R0",&control_adaptiveclimbing.acc_cmr_error.at(0),"error_R0");
   addInspectableValue("accerror_R1",&control_adaptiveclimbing.acc_cmr_error.at(1),"error_R1");
@@ -89,6 +90,15 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("Lowpass_error_L0",&control_adaptiveclimbing.low_pass_fmodel_cml_error.at(0),"error_L0");
   addInspectableValue("Lowpass_error_L1",&control_adaptiveclimbing.low_pass_fmodel_cml_error.at(1),"error_L1");
   addInspectableValue("Lowpass_error_L2",&control_adaptiveclimbing.low_pass_fmodel_cml_error.at(2),"error_L2");
+
+
+  addInspectableValue("error_cmr_elev.at(0)",&control_adaptiveclimbing.error_cmr_elev.at(0),"error_R0");
+  addInspectableValue("error_cmr_elev.at(1)",&control_adaptiveclimbing.error_cmr_elev.at(1),"error_R1");
+  addInspectableValue("error_cmr_elev.at(2)",&control_adaptiveclimbing.error_cmr_elev.at(2),"error_R2");
+  addInspectableValue("error_cml_elev.at(0)",&control_adaptiveclimbing.error_cml_elev.at(0),"error_L0");
+  addInspectableValue("error_cml_elev.at(1)",&control_adaptiveclimbing.error_cml_elev.at(1),"error_L1");
+  addInspectableValue("error_cml_elev.at(2)",&control_adaptiveclimbing.error_cml_elev.at(2),"error_L2");
+
 
   addInspectableValue("reflex_R_fs.at(0)",&control_adaptiveclimbing.reflex_R_fs.at(0),"error_R0");
   addInspectableValue("reflex_R_fs.at(1)",&control_adaptiveclimbing.reflex_R_fs.at(1),"error_R1");

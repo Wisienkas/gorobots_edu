@@ -470,7 +470,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool lift_body_up;
     bool switchoff_searching_reflexes;
     bool sequentiral_learning;
-    bool switchon_searching_pid_control;
+
 
 };
 
