@@ -3811,15 +3811,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 10;//15.0;//11.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*///15.0;//11.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 10;//15.0;//26.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*///15.0;//26.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 10;//15.0;//8.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*//15.0;//8.0;//20.0;// or smaller to on all the time
       }
 
       //      elevator_th = 20.0;//20.0;
@@ -3890,15 +3890,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 10;//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 10;//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 10;//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.1;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       /*}
     else
