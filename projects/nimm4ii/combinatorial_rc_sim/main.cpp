@@ -115,7 +115,7 @@ double random_positiony;
 
 
 int number_spheres = 4; // SET NUMBER of TARGET MAX = 4
-int number_boxes = 1; // SET NUMBER of BOXES obstacles
+int number_boxes = 2; // SET NUMBER of BOXES obstacles
 
 bool repeat_experiment = true;//true; //if select true then set the follwing parameters
 int repeat_number = 500;// 1000;
@@ -306,25 +306,36 @@ public:
 		{
 			random_position_S = 0.0;
 
-			for (int i=0; i < number_boxes /*SET NUMBER OF OBSTACLES*/; i++){
-				b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(length, width, height /*size*/));
-				//b1->setTexture("dusty.rgb");
-				b1->setColor(Color(1,0,0));
-				//b1->setPosition(osg::Vec3(/*-4.5+*/i*4.5,3+i,0)); // Fixed robot position
-				//osg::Matrix pose;
-				//			pose.setTrans(osg::Vec3(/*-4.5+*/i*4.5,3+i,0));
-				//b1->setPose(osg::Matrix::rotate(0.5*(M_PI/2), 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*4.5,3+i,0.5) /* pose*/);
+						//for (int i=0; i < number_boxes /*SET NUMBER OF OBSTACLES*/; i++){
+							b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(length, width, height /*size*/));
+							//b1->setTexture("dusty.rgb");
+							b1->setColor(Color(1,0,0));
+							//b1->setPosition(osg::Vec3(/*-4.5+*/i*4.5,3+i,0)); // Fixed robot position
+							//osg::Matrix pose;
+							//			pose.setTrans(osg::Vec3(/*-4.5+*/i*4.5,3+i,0));
+							//b1->setPose(osg::Matrix::rotate(0.5*(M_PI/2), 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*4.5,3+i,0.5) /* pose*/);
 
 
-				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), random_position_S /*0*/,0,1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+random_position_S*i/*i*-pos_obstacle_y*2.0*//*0+i*/,height/2) /* pose*/);
+							b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), position_S /*0*/,0,1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+random_position_S/*i*-pos_obstacle_y*2.0*//*0+i*/,height/2) /* pose*/);
 
-				random_position_S  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
-				global.obstacles.push_back(b1);
-				fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
-				fixator.at(i)->init(odeHandle, osgHandle);
+							random_position_S  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
+							global.obstacles.push_back(b1);
+							fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
+							//fixator.at(i)->init(odeHandle, osgHandle);
+							fixator.at(0)->init(odeHandle, osgHandle);
 
-			}
+		if(number_boxes == 2){
 
+			b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(3.0, width, height /*size*/));
+											//b1->setTexture("dusty.rgb");
+			b1->setColor(Color(1,0,0));
+			b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0 /*0*/,0,1) * osg::Matrix::translate(2,5,0.5) /* pose*/);
+     		global.obstacles.push_back(b1);
+			fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
+															//fixator.at(i)->init(odeHandle, osgHandle);
+			fixator.at(1)->init(odeHandle, osgHandle);
+
+		}
 
 
 
