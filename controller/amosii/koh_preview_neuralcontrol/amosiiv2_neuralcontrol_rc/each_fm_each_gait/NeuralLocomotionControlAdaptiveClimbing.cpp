@@ -537,13 +537,13 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     lr_fmodel_cl.at(i) = 0.01;
     counter_cl.at(i) = 0;
 
-    //---PID control------//
-    kp_r.at(i) = 1.5;//1.5;
-    ki_r.at(i) = 1.0;
-    kd_r.at(i) = 0.0;
-    kp_l.at(i) = 1.5;//1.5;
-    ki_l.at(i) = 1.0;
-    kd_l.at(i) = 0.0;
+    //---PID control--0.03--MAX  =250--//
+    kp_r.at(i) = 2.5;//1.5;
+    ki_r.at(i) = 2.0;
+    kd_r.at(i) = 2.0;
+    kp_l.at(i) = 2.5;//1.5;
+    ki_l.at(i) = 2.0;
+    kd_l.at(i) = 2.0;
     int_l.at(i)= 0.0;
     int_r.at(i)= 0.0;
     d_l.at(i)= 0.0;
@@ -1193,7 +1193,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
-  Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
+  //Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
 
   //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
@@ -1246,6 +1246,40 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.18; //Tripod fast OK USED // with Foot inhibition Good
   //Control_input = 0.34; //Faster than tripod
   }
+
+  for(unsigned int i=0; i<fmodel_cmr_w.size(); i++)
+  {
+
+    //---PID control--0.03--MAX  =250--//
+//    kp_r.at(i) = 2.5;
+//    ki_r.at(i) = 2.0;
+//    kd_r.at(i) = 2.0;
+//    kp_l.at(i) = 2.5;
+//    ki_l.at(i) = 2.0;
+//    kd_l.at(i) = 2.0;
+
+//    kp_r.at(i) = 1.0+exp(Control_input*10*1.1);
+//    ki_r.at(i) = 0.5+exp(Control_input*10*1.1);
+//    kd_r.at(i) = 0.5+exp(Control_input*10*1.1);
+//    kp_l.at(i) = 1.0+exp(Control_input*10*1.1);
+//    ki_l.at(i) = 0.5+exp(Control_input*10*1.1);
+//    kd_l.at(i) = 0.5+exp(Control_input*10*1.1);
+
+    kp_r.at(i) = 50.0+exp(Control_input*10*1.1);
+    ki_r.at(i) = 0.5+exp(Control_input*10*1.1);
+    kd_r.at(i) = 10.0;//0.5+exp(Control_input*10*1.1);
+    kp_l.at(i) = 50.0+exp(Control_input*10*1.1);
+    ki_l.at(i) = 0.5+exp(Control_input*10*1.1);
+    kd_l.at(i) = 10.0;//0.5+exp(Control_input*10*1.1);
+
+    std::cout<<"P = "<<kp_r.at(i)<<"I = "<<ki_r.at(i)<<"D = "<<kd_r.at(i)<<std::endl;
+
+//    //---PID control------//
+  }
+
+
+
+
   cpg_w.at(0).at(0) =  1.4;
   cpg_w.at(0).at(1) =  0.18+Control_input;//0.4;
   cpg_w.at(1).at(0) =  -0.18-Control_input;//-0.4
