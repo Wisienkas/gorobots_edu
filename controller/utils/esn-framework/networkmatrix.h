@@ -21,6 +21,7 @@
 
 
 
+
 class ESNetwork{
   public :
     /*
@@ -127,6 +128,8 @@ class ESNetwork{
     /*
      * Write the Endweights (RC to output neurons) values to a text file
      */
+
+    void readEndweightsFromFile(int num);
 
     void resetInput();
     /*

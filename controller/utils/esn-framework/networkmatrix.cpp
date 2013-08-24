@@ -787,6 +787,34 @@ void ESNetwork::writeEndweightsToFile(int num)
 
 }
 
+void ESNetwork::readEndweightsFromFile(int num)
+{
+
+	char str[10];
+
+	//Opens for reading the file
+
+	std::ostringstream fileNameStream("");
+	fileNameStream<<"output_weights_"<<num<<".txt";
+
+	std::string fileName = fileNameStream.str();
+
+	std::ifstream b_file(fileName.c_str());
+
+
+	             //Reads one string from the file
+    int i =0;
+	while(b_file>>str) //time first column
+	    {
+
+
+          endweights->val(0,i) = atof(str);//input1
+
+          i++;
+
+	     }
+
+}
 
 
 void ESNetwork::resetInput()// sets the input neurons to zero

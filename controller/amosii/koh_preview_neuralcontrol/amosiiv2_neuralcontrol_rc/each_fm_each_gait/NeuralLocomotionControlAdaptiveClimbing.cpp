@@ -2233,6 +2233,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   }
 
+
+
   //------------CR Loop---------//
   //-1,..,+1--> tanh
 
@@ -3195,16 +3197,36 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         bool ltm_v1; // learn pattern
         bool ltm_v2; // learn frequency
         double learning_rate;
+        bool loadweight;
+
+
 
         learning_rate = 0.99;//RLS = 0.99
 
-        learn = true;
+        loadweight = false; //true ;//false;
+        learn = true; //false; //true;
         ltm_start = false;
         ltm_v1 = false;
         ltm_v2 = true;
 
+        if (learn == false && loadweight == true)
+        {
+        	ESN_R0->readEndweightsFromFile(11);
+        	ESN_R1->readEndweightsFromFile(12);
+        	ESN_R2->readEndweightsFromFile(13);
 
-        if(global_count>learning_steps)//3000)//3500)
+        	ESN_L0->readEndweightsFromFile(21);
+        	ESN_L1->readEndweightsFromFile(22);
+        	ESN_L2->readEndweightsFromFile(23);
+
+
+        }
+
+       // ESN_R0->printMatrix(ESN_R0->endweights);
+
+     //   if(global_count>learning_steps) learn = true;
+
+        if(global_count>learning_steps && loadweight == false)//3000)//3500)
         {
           learn = false;
           switchon_reflexes = true;
@@ -3221,6 +3243,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
           //learning_rate = 0.994;
         }
+
 
         std::cout<<"learning_steps"<< ":"<<learning_steps<<std::endl;
 
