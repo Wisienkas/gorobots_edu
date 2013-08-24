@@ -3209,6 +3209,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           learn = false;
           switchon_reflexes = true;
           ltm_start = true;
+
+          // Write the outputs to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+          ESN_R0->writeEndweightsToFile(11);
+          ESN_R1->writeEndweightsToFile(12);
+          ESN_R2->writeEndweightsToFile(13);
+
+          ESN_L0->writeEndweightsToFile(21);
+          ESN_L1->writeEndweightsToFile(22);
+          ESN_L2->writeEndweightsToFile(23);
+
           //learning_rate = 0.994;
         }
 

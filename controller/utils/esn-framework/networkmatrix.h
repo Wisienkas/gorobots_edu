@@ -17,6 +17,9 @@
 #include <cmath>
 #include "selforg/matrixutils.h"
 #include "selforg/matrix.h"
+#include <string>
+
+
 
 class ESNetwork{
   public :
@@ -120,6 +123,11 @@ class ESNetwork{
     /*
      * returns the mean square error between given Outputs and computed outputs over "time" discrete timesteps. Please refer to readme for further details.
      */
+    void writeEndweightsToFile(int num);
+    /*
+     * Write the Endweights (RC to output neurons) values to a text file
+     */
+
     void resetInput();
     /*
      * resets input to zero

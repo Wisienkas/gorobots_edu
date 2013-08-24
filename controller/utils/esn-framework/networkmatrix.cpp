@@ -9,13 +9,15 @@
 #include <fstream>
 #include <string.h>
 #include "networkmatrix.h"
+#include <sstream>
 
 
 
 std::ofstream out1; //the program prints inputs and outputs into the file "output", and  outputs into terminal
+std::ofstream out2;
 
 
-
+//using namespace std;
 
 ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double param3, bool param4)
 {
@@ -765,6 +767,26 @@ float ESNetwork::evaluatePerformance(int start,int end, float * desiredOutputs)
 	out1.close();
 	return error/(end-start);
 }
+
+void ESNetwork::writeEndweightsToFile(int num)
+{
+	std::ostringstream fileNameStream("");
+	fileNameStream<<"output_weights_"<<num<<".txt";
+
+	std::string fileName = fileNameStream.str();
+
+	out2.open(fileName.c_str());
+
+	for(int i = 0; i < endweights->getM(); i++)
+			{for(int j = 0; j < endweights->getN(); j++)
+				out2<<endweights->val(i,j)<<"\n";
+             out2<<" ";
+
+			}
+	out2.close();
+
+}
+
 
 
 void ESNetwork::resetInput()// sets the input neurons to zero
