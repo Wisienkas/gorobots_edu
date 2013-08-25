@@ -124,12 +124,25 @@ class ESNetwork{
     /*
      * returns the mean square error between given Outputs and computed outputs over "time" discrete timesteps. Please refer to readme for further details.
      */
+
+    void writeNoiseToFile(int num);
+
+    void writeInnerweightsToFile(int num);
+
+    void writeStartweightsToFile(int num);
+
     void writeEndweightsToFile(int num);
     /*
      * Write the Endweights (RC to output neurons) values to a text file
      */
 
+    void readInnerweightsFromFile(int num);
+
+    void readStartweightsFromFile(int num);
+
     void readEndweightsFromFile(int num);
+
+    void readNoiseFromFile(int num);
 
     void resetInput();
     /*

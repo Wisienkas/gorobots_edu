@@ -15,6 +15,9 @@
 
 std::ofstream out1; //the program prints inputs and outputs into the file "output", and  outputs into terminal
 std::ofstream out2;
+std::ofstream out3;
+std::ofstream out4;
+std::ofstream out5;
 
 
 //using namespace std;
@@ -768,6 +771,61 @@ float ESNetwork::evaluatePerformance(int start,int end, float * desiredOutputs)
 	return error/(end-start);
 }
 
+void ESNetwork::writeInnerweightsToFile(int num)
+{
+	std::ostringstream fileNameStream("");
+		fileNameStream<<"inner_weights_"<<num<<".txt";
+
+		std::string fileName = fileNameStream.str();
+
+		out4.open(fileName.c_str());
+
+		for(int i = 0; i < this->innerweights->getM(); i++)
+				{for(int j = 0; j < this->innerweights->getN(); j++)
+					out4<<this->innerweights->val(i,j)<<" ";
+	             out4<<"\n";
+
+				}
+		out4.close();
+}
+
+void ESNetwork::writeStartweightsToFile(int num)
+{
+	std::ostringstream fileNameStream("");
+		fileNameStream<<"start_weights_"<<num<<".txt";
+
+		std::string fileName = fileNameStream.str();
+
+		out3.open(fileName.c_str());
+
+		for(int i = 0; i < this->startweights->getM(); i++)
+				{for(int j = 0; j < this->startweights->getN(); j++)
+					out3<<this->startweights->val(i,j)<<" ";
+	             out3<<"\n";
+
+				}
+		out3.close();
+}
+
+void ESNetwork::writeNoiseToFile(int num)
+{
+	std::ostringstream fileNameStream("");
+		fileNameStream<<"noise_"<<num<<".txt";
+
+		std::string fileName = fileNameStream.str();
+
+		out5.open(fileName.c_str());
+
+		for(int i = 0; i < this->noise->getM(); i++)
+				{for(int j = 0; j < this->noise->getN(); j++)
+					out5<<this->noise->val(i,j)<<" ";
+	             out5<<"\n";
+
+				}
+		out5.close();
+}
+
+
 void ESNetwork::writeEndweightsToFile(int num)
 {
 	std::ostringstream fileNameStream("");
@@ -777,13 +835,156 @@ void ESNetwork::writeEndweightsToFile(int num)
 
 	out2.open(fileName.c_str());
 
-	for(int i = 0; i < endweights->getM(); i++)
-			{for(int j = 0; j < endweights->getN(); j++)
-				out2<<endweights->val(i,j)<<"\n";
-             out2<<" ";
+	for(int i = 0; i < this->endweights->getM(); i++)
+			{for(int j = 0; j < this->endweights->getN(); j++)
+				out2<<this->endweights->val(i,j)<<" ";
+             out2<<"\n";
 
 			}
 	out2.close();
+
+}
+void ESNetwork::readInnerweightsFromFile(int num)
+{
+	matrix::Matrix * temp = new matrix::Matrix(innerweights->getM(), innerweights->getN());
+
+	char str[10];
+
+	//Opens for reading the file
+
+	std::ostringstream fileNameStream("");
+	fileNameStream<<"inner_weights_"<<num<<".txt";
+
+	std::string fileName = fileNameStream.str();
+
+	std::ifstream file(fileName.c_str());
+
+
+	for(int i = 0; i < innerweights->getM(); i++)
+	{
+	   for(int j = 0; j < innerweights->getN(); j++)
+	   {
+	         if ( !(file >> str) )
+	         {
+	             std::cerr << "error while reading file";
+	             break;
+	         }
+
+	         if (str ==" ") break;
+
+	       	 temp->val(i,j) = atof(str);
+	   }
+	   if ( !file ) break;
+	}
+
+
+
+	//this->innerweights = *temp;
+
+	for(int i = 0; i < innerweights->getM(); i++)
+		{
+		   for(int j = 0; j < innerweights->getN(); j++)
+
+             	this->innerweights->val(i,j) = (temp->val(i,j));
+		}
+
+	delete temp;
+
+
+
+}
+
+void ESNetwork::readStartweightsFromFile(int num)
+{
+	matrix::Matrix * temp = new matrix::Matrix(startweights->getM(), startweights->getN());
+
+	char str[10];
+
+	//Opens for reading the file
+
+	std::ostringstream fileNameStream("");
+	fileNameStream<<"start_weights_"<<num<<".txt";
+
+	std::string fileName = fileNameStream.str();
+
+	std::ifstream file(fileName.c_str());
+
+
+	for(int i = 0; i < startweights->getM(); i++)
+	{
+	   for(int j = 0; j < startweights->getN(); j++)
+	   {
+	         if ( !(file >> str))
+	         {
+	             std::cerr << "error while reading start weights file";
+	             break;
+	         }
+
+	         if (str ==" ") break;
+
+	         temp->val(i,j) = atof(str);
+	   }
+	   if ( !file ) break;
+	}
+
+	//this->startweights = temp;
+	for(int i = 0; i < startweights->getM(); i++)
+			{
+			   for(int j = 0; j < startweights->getN(); j++)
+
+	             	this->startweights->val(i,j) = (temp->val(i,j));
+			}
+	delete temp;
+
+
+
+}
+
+void ESNetwork::readNoiseFromFile(int num)
+{
+	matrix::Matrix * temp = new matrix::Matrix(noise->getM(), noise->getN());
+
+	char str[10];
+
+	//Opens for reading the file
+
+	std::ostringstream fileNameStream("");
+	fileNameStream<<"noise_"<<num<<".txt";
+
+	std::string fileName = fileNameStream.str();
+
+	std::ifstream file(fileName.c_str());
+
+
+	for(int i = 0; i < noise->getM(); i++)
+	{
+	   for(int j = 0; j < noise->getN(); j++)
+	   {
+	         if ( !(file >> str))
+	         {
+	             std::cerr << "error while reading start weights file";
+	             break;
+	         }
+
+	         if (str ==" ") break;
+
+	         temp->val(i,j) = atof(str);
+	   }
+	   if ( !file ) break;
+	}
+
+	//this->*noise = *temp;
+
+	for(int i = 0; i < noise->getM(); i++)
+			{
+			   for(int j = 0; j < noise->getN(); j++)
+
+	             	this->noise->val(i,j) = (temp->val(i,j));
+			}
+
+	delete temp;
+
+
 
 }
 
@@ -808,7 +1009,7 @@ void ESNetwork::readEndweightsFromFile(int num)
 	    {
 
 
-          endweights->val(0,i) = atof(str);//input1
+          this->endweights->val(0,i) = atof(str);//input1
 
           i++;
 
