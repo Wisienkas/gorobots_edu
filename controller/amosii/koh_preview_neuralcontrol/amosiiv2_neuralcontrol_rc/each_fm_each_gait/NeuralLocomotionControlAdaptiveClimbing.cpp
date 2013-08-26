@@ -75,7 +75,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //Selecting forward models
   option_fmodel = 6; // 4 or 6
-  sequentiral_learning = true;// learn multiple gait one after the other, false = learn only one gait
+  sequentiral_learning = false;// learn multiple gait one after the other, false = learn only one gait
 
   //1 == with threshold after fmodel & NO lowpass neuron after error;
   //2 == without threshold after fmodel & with lowpass neuron after error)
@@ -762,7 +762,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //---------------------ESN module 1
   int num_input_ESN_R0 = 1;
   int num_output_ESN_R0 = 1;
-  ESN_R0 = new ESNetwork(num_input_ESN_R0/*no. input*/,num_output_ESN_R0 /*no. output*/, 32/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+  ESN_R0 = new ESNetwork(num_input_ESN_R0/*no. input*/,num_output_ESN_R0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
   ESN_R0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
   ESN_R0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
@@ -878,7 +878,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     int num_input_ESN_L0 = 1;
     int num_output_ESN_L0 = 1;
 
-    ESN_L0 = new ESNetwork(num_input_ESN_L0/*no. input*/,num_output_ESN_L0 /*no. output*/, 50/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+    ESN_L0 = new ESNetwork(num_input_ESN_L0/*no. input*/,num_output_ESN_L0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
     ESN_L0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
     ESN_L0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
@@ -3201,12 +3201,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         learning_rate = 0.99;//RLS = 0.99
 
-        loadweight = true; //false; //true; //true ;//false;
-        learn = false; //false; //false; //true;
+        loadweight = true; // true = use learned weights, false = let the RC learn
+        learn = false; // true = learning, false = use learned weights
+
+
         ltm_start = false;
         ltm_v1 = false;
         ltm_v2 = true;
 
+        //Using learned weights from files
         if (learn == false && loadweight == true)
         {
 
@@ -3246,18 +3249,17 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         	ESN_L1->readNoiseFromFile(22);
         	ESN_L2->readNoiseFromFile(23);
 
-
+          switchon_reflexes = true;
+          elevator_reflexes = true;
 
         }
 
-     //   ESN_R0->printMatrix(ESN_R0->endweights); std::cout<<"\n********************************\n\n";
-      //  ESN_R0->printMatrix(ESN_R0->startweights); std::cout<<"\n********************************\n\n";
-       // ESN_R0->printMatrix(ESN_R0->innerweights); std::cout<<"\n********************************\n\n";
+        //  ESN_R0->printMatrix(ESN_R0->endweights); std::cout<<"\n********************************\n\n";
+        //  ESN_R0->printMatrix(ESN_R0->startweights); std::cout<<"\n********************************\n\n";
+        //  ESN_R0->printMatrix(ESN_R0->innerweights); std::cout<<"\n********************************\n\n";
 
-
-     //   if(global_count>learning_steps) learn = true;
-
-        if(global_count>learning_steps && loadweight == false)//3000)//3500)
+        //Storing learned weights to files
+        if(global_count>learning_steps /*3000*/ && loadweight == false)
         {
           learn = false;
           switchon_reflexes = true;
@@ -3300,12 +3302,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           ESN_L1->writeNoiseToFile(22);
           ESN_L2->writeNoiseToFile(23);
 
-
-
-
-
-
-
           //learning_rate = 0.994;
         }
 
@@ -3339,8 +3335,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //output_expected_foot = ESN->outputs->val(0, 1) //second output
         //output_expected_foot = ESN->outputs->val(0, 2) //third output
         //ESN->endweights;
-
-
 
 
 
@@ -3849,15 +3843,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 0.3;/*simulation*///10;/*real robot*///15.0;//11.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*///15.0;//11.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 0.3;/*simulation*///10;/*real robot*///15.0;//26.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*///15.0;//26.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 0.3;/*simulation*///10;/*real robot*//15.0;//8.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//8.0;//20.0;// or smaller to on all the time
       }
 
       //      elevator_th = 20.0;//20.0;
@@ -3877,30 +3871,36 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if(i==0)
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//;//-0.2; // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TR0_m/*12*/) = -0.1+x*0.1;
-          //        }
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
+//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+//                  }
         }
 
         //For TR1
         if(i==1)
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//;//-0.2; // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TR0_m/*12*/) = -0.6+x*0.1;
-          //        }
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;
+//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+//                  }
         }
 
         //For TR2
         if(i==2)
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//-0.2; // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TR0_m/*12*/) = 0.0;//-0.95+x*0.1;
-          //        }
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
+//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+//                  }
         }
 
       }
@@ -3928,15 +3928,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 0.3;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 0.3;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 0.3;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       /*}
     else
@@ -3955,30 +3955,37 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if(i==0)
         {
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2; // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TL0_m/*12*/) = -0.1+x*0.1;
-          //        }
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
+//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//-0.1+x*0.1;
+//                  }
         }
 
         //For TL1
         if(i==1)
         {
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2; // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TL0_m/*12*/) = -0.6+x*0.1;
-          //        }
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;
+//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;
+//                  }
         }
 
         //For TL2
         if(i==2)
         {
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2;//-0.2 // Dennis Change!!
-          //        for(int x=0; x<5; x++)
-          //        {
-          //          m_reflex.at(i+TL0_m/*12*/) = 0.0;//-0.95+x*0.1;
-          //        }
+
+
+//                  for(int x=0; x<5; x++)
+//                  {
+//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
+//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//0.0;//-0.95+x*0.1;
+//                  }
         }
       }
     }

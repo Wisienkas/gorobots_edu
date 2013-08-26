@@ -129,7 +129,7 @@ public:
 		oodeHandle.createNewSimpleSpace(oodeHandle.space,true);
 		TerrainGround* terrainground =
 		new TerrainGround(oodeHandle, osgHandle.changeColor(Color(83.0/255.0,48.0/255.0,0.0/255.0)),
-			"rough6.ppm","", 10, 10, 0.01/*0.15, height*/);
+			"rough1.ppm" /*rough6.ppm*/,"", 10, 10, 0.01/*0.15, height*/);
 		terrainground->setPose(osg::Matrix::translate(0, 0, 0.01));
 		global.obstacles.push_back(terrainground);
         Substance BoxSubstance(2.0,0.001,100.0,0.4); //(roughness,slip,hardness,elasticity)
@@ -168,11 +168,11 @@ public:
 
     	TerrainGround* terrainground =
     			new TerrainGround(oodeHandle, osgHandle.changeColor(Color(83.0/255.0,48.0/255.0,0.0/255.0)),
-    					/*"obstacles.ppm"*/"rough6.ppm"/*"1.ppm"*/,"", /*10*/10, /*10*/10, 0.13/* 0.1 actual ob height, 0.065 m*//*0.15 m*/ /* //Changing terrain height*/);
+    					/*"obstacles.ppm"*/"rough6.ppm" /*rough1.ppm*//*"1.ppm"*/,"", /*10*/10, /*10*/10, 0.1/*0.1 (without BJ), 0.13 (with BJ), 0.03 (ren) actual ob height, 0.065 m*//*0.15 m*/ /* //Changing terrain height*/);
     	terrainground->setPose(osg::Matrix::translate(0, 0, 0.01));
     	global.obstacles.push_back(terrainground);
     }
-  
+
     /*******  End Modify Environment *******/
       
       
