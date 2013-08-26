@@ -60,8 +60,10 @@ float * ESinput_L2;
 float * ESTrainOutput_L2;
 
 //------LTM
-int NUM_LTM_R0 = 34;
+int NUM_LTM_R0 = 34;//34 = 0.15 c_input, 88 = 0.03 c_input
 int count_neuron = 0;
+int count_neuron_learning = 0;
+bool ltm_start = false;
 
 //3) Step function of Neural locomotion control------
 
@@ -76,6 +78,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Selecting forward models
   option_fmodel = 6; // 4 or 6
   sequentiral_learning = false;// learn multiple gait one after the other, false = learn only one gait
+
+
 
   //1 == with threshold after fmodel & NO lowpass neuron after error;
   //2 == without threshold after fmodel & with lowpass neuron after error)
@@ -113,6 +117,14 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   reading_text_testing = false;
 
 
+  //RC network setup---------------------------------------------------------------//
+  loadweight = false; // true = use learned weights, false = let the RC learn
+  learn = true; // true = learning, false = use learned weights
+
+  //LTM option
+  ltm_v1 = true; // learn pattern
+  ltm_v2 = false;  // learn frequency
+  ltm_v3 = false;  // learn weights
 
   //Save files
   outFilenlc1.open("NeurallocomotionR0.dat");
@@ -1004,6 +1016,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   cmr0_ltm_neuron.resize(NUM_LTM_R0);
   cmr0_ltm_neuron_w.resize(NUM_LTM_R0);
   fmodel_cmr_output_w2.resize(NUM_LTM_R0);
+  input_ltm.resize(NUM_LTM_R0);
 
   for(unsigned int i = 0; i< NUM_LTM_R0; i++)
   {
@@ -1012,7 +1025,9 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   old_pcpg = 0.0;
-  deri = 0.0;
+
+
+
 
 };
 
@@ -1169,7 +1184,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 //    if(iii>8000)
 //      iii = 0;
   }
-  std::cout<<"c_input"<<Control_input<<std::endl;
+
 
   //
   //  //Lateral right NOT WORKING YET!!!!
@@ -1210,7 +1225,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.12;//slow stable Tetrapod OK USED
   //Control_input =  0.13;//slow stable Tetrapod OK USED
   //Control_input = 0.14;//slow stable Tetrapod OK USED
-  //Control_input = 0.15;//slow stable Tetrapod OK USED //------------------ ESN learnt
+  Control_input = 0.15;//slow stable Tetrapod OK USED //------------------ ESN learnt
 
 
   //Control_input = 0.16;//slow stable Tripod OK USED STEFFen // Flat!!!*************
@@ -1245,6 +1260,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.18; //Tripod fast OK USED // with Foot inhibition Good
   //Control_input = 0.34; //Faster than tripod
   }
+
+  std::cout<<"c_input"<<Control_input<<std::endl;
 
   for(unsigned int i=0; i<fmodel_cmr_w.size(); i++)
   {
@@ -3179,7 +3196,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       case 6:
         //------------Add ESN training (3)----------------------------------//
-        double fmodel_cmr_output_rc_old;
+//        static int x = 10;
+//        double **ptr;
+//        ptr = new double *[x];
+
+
         int learning_steps;
 
         if(sequentiral_learning)
@@ -3187,27 +3208,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         else
           learning_steps = 3000;
 
-        fmodel_cmr_output_rc_old  = fmodel_cmr_output_rc.at(0);
-
-        //ESN module 1
-        bool learn;
-        bool ltm_start;
-        bool ltm_v1; // learn pattern
-        bool ltm_v2; // learn frequency
         double learning_rate;
-        bool loadweight;
-
-
-
         learning_rate = 0.99;//RLS = 0.99
 
-        loadweight = true; // true = use learned weights, false = let the RC learn
-        learn = false; // true = learning, false = use learned weights
-
-
-        ltm_start = false;
-        ltm_v1 = false;
-        ltm_v2 = true;
 
         //Using learned weights from files
         if (learn == false && loadweight == true)
@@ -3249,8 +3252,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         	ESN_L1->readNoiseFromFile(22);
         	ESN_L2->readNoiseFromFile(23);
 
-          switchon_reflexes = true;
-          elevator_reflexes = true;
+        	switchon_reflexes = true;
+        	elevator_reflexes = true;
+
+        	//To start capture output activation for LTM learning
+        	if(global_count>500 && postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
+        	  ltm_start = true;
 
         }
 
@@ -3264,7 +3271,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           learn = false;
           switchon_reflexes = true;
           elevator_reflexes = true;
-          ltm_start = true;
+
 
           // Write the output weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
           ESN_R0->writeEndweightsToFile(11);
@@ -3302,26 +3309,26 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           ESN_L1->writeNoiseToFile(22);
           ESN_L2->writeNoiseToFile(23);
 
-          //learning_rate = 0.994;
+          //To start capture output activation for LTM learning
+          if(postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
+          ltm_start = true;
         }
-
 
         std::cout<<"learning_steps"<< ":"<<learning_steps<<std::endl;
 
-
-        outFilenlc6<<m_pre.at(CR0_m/*6*/)<<' '<<
-            reflex_R_fs.at(0)<<' '<<
-            m_pre.at(CR1_m/*6*/)<<' '<<
-            reflex_R_fs.at(1)<<' '<<
-            m_pre.at(CR2_m/*6*/)<<' '<<
-            reflex_R_fs.at(2)<<' '<<
-            m_pre.at(CL0_m/*6*/)<<' '<<
-            reflex_L_fs.at(0)<<' '<<
-            m_pre.at(CL1_m/*6*/)<<' '<<
-            reflex_L_fs.at(1)<<' '<<
-            m_pre.at(CL2_m/*6*/)<<' '<<
-            reflex_L_fs.at(2)
-           <<' '<<endl;
+//        outFilenlc6<<m_pre.at(CR0_m/*6*/)<<' '<<
+//            reflex_R_fs.at(0)<<' '<<
+//            m_pre.at(CR1_m/*6*/)<<' '<<
+//            reflex_R_fs.at(1)<<' '<<
+//            m_pre.at(CR2_m/*6*/)<<' '<<
+//            reflex_R_fs.at(2)<<' '<<
+//            m_pre.at(CL0_m/*6*/)<<' '<<
+//            reflex_L_fs.at(0)<<' '<<
+//            m_pre.at(CL1_m/*6*/)<<' '<<
+//            reflex_L_fs.at(1)<<' '<<
+//            m_pre.at(CL2_m/*6*/)<<' '<<
+//            reflex_L_fs.at(2)
+//           <<' '<<endl;
 
 
         //-----Module ESN 1
@@ -3334,12 +3341,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0);
         //output_expected_foot = ESN->outputs->val(0, 1) //second output
         //output_expected_foot = ESN->outputs->val(0, 2) //third output
-        //ESN->endweights;
 
 
 
         //-----Transfer to LTM 1-------------//
-        deri = fmodel_cmr_output_rc.at(0)-fmodel_cmr_output_rc_old;
         static int test = 0;
 
         //if(global_count>500 && countup.at(0)==6)//100)
@@ -3357,81 +3362,127 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //          ltm_start = false;
         //          count_neuron = 0;
         //        }
+
+        //Learning pattern
         if(ltm_v1)
         {
           if(ltm_start == true)
           {
-
+            std::cout<<"----------LTM start v2----------------"<<std::endl;
             if(count_neuron<NUM_LTM_R0)//total_c)//NUM_LTM_R0)
             {
+              std::cout<<"----------count_neuron loop1----------------"<<count_neuron<<std::endl;
 
-              std::cout<<"count neuron"<<count_neuron<< ":"<<NUM_LTM_R0<<std::endl;
+              //Convert to [0,...,1] & Capture signal
 
-              //Convert to [0,...,1]
-              fmodel_cmr_output_ltm.at(0) = (double)count_neuron/NUM_LTM_R0;
-              //fmodel_cmr_output_ltm.at(0) = set.at(1);//(double)count_neuron/33;
-              //fmodel_cmr_output_ltm.at(0) = (fmodel_cmr_output_rc.at(0)+1.0);
-
-              //std::cout<<"****************Star LTM learning"<<"output"<<" :: "<<fmodel_cmr_output_ltm.at(0)<<std::endl;
-
-              cmr0_ltm_neuron.at(count_neuron) = cmr0_ltm_neuron_w.at(count_neuron)*fmodel_cmr_output_ltm.at(0);
-
-              //cmr0_ltm_neuron_w.at(count_neuron) = (double)fmodel_cmr_output_ltm.at(0);
-
-              cmr0_ltm_neuron_w.at(count_neuron) += 0.98*(cmr0_ltm_neuron.at(count_neuron)*fmodel_cmr_output_ltm.at(0)-
-                  cmr0_ltm_neuron.at(count_neuron)*cmr0_ltm_neuron_w.at(count_neuron));
-
-
-              //fmodel_cmr_output_w2.at(count_neuron) = cmr0_ltm_neuron.at(count_neuron)-cmr0_ltm_neuron_w.at(count_neuron)*cmr0_ltm_neuron_w.at(count_neuron);
-
+              //Input
+              input_ltm.at(count_neuron) = (fmodel_cmr_output_rc.at(0)+1.0);
               count_neuron++;
+
             }
             else
-              count_neuron = 0;
+            {
+
+              std::cout<<"----------count_neuron loop2----------------"<<count_neuron<<std::endl;
+
+              if(count_neuron_learning<NUM_LTM_R0)
+              {
+                //Output
+                cmr0_ltm_neuron.at(count_neuron_learning) = cmr0_ltm_neuron_w.at(count_neuron_learning)*input_ltm.at(count_neuron_learning);
+
+                //Learning
+                cmr0_ltm_neuron_w.at(count_neuron_learning) += 0.98*(cmr0_ltm_neuron.at(count_neuron_learning)*input_ltm.at(count_neuron_learning)-
+                    cmr0_ltm_neuron.at(count_neuron_learning)*cmr0_ltm_neuron_w.at(count_neuron_learning));
 
 
-            outFilenlc6<<fmodel_cmr_output_ltm.at(0)<<' '<<
-                cmr0_ltm_neuron_w.at(0)<<' '<<
-                cmr0_ltm_neuron_w.at(1)<<' '<<
-                cmr0_ltm_neuron_w.at(2)<<' '<<
-                cmr0_ltm_neuron_w.at(3)<<' '<<
-                cmr0_ltm_neuron_w.at(4)<<' '<<
-                cmr0_ltm_neuron_w.at(5)<<' '<<
-                cmr0_ltm_neuron_w.at(6)<<' '<<
-                cmr0_ltm_neuron_w.at(7)<<' '<<
-                cmr0_ltm_neuron_w.at(8)<<' '<<
-                cmr0_ltm_neuron_w.at(9)<<' '<<
-                cmr0_ltm_neuron_w.at(10)<<' '<<
-                cmr0_ltm_neuron_w.at(11)<<' '<<
-                cmr0_ltm_neuron_w.at(12)<<' '<<
-                cmr0_ltm_neuron_w.at(13)<<' '<<
-                cmr0_ltm_neuron_w.at(14)<<' '<<
-                cmr0_ltm_neuron_w.at(15)<<' '<<
-                cmr0_ltm_neuron_w.at(16)<<' '<<
-                cmr0_ltm_neuron_w.at(17)<<' '<<
-                cmr0_ltm_neuron_w.at(18)<<' '<<
-                cmr0_ltm_neuron_w.at(19)<<' '<<
-                cmr0_ltm_neuron_w.at(20)<<' '<<
-                cmr0_ltm_neuron_w.at(21)<<' '<<
-                cmr0_ltm_neuron_w.at(22)<<' '<<
-                cmr0_ltm_neuron_w.at(23)<<' '<<
-                cmr0_ltm_neuron_w.at(24)<<' '<<
-                cmr0_ltm_neuron_w.at(25)<<' '<<
-                cmr0_ltm_neuron_w.at(26)<<' '<<
-                cmr0_ltm_neuron_w.at(27)<<' '<<
-                cmr0_ltm_neuron_w.at(28)<<' '<<
-                cmr0_ltm_neuron_w.at(29)<<' '<<
-                cmr0_ltm_neuron_w.at(30)<<' '<<
-                cmr0_ltm_neuron_w.at(31)<<' '<<
-                cmr0_ltm_neuron_w.at(32)<<' '<<
-                cmr0_ltm_neuron_w.at(33)<<' '<<endl;
+                count_neuron_learning++;
+              }
+              else
+                count_neuron_learning = 0;
+
+            }
           }
+
+
+          outFilenlc6<<fmodel_cmr_output_rc.at(0)+1.0<<' '<<
+              input_ltm.at(0)<<' '<<
+              input_ltm.at(1)<<' '<<
+              input_ltm.at(2)<<' '<<
+              input_ltm.at(3)<<' '<<
+              input_ltm.at(4)<<' '<<
+              input_ltm.at(5)<<' '<<
+              input_ltm.at(6)<<' '<<
+              input_ltm.at(7)<<' '<<
+              input_ltm.at(8)<<' '<<
+              input_ltm.at(9)<<' '<<
+              input_ltm.at(10)<<' '<<
+              input_ltm.at(11)<<' '<<
+              input_ltm.at(12)<<' '<<
+              input_ltm.at(13)<<' '<<
+              input_ltm.at(14)<<' '<<
+              input_ltm.at(15)<<' '<<
+              input_ltm.at(16)<<' '<<
+              input_ltm.at(17)<<' '<<
+              input_ltm.at(18)<<' '<<
+              input_ltm.at(19)<<' '<<
+              input_ltm.at(20)<<' '<<
+              input_ltm.at(21)<<' '<<
+              input_ltm.at(22)<<' '<<
+              input_ltm.at(23)<<' '<<
+              input_ltm.at(24)<<' '<<
+              input_ltm.at(25)<<' '<<
+              input_ltm.at(26)<<' '<<
+              input_ltm.at(27)<<' '<<
+              input_ltm.at(28)<<' '<<
+              input_ltm.at(29)<<' '<<
+              input_ltm.at(30)<<' '<<
+              input_ltm.at(31)<<' '<<
+              input_ltm.at(32)<<' '<<
+              input_ltm.at(33)<<' '<<endl;
+
+          outFilenlc5<<
+              cmr0_ltm_neuron_w.at(0)<<' '<<
+              cmr0_ltm_neuron_w.at(1)<<' '<<
+              cmr0_ltm_neuron_w.at(2)<<' '<<
+              cmr0_ltm_neuron_w.at(3)<<' '<<
+              cmr0_ltm_neuron_w.at(4)<<' '<<
+              cmr0_ltm_neuron_w.at(5)<<' '<<
+              cmr0_ltm_neuron_w.at(6)<<' '<<
+              cmr0_ltm_neuron_w.at(7)<<' '<<
+              cmr0_ltm_neuron_w.at(8)<<' '<<
+              cmr0_ltm_neuron_w.at(9)<<' '<<
+              cmr0_ltm_neuron_w.at(10)<<' '<<
+              cmr0_ltm_neuron_w.at(11)<<' '<<
+              cmr0_ltm_neuron_w.at(12)<<' '<<
+              cmr0_ltm_neuron_w.at(13)<<' '<<
+              cmr0_ltm_neuron_w.at(14)<<' '<<
+              cmr0_ltm_neuron_w.at(15)<<' '<<
+              cmr0_ltm_neuron_w.at(16)<<' '<<
+              cmr0_ltm_neuron_w.at(17)<<' '<<
+              cmr0_ltm_neuron_w.at(18)<<' '<<
+              cmr0_ltm_neuron_w.at(19)<<' '<<
+              cmr0_ltm_neuron_w.at(20)<<' '<<
+              cmr0_ltm_neuron_w.at(21)<<' '<<
+              cmr0_ltm_neuron_w.at(22)<<' '<<
+              cmr0_ltm_neuron_w.at(23)<<' '<<
+              cmr0_ltm_neuron_w.at(24)<<' '<<
+              cmr0_ltm_neuron_w.at(25)<<' '<<
+              cmr0_ltm_neuron_w.at(26)<<' '<<
+              cmr0_ltm_neuron_w.at(27)<<' '<<
+              cmr0_ltm_neuron_w.at(28)<<' '<<
+              cmr0_ltm_neuron_w.at(29)<<' '<<
+              cmr0_ltm_neuron_w.at(30)<<' '<<
+              cmr0_ltm_neuron_w.at(31)<<' '<<
+              cmr0_ltm_neuron_w.at(32)<<' '<<
+              cmr0_ltm_neuron_w.at(33)<<' '<<endl;
         }
 
+        //Learning frequency
         if(ltm_v2)
         {
           if(ltm_start == true)
           {
+
             std::cout<<"----------LTM start----------------"<<std::endl;
 
             //Convert to [0,...,1]
@@ -3450,6 +3501,27 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
                 cmr0_ltm_neuron_w.at(0)<<' '<<endl;
           }
         }
+
+        //Learning weights of RC
+        if(ltm_v3)
+        {
+
+          //*ptr[0];
+//        double **in;
+//        in = new double **[ESN_R0->endweights->getM()][ESN_R0->endweights->getN()];
+//        for(i = 0; i < ESN_R0->endweights->getM(); i++)
+//          for(j = 0; j < ESN_R0->endweights->getN(); j++)
+//          { **in[i][j] = ESN_R0->endweights->val(i,j);}
+//
+//        cmr0_ltm_neuron.at(count_neuron_learning) = cmr0_ltm_neuron_w.at(count_neuron_learning)*input_ltm.at(count_neuron_learning);
+//
+//        //Learning
+//        cmr0_ltm_neuron_w.at(count_neuron_learning) += 0.98*(cmr0_ltm_neuron.at(count_neuron_learning)*input_ltm.at(count_neuron_learning)-
+//            cmr0_ltm_neuron.at(count_neuron_learning)*cmr0_ltm_neuron_w.at(count_neuron_learning));
+        }
+
+
+
 
         //-----Module ESN 2
         ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)

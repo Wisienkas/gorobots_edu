@@ -278,6 +278,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double> cmr0_ltm_neuron;
     std::vector<double> cmr0_ltm_neuron_w;
     std::vector<double> fmodel_cmr_output_w2;
+    std::vector<double> input_ltm;
 
     //P,I,D control for searching
     std::vector<double> kp_r;
@@ -425,7 +426,6 @@ class NeuralLocomotionControlAdaptiveClimbing{
     //---End Define vector----//
 
     double old_pcpg;
-    double deri;
     int total_c;
 
 
@@ -470,6 +470,11 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool lift_body_up;
     bool switchoff_searching_reflexes;
     bool sequentiral_learning;
+    bool learn;
+    bool ltm_v1;
+    bool ltm_v2;
+    bool ltm_v3;
+    bool loadweight;
 
 
 };

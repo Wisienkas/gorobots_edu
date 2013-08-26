@@ -209,10 +209,6 @@ AmosIIControl::AmosIIControl()
 //  addInspectableValue("WLTMR0_24",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(24),"LTMR0");
 
 
-  addInspectableValue("pcpg_output",&control_adaptiveclimbing.pcpg_output.at(1),"LTMR0");
-  addInspectableValue("deri",&control_adaptiveclimbing.deri,"LTMR0");
-
-
 
   //Add edit parameter on terminal
   Configurable::addParameter("cin", &control_adaptiveclimbing.Control_input,  /*minBound*/ -10,  /*maxBound*/ 10,
