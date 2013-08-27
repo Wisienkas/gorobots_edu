@@ -126,6 +126,7 @@ class ThisSim : public lpzrobots::Simulation {
     myAmosIIConf.rubberFeet = false;//true;
     myAmosIIConf.useLocalVelSensor = true;
 
+
     //lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
     //myAmosIIConf.rubberFeet = true;
 
