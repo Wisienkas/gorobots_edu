@@ -118,13 +118,13 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = false; // true = use learned weights, false = let the RC learn
-  learn = true; // true = learning, false = use learned weights
+  loadweight = true; // true = use learned weights, false = let the RC learn
+  learn = false; // true = learning, false = use learned weights
 
   //LTM option
-  ltm_v1 = true; // learn pattern
+  ltm_v1 = false;//true; // learn pattern
   ltm_v2 = false;  // learn frequency
-  ltm_v3 = false;  // learn weights
+  ltm_v3 = true;//false;  // learn weights
 
   //Save files
   outFilenlc1.open("NeurallocomotionR0.dat");
@@ -1024,9 +1024,73 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   }
 
 
+
+  inputs_ltm_out = new matrix::Matrix(ESN_R0->endweights->getM(),ESN_R0->endweights->getN());
+  outputs_ltm_out = new matrix::Matrix(ESN_R0->endweights->getM(),ESN_R0->endweights->getN());
+  weights_ltm_out = new matrix::Matrix(ESN_R0->endweights->getM(),ESN_R0->endweights->getN());
+
+
+  for(int i = 0; i < ESN_R0->endweights->getM(); i++)
+  {
+    for(int j = 0; j < ESN_R0->endweights->getN(); j++)
+    {
+       inputs_ltm_out->val(i,j) = 0.0;
+       outputs_ltm_out->val(i,j) = 0.0;
+       weights_ltm_out->val(i,j) =0.001;
+
+     }
+  }
+
+
+  inputs_ltm_in = new matrix::Matrix(ESN_R0->startweights->getM(),ESN_R0->startweights->getN());
+  outputs_ltm_in = new matrix::Matrix(ESN_R0->startweights->getM(),ESN_R0->startweights->getN());
+  weights_ltm_in = new matrix::Matrix(ESN_R0->startweights->getM(),ESN_R0->startweights->getN());
+
+
+  for(int i = 0; i < ESN_R0->startweights->getM(); i++)
+  {
+    for(int j = 0; j < ESN_R0->startweights->getN(); j++)
+    {
+       inputs_ltm_in->val(i,j) = 0.0;
+       outputs_ltm_in->val(i,j) = 0.0;
+       weights_ltm_in->val(i,j) =0.001;
+
+     }
+  }
+
+  inputs_ltm_hid = new matrix::Matrix(ESN_R0->innerweights->getM(),ESN_R0->innerweights->getN());
+  outputs_ltm_hid = new matrix::Matrix(ESN_R0->innerweights->getM(),ESN_R0->innerweights->getN());
+  weights_ltm_hid = new matrix::Matrix(ESN_R0->innerweights->getM(),ESN_R0->innerweights->getN());
+
+
+  for(int i = 0; i < ESN_R0->innerweights->getM(); i++)
+  {
+    for(int j = 0; j < ESN_R0->innerweights->getN(); j++)
+    {
+       inputs_ltm_hid->val(i,j) = 0.0;
+       outputs_ltm_hid->val(i,j) = 0.0;
+       weights_ltm_hid->val(i,j) =0.001;
+
+     }
+  }
+
+  inputs_ltm_bi = new matrix::Matrix(ESN_R0->noise->getM(),ESN_R0->noise->getN());
+  outputs_ltm_bi = new matrix::Matrix(ESN_R0->noise->getM(),ESN_R0->noise->getN());
+  weights_ltm_bi = new matrix::Matrix(ESN_R0->noise->getM(),ESN_R0->noise->getN());
+
+
+  for(int i = 0; i < ESN_R0->noise->getM(); i++)
+  {
+    for(int j = 0; j < ESN_R0->noise->getN(); j++)
+    {
+       inputs_ltm_bi->val(i,j) = 0.0;
+       outputs_ltm_bi->val(i,j) = 0.0;
+       weights_ltm_bi->val(i,j) =0.001;
+
+     }
+  }
+
   old_pcpg = 0.0;
-
-
 
 
 };
@@ -1083,8 +1147,21 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
   delete []ESinput_L2;
   delete []ESTrainOutput_L2;
 
+  delete inputs_ltm_in;
+  delete weights_ltm_in;
+  delete outputs_ltm_in;
 
+  delete inputs_ltm_out;
+  delete weights_ltm_out;
+  delete outputs_ltm_out;
 
+  delete inputs_ltm_hid;
+  delete weights_ltm_hid;
+  delete outputs_ltm_hid;
+
+  delete inputs_ltm_bi;
+  delete weights_ltm_bi;
+  delete outputs_ltm_bi;
 
 };
 
@@ -3196,10 +3273,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       case 6:
         //------------Add ESN training (3)----------------------------------//
-//        static int x = 10;
-//        double **ptr;
-//        ptr = new double *[x];
-
 
         int learning_steps;
 
@@ -3505,22 +3578,87 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //Learning weights of RC
         if(ltm_v3)
         {
+          for(int i = 0; i < ESN_R0->endweights->getM(); i++)
+          {
+            for(int j = 0; j < ESN_R0->endweights->getN(); j++)
+            {
 
-          //*ptr[0];
-//        double **in;
-//        in = new double **[ESN_R0->endweights->getM()][ESN_R0->endweights->getN()];
-//        for(i = 0; i < ESN_R0->endweights->getM(); i++)
-//          for(j = 0; j < ESN_R0->endweights->getN(); j++)
-//          { **in[i][j] = ESN_R0->endweights->val(i,j);}
-//
-//        cmr0_ltm_neuron.at(count_neuron_learning) = cmr0_ltm_neuron_w.at(count_neuron_learning)*input_ltm.at(count_neuron_learning);
-//
-//        //Learning
-//        cmr0_ltm_neuron_w.at(count_neuron_learning) += 0.98*(cmr0_ltm_neuron.at(count_neuron_learning)*input_ltm.at(count_neuron_learning)-
-//            cmr0_ltm_neuron.at(count_neuron_learning)*cmr0_ltm_neuron_w.at(count_neuron_learning));
+//              std::cout<<"size M"<<ESN_R0->endweights->getM()<<std::endl;
+//              std::cout<<"size N"<<ESN_R0->endweights->getN()<<std::endl;
+
+              //Output weights
+              inputs_ltm_out->val(i,j) = ESN_R0->endweights->val(i,j)/10000;
+              outputs_ltm_out->val(i,j) = weights_ltm_out->val(i,j)*inputs_ltm_out->val(i,j);
+
+              //Learning
+              weights_ltm_out->val(i,j) += 0.05*(inputs_ltm_out->val(i,j)*outputs_ltm_out->val(i,j))-
+                  0.05*(outputs_ltm_out->val(i,j)*weights_ltm_out->val(i,j));
+
+              std::cout<<" out "<<weights_ltm_out->val(i,j)<<":";
+              std::cout<<ESN_R0->endweights->val(i,j)<<" ";
+            }
+            std::cout<<std::endl;
+          }
+
+          for(int i = 0; i < ESN_R0->innerweights->getM(); i++)
+          {
+            for(int j = 0; j < ESN_R0->innerweights->getN(); j++)
+            {
+
+              //Hidden weights
+              inputs_ltm_hid->val(i,j) = ESN_R0->innerweights->val(i,j)/10000;
+              outputs_ltm_hid->val(i,j) = weights_ltm_hid->val(i,j)*inputs_ltm_hid->val(i,j);
+
+              //Learning
+              weights_ltm_hid->val(i,j) += 0.05*(inputs_ltm_hid->val(i,j)*outputs_ltm_hid->val(i,j))-
+                  0.05*(outputs_ltm_hid->val(i,j)*weights_ltm_hid->val(i,j));
+
+              std::cout<<" hid "<<weights_ltm_hid->val(i,j)<<":";
+              std::cout<<ESN_R0->innerweights->val(i,j)<<" ";
+            }
+            std::cout<<std::endl;
+          }
+
+          for(int i = 0; i < ESN_R0->startweights->getM(); i++)
+          {
+            for(int j = 0; j < ESN_R0->startweights->getN(); j++)
+            {
+
+              //Input weights
+              inputs_ltm_in->val(i,j) = ESN_R0->startweights->val(i,j);
+              outputs_ltm_in->val(i,j) = weights_ltm_in->val(i,j)*inputs_ltm_in->val(i,j);
+
+              //Learning
+              weights_ltm_in->val(i,j) += 0.05*(inputs_ltm_in->val(i,j)*outputs_ltm_in->val(i,j))-
+                  0.05*(outputs_ltm_in->val(i,j)*weights_ltm_in->val(i,j));
+
+              std::cout<<" in "<<weights_ltm_in->val(i,j)<<":";
+              std::cout<<ESN_R0->startweights->val(i,j)<<" ";
+            }
+            std::cout<<std::endl;
+          }
+
+
+          for(int i = 0; i < ESN_R0->noise->getM(); i++)
+          {
+            for(int j = 0; j < ESN_R0->noise->getN(); j++)
+            {
+
+              //Input weights
+              inputs_ltm_bi->val(i,j) = ESN_R0->noise->val(i,j);
+              outputs_ltm_bi->val(i,j) = weights_ltm_bi->val(i,j)*inputs_ltm_bi->val(i,j);
+
+              //Learning
+              weights_ltm_bi->val(i,j) += 0.05*(inputs_ltm_bi->val(i,j)*outputs_ltm_bi->val(i,j))-
+                  0.05*(outputs_ltm_bi->val(i,j)*weights_ltm_bi->val(i,j));
+
+              std::cout<<" noise "<<weights_ltm_bi->val(i,j)<<":";
+              std::cout<<ESN_R0->noise->val(i,j)<<" ";
+            }
+            std::cout<<std::endl;
+          }
+
         }
-
-
 
 
         //-----Module ESN 2
@@ -3915,15 +4053,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 0.5;/*simulation*///10;/*real robot*///15.0;//11.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*///15.0;//11.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 0.5;/*simulation*///10;/*real robot*///15.0;//26.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*///15.0;//26.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//8.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*//15.0;//8.0;//20.0;// or smaller to on all the time
       }
 
       //      elevator_th = 20.0;//20.0;
@@ -4000,15 +4138,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(i==0)
       {
 
-        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==1)
       {
-        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       else if(i==2)
       {
-        elevator_th = 0.5;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
+        elevator_th = 0.7;/*simulation*///10;/*real robot*//15.0;//30.0;//20.0;// or smaller to on all the time
       }
       /*}
     else

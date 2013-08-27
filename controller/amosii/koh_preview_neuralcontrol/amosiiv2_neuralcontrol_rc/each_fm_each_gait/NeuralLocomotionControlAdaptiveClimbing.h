@@ -14,6 +14,10 @@
 //#include <selforg/amosiisensormotordefinition.h>
 //#include "sensor_motor_definition.h"
 
+#include "selforg/matrixutils.h"
+#include "selforg/matrix.h"
+
+
 //Save files /read file
 #include <iostream>
 #include <fstream>
@@ -279,6 +283,22 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double> cmr0_ltm_neuron_w;
     std::vector<double> fmodel_cmr_output_w2;
     std::vector<double> input_ltm;
+
+    matrix::Matrix * inputs_ltm_out;
+    matrix::Matrix * outputs_ltm_out;
+    matrix::Matrix * weights_ltm_out;
+
+    matrix::Matrix * inputs_ltm_in;
+    matrix::Matrix * outputs_ltm_in;
+    matrix::Matrix * weights_ltm_in;
+
+    matrix::Matrix * inputs_ltm_hid;
+    matrix::Matrix * outputs_ltm_hid;
+    matrix::Matrix * weights_ltm_hid;
+
+    matrix::Matrix * inputs_ltm_bi;
+    matrix::Matrix * outputs_ltm_bi;
+    matrix::Matrix * weights_ltm_bi;
 
     //P,I,D control for searching
     std::vector<double> kp_r;

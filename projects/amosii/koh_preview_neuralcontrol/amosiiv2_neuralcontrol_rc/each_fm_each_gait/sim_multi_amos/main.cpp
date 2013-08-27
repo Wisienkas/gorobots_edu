@@ -89,34 +89,34 @@ class ThisSim : public lpzrobots::Simulation {
 
     //----------create a sphere as the target by Ren-----------------------------
     //the first sphere
-//    lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-//    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-//    s1->setTexture("Images/dusty.rgb");
-//    s1->setColor(lpzrobots::Color(1,0,0));
-//    obst.push_back(s1);
-//    global.obstacles.push_back(s1);
-//    lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-//    fixator1->init(odeHandle, osgHandle);
-//
-//    //the second sphere
-//    lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-//    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-//    s2->setTexture("Images/dusty.rgb");
-//    s2->setColor(lpzrobots::Color(0,1,0));
-//    obst.push_back(s2);
-//    global.obstacles.push_back(s2);
-//    lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-//    fixator2->init(odeHandle, osgHandle);
-//
-//    //the third sphere
-//    lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-//    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-//    s3->setTexture("Images/dusty.rgb");
-//    s3->setColor(lpzrobots::Color(0,0,1));
-//    obst.push_back(s3);
-//    global.obstacles.push_back(s3);
-//    lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-//    fixator3->init(odeHandle, osgHandle);
+    lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
+    s1->setTexture("Images/dusty.rgb");
+    s1->setColor(lpzrobots::Color(1,0,0));
+    obst.push_back(s1);
+    global.obstacles.push_back(s1);
+    lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
+    fixator1->init(odeHandle, osgHandle);
+
+    //the second sphere
+    lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
+    s2->setTexture("Images/dusty.rgb");
+    s2->setColor(lpzrobots::Color(0,1,0));
+    obst.push_back(s2);
+    global.obstacles.push_back(s2);
+    lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
+    fixator2->init(odeHandle, osgHandle);
+
+    //the third sphere
+    lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
+    s3->setTexture("Images/dusty.rgb");
+    s3->setColor(lpzrobots::Color(0,0,1));
+    obst.push_back(s3);
+    global.obstacles.push_back(s3);
+    lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
+    fixator3->init(odeHandle, osgHandle);
 
     //----------create a sphere as the target by Ren-----------------------------
 
