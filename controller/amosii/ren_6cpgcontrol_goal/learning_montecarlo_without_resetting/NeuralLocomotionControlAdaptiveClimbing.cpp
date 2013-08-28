@@ -460,8 +460,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //---initialize leg damage flag--
   LegDamage_flag[LEG_RF] = true; //false;
-  LegDamage_flag[LEG_RM] = true; //false;
-  LegDamage_flag[LEG_RH] = false;
+  LegDamage_flag[LEG_RM] = false;//true; //false;
+  LegDamage_flag[LEG_RH] = true;//false;
   LegDamage_flag[LEG_LF] = false;
   LegDamage_flag[LEG_LM] = false;
   LegDamage_flag[LEG_LH] = false;
@@ -1269,7 +1269,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //-----------------------------------------------------------------------
 
   // -------------------- start the leg movement --------------------------
-  if (global_count == (step_tmp + WAITSTEP)) {
+  if (global_count == (step_tmp + 1/*WAITSTEP*/)) {
     for (unsigned int i = 0; i < 6; i++) {
       LegDamage_flag[i] = LegDamage_flag_tmp[i];
     }
