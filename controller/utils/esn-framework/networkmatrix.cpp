@@ -445,6 +445,8 @@ void ESNetwork::trainOnlineLMS(float * Outputs, float forgettingFactor, float td
 
 		}
 
+		onlineError->toTranspose();
+
 		 temp->mult(*onlineError,*transposedIntermediates);
 
 				   temp->mult(*temp,forgettingFactor);
@@ -469,6 +471,19 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
 	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
+	matrix::Matrix *id = new matrix::Matrix(1, outputNeurons);
+	matrix::Matrix *temp_intermediate = new matrix::Matrix(networkNeurons,1);
+	matrix::Matrix *temp_factor = new matrix::Matrix(outputNeurons,outputNeurons);
+	matrix::Matrix *scale = new matrix::Matrix(outputNeurons,outputNeurons);
+
+
+
+  for (int i =0; i< outputNeurons; i++)
+    id->val(0,i) = 1.0;
+
+  for (int i =0; i< outputNeurons; i++)
+    for (int j =0; j< outputNeurons; j++)
+       temp_factor->val(i,j)= forgettingFactor;
 
 	//the Error vector between input and output
 	onlineError = new matrix::Matrix(1, outputNeurons);
@@ -482,6 +497,8 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	*transposedIntermediates = *intermediates;
 	transposedIntermediates->toTranspose();
+
+
 	*temp = *endweights;
 	temp->toTranspose();
 
@@ -518,12 +535,26 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	/*
 	 *  Step 2:Output weights change delta W_out is set to   onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
 	 */
-	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
-	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
-	temp2->mult(*temp,*intermediates);
+	temp_intermediate->mult(*intermediates, *id);
+	id->toTranspose();
 
-	double scale = 1/(forgettingFactor + temp2->val(0,0));
-	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
+	transposedIntermediates->mult(*id, *transposedIntermediates);
+
+	//toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
+	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *temp_intermediate);
+	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
+	//temp2->mult(*temp,*intermediates);
+   temp2->mult(*temp, *temp_intermediate);
+
+//	double scale = 1/(forgettingFactor + temp2->val(0,0));
+
+   scale->add(*temp_factor, *temp2);
+
+   for (int i =0; i< outputNeurons; i++)
+       for (int j =0; j< outputNeurons; j++)
+         scale->val(i,j) = 1/scale->val(i,j);
+
+	toChangeOutputWeights->mult(*toChangeOutputWeights, *scale); //end STEP 2
 
 
 	/*
@@ -541,6 +572,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	 * Finally, the weights are updated and temporary matrices are deleted
 	 */
 	toChangeOutputWeights->toTranspose();
+
 	temp->mult(*onlineError,*toChangeOutputWeights);
 
 

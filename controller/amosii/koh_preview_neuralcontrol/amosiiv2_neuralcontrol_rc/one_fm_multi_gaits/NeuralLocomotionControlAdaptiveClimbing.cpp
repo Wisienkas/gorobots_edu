@@ -1010,6 +1010,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   fmodel_cmr0_output_rc.resize(3);
   fmodel_cmr1_output_rc.resize(3);
   fmodel_cmr2_output_rc.resize(3);
+
   fmodel_cml0_output_rc.resize(3);
   fmodel_cml1_output_rc.resize(3);
   fmodel_cml2_output_rc.resize(3);
@@ -3294,7 +3295,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           learning_steps = 3000;
 
         double learning_rate;
-        learning_rate = 0.99;//RLS = 0.99
+        learning_rate = 0.00033; //0.99;//RLS = 0.99
 
 
         //Using learned weights from files
@@ -3416,24 +3417,26 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 //            reflex_L_fs.at(2)
 //           <<' '<<endl;
 
+ std::cout<<" N weight------"<<std::endl;
+     ESN_R0->printMatrix(ESN_R0->outputs);
 
         //-----Module ESN 1
         if(Control_input == 0.04)
         {
           ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
-          ESTrainOutput_R0[1]= 0.0; //Training output (target function)
-          ESTrainOutput_R0[2]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[1]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[2]= 1.0; //Training output (target function)
         }
         if(Control_input == 0.06)
         {
-          ESTrainOutput_R0[0]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[0]= 1.0; //Training output (target function)
           ESTrainOutput_R0[1]= reflex_R_fs.at(0); //Training output (target function)
-          ESTrainOutput_R0[2]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[2]= 1.0; //Training output (target function)
         }
         if(Control_input == 0.09)
         {
-          ESTrainOutput_R0[0]= 0.0; //Training output (target function)
-          ESTrainOutput_R0[1]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[0]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[1]= 1.0; //Training output (target function)
           ESTrainOutput_R0[2]= reflex_R_fs.at(0); //Training output (target function)
         }
 
@@ -3445,8 +3448,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //temp = ESN->outputs->val(0, 0);
         //fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0); // first output
         fmodel_cmr0_output_rc.at(0) = ESN_R0->outputs->val(0, 0); // first output
-        fmodel_cmr0_output_rc.at(1) = ESN_R0->outputs->val(0, 1); // second output
-        fmodel_cmr0_output_rc.at(2) = ESN_R0->outputs->val(0, 2); // third output
+        fmodel_cmr0_output_rc.at(1) = ESN_R0->outputs->val(1, 0); // second output
+        fmodel_cmr0_output_rc.at(2) = ESN_R0->outputs->val(2, 0); // third output
 
         fmodel_cmr_output_rc.at(0) = fmodel_cmr0_output_rc.at(0)+fmodel_cmr0_output_rc.at(1)+fmodel_cmr0_output_rc.at(2);
 
@@ -3735,8 +3738,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESN_R1->takeStep(ESTrainOutput_R1, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
         //fmodel_cmr_output_rc.at(1) = ESN_R1->outputs->val(0, 0);
         fmodel_cmr1_output_rc.at(0) = ESN_R1->outputs->val(0, 0); // first output
-        fmodel_cmr1_output_rc.at(1) = ESN_R1->outputs->val(0, 1); // second output
-        fmodel_cmr1_output_rc.at(2) = ESN_R1->outputs->val(0, 2); // third output
+        fmodel_cmr1_output_rc.at(1) = ESN_R1->outputs->val(1, 0); // second output
+        fmodel_cmr1_output_rc.at(2) = ESN_R1->outputs->val(2, 0); // third output
 
         fmodel_cmr_output_rc.at(1) = fmodel_cmr1_output_rc.at(0)+fmodel_cmr1_output_rc.at(1)+fmodel_cmr1_output_rc.at(2);
 
@@ -3769,8 +3772,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESN_R2->takeStep(ESTrainOutput_R2, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
         //fmodel_cmr_output_rc.at(2) = ESN_R2->outputs->val(0, 0);
         fmodel_cmr2_output_rc.at(0) = ESN_R2->outputs->val(0, 0); // first output
-        fmodel_cmr2_output_rc.at(1) = ESN_R2->outputs->val(0, 1); // second output
-        fmodel_cmr2_output_rc.at(2) = ESN_R2->outputs->val(0, 2); // third output
+        fmodel_cmr2_output_rc.at(1) = ESN_R2->outputs->val(1, 0); // second output
+        fmodel_cmr2_output_rc.at(2) = ESN_R2->outputs->val(2, 0); // third output
 
         fmodel_cmr_output_rc.at(2) = fmodel_cmr2_output_rc.at(0)+fmodel_cmr2_output_rc.at(1)+fmodel_cmr2_output_rc.at(2);
 
@@ -3802,8 +3805,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESN_L0->takeStep(ESTrainOutput_L0, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
         //fmodel_cml_output_rc.at(0) = ESN_L0->outputs->val(0, 0);
         fmodel_cml0_output_rc.at(0) = ESN_L0->outputs->val(0, 0); // first output
-        fmodel_cml0_output_rc.at(1) = ESN_L0->outputs->val(0, 1); // second output
-        fmodel_cml0_output_rc.at(2) = ESN_L0->outputs->val(0, 2); // third output
+        fmodel_cml0_output_rc.at(1) = ESN_L0->outputs->val(1, 0); // second output
+        fmodel_cml0_output_rc.at(2) = ESN_L0->outputs->val(2, 0); // third output
 
         fmodel_cml_output_rc.at(0) = fmodel_cml0_output_rc.at(0)+fmodel_cml0_output_rc.at(1)+fmodel_cml0_output_rc.at(2);
 
@@ -3835,8 +3838,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESN_L1->takeStep(ESTrainOutput_L1, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
         //fmodel_cml_output_rc.at(1) = ESN_L1->outputs->val(0, 0);
         fmodel_cml1_output_rc.at(0) = ESN_L1->outputs->val(0, 0); // first output
-        fmodel_cml1_output_rc.at(1) = ESN_L1->outputs->val(0, 1); // second output
-        fmodel_cml1_output_rc.at(2) = ESN_L1->outputs->val(0, 2); // third output
+        fmodel_cml1_output_rc.at(1) = ESN_L1->outputs->val(1, 0); // second output
+        fmodel_cml1_output_rc.at(2) = ESN_L1->outputs->val(2, 0); // third output
 
         fmodel_cml_output_rc.at(1) = fmodel_cml1_output_rc.at(0)+fmodel_cml1_output_rc.at(1)+fmodel_cml1_output_rc.at(2);
 
@@ -3866,8 +3869,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESN_L2->takeStep(ESTrainOutput_L2, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
         //fmodel_cml_output_rc.at(2) = ESN_L2->outputs->val(0, 0);
         fmodel_cml2_output_rc.at(0) = ESN_L2->outputs->val(0, 0); // first output
-        fmodel_cml2_output_rc.at(1) = ESN_L2->outputs->val(0, 1); // second output
-        fmodel_cml2_output_rc.at(2) = ESN_L2->outputs->val(0, 2); // third output
+        fmodel_cml2_output_rc.at(1) = ESN_L2->outputs->val(1, 0); // second output
+        fmodel_cml2_output_rc.at(2) = ESN_L2->outputs->val(2, 0); // third output
 
         fmodel_cml_output_rc.at(2) = fmodel_cml2_output_rc.at(0)+fmodel_cml2_output_rc.at(1)+fmodel_cml2_output_rc.at(2);
 
