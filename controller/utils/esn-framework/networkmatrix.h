@@ -255,6 +255,9 @@ class ESNetwork{
       matrix::Matrix * onlineError;         //the error between input and desired output
       matrix::Matrix * transposedIntermediates; // intermediate for a multiplication step
       matrix::Matrix * toChangeOutputWeights;   //  the final change of output weights is onlineError times this
+
+      matrix::Matrix * gainvector;
+
       //matrix for experimental learning
       matrix::Matrix * history;
 

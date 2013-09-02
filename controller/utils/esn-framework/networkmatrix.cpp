@@ -28,7 +28,7 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	Loadweight == false;
 	enable_IP = param4;
 
-	autocorr = 1;
+	autocorr = 1; //.0;
 
 	LearnMode == 1 ;// RLS Learning default, choose '2' for LMS learning
 
@@ -65,6 +65,9 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	intermediates = new matrix::Matrix(networkNeurons,1);
 	leak_mat = new matrix::Matrix(networkNeurons,networkNeurons);
 	inverse_leak_mat = new matrix::Matrix(networkNeurons, networkNeurons);
+   //gainvector = new matrix::Matrix(networkNeurons, 1);
+
+
 
 	//Initializing leak matrix
 	for (int i =0;i<networkNeurons;i++)
@@ -170,6 +173,7 @@ ESNetwork::~ESNetwork()
 	delete startweights;
 	delete innerweights;
 	delete endweights;
+	delete gainvector;
 	delete onlineLearningAutocorrelation;
 	delete errors;
 	delete oldErrors;
@@ -471,25 +475,12 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	matrix::Matrix *temp = new matrix::Matrix(1, networkNeurons);
 	matrix::Matrix *temp2 = new matrix::Matrix(1, networkNeurons);
-	matrix::Matrix *id = new matrix::Matrix(1, outputNeurons);
-	matrix::Matrix *temp_intermediate = new matrix::Matrix(networkNeurons,1);
-	matrix::Matrix *temp_factor = new matrix::Matrix(outputNeurons,outputNeurons);
-	matrix::Matrix *scale = new matrix::Matrix(outputNeurons,outputNeurons);
-
-
-
-  for (int i =0; i< outputNeurons; i++)
-    id->val(0,i) = 1.0;
-
-  for (int i =0; i< outputNeurons; i++)
-    for (int j =0; j< outputNeurons; j++)
-       temp_factor->val(i,j)= forgettingFactor;
 
 	//the Error vector between input and output
 	onlineError = new matrix::Matrix(1, outputNeurons);
 
 	transposedIntermediates = new matrix::Matrix(1, networkNeurons);
-	toChangeOutputWeights = new matrix::Matrix(endweights->getM(), endweights->getN());
+	toChangeOutputWeights = new matrix::Matrix(networkNeurons,1); //new matrix::Matrix(endweights->getM(), endweights->getN());
 	/*
 	 * Step 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
 	 *
@@ -497,8 +488,6 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 
 	*transposedIntermediates = *intermediates;
 	transposedIntermediates->toTranspose();
-
-
 	*temp = *endweights;
 	temp->toTranspose();
 
@@ -535,26 +524,12 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	/*
 	 *  Step 2:Output weights change delta W_out is set to   onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
 	 */
-	temp_intermediate->mult(*intermediates, *id);
-	id->toTranspose();
-
-	transposedIntermediates->mult(*id, *transposedIntermediates);
-
-	//toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
-	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *temp_intermediate);
+	toChangeOutputWeights->mult(*onlineLearningAutocorrelation, *intermediates);
 	temp ->mult( *transposedIntermediates, *onlineLearningAutocorrelation);
-	//temp2->mult(*temp,*intermediates);
-   temp2->mult(*temp, *temp_intermediate);
+	temp2->mult(*temp,*intermediates);
 
-//	double scale = 1/(forgettingFactor + temp2->val(0,0));
-
-   scale->add(*temp_factor, *temp2);
-
-   for (int i =0; i< outputNeurons; i++)
-       for (int j =0; j< outputNeurons; j++)
-         scale->val(i,j) = 1/scale->val(i,j);
-
-	toChangeOutputWeights->mult(*toChangeOutputWeights, *scale); //end STEP 2
+	double scale = 1/(forgettingFactor + temp2->val(0,0));
+	toChangeOutputWeights->mult(*toChangeOutputWeights, scale); //end STEP 2
 
 
 	/*
@@ -573,10 +548,13 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	 */
 	toChangeOutputWeights->toTranspose();
 
+	onlineError->toTranspose();
+
 	temp->mult(*onlineError,*toChangeOutputWeights);
 
+    endweights->add(*endweights, *temp);
 
-	*endweights = *endweights + *temp  ;
+	//*endweights = *endweights + *temp  ;
 //	*endweights = *endweights + *outputnoise;
 
 	//std::cout << "online learning step finished \n \n \n";
@@ -586,6 +564,10 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	delete onlineError;
 	delete transposedIntermediates;
 	delete toChangeOutputWeights;
+
+
+
+
 }
 
 
