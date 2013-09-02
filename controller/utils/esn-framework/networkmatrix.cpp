@@ -65,6 +65,9 @@ ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double para
 	intermediates = new matrix::Matrix(networkNeurons,1);
 	leak_mat = new matrix::Matrix(networkNeurons,networkNeurons);
 	inverse_leak_mat = new matrix::Matrix(networkNeurons, networkNeurons);
+
+	toChangeOutputWeights = new matrix::Matrix(networkNeurons,1);
+
    //gainvector = new matrix::Matrix(networkNeurons, 1);
 
 
@@ -480,7 +483,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	onlineError = new matrix::Matrix(1, outputNeurons);
 
 	transposedIntermediates = new matrix::Matrix(1, networkNeurons);
-	toChangeOutputWeights = new matrix::Matrix(networkNeurons,1); //new matrix::Matrix(endweights->getM(), endweights->getN());
+//	toChangeOutputWeights = new matrix::Matrix(networkNeurons,1); //new matrix::Matrix(endweights->getM(), endweights->getN());
 	/*
 	 * Step 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
 	 *
@@ -492,6 +495,8 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	temp->toTranspose();
 
 	temp2->mult(*transposedIntermediates, *temp);
+
+
 
 	switch (withRL){/* Set to td_error for actor-critic learning and otherwise to default */
 	case 1 :
@@ -563,7 +568,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 	delete temp2;
 	delete onlineError;
 	delete transposedIntermediates;
-	delete toChangeOutputWeights;
+//	delete toChangeOutputWeights;
 
 
 
