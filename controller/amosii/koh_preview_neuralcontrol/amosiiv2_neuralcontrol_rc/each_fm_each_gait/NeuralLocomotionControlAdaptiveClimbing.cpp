@@ -118,8 +118,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = true; // true = use learned weights, false = let the RC learn
-  learn = false; // true = learning, false = use learned weights
+  loadweight = false; //true; // true = use learned weights, false = let the RC learn
+  learn = true; //false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -858,7 +858,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     ESN_R2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
     ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-    ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+    ESN_R2->autocorr =  pow(10,4); //pow(10,4); set as high as possible, default = 1
     ESN_R2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
     ESN_R2->LearnMode = 1;//RLS = 1. LMS =2
     ESN_R2->Loadweight = false; // true = loading learned weights
@@ -3283,7 +3283,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           learning_steps = 3000;
 
         double learning_rate;
-        learning_rate = 0.99;//RLS = 0.99
+        learning_rate = 0.99; //0.998;//RLS = 0.99
 
 
         //Using learned weights from files
@@ -3349,40 +3349,40 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
           // Write the output weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeEndweightsToFile(11);
-          ESN_R1->writeEndweightsToFile(12);
-          ESN_R2->writeEndweightsToFile(13);
-
-          ESN_L0->writeEndweightsToFile(21);
-          ESN_L1->writeEndweightsToFile(22);
-          ESN_L2->writeEndweightsToFile(23);
-
-          // Write the input weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeStartweightsToFile(11);
-          ESN_R1->writeStartweightsToFile(12);
-          ESN_R2->writeStartweightsToFile(13);
-
-          ESN_L0->writeStartweightsToFile(21);
-          ESN_L1->writeStartweightsToFile(22);
-          ESN_L2->writeStartweightsToFile(23);
-
-          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeInnerweightsToFile(11);
-          ESN_R1->writeInnerweightsToFile(12);
-          ESN_R2->writeInnerweightsToFile(13);
-
-          ESN_L0->writeInnerweightsToFile(21);
-          ESN_L1->writeInnerweightsToFile(22);
-          ESN_L2->writeInnerweightsToFile(23);
-
-          //noise
-          ESN_R0->writeNoiseToFile(11);
-          ESN_R1->writeNoiseToFile(12);
-          ESN_R2->writeNoiseToFile(13);
-
-          ESN_L0->writeNoiseToFile(21);
-          ESN_L1->writeNoiseToFile(22);
-          ESN_L2->writeNoiseToFile(23);
+//          ESN_R0->writeEndweightsToFile(11);
+//          ESN_R1->writeEndweightsToFile(12);
+//          ESN_R2->writeEndweightsToFile(13);
+//
+//          ESN_L0->writeEndweightsToFile(21);
+//          ESN_L1->writeEndweightsToFile(22);
+//          ESN_L2->writeEndweightsToFile(23);
+//
+//          // Write the input weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+//          ESN_R0->writeStartweightsToFile(11);
+//          ESN_R1->writeStartweightsToFile(12);
+//          ESN_R2->writeStartweightsToFile(13);
+//
+//          ESN_L0->writeStartweightsToFile(21);
+//          ESN_L1->writeStartweightsToFile(22);
+//          ESN_L2->writeStartweightsToFile(23);
+//
+//          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+//          ESN_R0->writeInnerweightsToFile(11);
+//          ESN_R1->writeInnerweightsToFile(12);
+//          ESN_R2->writeInnerweightsToFile(13);
+//
+//          ESN_L0->writeInnerweightsToFile(21);
+//          ESN_L1->writeInnerweightsToFile(22);
+//          ESN_L2->writeInnerweightsToFile(23);
+//
+//          //noise
+//          ESN_R0->writeNoiseToFile(11);
+//          ESN_R1->writeNoiseToFile(12);
+//          ESN_R2->writeNoiseToFile(13);
+//
+//          ESN_L0->writeNoiseToFile(21);
+//          ESN_L1->writeNoiseToFile(22);
+//          ESN_L2->writeNoiseToFile(23);
 
           //To start capture output activation for LTM learning
           if(postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
@@ -3411,6 +3411,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         ESinput_R0[0] = m_pre.at(CR0_m/*6*/);// Input
         ESN_R0->setInput(ESinput_R0, 1/* no. input*/);
         ESN_R0->takeStep(ESTrainOutput_R0, learning_rate/*0.99 *RLS/ /*0.00055/*0.0005*/ /*0.0055*//*1.5*//*1.8*/, 1 /*no td = 1 else td_error*/, learn/* true= learn, false = not learning learn_critic*/, 0);
+
+        ESN_R0->printMatrix(ESN_R0->endweights);
 
         //temp = ESN->outputs->val(0, 0);
         fmodel_cmr_output_rc.at(0) = ESN_R0->outputs->val(0, 0);

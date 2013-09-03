@@ -776,14 +776,14 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   int num_output_ESN_R0 = 3;
   ESN_R0 = new ESNetwork(num_input_ESN_R0/*no. input*/,num_output_ESN_R0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
-  ESN_R0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_R0->outnonlinearity = 0; //0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
   ESN_R0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_R0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
   ESN_R0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-  ESN_R0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_R0->autocorr = pow(10,4); //set as high as possible, default = 1
   ESN_R0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-  ESN_R0->LearnMode = 2; //1;//RLS = 1. LMS =2
+  ESN_R0->LearnMode = 1; //1;//RLS = 1. LMS =2
   ESN_R0->Loadweight = false; // true = loading learned weights
   ESN_R0->NoiseRange = 0.001; //
   ESN_R0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -821,7 +821,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_R1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_R1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_R1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-  ESN_R1->LearnMode = 2; //1;//RLS = 1. LMS =2
+  ESN_R1->LearnMode = 1; //1;//RLS = 1. LMS =2
   ESN_R1->Loadweight = false; // true = loading learned weights
   ESN_R1->NoiseRange = 0.001; //
   ESN_R1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -860,7 +860,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
     ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
     ESN_R2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_R2->LearnMode = 2; //1;//RLS = 1. LMS =2
+    ESN_R2->LearnMode = 1; //1;//RLS = 1. LMS =2
     ESN_R2->Loadweight = false; // true = loading learned weights
     ESN_R2->NoiseRange = 0.001; //
     ESN_R2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -899,7 +899,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     ESN_L0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
     ESN_L0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
     ESN_L0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L0->LearnMode = 2; //1;//RLS = 1. LMS =2
+    ESN_L0->LearnMode = 1; //1;//RLS = 1. LMS =2
     ESN_L0->Loadweight = false; // true = loading learned weights
     ESN_L0->NoiseRange = 0.001; //
     ESN_L0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -938,7 +938,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     ESN_L1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
     ESN_L1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
     ESN_L1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L1->LearnMode = 2; //1;//RLS = 1. LMS =2
+    ESN_L1->LearnMode = 1; //1;//RLS = 1. LMS =2
     ESN_L1->Loadweight = false; // true = loading learned weights
     ESN_L1->NoiseRange = 0.001; //
     ESN_L1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -977,7 +977,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     ESN_L2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
     ESN_L2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
     ESN_L2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L2->LearnMode = 2; //1;//RLS = 1. LMS =2
+    ESN_L2->LearnMode = 1; //1;//RLS = 1. LMS =2
     ESN_L2->Loadweight = false; // true = loading learned weights
     ESN_L2->NoiseRange = 0.001; //
     ESN_L2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
@@ -1232,23 +1232,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   if(sequentiral_learning)
   {
-    if(iii<=2000)
+    if(iii<= 3000 /*2000*/)
     {
       Control_input = 0.04;// slow Wave St **************** Forward model // Stone
     }
-    else if(iii>2000 && iii<=4000)
+    else if(iii>3000 && iii<=6000)
     {
       Control_input = 0.06;// slow Wave St **************** Forward model // Stone
 
     }
 
-    else if(iii>4000 && iii<=6000)
+    else if(iii>6000 && iii<=9000)
     {
       Control_input = 0.09;// slow Wave St **************** Forward model // Stone
 
     }
 
-    if(iii>6000)
+    if(iii>9000)
       iii = 0;
 
 //    //Testing
@@ -3295,7 +3295,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           learning_steps = 3000;
 
         double learning_rate;
-        learning_rate = 0.00033; //0.99;//RLS = 0.99
+        learning_rate = 0.99; //0.00033; //0.99;//RLS = 0.99
 
 
         //Using learned weights from files
@@ -3424,20 +3424,25 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if(Control_input == 0.04)
         {
           ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
-          ESTrainOutput_R0[1]= 1.0; //Training output (target function)
-          ESTrainOutput_R0[2]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[1]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[2]= 0.0; //Training output (target function)
+
+
         }
         if(Control_input == 0.06)
         {
-          ESTrainOutput_R0[0]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[0]= 0.0; //Training output (target function)
           ESTrainOutput_R0[1]= reflex_R_fs.at(0); //Training output (target function)
-          ESTrainOutput_R0[2]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[2]= 0.0; //Training output (target function)
+
+
         }
         if(Control_input == 0.09)
         {
-          ESTrainOutput_R0[0]= 1.0; //Training output (target function)
-          ESTrainOutput_R0[1]= 1.0; //Training output (target function)
+          ESTrainOutput_R0[0]= 0.0; //Training output (target function)
+          ESTrainOutput_R0[1]= 0.0; //Training output (target function)
           ESTrainOutput_R0[2]= reflex_R_fs.at(0); //Training output (target function)
+
         }
 
 
@@ -3450,6 +3455,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         fmodel_cmr0_output_rc.at(0) = ESN_R0->outputs->val(0, 0); // first output
         fmodel_cmr0_output_rc.at(1) = ESN_R0->outputs->val(1, 0); // second output
         fmodel_cmr0_output_rc.at(2) = ESN_R0->outputs->val(2, 0); // third output
+
+        ESN_R0->printMatrix(ESN_R0->endweights);
 
         fmodel_cmr_output_rc.at(0) = fmodel_cmr0_output_rc.at(0)+fmodel_cmr0_output_rc.at(1)+fmodel_cmr0_output_rc.at(2);
 
@@ -3715,7 +3722,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if(Control_input == 0.04)
         {
           ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)
-          ESTrainOutput_R1[1]= 0.0; //Training output (target function)
+          ESTrainOutput_R1[1]= 00; //Training output (target function)
           ESTrainOutput_R1[2]= 0.0; //Training output (target function)
         }
         if(Control_input == 0.06)
