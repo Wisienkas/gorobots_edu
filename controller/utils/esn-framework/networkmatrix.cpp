@@ -1009,30 +1009,48 @@ void ESNetwork::readNoiseFromFile(int num)
 
 void ESNetwork::readEndweightsFromFile(int num)
 {
+	matrix::Matrix * temp = new matrix::Matrix(endweights->getM(), endweights->getN());
 
-	char str[10];
+		char str[10];
 
-	//Opens for reading the file
+		//Opens for reading the file
 
-	std::ostringstream fileNameStream("");
-	fileNameStream<<"output_weights_"<<num<<".txt";
+		std::ostringstream fileNameStream("");
+		fileNameStream<<"output_weights_"<<num<<".txt";
 
-	std::string fileName = fileNameStream.str();
+		std::string fileName = fileNameStream.str();
 
-	std::ifstream b_file(fileName.c_str());
-
-
-	             //Reads one string from the file
-    int i =0;
-	while(b_file>>str) //time first column
-	    {
+		std::ifstream file(fileName.c_str());
 
 
-          this->endweights->val(0,i) = atof(str);//input1
+		for(int i = 0; i < endweights->getM(); i++)
+		{
+		   for(int j = 0; j < endweights->getN(); j++)
+		   {
+		         if ( !(file >> str))
+		         {
+		             std::cerr << "error while reading output weights file";
+		             break;
+		         }
 
-          i++;
+		         if (str ==" ") break;
 
-	     }
+		         temp->val(i,j) = atof(str);
+		   }
+		   if ( !file ) break;
+		}
+
+		//this->*noise = *temp;
+
+		for(int i = 0; i < endweights->getM(); i++)
+				{
+				   for(int j = 0; j < endweights->getN(); j++)
+
+		             	this->endweights->val(i,j) = (temp->val(i,j));
+				}
+
+		delete temp;
+
 
 }
 

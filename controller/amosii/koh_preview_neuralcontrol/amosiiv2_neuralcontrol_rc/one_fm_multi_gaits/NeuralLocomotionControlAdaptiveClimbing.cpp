@@ -1232,23 +1232,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   if(sequentiral_learning)
   {
-    if(iii<= 3000 /*2000*/)
+    if(iii<= 4000 /*2000*/)
     {
       Control_input = 0.04;// slow Wave St **************** Forward model // Stone
     }
-    else if(iii>3000 && iii<=6000)
+    else if(iii>4000 && iii<=8000)
     {
       Control_input = 0.06;// slow Wave St **************** Forward model // Stone
 
     }
 
-    else if(iii>6000 && iii<=9000)
+    else if(iii>8000 && iii<=12000)
     {
       Control_input = 0.09;// slow Wave St **************** Forward model // Stone
 
     }
 
-    if(iii>9000)
+    if(iii>12000)
       iii = 0;
 
 //    //Testing
