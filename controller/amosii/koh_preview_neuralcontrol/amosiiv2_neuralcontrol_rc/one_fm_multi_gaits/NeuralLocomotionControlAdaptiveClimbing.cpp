@@ -118,7 +118,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = false; //true; // true = use learned weights, false = let the RC learn
+  loadweight = false; //true; //false; //true; // true = use learned weights, false = let the RC learn
   learn = true; //false; // true = learning, false = use learned weights
 
   //LTM option
@@ -1232,23 +1232,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   if(sequentiral_learning)
   {
-    if(iii<= 4000 /*2000*/)
+    if(iii<= 3000 /*2000*/)
     {
       Control_input = 0.04;// slow Wave St **************** Forward model // Stone
     }
-    else if(iii>4000 && iii<=8000)
+    else if(iii>3000 && iii<=6000)
     {
       Control_input = 0.06;// slow Wave St **************** Forward model // Stone
 
     }
 
-    else if(iii>8000 && iii<=12000)
+    else if(iii>6000 && iii<=9000)
     {
       Control_input = 0.09;// slow Wave St **************** Forward model // Stone
 
     }
 
-    if(iii>12000)
+    if(iii>9000)
       iii = 0;
 
 //    //Testing
@@ -3419,6 +3419,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
  std::cout<<" N weight------"<<std::endl;
      ESN_R0->printMatrix(ESN_R0->outputs);
+
+     if(global_count == 3000)
+     {
+    	 // control_input 0.04 corresponds to 1
+         ESN_R0->writeEndweightsToFile(111);
+         ESN_R1->writeEndweightsToFile(112);
+         ESN_R2->writeEndweightsToFile(113);
+
+         ESN_L0->writeEndweightsToFile(121);
+         ESN_L1->writeEndweightsToFile(122);
+         ESN_L2->writeEndweightsToFile(123);
+
+     }
+
+     if(global_count == 6000){
+
+    	 // control_input 0.06 corresponds to 2
+         ESN_R0->writeEndweightsToFile(211);
+         ESN_R1->writeEndweightsToFile(212);
+         ESN_R2->writeEndweightsToFile(213);
+
+         ESN_L0->writeEndweightsToFile(221);
+         ESN_L1->writeEndweightsToFile(222);
+         ESN_L2->writeEndweightsToFile(223);
+
+     }
+
+     if(global_count == 9000){
+
+    	 // control_input 0.09 corresponds to 3
+         ESN_R0->writeEndweightsToFile(311);
+         ESN_R1->writeEndweightsToFile(312);
+         ESN_R2->writeEndweightsToFile(313);
+
+         ESN_L0->writeEndweightsToFile(321);
+         ESN_L1->writeEndweightsToFile(322);
+         ESN_L2->writeEndweightsToFile(323);
+
+     }
+
 
         //-----Module ESN 1
         if(Control_input == 0.04)

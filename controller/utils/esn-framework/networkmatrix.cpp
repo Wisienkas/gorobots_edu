@@ -519,6 +519,7 @@ void ESNetwork::trainOnlineRecursive(float * Outputs, float forgettingFactor, fl
 			else if(outnonlinearity == 0 || outnonlinearity == 1)
 				onlineError->val(0,i) = ((Outputs[i])-temp2->val(0,i));
 
+
 		}
 		break;
 	}
@@ -863,6 +864,26 @@ void ESNetwork::writeEndweightsToFile(int num)
 	out2.close();
 
 }
+
+void ESNetwork::writeInneractivityToFile(int num)
+{
+	std::ostringstream fileNameStream("");
+		fileNameStream<<"inner_activity_"<<num<<".txt";
+
+		std::string fileName = fileNameStream.str();
+
+		out2.open(fileName.c_str());
+
+		for(int i = 0; i < this->intermediates->getM(); i++)
+				{for(int j = 0; j < this->intermediates->getN(); j++)
+					out2<<this->intermediates->val(i,j)<<" ";
+	             out2<<"\n";
+
+				}
+		out2.close();
+
+}
+
 void ESNetwork::readInnerweightsFromFile(int num)
 {
 	matrix::Matrix * temp = new matrix::Matrix(innerweights->getM(), innerweights->getN());
@@ -958,6 +979,8 @@ void ESNetwork::readStartweightsFromFile(int num)
 
 
 }
+
+
 
 void ESNetwork::readNoiseFromFile(int num)
 {

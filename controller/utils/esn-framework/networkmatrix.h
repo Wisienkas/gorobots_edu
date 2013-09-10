@@ -125,6 +125,8 @@ class ESNetwork{
      * returns the mean square error between given Outputs and computed outputs over "time" discrete timesteps. Please refer to readme for further details.
      */
 
+    void writeInneractivityToFile(int num);
+
     void writeNoiseToFile(int num);
 
     void writeInnerweightsToFile(int num);
