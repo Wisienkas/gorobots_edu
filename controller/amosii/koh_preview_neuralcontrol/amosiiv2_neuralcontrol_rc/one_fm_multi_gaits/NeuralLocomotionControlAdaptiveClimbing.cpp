@@ -65,6 +65,10 @@ int count_neuron = 0;
 int count_neuron_learning = 0;
 bool ltm_start = false;
 
+bool singlegait = false;
+
+static int iii=0;
+
 //3) Step function of Neural locomotion control------
 
 NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(){
@@ -118,8 +122,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = false; //true; //false; //true; // true = use learned weights, false = let the RC learn
-  learn = true; //false; // true = learning, false = use learned weights
+  loadweight = true; //false ; //false; //false; //true; //false; //true; // true = use learned weights, false = let the RC learn
+  learn = false ; //true; //true; //false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -1182,7 +1186,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   old_pcpg = pcpg_output.at(1);
 
   //Input to control locomotion
-  int static iii=0;
+
   iii++;
 
   //  std::cout<<"counter"<<" "<<iii<< "\n";
@@ -3302,6 +3306,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if (learn == false && loadweight == true)
         {
 
+           if (singlegait){
         	// Reading the stored endweights from the file
         	ESN_R0->readEndweightsFromFile(11);
         	ESN_R1->readEndweightsFromFile(12);
@@ -3337,6 +3342,125 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         	ESN_L0->readNoiseFromFile(21);
         	ESN_L1->readNoiseFromFile(22);
         	ESN_L2->readNoiseFromFile(23);
+
+           }
+
+           else {
+        	   if (Control_input == 0.04){
+
+               	ESN_R0->readEndweightsFromFile(111);
+               	ESN_R1->readEndweightsFromFile(112);
+               	ESN_R2->readEndweightsFromFile(113);
+
+               	ESN_L0->readEndweightsFromFile(121);
+               	ESN_L1->readEndweightsFromFile(122);
+               	ESN_L2->readEndweightsFromFile(123);
+
+               	//reading the stored input weights from the file
+               	ESN_R0->readStartweightsFromFile(111);
+               	ESN_R1->readStartweightsFromFile(112);
+               	ESN_R2->readStartweightsFromFile(113);
+
+               	ESN_L0->readStartweightsFromFile(121);
+               	ESN_L1->readStartweightsFromFile(122);
+               	ESN_L2->readStartweightsFromFile(123);
+
+               	//reading the stored inner RC weights from the file
+               	ESN_R0->readInnerweightsFromFile(111);
+               	ESN_R1->readInnerweightsFromFile(112);
+               	ESN_R2->readInnerweightsFromFile(113);
+
+               	ESN_L0->readInnerweightsFromFile(121);
+               	ESN_L1->readInnerweightsFromFile(122);
+               	ESN_L2->readInnerweightsFromFile(123);
+
+               	//noise
+               	ESN_R0->readNoiseFromFile(111);
+               	ESN_R1->readNoiseFromFile(112);
+               	ESN_R2->readNoiseFromFile(113);
+
+               	ESN_L0->readNoiseFromFile(121);
+               	ESN_L1->readNoiseFromFile(122);
+               	ESN_L2->readNoiseFromFile(123);
+        	   }
+
+        	   if (Control_input == 0.06){
+
+               	ESN_R0->readEndweightsFromFile(211);
+               	ESN_R1->readEndweightsFromFile(212);
+               	ESN_R2->readEndweightsFromFile(213);
+
+               	ESN_L0->readEndweightsFromFile(221);
+               	ESN_L1->readEndweightsFromFile(222);
+               	ESN_L2->readEndweightsFromFile(223);
+
+               	//reading the stored input weights from the file
+               	ESN_R0->readStartweightsFromFile(211);
+               	ESN_R1->readStartweightsFromFile(212);
+               	ESN_R2->readStartweightsFromFile(213);
+
+               	ESN_L0->readStartweightsFromFile(221);
+               	ESN_L1->readStartweightsFromFile(222);
+               	ESN_L2->readStartweightsFromFile(223);
+
+               	//reading the stored inner RC weights from the file
+               	ESN_R0->readInnerweightsFromFile(211);
+               	ESN_R1->readInnerweightsFromFile(212);
+               	ESN_R2->readInnerweightsFromFile(213);
+
+               	ESN_L0->readInnerweightsFromFile(221);
+               	ESN_L1->readInnerweightsFromFile(222);
+               	ESN_L2->readInnerweightsFromFile(223);
+
+               	//noise
+               	ESN_R0->readNoiseFromFile(211);
+               	ESN_R1->readNoiseFromFile(212);
+               	ESN_R2->readNoiseFromFile(213);
+
+               	ESN_L0->readNoiseFromFile(221);
+               	ESN_L1->readNoiseFromFile(222);
+               	ESN_L2->readNoiseFromFile(223);
+        	   }
+
+        	   if (Control_input == 0.09){
+
+               	ESN_R0->readEndweightsFromFile(311);
+               	ESN_R1->readEndweightsFromFile(312);
+               	ESN_R2->readEndweightsFromFile(313);
+
+               	ESN_L0->readEndweightsFromFile(321);
+               	ESN_L1->readEndweightsFromFile(322);
+               	ESN_L2->readEndweightsFromFile(323);
+
+               	//reading the stored input weights from the file
+               	ESN_R0->readStartweightsFromFile(311);
+               	ESN_R1->readStartweightsFromFile(312);
+               	ESN_R2->readStartweightsFromFile(313);
+
+               	ESN_L0->readStartweightsFromFile(321);
+               	ESN_L1->readStartweightsFromFile(322);
+               	ESN_L2->readStartweightsFromFile(323);
+
+               	//reading the stored inner RC weights from the file
+               	ESN_R0->readInnerweightsFromFile(311);
+               	ESN_R1->readInnerweightsFromFile(312);
+               	ESN_R2->readInnerweightsFromFile(313);
+
+               	ESN_L0->readInnerweightsFromFile(321);
+               	ESN_L1->readInnerweightsFromFile(322);
+               	ESN_L2->readInnerweightsFromFile(323);
+
+               	//noise
+               	ESN_R0->readNoiseFromFile(311);
+               	ESN_R1->readNoiseFromFile(312);
+               	ESN_R2->readNoiseFromFile(313);
+
+               	ESN_L0->readNoiseFromFile(321);
+               	ESN_L1->readNoiseFromFile(322);
+               	ESN_L2->readNoiseFromFile(323);
+
+        	   }
+           }
 
         	if(global_count>1000)
         	switchon_reflexes = true;
@@ -3420,7 +3544,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
  std::cout<<" N weight------"<<std::endl;
      ESN_R0->printMatrix(ESN_R0->outputs);
 
-     if(global_count == 3000)
+     if(global_count == 3000 && loadweight == false)
      {
     	 // control_input 0.04 corresponds to 1
          ESN_R0->writeEndweightsToFile(111);
@@ -3431,9 +3555,35 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
          ESN_L1->writeEndweightsToFile(122);
          ESN_L2->writeEndweightsToFile(123);
 
+         ESN_R0->writeStartweightsToFile(111);
+         ESN_R1->writeStartweightsToFile(112);
+         ESN_R2->writeStartweightsToFile(113);
+
+         ESN_L0->writeStartweightsToFile(121);
+         ESN_L1->writeStartweightsToFile(122);
+         ESN_L2->writeStartweightsToFile(123);
+
+         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+         ESN_R0->writeInnerweightsToFile(111);
+         ESN_R1->writeInnerweightsToFile(112);
+         ESN_R2->writeInnerweightsToFile(113);
+
+         ESN_L0->writeInnerweightsToFile(121);
+         ESN_L1->writeInnerweightsToFile(122);
+         ESN_L2->writeInnerweightsToFile(123);
+
+         //noise
+         ESN_R0->writeNoiseToFile(111);
+         ESN_R1->writeNoiseToFile(112);
+         ESN_R2->writeNoiseToFile(113);
+
+         ESN_L0->writeNoiseToFile(121);
+         ESN_L1->writeNoiseToFile(122);
+         ESN_L2->writeNoiseToFile(123);
+
      }
 
-     if(global_count == 6000){
+     if(global_count == 6000 && loadweight == false){
 
     	 // control_input 0.06 corresponds to 2
          ESN_R0->writeEndweightsToFile(211);
@@ -3444,9 +3594,35 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
          ESN_L1->writeEndweightsToFile(222);
          ESN_L2->writeEndweightsToFile(223);
 
+         ESN_R0->writeStartweightsToFile(211);
+         ESN_R1->writeStartweightsToFile(212);
+         ESN_R2->writeStartweightsToFile(213);
+
+         ESN_L0->writeStartweightsToFile(221);
+         ESN_L1->writeStartweightsToFile(222);
+         ESN_L2->writeStartweightsToFile(223);
+
+         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+         ESN_R0->writeInnerweightsToFile(211);
+         ESN_R1->writeInnerweightsToFile(212);
+         ESN_R2->writeInnerweightsToFile(213);
+
+         ESN_L0->writeInnerweightsToFile(221);
+         ESN_L1->writeInnerweightsToFile(222);
+         ESN_L2->writeInnerweightsToFile(223);
+
+         //noise
+         ESN_R0->writeNoiseToFile(211);
+         ESN_R1->writeNoiseToFile(212);
+         ESN_R2->writeNoiseToFile(213);
+
+         ESN_L0->writeNoiseToFile(221);
+         ESN_L1->writeNoiseToFile(222);
+         ESN_L2->writeNoiseToFile(223);
+
      }
 
-     if(global_count == 9000){
+     if(global_count == 9000 && loadweight == false){
 
     	 // control_input 0.09 corresponds to 3
          ESN_R0->writeEndweightsToFile(311);
@@ -3456,6 +3632,32 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
          ESN_L0->writeEndweightsToFile(321);
          ESN_L1->writeEndweightsToFile(322);
          ESN_L2->writeEndweightsToFile(323);
+
+         ESN_R0->writeStartweightsToFile(311);
+         ESN_R1->writeStartweightsToFile(312);
+         ESN_R2->writeStartweightsToFile(313);
+
+         ESN_L0->writeStartweightsToFile(321);
+         ESN_L1->writeStartweightsToFile(322);
+         ESN_L2->writeStartweightsToFile(323);
+
+         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+         ESN_R0->writeInnerweightsToFile(311);
+         ESN_R1->writeInnerweightsToFile(312);
+         ESN_R2->writeInnerweightsToFile(313);
+
+         ESN_L0->writeInnerweightsToFile(321);
+         ESN_L1->writeInnerweightsToFile(322);
+         ESN_L2->writeInnerweightsToFile(323);
+
+         //noise
+         ESN_R0->writeNoiseToFile(311);
+         ESN_R1->writeNoiseToFile(312);
+         ESN_R2->writeNoiseToFile(313);
+
+         ESN_L0->writeNoiseToFile(321);
+         ESN_L1->writeNoiseToFile(322);
+         ESN_L2->writeNoiseToFile(323);
 
      }
 
