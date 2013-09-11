@@ -67,7 +67,7 @@ bool ltm_start = false;
 
 bool singlegait = false;
 
-static int iii=0;
+
 
 //3) Step function of Neural locomotion control------
 
@@ -1186,6 +1186,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   old_pcpg = pcpg_output.at(1);
 
   //Input to control locomotion
+  static int iii=0;
 
   iii++;
 
