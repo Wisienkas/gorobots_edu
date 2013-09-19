@@ -65,8 +65,16 @@ int count_neuron = 0;
 int count_neuron_learning = 0;
 bool ltm_start = false;
 
-bool singlegait = false;
 
+bool singlegait = false; //false = learn 3 gaits, ture = learn only one gait
+
+//Three selected gaits
+double gait1 = 0.04;// fast wave gait for loose terrain
+double gait2 = 0.06;// tetrapod gait for rough terrain
+double gait3 = 0.09;// caterpillar gait for gap crossing
+int t_change_gait1 = 3000; // each gait is learned for 3000 time steps
+int t_change_gait2 = 6000;
+int t_change_gait3 = 9000;
 
 
 //3) Step function of Neural locomotion control------
@@ -122,8 +130,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = true; //false ; //false; //false; //true; //false; //true; // true = use learned weights, false = let the RC learn
-  learn = false ; //true; //true; //false; // true = learning, false = use learned weights
+  loadweight = true; // true = use learned weights, false = let the RC learn
+  learn = false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -852,159 +860,159 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //---------------------ESN module 3
 
-    int num_input_ESN_R2 = 1;
-    int num_output_ESN_R2 = 3;
+  int num_input_ESN_R2 = 1;
+  int num_output_ESN_R2 = 3;
 
-    ESN_R2 = new ESNetwork(num_input_ESN_R2/*no. input*/,num_output_ESN_R2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+  ESN_R2 = new ESNetwork(num_input_ESN_R2/*no. input*/,num_output_ESN_R2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
-    ESN_R2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-    ESN_R2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
-    ESN_R2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+  ESN_R2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_R2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_R2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-    ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-    ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
-    ESN_R2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_R2->LearnMode = 1; //1;//RLS = 1. LMS =2
-    ESN_R2->Loadweight = false; // true = loading learned weights
-    ESN_R2->NoiseRange = 0.001; //
-    ESN_R2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+  ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_R2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_R2->LearnMode = 1; //1;//RLS = 1. LMS =2
+  ESN_R2->Loadweight = false; // true = loading learned weights
+  ESN_R2->NoiseRange = 0.001; //
+  ESN_R2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
 
-    ESN_R2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
-
-
-    //Create ESN input vector
-    ESinput_R2 = new float[num_input_ESN_R2];
-    //Create ESN target output vector
-    ESTrainOutput_R2 = new float[num_output_ESN_R2];
-
-    //Initial values of input and target output
-    for(unsigned int i = 0; i < num_input_ESN_R2; i++)
-    {
-      ESinput_R2[i] = 0.0;
-    }
-
-    for(unsigned int i = 0; i< num_output_ESN_R2; i++)
-    {
-      ESTrainOutput_R2[i] = 0.0;
-
-    }
-
-    //---------------------ESN module 4
-
-    int num_input_ESN_L0 = 1;
-    int num_output_ESN_L0 = 3;
-
-    ESN_L0 = new ESNetwork(num_input_ESN_L0/*no. input*/,num_output_ESN_L0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
-
-    ESN_L0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-    ESN_L0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
-    ESN_L0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
-
-    ESN_L0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-    ESN_L0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
-    ESN_L0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L0->LearnMode = 1; //1;//RLS = 1. LMS =2
-    ESN_L0->Loadweight = false; // true = loading learned weights
-    ESN_L0->NoiseRange = 0.001; //
-    ESN_L0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
-
-    ESN_L0->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+  ESN_R2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
 
 
-    //Create ESN input vector
-    ESinput_L0 = new float[num_input_ESN_L0];
-    //Create ESN target output vector
-    ESTrainOutput_L0 = new float[num_output_ESN_L0];
+  //Create ESN input vector
+  ESinput_R2 = new float[num_input_ESN_R2];
+  //Create ESN target output vector
+  ESTrainOutput_R2 = new float[num_output_ESN_R2];
 
-    //Initial values of input and target output
-    for(unsigned int i = 0; i < num_input_ESN_L0; i++)
-    {
-      ESinput_L0[i] = 0.0;
-    }
+  //Initial values of input and target output
+  for(unsigned int i = 0; i < num_input_ESN_R2; i++)
+  {
+    ESinput_R2[i] = 0.0;
+  }
 
-    for(unsigned int i = 0; i< num_output_ESN_L0; i++)
-    {
-      ESTrainOutput_L0[i] = 0.0;
+  for(unsigned int i = 0; i< num_output_ESN_R2; i++)
+  {
+    ESTrainOutput_R2[i] = 0.0;
 
-    }
+  }
 
-    //---------------------ESN module 5
+  //---------------------ESN module 4
 
-    int num_input_ESN_L1 = 1;
-    int num_output_ESN_L1 = 3;
+  int num_input_ESN_L0 = 1;
+  int num_output_ESN_L0 = 3;
 
-    ESN_L1 = new ESNetwork(num_input_ESN_L1/*no. input*/,num_output_ESN_L1 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+  ESN_L0 = new ESNetwork(num_input_ESN_L0/*no. input*/,num_output_ESN_L0 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
 
-    ESN_L1->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-    ESN_L1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
-    ESN_L1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+  ESN_L0->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_L0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_L0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-    ESN_L1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-    ESN_L1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
-    ESN_L1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L1->LearnMode = 1; //1;//RLS = 1. LMS =2
-    ESN_L1->Loadweight = false; // true = loading learned weights
-    ESN_L1->NoiseRange = 0.001; //
-    ESN_L1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+  ESN_L0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_L0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_L0->LearnMode = 1; //1;//RLS = 1. LMS =2
+  ESN_L0->Loadweight = false; // true = loading learned weights
+  ESN_L0->NoiseRange = 0.001; //
+  ESN_L0->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
 
-    ESN_L1->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
-
-
-    //Create ESN input vector
-    ESinput_L1 = new float[num_input_ESN_L1];
-    //Create ESN target output vector
-    ESTrainOutput_L1 = new float[num_output_ESN_L1];
-
-    //Initial values of input and target output
-    for(unsigned int i = 0; i < num_input_ESN_L1; i++)
-    {
-      ESinput_L1[i] = 0.0;
-    }
-
-    for(unsigned int i = 0; i< num_output_ESN_L1; i++)
-    {
-      ESTrainOutput_L1[i] = 0.0;
-
-    }
-
-    //---------------------ESN module 6
-
-    int num_input_ESN_L2 = 1;
-    int num_output_ESN_L2 = 3;
-
-    ESN_L2 = new ESNetwork(num_input_ESN_L2/*no. input*/,num_output_ESN_L2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
-
-    ESN_L2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-    ESN_L2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
-    ESN_L2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
-
-    ESN_L2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
-    ESN_L2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
-    ESN_L2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
-    ESN_L2->LearnMode = 1; //1;//RLS = 1. LMS =2
-    ESN_L2->Loadweight = false; // true = loading learned weights
-    ESN_L2->NoiseRange = 0.001; //
-    ESN_L2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
-
-    ESN_L2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+  ESN_L0->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
 
 
-    //Create ESN input vector
-    ESinput_L2 = new float[num_input_ESN_L2];
-    //Create ESN target output vector
-    ESTrainOutput_L2 = new float[num_output_ESN_L2];
+  //Create ESN input vector
+  ESinput_L0 = new float[num_input_ESN_L0];
+  //Create ESN target output vector
+  ESTrainOutput_L0 = new float[num_output_ESN_L0];
 
-    //Initial values of input and target output
-    for(unsigned int i = 0; i < num_input_ESN_L2; i++)
-    {
-      ESinput_L2[i] = 0.0;
-    }
+  //Initial values of input and target output
+  for(unsigned int i = 0; i < num_input_ESN_L0; i++)
+  {
+    ESinput_L0[i] = 0.0;
+  }
 
-    for(unsigned int i = 0; i< num_output_ESN_L2; i++)
-    {
-      ESTrainOutput_L2[i] = 0.0;
+  for(unsigned int i = 0; i< num_output_ESN_L0; i++)
+  {
+    ESTrainOutput_L0[i] = 0.0;
 
-    }
+  }
+
+  //---------------------ESN module 5
+
+  int num_input_ESN_L1 = 1;
+  int num_output_ESN_L1 = 3;
+
+  ESN_L1 = new ESNetwork(num_input_ESN_L1/*no. input*/,num_output_ESN_L1 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+  ESN_L1->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_L1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_L1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+  ESN_L1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_L1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_L1->LearnMode = 1; //1;//RLS = 1. LMS =2
+  ESN_L1->Loadweight = false; // true = loading learned weights
+  ESN_L1->NoiseRange = 0.001; //
+  ESN_L1->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+  ESN_L1->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+  //Create ESN input vector
+  ESinput_L1 = new float[num_input_ESN_L1];
+  //Create ESN target output vector
+  ESTrainOutput_L1 = new float[num_output_ESN_L1];
+
+  //Initial values of input and target output
+  for(unsigned int i = 0; i < num_input_ESN_L1; i++)
+  {
+    ESinput_L1[i] = 0.0;
+  }
+
+  for(unsigned int i = 0; i< num_output_ESN_L1; i++)
+  {
+    ESTrainOutput_L1[i] = 0.0;
+
+  }
+
+  //---------------------ESN module 6
+
+  int num_input_ESN_L2 = 1;
+  int num_output_ESN_L2 = 3;
+
+  ESN_L2 = new ESNetwork(num_input_ESN_L2/*no. input*/,num_output_ESN_L2 /*no. output*/, 30/*30*/ /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, 0.1 /*0.1 leak = 0.0-1.0*/, false /*IP*/);
+
+  ESN_L2->outnonlinearity = 0; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
+  ESN_L2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN_L2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
+
+  ESN_L2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
+  ESN_L2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN_L2->LearnMode = 1; //1;//RLS = 1. LMS =2
+  ESN_L2->Loadweight = false; // true = loading learned weights
+  ESN_L2->NoiseRange = 0.001; //
+  ESN_L2->RCneuronNoise = false; // false = constant fixed bias, true = changing noise bias every time
+
+  ESN_L2->generate_random_weights(50 /*70  10% sparsity = 90% connectivity */, 0.95 /*1.2-1.5 = chaotics*/);
+
+
+  //Create ESN input vector
+  ESinput_L2 = new float[num_input_ESN_L2];
+  //Create ESN target output vector
+  ESTrainOutput_L2 = new float[num_output_ESN_L2];
+
+  //Initial values of input and target output
+  for(unsigned int i = 0; i < num_input_ESN_L2; i++)
+  {
+    ESinput_L2[i] = 0.0;
+  }
+
+  for(unsigned int i = 0; i< num_output_ESN_L2; i++)
+  {
+    ESTrainOutput_L2[i] = 0.0;
+
+  }
   //--------------------------Add ENS network--(2)-----------------------------------//
 
   //Forward model ESN
@@ -1046,11 +1054,11 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   {
     for(int j = 0; j < ESN_R0->endweights->getN(); j++)
     {
-       inputs_ltm_out->val(i,j) = 0.0;
-       outputs_ltm_out->val(i,j) = 0.0;
-       weights_ltm_out->val(i,j) =0.001;
+      inputs_ltm_out->val(i,j) = 0.0;
+      outputs_ltm_out->val(i,j) = 0.0;
+      weights_ltm_out->val(i,j) =0.001;
 
-     }
+    }
   }
 
 
@@ -1063,11 +1071,11 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   {
     for(int j = 0; j < ESN_R0->startweights->getN(); j++)
     {
-       inputs_ltm_in->val(i,j) = 0.0;
-       outputs_ltm_in->val(i,j) = 0.0;
-       weights_ltm_in->val(i,j) =0.001;
+      inputs_ltm_in->val(i,j) = 0.0;
+      outputs_ltm_in->val(i,j) = 0.0;
+      weights_ltm_in->val(i,j) =0.001;
 
-     }
+    }
   }
 
   inputs_ltm_hid = new matrix::Matrix(ESN_R0->innerweights->getM(),ESN_R0->innerweights->getN());
@@ -1079,11 +1087,11 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   {
     for(int j = 0; j < ESN_R0->innerweights->getN(); j++)
     {
-       inputs_ltm_hid->val(i,j) = 0.0;
-       outputs_ltm_hid->val(i,j) = 0.0;
-       weights_ltm_hid->val(i,j) =0.001;
+      inputs_ltm_hid->val(i,j) = 0.0;
+      outputs_ltm_hid->val(i,j) = 0.0;
+      weights_ltm_hid->val(i,j) =0.001;
 
-     }
+    }
   }
 
   inputs_ltm_bi = new matrix::Matrix(ESN_R0->noise->getM(),ESN_R0->noise->getN());
@@ -1095,11 +1103,11 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   {
     for(int j = 0; j < ESN_R0->noise->getN(); j++)
     {
-       inputs_ltm_bi->val(i,j) = 0.0;
-       outputs_ltm_bi->val(i,j) = 0.0;
-       weights_ltm_bi->val(i,j) =0.001;
+      inputs_ltm_bi->val(i,j) = 0.0;
+      outputs_ltm_bi->val(i,j) = 0.0;
+      weights_ltm_bi->val(i,j) =0.001;
 
-     }
+    }
   }
 
   old_pcpg = 0.0;
@@ -1237,50 +1245,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   if(sequentiral_learning)
   {
-    if(iii<= 3000 /*2000*/)
+    if(iii<= t_change_gait1)
     {
-      Control_input = 0.04;// slow Wave St **************** Forward model // Stone
+      Control_input = gait1;
     }
-    else if(iii>3000 && iii<=6000)
+    else if(iii>t_change_gait1 && iii<=t_change_gait2)
     {
-      Control_input = 0.06;// slow Wave St **************** Forward model // Stone
-
+      Control_input = gait2;
     }
-
-    else if(iii>6000 && iii<=9000)
+    else if(iii>t_change_gait2 && iii<=t_change_gait3)
     {
-      Control_input = 0.09;// slow Wave St **************** Forward model // Stone
-
+      Control_input = gait3;
     }
 
-    if(iii>9000)
+    if(iii>t_change_gait3)
       iii = 0;
-
-//    //Testing
-//    else if(iii>5000 && iii<=6000)
-//    {
-//      Control_input = 0.02;// slow Wave St **************** Forward model // Stone
-//
-//    }
-//
-//    else if(iii>6000 && iii<=7000)
-//    {
-//      Control_input = 0.03;// slow Wave St **************** Forward model // Stone
-//
-//    }
-//
-//    else if(iii>7000)
-//    {
-//      Control_input = 0.04;// slow Wave St **************** Forward model // Stone
-//
-//    }
-//
-//    if(iii>8000)
-//      iii = 0;
   }
 
-
-  //
   //  //Lateral right NOT WORKING YET!!!!
   //  input.at(0) = 0; //tc JOINT inhibition = 0
   //  input.at(1) = -1; //FL0, FR1, FR2 control NOT USED
@@ -1294,66 +1275,66 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   if(!sequentiral_learning)
   {
-  //**********CPG***************
-  //From 0.02-1.5
-  //Control_input = 0.0;// slow Wave St
-  //Control_input = 0.01;// slow Wave St
+    //**********CPG***************
+    //From 0.02-1.5
+    //Control_input = 0.0;// slow Wave St
+    //Control_input = 0.01;// slow Wave St
 
-  //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+    //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
-  //Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
-
-
-  //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
-
-  //Control_input = 0.05;// L0 and R2 pair slight left curve*************** Grass
-  Control_input = 0.06;//slow stable Tetrapod OK USED
-  //Control_input = 0.07;//slow stable Tetrapod OK USED
+    //Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
 
-  //Control_input = 0.08;//slow stable Tetrapod OK USED STEFF
+    //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
 
-  //Control_input = 0.09;//slow stable Tetrapod OK USED
-  //Control_input = 0.1;//slow stable Tetrapod OK USED
-  //Control_input = 0.11;//slow stable Tetrapod OK USED
-  //Control_input = 0.12;//slow stable Tetrapod OK USED
-  //Control_input =  0.13;//slow stable Tetrapod OK USED
-  //Control_input = 0.14;//slow stable Tetrapod OK USED
-
-  //Control_input = 0.15;//slow stable Tetrapod OK USED //------------------ ESN learnt
+    //Control_input = 0.05;// L0 and R2 pair slight left curve*************** Grass
+    Control_input = 0.06;//slow stable Tetrapod OK USED
+    //Control_input = 0.07;//slow stable Tetrapod OK USED
 
 
-  //Control_input = 0.16;//slow stable Tripod OK USED STEFFen // Flat!!!*************
+    //Control_input = 0.08;//slow stable Tetrapod OK USED STEFF
+
+    //Control_input = 0.09;//slow stable Tetrapod OK USED
+    //Control_input = 0.1;//slow stable Tetrapod OK USED
+    //Control_input = 0.11;//slow stable Tetrapod OK USED
+    //Control_input = 0.12;//slow stable Tetrapod OK USED
+    //Control_input =  0.13;//slow stable Tetrapod OK USED
+    //Control_input = 0.14;//slow stable Tetrapod OK USED
+
+    //Control_input = 0.15;//slow stable Tetrapod OK USED //------------------ ESN learnt
+
+
+    //Control_input = 0.16;//slow stable Tripod OK USED STEFFen // Flat!!!*************
 
 
 
-  //Control_input = 0.17;//slow stable Tetrapod OK USED
-  //Control_input = 0.18;//slow stable Tetrapod OK USED
-  //Control_input = 0.19;//slow stable Tetrapod OK USED
-  //Control_input = 0.20;//slow stable Tetrapod OK USED
-  //Control_input = 0.21;//slow stable Tetrapod OK USED
-  //Control_input = 0.22;//slow stable Tetrapod OK USED
-  //Control_input = 0.23;//pair
-  //Control_input = 0.24;//pair
-  //Control_input = 0.25;//pair with multimeter
-  //Control_input = 0.26;//pair
-  //Control_input = 0.27;//pair
-  //Control_input = 0.28;//pair
+    //Control_input = 0.17;//slow stable Tetrapod OK USED
+    //Control_input = 0.18;//slow stable Tetrapod OK USED
+    //Control_input = 0.19;//slow stable Tetrapod OK USED
+    //Control_input = 0.20;//slow stable Tetrapod OK USED
+    //Control_input = 0.21;//slow stable Tetrapod OK USED
+    //Control_input = 0.22;//slow stable Tetrapod OK USED
+    //Control_input = 0.23;//pair
+    //Control_input = 0.24;//pair
+    //Control_input = 0.25;//pair with multimeter
+    //Control_input = 0.26;//pair
+    //Control_input = 0.27;//pair
+    //Control_input = 0.28;//pair
 
-  //------------------
-  //Control_input = 0.29;//pair
-  //Control_input = 0.3;//pair
-  //Control_input = 0.31;//pair
-  //Control_input = 0.32;//pair+ tripot
-  //Control_input = 0.33;//pair+ tripot
-  //Control_input = 0.34;//pair+ tripot
-  //Control_input = 0.35;//tripot
-  //Control_input = 0.36;//tripot
+    //------------------
+    //Control_input = 0.29;//pair
+    //Control_input = 0.3;//pair
+    //Control_input = 0.31;//pair
+    //Control_input = 0.32;//pair+ tripot
+    //Control_input = 0.33;//pair+ tripot
+    //Control_input = 0.34;//pair+ tripot
+    //Control_input = 0.35;//tripot
+    //Control_input = 0.36;//tripot
 
-  //-------------------
-  //Control_input = 0.14; //terapod OK USED
-  //Control_input = 0.18; //Tripod fast OK USED // with Foot inhibition Good
-  //Control_input = 0.34; //Faster than tripod
+    //-------------------
+    //Control_input = 0.14; //terapod OK USED
+    //Control_input = 0.18; //Tripod fast OK USED // with Foot inhibition Good
+    //Control_input = 0.34; //Faster than tripod
   }
 
   std::cout<<"c_input"<<Control_input<<std::endl;
@@ -1362,19 +1343,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   {
 
     //---PID control--0.03--MAX  =250--//
-//    kp_r.at(i) = 2.5;
-//    ki_r.at(i) = 2.0;
-//    kd_r.at(i) = 2.0;
-//    kp_l.at(i) = 2.5;
-//    ki_l.at(i) = 2.0;
-//    kd_l.at(i) = 2.0;
+    //    kp_r.at(i) = 2.5;
+    //    ki_r.at(i) = 2.0;
+    //    kd_r.at(i) = 2.0;
+    //    kp_l.at(i) = 2.5;
+    //    ki_l.at(i) = 2.0;
+    //    kd_l.at(i) = 2.0;
 
-//    kp_r.at(i) = 1.0+exp(Control_input*10*1.1);
-//    ki_r.at(i) = 0.5+exp(Control_input*10*1.1);
-//    kd_r.at(i) = 0.5+exp(Control_input*10*1.1);
-//    kp_l.at(i) = 1.0+exp(Control_input*10*1.1);
-//    ki_l.at(i) = 0.5+exp(Control_input*10*1.1);
-//    kd_l.at(i) = 0.5+exp(Control_input*10*1.1);
+    //    kp_r.at(i) = 1.0+exp(Control_input*10*1.1);
+    //    ki_r.at(i) = 0.5+exp(Control_input*10*1.1);
+    //    kd_r.at(i) = 0.5+exp(Control_input*10*1.1);
+    //    kp_l.at(i) = 1.0+exp(Control_input*10*1.1);
+    //    ki_l.at(i) = 0.5+exp(Control_input*10*1.1);
+    //    kd_l.at(i) = 0.5+exp(Control_input*10*1.1);
 
     kp_r.at(i) = 10.0+exp(Control_input*10*1.1);//50+
     ki_r.at(i) = 0.5+exp(Control_input*10*1.1);
@@ -1385,11 +1366,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
     std::cout<<"P = "<<kp_r.at(i)<<"I = "<<ki_r.at(i)<<"D = "<<kd_r.at(i)<<std::endl;
 
-//    //---PID control------//
+    //    //---PID control------//
   }
-
-
-
 
   cpg_w.at(0).at(0) =  1.4;
   cpg_w.at(0).at(1) =  0.18+Control_input;//0.4;
@@ -1602,7 +1580,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(7) = vrn_w.at(7).at(0) * vrn_output.at(0) + vrn_w.at(7).at(1) * vrn_output.at(1) + vrn_bias;
 
   vrn_activity.at(12) = vrn_w.at(12).at(4) * vrn_output.at(4) + vrn_w.at(12).at(5) * vrn_output.at(5) + vrn_w.at(12).at(6) * vrn_output.at(6)
-				                        + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
+				                            + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
 
   //VRN 2 (right)
   vrn_activity.at(2) = vrn_psn_w.at(2).at(11) * psn_output.at(11);
@@ -1614,7 +1592,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(11) = vrn_w.at(11).at(2) * vrn_output.at(2) + vrn_w.at(11).at(3) * vrn_output.at(3) + vrn_bias;
 
   vrn_activity.at(13) = vrn_w.at(13).at(8) * vrn_output.at(8) + vrn_w.at(13).at(9) * vrn_output.at(9) + vrn_w.at(13).at(10) * vrn_output.at(10)
-				                        + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
+				                            + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
 
 
   for(unsigned int i=0; i<vrn_output.size();i++)
@@ -3295,9 +3273,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         int learning_steps;
 
         if(sequentiral_learning)
-          learning_steps = 10000;//50000;
+          learning_steps = t_change_gait3;//9000;
         else
-          learning_steps = 3000;
+          learning_steps = t_change_gait1;
 
         double learning_rate;
         learning_rate = 0.99; //0.00033; //0.99;//RLS = 0.99
@@ -3307,175 +3285,176 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if (learn == false && loadweight == true)
         {
 
-           if (singlegait){
-        	// Reading the stored endweights from the file
-        	ESN_R0->readEndweightsFromFile(11);
-        	ESN_R1->readEndweightsFromFile(12);
-        	ESN_R2->readEndweightsFromFile(13);
+          if (singlegait){
+            // Reading the stored endweights from the file
+            ESN_R0->readEndweightsFromFile(11);
+            ESN_R1->readEndweightsFromFile(12);
+            ESN_R2->readEndweightsFromFile(13);
 
-        	ESN_L0->readEndweightsFromFile(21);
-        	ESN_L1->readEndweightsFromFile(22);
-        	ESN_L2->readEndweightsFromFile(23);
+            ESN_L0->readEndweightsFromFile(21);
+            ESN_L1->readEndweightsFromFile(22);
+            ESN_L2->readEndweightsFromFile(23);
 
-        	//reading the stored input weights from the file
-        	ESN_R0->readStartweightsFromFile(11);
-        	ESN_R1->readStartweightsFromFile(12);
-        	ESN_R2->readStartweightsFromFile(13);
+            //reading the stored input weights from the file
+            ESN_R0->readStartweightsFromFile(11);
+            ESN_R1->readStartweightsFromFile(12);
+            ESN_R2->readStartweightsFromFile(13);
 
-        	ESN_L0->readStartweightsFromFile(21);
-        	ESN_L1->readStartweightsFromFile(22);
-        	ESN_L2->readStartweightsFromFile(23);
+            ESN_L0->readStartweightsFromFile(21);
+            ESN_L1->readStartweightsFromFile(22);
+            ESN_L2->readStartweightsFromFile(23);
 
-        	//reading the stored inner RC weights from the file
-        	ESN_R0->readInnerweightsFromFile(11);
-        	ESN_R1->readInnerweightsFromFile(12);
-        	ESN_R2->readInnerweightsFromFile(13);
+            //reading the stored inner RC weights from the file
+            ESN_R0->readInnerweightsFromFile(11);
+            ESN_R1->readInnerweightsFromFile(12);
+            ESN_R2->readInnerweightsFromFile(13);
 
-        	ESN_L0->readInnerweightsFromFile(21);
-        	ESN_L1->readInnerweightsFromFile(22);
-        	ESN_L2->readInnerweightsFromFile(23);
+            ESN_L0->readInnerweightsFromFile(21);
+            ESN_L1->readInnerweightsFromFile(22);
+            ESN_L2->readInnerweightsFromFile(23);
 
-        	//noise
-        	ESN_R0->readNoiseFromFile(11);
-        	ESN_R1->readNoiseFromFile(12);
-        	ESN_R2->readNoiseFromFile(13);
+            //noise
+            ESN_R0->readNoiseFromFile(11);
+            ESN_R1->readNoiseFromFile(12);
+            ESN_R2->readNoiseFromFile(13);
 
-        	ESN_L0->readNoiseFromFile(21);
-        	ESN_L1->readNoiseFromFile(22);
-        	ESN_L2->readNoiseFromFile(23);
+            ESN_L0->readNoiseFromFile(21);
+            ESN_L1->readNoiseFromFile(22);
+            ESN_L2->readNoiseFromFile(23);
 
-           }
+          }
 
-           else {
-        	   if (Control_input == 0.04){
+          else {
+            if (Control_input == gait1){
 
-               	ESN_R0->readEndweightsFromFile(111);
-               	ESN_R1->readEndweightsFromFile(112);
-               	ESN_R2->readEndweightsFromFile(113);
+              ESN_R0->readEndweightsFromFile(111);
+              ESN_R1->readEndweightsFromFile(112);
+              ESN_R2->readEndweightsFromFile(113);
 
-               	ESN_L0->readEndweightsFromFile(121);
-               	ESN_L1->readEndweightsFromFile(122);
-               	ESN_L2->readEndweightsFromFile(123);
+              ESN_L0->readEndweightsFromFile(121);
+              ESN_L1->readEndweightsFromFile(122);
+              ESN_L2->readEndweightsFromFile(123);
 
-               	//reading the stored input weights from the file
-               	ESN_R0->readStartweightsFromFile(111);
-               	ESN_R1->readStartweightsFromFile(112);
-               	ESN_R2->readStartweightsFromFile(113);
+              //reading the stored input weights from the file
+              ESN_R0->readStartweightsFromFile(111);
+              ESN_R1->readStartweightsFromFile(112);
+              ESN_R2->readStartweightsFromFile(113);
 
-               	ESN_L0->readStartweightsFromFile(121);
-               	ESN_L1->readStartweightsFromFile(122);
-               	ESN_L2->readStartweightsFromFile(123);
+              ESN_L0->readStartweightsFromFile(121);
+              ESN_L1->readStartweightsFromFile(122);
+              ESN_L2->readStartweightsFromFile(123);
 
-               	//reading the stored inner RC weights from the file
-               	ESN_R0->readInnerweightsFromFile(111);
-               	ESN_R1->readInnerweightsFromFile(112);
-               	ESN_R2->readInnerweightsFromFile(113);
+              //reading the stored inner RC weights from the file
+              ESN_R0->readInnerweightsFromFile(111);
+              ESN_R1->readInnerweightsFromFile(112);
+              ESN_R2->readInnerweightsFromFile(113);
 
-               	ESN_L0->readInnerweightsFromFile(121);
-               	ESN_L1->readInnerweightsFromFile(122);
-               	ESN_L2->readInnerweightsFromFile(123);
+              ESN_L0->readInnerweightsFromFile(121);
+              ESN_L1->readInnerweightsFromFile(122);
+              ESN_L2->readInnerweightsFromFile(123);
 
-               	//noise
-               	ESN_R0->readNoiseFromFile(111);
-               	ESN_R1->readNoiseFromFile(112);
-               	ESN_R2->readNoiseFromFile(113);
+              //noise
+              ESN_R0->readNoiseFromFile(111);
+              ESN_R1->readNoiseFromFile(112);
+              ESN_R2->readNoiseFromFile(113);
 
-               	ESN_L0->readNoiseFromFile(121);
-               	ESN_L1->readNoiseFromFile(122);
-               	ESN_L2->readNoiseFromFile(123);
-        	   }
+              ESN_L0->readNoiseFromFile(121);
+              ESN_L1->readNoiseFromFile(122);
+              ESN_L2->readNoiseFromFile(123);
+            }
 
-        	   if (Control_input == 0.06){
+            if (Control_input == gait2){
 
-               	ESN_R0->readEndweightsFromFile(211);
-               	ESN_R1->readEndweightsFromFile(212);
-               	ESN_R2->readEndweightsFromFile(213);
+              ESN_R0->readEndweightsFromFile(211);
+              ESN_R1->readEndweightsFromFile(212);
+              ESN_R2->readEndweightsFromFile(213);
 
-               	ESN_L0->readEndweightsFromFile(221);
-               	ESN_L1->readEndweightsFromFile(222);
-               	ESN_L2->readEndweightsFromFile(223);
+              ESN_L0->readEndweightsFromFile(221);
+              ESN_L1->readEndweightsFromFile(222);
+              ESN_L2->readEndweightsFromFile(223);
 
-               	//reading the stored input weights from the file
-               	ESN_R0->readStartweightsFromFile(211);
-               	ESN_R1->readStartweightsFromFile(212);
-               	ESN_R2->readStartweightsFromFile(213);
+              //reading the stored input weights from the file
+              ESN_R0->readStartweightsFromFile(211);
+              ESN_R1->readStartweightsFromFile(212);
+              ESN_R2->readStartweightsFromFile(213);
 
-               	ESN_L0->readStartweightsFromFile(221);
-               	ESN_L1->readStartweightsFromFile(222);
-               	ESN_L2->readStartweightsFromFile(223);
+              ESN_L0->readStartweightsFromFile(221);
+              ESN_L1->readStartweightsFromFile(222);
+              ESN_L2->readStartweightsFromFile(223);
 
-               	//reading the stored inner RC weights from the file
-               	ESN_R0->readInnerweightsFromFile(211);
-               	ESN_R1->readInnerweightsFromFile(212);
-               	ESN_R2->readInnerweightsFromFile(213);
+              //reading the stored inner RC weights from the file
+              ESN_R0->readInnerweightsFromFile(211);
+              ESN_R1->readInnerweightsFromFile(212);
+              ESN_R2->readInnerweightsFromFile(213);
 
-               	ESN_L0->readInnerweightsFromFile(221);
-               	ESN_L1->readInnerweightsFromFile(222);
-               	ESN_L2->readInnerweightsFromFile(223);
+              ESN_L0->readInnerweightsFromFile(221);
+              ESN_L1->readInnerweightsFromFile(222);
+              ESN_L2->readInnerweightsFromFile(223);
 
-               	//noise
-               	ESN_R0->readNoiseFromFile(211);
-               	ESN_R1->readNoiseFromFile(212);
-               	ESN_R2->readNoiseFromFile(213);
+              //noise
+              ESN_R0->readNoiseFromFile(211);
+              ESN_R1->readNoiseFromFile(212);
+              ESN_R2->readNoiseFromFile(213);
 
-               	ESN_L0->readNoiseFromFile(221);
-               	ESN_L1->readNoiseFromFile(222);
-               	ESN_L2->readNoiseFromFile(223);
-        	   }
+              ESN_L0->readNoiseFromFile(221);
+              ESN_L1->readNoiseFromFile(222);
+              ESN_L2->readNoiseFromFile(223);
+            }
 
-        	   if (Control_input == 0.09){
+            if (Control_input == gait3){
 
-               	ESN_R0->readEndweightsFromFile(311);
-               	ESN_R1->readEndweightsFromFile(312);
-               	ESN_R2->readEndweightsFromFile(313);
+              ESN_R0->readEndweightsFromFile(311);
+              ESN_R1->readEndweightsFromFile(312);
+              ESN_R2->readEndweightsFromFile(313);
 
-               	ESN_L0->readEndweightsFromFile(321);
-               	ESN_L1->readEndweightsFromFile(322);
-               	ESN_L2->readEndweightsFromFile(323);
+              ESN_L0->readEndweightsFromFile(321);
+              ESN_L1->readEndweightsFromFile(322);
+              ESN_L2->readEndweightsFromFile(323);
 
-               	//reading the stored input weights from the file
-               	ESN_R0->readStartweightsFromFile(311);
-               	ESN_R1->readStartweightsFromFile(312);
-               	ESN_R2->readStartweightsFromFile(313);
+              //reading the stored input weights from the file
+              ESN_R0->readStartweightsFromFile(311);
+              ESN_R1->readStartweightsFromFile(312);
+              ESN_R2->readStartweightsFromFile(313);
 
-               	ESN_L0->readStartweightsFromFile(321);
-               	ESN_L1->readStartweightsFromFile(322);
-               	ESN_L2->readStartweightsFromFile(323);
+              ESN_L0->readStartweightsFromFile(321);
+              ESN_L1->readStartweightsFromFile(322);
+              ESN_L2->readStartweightsFromFile(323);
 
-               	//reading the stored inner RC weights from the file
-               	ESN_R0->readInnerweightsFromFile(311);
-               	ESN_R1->readInnerweightsFromFile(312);
-               	ESN_R2->readInnerweightsFromFile(313);
+              //reading the stored inner RC weights from the file
+              ESN_R0->readInnerweightsFromFile(311);
+              ESN_R1->readInnerweightsFromFile(312);
+              ESN_R2->readInnerweightsFromFile(313);
 
-               	ESN_L0->readInnerweightsFromFile(321);
-               	ESN_L1->readInnerweightsFromFile(322);
-               	ESN_L2->readInnerweightsFromFile(323);
+              ESN_L0->readInnerweightsFromFile(321);
+              ESN_L1->readInnerweightsFromFile(322);
+              ESN_L2->readInnerweightsFromFile(323);
 
-               	//noise
-               	ESN_R0->readNoiseFromFile(311);
-               	ESN_R1->readNoiseFromFile(312);
-               	ESN_R2->readNoiseFromFile(313);
+              //noise
+              ESN_R0->readNoiseFromFile(311);
+              ESN_R1->readNoiseFromFile(312);
+              ESN_R2->readNoiseFromFile(313);
 
-               	ESN_L0->readNoiseFromFile(321);
-               	ESN_L1->readNoiseFromFile(322);
-               	ESN_L2->readNoiseFromFile(323);
+              ESN_L0->readNoiseFromFile(321);
+              ESN_L1->readNoiseFromFile(322);
+              ESN_L2->readNoiseFromFile(323);
 
-        	   }
-           }
+            }
+          }
 
-        	if(global_count>1000)
-        	switchon_reflexes = true;
-        	elevator_reflexes = true;
+          if(global_count>1000)
+            switchon_reflexes = true;
+          elevator_reflexes = true;
 
-        	//To start capture output activation for LTM learning
-        	if(global_count>1000 && postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
-        	  ltm_start = true;
+          //To start capture output activation for LTM learning
+          if(global_count>1000 && postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
+            ltm_start = true;
 
         }
 
         //  ESN_R0->printMatrix(ESN_R0->endweights); std::cout<<"\n********************************\n\n";
         //  ESN_R0->printMatrix(ESN_R0->startweights); std::cout<<"\n********************************\n\n";
         //  ESN_R0->printMatrix(ESN_R0->innerweights); std::cout<<"\n********************************\n\n";
+
 
         //Storing learned weights to files
         if(global_count>learning_steps /*3000*/ && loadweight == false)
@@ -3484,187 +3463,188 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           switchon_reflexes = true;
           elevator_reflexes = true;
 
+          if (singlegait)
+          {
+            // Write the output weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+            ESN_R0->writeEndweightsToFile(11);
+            ESN_R1->writeEndweightsToFile(12);
+            ESN_R2->writeEndweightsToFile(13);
 
-          // Write the output weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeEndweightsToFile(11);
-          ESN_R1->writeEndweightsToFile(12);
-          ESN_R2->writeEndweightsToFile(13);
+            ESN_L0->writeEndweightsToFile(21);
+            ESN_L1->writeEndweightsToFile(22);
+            ESN_L2->writeEndweightsToFile(23);
 
-          ESN_L0->writeEndweightsToFile(21);
-          ESN_L1->writeEndweightsToFile(22);
-          ESN_L2->writeEndweightsToFile(23);
+            // Write the input weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+            ESN_R0->writeStartweightsToFile(11);
+            ESN_R1->writeStartweightsToFile(12);
+            ESN_R2->writeStartweightsToFile(13);
 
-          // Write the input weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeStartweightsToFile(11);
-          ESN_R1->writeStartweightsToFile(12);
-          ESN_R2->writeStartweightsToFile(13);
+            ESN_L0->writeStartweightsToFile(21);
+            ESN_L1->writeStartweightsToFile(22);
+            ESN_L2->writeStartweightsToFile(23);
 
-          ESN_L0->writeStartweightsToFile(21);
-          ESN_L1->writeStartweightsToFile(22);
-          ESN_L2->writeStartweightsToFile(23);
+            // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+            ESN_R0->writeInnerweightsToFile(11);
+            ESN_R1->writeInnerweightsToFile(12);
+            ESN_R2->writeInnerweightsToFile(13);
 
-          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-          ESN_R0->writeInnerweightsToFile(11);
-          ESN_R1->writeInnerweightsToFile(12);
-          ESN_R2->writeInnerweightsToFile(13);
+            ESN_L0->writeInnerweightsToFile(21);
+            ESN_L1->writeInnerweightsToFile(22);
+            ESN_L2->writeInnerweightsToFile(23);
 
-          ESN_L0->writeInnerweightsToFile(21);
-          ESN_L1->writeInnerweightsToFile(22);
-          ESN_L2->writeInnerweightsToFile(23);
+            //noise
+            ESN_R0->writeNoiseToFile(11);
+            ESN_R1->writeNoiseToFile(12);
+            ESN_R2->writeNoiseToFile(13);
 
-          //noise
-          ESN_R0->writeNoiseToFile(11);
-          ESN_R1->writeNoiseToFile(12);
-          ESN_R2->writeNoiseToFile(13);
-
-          ESN_L0->writeNoiseToFile(21);
-          ESN_L1->writeNoiseToFile(22);
-          ESN_L2->writeNoiseToFile(23);
-
+            ESN_L0->writeNoiseToFile(21);
+            ESN_L1->writeNoiseToFile(22);
+            ESN_L2->writeNoiseToFile(23);
+          }
           //To start capture output activation for LTM learning
           if(postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
-          ltm_start = true;
-        }
+            ltm_start = true;
 
+        }
         std::cout<<"learning_steps"<< ":"<<learning_steps<<std::endl;
 
-//        outFilenlc6<<m_pre.at(CR0_m/*6*/)<<' '<<
-//            reflex_R_fs.at(0)<<' '<<
-//            m_pre.at(CR1_m/*6*/)<<' '<<
-//            reflex_R_fs.at(1)<<' '<<
-//            m_pre.at(CR2_m/*6*/)<<' '<<
-//            reflex_R_fs.at(2)<<' '<<
-//            m_pre.at(CL0_m/*6*/)<<' '<<
-//            reflex_L_fs.at(0)<<' '<<
-//            m_pre.at(CL1_m/*6*/)<<' '<<
-//            reflex_L_fs.at(1)<<' '<<
-//            m_pre.at(CL2_m/*6*/)<<' '<<
-//            reflex_L_fs.at(2)
-//           <<' '<<endl;
+        //        outFilenlc6<<m_pre.at(CR0_m/*6*/)<<' '<<
+        //            reflex_R_fs.at(0)<<' '<<
+        //            m_pre.at(CR1_m/*6*/)<<' '<<
+        //            reflex_R_fs.at(1)<<' '<<
+        //            m_pre.at(CR2_m/*6*/)<<' '<<
+        //            reflex_R_fs.at(2)<<' '<<
+        //            m_pre.at(CL0_m/*6*/)<<' '<<
+        //            reflex_L_fs.at(0)<<' '<<
+        //            m_pre.at(CL1_m/*6*/)<<' '<<
+        //            reflex_L_fs.at(1)<<' '<<
+        //            m_pre.at(CL2_m/*6*/)<<' '<<
+        //            reflex_L_fs.at(2)
+        //           <<' '<<endl;
 
- std::cout<<" N weight------"<<std::endl;
-     ESN_R0->printMatrix(ESN_R0->outputs);
+        std::cout<<" N weight------"<<std::endl;
+        ESN_R0->printMatrix(ESN_R0->outputs);
 
-     if(global_count == 3000 && loadweight == false)
-     {
-    	 // control_input 0.04 corresponds to 1
-         ESN_R0->writeEndweightsToFile(111);
-         ESN_R1->writeEndweightsToFile(112);
-         ESN_R2->writeEndweightsToFile(113);
+        if(global_count == t_change_gait1 && loadweight == false)
+        {
+          // control_input 0.04 corresponds to 1
+          ESN_R0->writeEndweightsToFile(111);
+          ESN_R1->writeEndweightsToFile(112);
+          ESN_R2->writeEndweightsToFile(113);
 
-         ESN_L0->writeEndweightsToFile(121);
-         ESN_L1->writeEndweightsToFile(122);
-         ESN_L2->writeEndweightsToFile(123);
+          ESN_L0->writeEndweightsToFile(121);
+          ESN_L1->writeEndweightsToFile(122);
+          ESN_L2->writeEndweightsToFile(123);
 
-         ESN_R0->writeStartweightsToFile(111);
-         ESN_R1->writeStartweightsToFile(112);
-         ESN_R2->writeStartweightsToFile(113);
+          ESN_R0->writeStartweightsToFile(111);
+          ESN_R1->writeStartweightsToFile(112);
+          ESN_R2->writeStartweightsToFile(113);
 
-         ESN_L0->writeStartweightsToFile(121);
-         ESN_L1->writeStartweightsToFile(122);
-         ESN_L2->writeStartweightsToFile(123);
+          ESN_L0->writeStartweightsToFile(121);
+          ESN_L1->writeStartweightsToFile(122);
+          ESN_L2->writeStartweightsToFile(123);
 
-         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-         ESN_R0->writeInnerweightsToFile(111);
-         ESN_R1->writeInnerweightsToFile(112);
-         ESN_R2->writeInnerweightsToFile(113);
+          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+          ESN_R0->writeInnerweightsToFile(111);
+          ESN_R1->writeInnerweightsToFile(112);
+          ESN_R2->writeInnerweightsToFile(113);
 
-         ESN_L0->writeInnerweightsToFile(121);
-         ESN_L1->writeInnerweightsToFile(122);
-         ESN_L2->writeInnerweightsToFile(123);
+          ESN_L0->writeInnerweightsToFile(121);
+          ESN_L1->writeInnerweightsToFile(122);
+          ESN_L2->writeInnerweightsToFile(123);
 
-         //noise
-         ESN_R0->writeNoiseToFile(111);
-         ESN_R1->writeNoiseToFile(112);
-         ESN_R2->writeNoiseToFile(113);
+          //noise
+          ESN_R0->writeNoiseToFile(111);
+          ESN_R1->writeNoiseToFile(112);
+          ESN_R2->writeNoiseToFile(113);
 
-         ESN_L0->writeNoiseToFile(121);
-         ESN_L1->writeNoiseToFile(122);
-         ESN_L2->writeNoiseToFile(123);
+          ESN_L0->writeNoiseToFile(121);
+          ESN_L1->writeNoiseToFile(122);
+          ESN_L2->writeNoiseToFile(123);
 
-     }
+        }
 
-     if(global_count == 6000 && loadweight == false){
+        if(global_count == t_change_gait2 && loadweight == false){
 
-    	 // control_input 0.06 corresponds to 2
-         ESN_R0->writeEndweightsToFile(211);
-         ESN_R1->writeEndweightsToFile(212);
-         ESN_R2->writeEndweightsToFile(213);
+          // control_input 0.06 corresponds to 2
+          ESN_R0->writeEndweightsToFile(211);
+          ESN_R1->writeEndweightsToFile(212);
+          ESN_R2->writeEndweightsToFile(213);
 
-         ESN_L0->writeEndweightsToFile(221);
-         ESN_L1->writeEndweightsToFile(222);
-         ESN_L2->writeEndweightsToFile(223);
+          ESN_L0->writeEndweightsToFile(221);
+          ESN_L1->writeEndweightsToFile(222);
+          ESN_L2->writeEndweightsToFile(223);
 
-         ESN_R0->writeStartweightsToFile(211);
-         ESN_R1->writeStartweightsToFile(212);
-         ESN_R2->writeStartweightsToFile(213);
+          ESN_R0->writeStartweightsToFile(211);
+          ESN_R1->writeStartweightsToFile(212);
+          ESN_R2->writeStartweightsToFile(213);
 
-         ESN_L0->writeStartweightsToFile(221);
-         ESN_L1->writeStartweightsToFile(222);
-         ESN_L2->writeStartweightsToFile(223);
+          ESN_L0->writeStartweightsToFile(221);
+          ESN_L1->writeStartweightsToFile(222);
+          ESN_L2->writeStartweightsToFile(223);
 
-         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-         ESN_R0->writeInnerweightsToFile(211);
-         ESN_R1->writeInnerweightsToFile(212);
-         ESN_R2->writeInnerweightsToFile(213);
+          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+          ESN_R0->writeInnerweightsToFile(211);
+          ESN_R1->writeInnerweightsToFile(212);
+          ESN_R2->writeInnerweightsToFile(213);
 
-         ESN_L0->writeInnerweightsToFile(221);
-         ESN_L1->writeInnerweightsToFile(222);
-         ESN_L2->writeInnerweightsToFile(223);
+          ESN_L0->writeInnerweightsToFile(221);
+          ESN_L1->writeInnerweightsToFile(222);
+          ESN_L2->writeInnerweightsToFile(223);
 
-         //noise
-         ESN_R0->writeNoiseToFile(211);
-         ESN_R1->writeNoiseToFile(212);
-         ESN_R2->writeNoiseToFile(213);
+          //noise
+          ESN_R0->writeNoiseToFile(211);
+          ESN_R1->writeNoiseToFile(212);
+          ESN_R2->writeNoiseToFile(213);
 
-         ESN_L0->writeNoiseToFile(221);
-         ESN_L1->writeNoiseToFile(222);
-         ESN_L2->writeNoiseToFile(223);
+          ESN_L0->writeNoiseToFile(221);
+          ESN_L1->writeNoiseToFile(222);
+          ESN_L2->writeNoiseToFile(223);
 
-     }
+        }
 
-     if(global_count == 9000 && loadweight == false){
+        if(global_count == t_change_gait3 && loadweight == false){
 
-    	 // control_input 0.09 corresponds to 3
-         ESN_R0->writeEndweightsToFile(311);
-         ESN_R1->writeEndweightsToFile(312);
-         ESN_R2->writeEndweightsToFile(313);
+          // control_input 0.09 corresponds to 3
+          ESN_R0->writeEndweightsToFile(311);
+          ESN_R1->writeEndweightsToFile(312);
+          ESN_R2->writeEndweightsToFile(313);
 
-         ESN_L0->writeEndweightsToFile(321);
-         ESN_L1->writeEndweightsToFile(322);
-         ESN_L2->writeEndweightsToFile(323);
+          ESN_L0->writeEndweightsToFile(321);
+          ESN_L1->writeEndweightsToFile(322);
+          ESN_L2->writeEndweightsToFile(323);
 
-         ESN_R0->writeStartweightsToFile(311);
-         ESN_R1->writeStartweightsToFile(312);
-         ESN_R2->writeStartweightsToFile(313);
+          ESN_R0->writeStartweightsToFile(311);
+          ESN_R1->writeStartweightsToFile(312);
+          ESN_R2->writeStartweightsToFile(313);
 
-         ESN_L0->writeStartweightsToFile(321);
-         ESN_L1->writeStartweightsToFile(322);
-         ESN_L2->writeStartweightsToFile(323);
+          ESN_L0->writeStartweightsToFile(321);
+          ESN_L1->writeStartweightsToFile(322);
+          ESN_L2->writeStartweightsToFile(323);
 
-         // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
-         ESN_R0->writeInnerweightsToFile(311);
-         ESN_R1->writeInnerweightsToFile(312);
-         ESN_R2->writeInnerweightsToFile(313);
+          // Write the inner RC weights to file R0 -> 11, R1->12, R3->13, L0 ->21, ...
+          ESN_R0->writeInnerweightsToFile(311);
+          ESN_R1->writeInnerweightsToFile(312);
+          ESN_R2->writeInnerweightsToFile(313);
 
-         ESN_L0->writeInnerweightsToFile(321);
-         ESN_L1->writeInnerweightsToFile(322);
-         ESN_L2->writeInnerweightsToFile(323);
+          ESN_L0->writeInnerweightsToFile(321);
+          ESN_L1->writeInnerweightsToFile(322);
+          ESN_L2->writeInnerweightsToFile(323);
 
-         //noise
-         ESN_R0->writeNoiseToFile(311);
-         ESN_R1->writeNoiseToFile(312);
-         ESN_R2->writeNoiseToFile(313);
+          //noise
+          ESN_R0->writeNoiseToFile(311);
+          ESN_R1->writeNoiseToFile(312);
+          ESN_R2->writeNoiseToFile(313);
 
-         ESN_L0->writeNoiseToFile(321);
-         ESN_L1->writeNoiseToFile(322);
-         ESN_L2->writeNoiseToFile(323);
+          ESN_L0->writeNoiseToFile(321);
+          ESN_L1->writeNoiseToFile(322);
+          ESN_L2->writeNoiseToFile(323);
 
-     }
+        }
 
 
         //-----Module ESN 1
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_R0[0]= reflex_R_fs.at(0); //Training output (target function)
           ESTrainOutput_R0[1]= 0.0; //Training output (target function)
@@ -3672,7 +3652,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_R0[0]= 0.0; //Training output (target function)
           ESTrainOutput_R0[1]= reflex_R_fs.at(0); //Training output (target function)
@@ -3680,7 +3660,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_R0[0]= 0.0; //Training output (target function)
           ESTrainOutput_R0[1]= 0.0; //Training output (target function)
@@ -3703,11 +3683,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         fmodel_cmr_output_rc.at(0) = fmodel_cmr0_output_rc.at(0)+fmodel_cmr0_output_rc.at(1)+fmodel_cmr0_output_rc.at(2);
 
-//         fmodel_cmr1_output_rc.resize(3);
-//         fmodel_cmr2_output_rc.resize(3);
-//         fmodel_cml0_output_rc.resize(3);
-//         fmodel_cml1_output_rc.resize(3);
-//         fmodel_cml2_output_rc.resize(3);
+        //         fmodel_cmr1_output_rc.resize(3);
+        //         fmodel_cmr2_output_rc.resize(3);
+        //         fmodel_cml0_output_rc.resize(3);
+        //         fmodel_cml1_output_rc.resize(3);
+        //         fmodel_cml2_output_rc.resize(3);
 
         //-----Transfer to LTM 1-------------//
         static int test = 0;
@@ -3854,10 +3834,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             //Input
 
             //Spiking input
-//            if (fmodel_cmr_output_rc.at(0)>-0.5)
-//              fmodel_cmr_output_ltm.at(0) = 0.5;//1.0 = high weight, 0.5 = low weight
-//            else
-//              fmodel_cmr_output_ltm.at(0) = 0.0;
+            //            if (fmodel_cmr_output_rc.at(0)>-0.5)
+            //              fmodel_cmr_output_ltm.at(0) = 0.5;//1.0 = high weight, 0.5 = low weight
+            //            else
+            //              fmodel_cmr_output_ltm.at(0) = 0.0;
 
             //Cont. input
             fmodel_cmr_output_ltm.at(0) = fmodel_cmr_output_rc.at(0)+1.0;
@@ -3883,8 +3863,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             for(int j = 0; j < ESN_R0->endweights->getN(); j++)
             {
 
-//              std::cout<<"size M"<<ESN_R0->endweights->getM()<<std::endl;
-//              std::cout<<"size N"<<ESN_R0->endweights->getN()<<std::endl;
+              //              std::cout<<"size M"<<ESN_R0->endweights->getM()<<std::endl;
+              //              std::cout<<"size N"<<ESN_R0->endweights->getN()<<std::endl;
 
               //Output weights
               inputs_ltm_out->val(i,j) = ESN_R0->endweights->val(i,j)/10000;
@@ -3962,19 +3942,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
         //-----Module ESN 2
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_R1[0]= reflex_R_fs.at(1); //Training output (target function)
           ESTrainOutput_R1[1]= 00; //Training output (target function)
           ESTrainOutput_R1[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_R1[0]= 0.0; //Training output (target function)
           ESTrainOutput_R1[1]= reflex_R_fs.at(1); //Training output (target function)
           ESTrainOutput_R1[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_R1[0]= 0.0; //Training output (target function)
           ESTrainOutput_R1[1]= 0.0; //Training output (target function)
@@ -3996,19 +3976,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         //-----Module ESN 3
 
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_R2[0]= reflex_R_fs.at(2); //Training output (target function)
           ESTrainOutput_R2[1]= 0.0; //Training output (target function)
           ESTrainOutput_R2[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_R2[0]= 0.0; //Training output (target function)
           ESTrainOutput_R2[1]= reflex_R_fs.at(2); //Training output (target function)
           ESTrainOutput_R2[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_R2[0]= 0.0; //Training output (target function)
           ESTrainOutput_R2[1]= 0.0; //Training output (target function)
@@ -4030,19 +4010,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         //-----Module ESN 4
 
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_L0[0]= reflex_L_fs.at(0); //Training output (target function)
           ESTrainOutput_L0[1]= 0.0; //Training output (target function)
           ESTrainOutput_L0[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_L0[0]= 0.0; //Training output (target function)
           ESTrainOutput_L0[1]= reflex_L_fs.at(0); //Training output (target function)
           ESTrainOutput_L0[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_L0[0]= 0.0; //Training output (target function)
           ESTrainOutput_L0[1]= 0.0; //Training output (target function)
@@ -4063,19 +4043,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
         //-----Module ESN 5
 
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_L1[0]= reflex_L_fs.at(1); //Training output (target function)
           ESTrainOutput_L1[1]= 0.0; //Training output (target function)
           ESTrainOutput_L1[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_L1[0]= 0.0; //Training output (target function)
           ESTrainOutput_L1[1]= reflex_L_fs.at(1); //Training output (target function)
           ESTrainOutput_L1[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_L1[0]= 0.0; //Training output (target function)
           ESTrainOutput_L1[1]= 0.0; //Training output (target function)
@@ -4095,19 +4075,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
         //-----Module ESN 6
-        if(Control_input == 0.04)
+        if(Control_input == gait1)
         {
           ESTrainOutput_L2[0]= reflex_L_fs.at(2); //Training output (target function)
           ESTrainOutput_L2[1]= 0.0; //Training output (target function)
           ESTrainOutput_L2[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.06)
+        if(Control_input == gait2)
         {
           ESTrainOutput_L2[0]= 0.0; //Training output (target function)
           ESTrainOutput_L2[1]= reflex_L_fs.at(2); //Training output (target function)
           ESTrainOutput_L2[2]= 0.0; //Training output (target function)
         }
-        if(Control_input == 0.09)
+        if(Control_input == gait3)
         {
           ESTrainOutput_L2[0]= 0.0; //Training output (target function)
           ESTrainOutput_L2[1]= 0.0; //Training output (target function)
@@ -4196,7 +4176,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           }
 
           //------------------Left legs------------------------------------//
-
           //---------------------Searching control--------------------------//
 
           if(m_pre.at(i+CL0_m/*9*/)<-0.7)//==-1) // stance phase
@@ -4247,12 +4226,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }
   }
   // >> i/o operations here <<
-//  outFilenlc1<<m_pre.at(CR0_m)<<' '<<reflex_R_fs.at(0)<<' '<<fmodel_cmr_output.at(0)<<' '<<fmodel_cmr_errorW.at(0)<<' '<<fmodel_cmr_outputfinal.at(0)<<' '<<fmodel_cmr_error.at(0)<<' '<<low_pass_fmodel_cmr_error.at(0)<<' '<<acc_cmr_error_old.at(0)<<' '<<acc_cmr_error.at(0) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(0)<<' '<<fmodel_fmodel_cmr_w.at(0)<<' '<<fmodel_cmr_bias.at(0)<<' '<<endl;
-//  outFilenlc2<<m_pre.at(CR1_m)<<' '<<reflex_R_fs.at(1)<<' '<<fmodel_cmr_output.at(1)<<' '<<fmodel_cmr_errorW.at(1)<<' '<<fmodel_cmr_outputfinal.at(1)<<' '<<fmodel_cmr_error.at(1)<<' '<<low_pass_fmodel_cmr_error.at(1)<<' '<<acc_cmr_error_old.at(1)<<' '<<acc_cmr_error.at(1) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(1)<<' '<<fmodel_fmodel_cmr_w.at(1)<<' '<<fmodel_cmr_bias.at(1)<<' '<<endl;
-//  outFilenlc3<<m_pre.at(CR2_m)<<' '<<reflex_R_fs.at(2)<<' '<<fmodel_cmr_output.at(2)<<' '<<fmodel_cmr_errorW.at(2)<<' '<<fmodel_cmr_outputfinal.at(2)<<' '<<fmodel_cmr_error.at(2)<<' '<<low_pass_fmodel_cmr_error.at(2)<<' '<<acc_cmr_error_old.at(2)<<' '<<acc_cmr_error.at(2) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(2) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(2)<<' '<<fmodel_fmodel_cmr_w.at(2)<<' '<<fmodel_cmr_bias.at(2)<<' '<<endl;
-//
-//  outFilenlc4<<m_pre.at(CL0_m)<<' '<<reflex_L_fs.at(0)<<' '<<fmodel_cml_output.at(0)<<' '<<fmodel_cml_errorW.at(0)<<' '<<fmodel_cml_outputfinal.at(0)<<' '<<fmodel_cml_error.at(0)<<' '<<low_pass_fmodel_cml_error.at(0)<<' '<<acc_cml_error_old.at(0)<<' '<<acc_cml_error.at(0) /*searching reflex*/<<' '<<acc_cml_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(0)<<' '<<fmodel_fmodel_cml_w.at(0)<<' '<<fmodel_cml_bias.at(0)<<' '<<endl;
-//  outFilenlc5<<m_pre.at(CL1_m)<<' '<<reflex_L_fs.at(1)<<' '<<fmodel_cml_output.at(1)<<' '<<fmodel_cml_errorW.at(1)<<' '<<fmodel_cml_outputfinal.at(1)<<' '<<fmodel_cml_error.at(1)<<' '<<low_pass_fmodel_cml_error.at(1)<<' '<<acc_cml_error_old.at(1)<<' '<<acc_cml_error.at(1) /*searching reflex*/<<' '<<acc_cml_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(1)<<' '<<fmodel_fmodel_cml_w.at(1)<<' '<<fmodel_cml_bias.at(1)<<' '<<endl;
+  //  outFilenlc1<<m_pre.at(CR0_m)<<' '<<reflex_R_fs.at(0)<<' '<<fmodel_cmr_output.at(0)<<' '<<fmodel_cmr_errorW.at(0)<<' '<<fmodel_cmr_outputfinal.at(0)<<' '<<fmodel_cmr_error.at(0)<<' '<<low_pass_fmodel_cmr_error.at(0)<<' '<<acc_cmr_error_old.at(0)<<' '<<acc_cmr_error.at(0) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(0)<<' '<<fmodel_fmodel_cmr_w.at(0)<<' '<<fmodel_cmr_bias.at(0)<<' '<<endl;
+  //  outFilenlc2<<m_pre.at(CR1_m)<<' '<<reflex_R_fs.at(1)<<' '<<fmodel_cmr_output.at(1)<<' '<<fmodel_cmr_errorW.at(1)<<' '<<fmodel_cmr_outputfinal.at(1)<<' '<<fmodel_cmr_error.at(1)<<' '<<low_pass_fmodel_cmr_error.at(1)<<' '<<acc_cmr_error_old.at(1)<<' '<<acc_cmr_error.at(1) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(1)<<' '<<fmodel_fmodel_cmr_w.at(1)<<' '<<fmodel_cmr_bias.at(1)<<' '<<endl;
+  //  outFilenlc3<<m_pre.at(CR2_m)<<' '<<reflex_R_fs.at(2)<<' '<<fmodel_cmr_output.at(2)<<' '<<fmodel_cmr_errorW.at(2)<<' '<<fmodel_cmr_outputfinal.at(2)<<' '<<fmodel_cmr_error.at(2)<<' '<<low_pass_fmodel_cmr_error.at(2)<<' '<<acc_cmr_error_old.at(2)<<' '<<acc_cmr_error.at(2) /*searching reflex*/<<' '<<acc_cmr_error_elev.at(2) /*elevator reflexes*/<<' '<<fmodel_cmr_w.at(2)<<' '<<fmodel_fmodel_cmr_w.at(2)<<' '<<fmodel_cmr_bias.at(2)<<' '<<endl;
+  //
+  //  outFilenlc4<<m_pre.at(CL0_m)<<' '<<reflex_L_fs.at(0)<<' '<<fmodel_cml_output.at(0)<<' '<<fmodel_cml_errorW.at(0)<<' '<<fmodel_cml_outputfinal.at(0)<<' '<<fmodel_cml_error.at(0)<<' '<<low_pass_fmodel_cml_error.at(0)<<' '<<acc_cml_error_old.at(0)<<' '<<acc_cml_error.at(0) /*searching reflex*/<<' '<<acc_cml_error_elev.at(0) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(0)<<' '<<fmodel_fmodel_cml_w.at(0)<<' '<<fmodel_cml_bias.at(0)<<' '<<endl;
+  //  outFilenlc5<<m_pre.at(CL1_m)<<' '<<reflex_L_fs.at(1)<<' '<<fmodel_cml_output.at(1)<<' '<<fmodel_cml_errorW.at(1)<<' '<<fmodel_cml_outputfinal.at(1)<<' '<<fmodel_cml_error.at(1)<<' '<<low_pass_fmodel_cml_error.at(1)<<' '<<acc_cml_error_old.at(1)<<' '<<acc_cml_error.at(1) /*searching reflex*/<<' '<<acc_cml_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(1)<<' '<<fmodel_fmodel_cml_w.at(1)<<' '<<fmodel_cml_bias.at(1)<<' '<<endl;
 
 
 
@@ -4500,7 +4479,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }*/
 
       if(acc_cmr_error_elev.at(i)>elevator_th)//25.0)//20.0)--------------------------------------------------Dennis needs to change this 7.06.2012
-      //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
+        //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
         m_reflex.at(i+FR0_m/*12*/) = 0.8;//0.3;//0.1;//1.0;//0.6;//0.4; -0.4
         m_reflex.at(i+CR0_m) = 1.0;
@@ -4510,11 +4489,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//;//-0.2; // Dennis Change!!
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
-//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
+          //                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+          //                  }
         }
 
         //For TR1
@@ -4522,11 +4501,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//;//-0.2; // Dennis Change!!
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;
-//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;
+          //                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+          //                  }
         }
 
         //For TR2
@@ -4534,11 +4513,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           m_reflex.at(i+TR0_m) = m_reflex_old.at(i+TR0_m);//-0.1;//-0.2; // Dennis Change!!
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
-//                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TR0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
+          //                    m_reflex.at(i+TR0_m/*12*/) = m_reflex_old.at(i+TR0_m)-x*0.1;//-0.1+x*0.1;
+          //                  }
         }
 
       }
@@ -4583,7 +4562,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     }*/
 
       if(acc_cml_error_elev.at(i)>elevator_th)//25.0)//20.0)//900.0)//6.5)//7.0)
-      //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
+        //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
         //if(acc_cml_error_old.at(0)<-1)
         m_reflex.at(i+FL0_m/*12*/) = 0.8;//0.3;//-0.4;
@@ -4594,11 +4573,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2; // Dennis Change!!
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
-//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//-0.1+x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//-0.1+x*0.1;
+          //                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//-0.1+x*0.1;
+          //                  }
         }
 
         //For TL1
@@ -4606,11 +4585,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2; // Dennis Change!!
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;
-//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;
+          //                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;
+          //                  }
         }
 
         //For TL2
@@ -4619,11 +4598,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           m_reflex.at(i+TL0_m) = m_reflex_old.at(i+TL0_m);//-0.1;//0.2;//-0.2 // Dennis Change!!
 
 
-//                  for(int x=0; x<5; x++)
-//                  {
-//                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
-//                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//0.0;//-0.95+x*0.1;
-//                  }
+          //                  for(int x=0; x<5; x++)
+          //                  {
+          //                    //m_reflex.at(i+TL0_m/*12*/) = -0.8+x*0.1;//0.0;//-0.95+x*0.1;
+          //                    m_reflex.at(i+TL0_m/*12*/) = m_reflex_old.at(i+TL0_m)-x*0.1;//0.0;//-0.95+x*0.1;
+          //                  }
         }
       }
     }
