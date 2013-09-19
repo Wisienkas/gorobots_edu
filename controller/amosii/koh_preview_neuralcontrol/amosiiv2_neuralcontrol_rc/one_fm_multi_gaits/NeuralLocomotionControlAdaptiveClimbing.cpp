@@ -130,8 +130,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = true; // true = use learned weights, false = let the RC learn
-  learn = false; // true = learning, false = use learned weights
+  loadweight = false; // true = use learned weights, false = let the RC learn
+  learn = true; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -3273,7 +3273,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         int learning_steps;
 
         if(sequentiral_learning)
-          learning_steps = t_change_gait3;//9000;
+          learning_steps = 10000;//t_change_gait3;//9000;
         else
           learning_steps = t_change_gait1;
 
