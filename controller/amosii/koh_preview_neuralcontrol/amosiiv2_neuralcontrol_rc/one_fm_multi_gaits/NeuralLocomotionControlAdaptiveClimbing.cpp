@@ -130,8 +130,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = false; // true = use learned weights, false = let the RC learn
-  learn = true; // true = learning, false = use learned weights
+  loadweight = true; // true = use learned weights, false = let the RC learn
+  learn = false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
