@@ -2,11 +2,31 @@
 /*
  * This file was created by Tobias Jahn on Tuesday May 01, 2012
  *
- * Modify by Poramate Manoonpong on  20 April 2013
- *
+ * Modify by Poramate Manoonpong on  30 April 2013
+ * Modify by Poramate Manoonpong on  23 September 2013
  * This example shows the usage of the real epuck interface
  *
- *To run the program at terminal type:
+ *To check epuck  MAC address
+ *1) >> hcitool scan
+ *
+ *e.g., 10:00:E8:AD:77:CA e-puck_2358
+ *e.g., 10:00:E8:AD:FF:40 e-puck_0990
+ *e.g., 10:00:E8:AD:78:51 e-puck_3202
+ *e.g., 10:00:E8:AD:78:82 e-puck_2899
+ *e.g., 10:00:E8:C5:61:E6 e-puck_3068
+ *
+ *2) Copy this MAC address to "rfcomm.conf is https://www.dropbox.com/home/gorobots/Epuck/All_about_Epuck_Setup"
+ * OR /etc/bluetooth/rfcomm.conf
+ * e.g., sudo cp Desktop/rfcomm.conf /etc/bluetooth/rfcomm.conf
+ *
+ *To pair epuck with PC
+ *sudo rfcomm bind rfcomm0   --> password 2358
+ *sudo rfcomm bind rfcomm1   --> password 0990
+ *sudo rfcomm bind rfcomm2   --> password 3202
+ *sudo rfcomm bind rfcomm3   --> password 2899
+ *sudo rfcomm bind rfcomm4   --> password 3068
+ *
+ *3) To run the program at terminal type:
  *
  *./start -g 1 -p /dev/rfcomm0 for Epuck 2358
  *./start -g 1 -p /dev/rfcomm1 for Epuck 0990
