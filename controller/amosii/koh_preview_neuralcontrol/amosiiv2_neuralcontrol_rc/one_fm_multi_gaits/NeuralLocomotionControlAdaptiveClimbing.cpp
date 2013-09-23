@@ -119,7 +119,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   softlanding = false;//true;
 
   elevator_reflexes = false;
-  switchoff_searching_reflexes = false;
+  switchoff_searching_reflexes = true;//false;
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
 
@@ -127,6 +127,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
+
+  crossing_gap = true;
 
 
   //RC network setup---------------------------------------------------------------//
@@ -369,6 +371,17 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 
   //Motor ranges Min, Max
+
+  min_tcr_nwalking.resize(3);
+  max_tcr_nwalking.resize(3);
+  offset_tcr.resize(3);
+  offset_tcr_downward.resize(3); //KOH-->Eduard
+
+  min_tcl_nwalking.resize(3);
+  max_tcl_nwalking.resize(3);
+  offset_tcl.resize(3);
+  offset_tcl_downward.resize(3); //KOH-->Eduard
+
   min_ctr_nwalking_deg.resize(3);
   max_ctr_nwalking_deg.resize(3);
   min_ctr_nwalking.resize(3);
@@ -1260,6 +1273,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
     if(iii>t_change_gait3)
       iii = 0;
+
+    //Fixed gait to one gait for gap crossing
+    Control_input = gait3;
   }
 
   //  //Lateral right NOT WORKING YET!!!!
@@ -4256,6 +4272,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           if(m_pre.at(i+CR0_m/*6*/)<-0.7)//==-1) // stance phase
           {
 
+            //acc_cmr_error_old.at(i) = acc_cmr_error.at(i);
+
+            if(acc_cmr_error.at(i)>200)
+              acc_cmr_error_old.at(i) = 3.0;
+            else
+              acc_cmr_error_old.at(i) = 0.0;
+
+
             //Positive Error signal for controlling searching reflexes
             if(abs(low_pass_fmodel_cmr_error.at(i))>0.15)
             {
@@ -4300,11 +4324,22 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
           if(m_pre.at(i+CL0_m/*9*/)<-0.7)//==-1) // stance phase
           {
+            //acc_cml_error_old.at(i) = acc_cml_error.at(i);
+
             //Positive Error signal for controlling searching reflexes
             if(abs(low_pass_fmodel_cml_error.at(i))>0.15)
             {
+
+              if(acc_cml_error.at(i)>200)
+                acc_cml_error_old.at(i) = 3.0;
+              else
+                acc_cml_error_old.at(i) = 0.0;
+
               d_l.at(i) = low_pass_fmodel_cml_error.at(i)-low_pass_fmodel_cml_error_old.at(i);
               int_l.at(i) += abs(low_pass_fmodel_cml_error.at(i));
+
+              std::cout<<"acc_error_control_old"<<i<<" "<<acc_cml_error_old.at(i)<<std::endl;
+
               acc_cml_error.at(i) = abs(low_pass_fmodel_cml_error.at(i))*kp_l.at(i)+int_l.at(i)*ki_l.at(i)+d_l.at(i)*kd_l.at(i);
             }
             else
@@ -4416,6 +4451,36 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
   m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
+
+  if(crossing_gap)
+  {
+
+    for(unsigned int i=0; i<acc_cmr_error.size();i++)
+     {
+
+      offset_tcr.at(i) = acc_cmr_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_tcl.at(i) = acc_cml_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+
+      min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcr.at(i);
+      max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
+
+      min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcr.at(1);
+      max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
+
+      min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcl.at(i);
+      max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
+
+      min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcl.at(1);
+      max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
+
+      m_reflex.at(i+TR0_m/*6*/) = (((m_pre.at(i+TR0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
+      m_reflex.at(i+TL0_m/*6*/) = (((m_pre.at(i+TL0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+
+     }
+
+
+  }
+
 
   //convert from activation to deg
   //  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);

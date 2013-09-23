@@ -342,6 +342,16 @@ class NeuralLocomotionControlAdaptiveClimbing{
     double min_tc_r_nwalking;
     double max_tc_r_nwalking;
 
+    std::vector<double>  min_tcr_nwalking;
+    std::vector<double>  max_tcr_nwalking;
+    std::vector<double>  offset_tcr;
+    std::vector<double>  offset_tcr_downward; //KOH-->Eduard
+
+    std::vector<double>  min_tcl_nwalking;
+    std::vector<double>  max_tcl_nwalking;
+    std::vector<double>  offset_tcl;
+    std::vector<double>  offset_tcl_downward; //KOH-->Eduard
+
     //CTR joints
     double min_ctr; // network output range
     double max_ctr;// network output range
@@ -501,6 +511,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool ltm_v2;
     bool ltm_v3;
     bool loadweight;
+    bool crossing_gap;
 
 
 };

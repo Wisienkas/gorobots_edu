@@ -185,10 +185,20 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("WLTMR0_0",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(0),"LTMR0");
 
 
-  addInspectableValue("fmodel_cmr0_output_rc.at(0)",&control_adaptiveclimbing.fmodel_cmr0_output_rc.at(0),"error_L0");
-  addInspectableValue("fmodel_cmr0_output_rc.at(1)",&control_adaptiveclimbing.fmodel_cmr0_output_rc.at(1),"error_L1");
-  addInspectableValue("fmodel_cmr0_output_rc.at(2)",&control_adaptiveclimbing.fmodel_cmr0_output_rc.at(2),"error_L2");
+  addInspectableValue("acc_cml_error.at(0)",&control_adaptiveclimbing.acc_cml_error.at(0),"error_L0");
+  addInspectableValue("acc_cml_error_old.at(0)",&control_adaptiveclimbing.acc_cml_error_old.at(0),"error_L1");
+  addInspectableValue("acc_cml_error.at(1)",&control_adaptiveclimbing.acc_cml_error.at(1),"error_L0");
+  addInspectableValue("acc_cml_error_old.at(1)",&control_adaptiveclimbing.acc_cml_error_old.at(1),"error_L1");
+  addInspectableValue("acc_cml_error.at(2)",&control_adaptiveclimbing.acc_cml_error.at(2),"error_L0");
+  addInspectableValue("acc_cml_error_old.at(2)",&control_adaptiveclimbing.acc_cml_error_old.at(2),"error_L1");
 
+
+  addInspectableValue("acc_cmr_error.at(0)",&control_adaptiveclimbing.acc_cmr_error.at(0),"error_L0");
+  addInspectableValue("acc_cmr_error_old.at(0)",&control_adaptiveclimbing.acc_cmr_error_old.at(0),"error_L1");
+  addInspectableValue("acc_cmr_error.at(1)",&control_adaptiveclimbing.acc_cmr_error.at(1),"error_L0");
+  addInspectableValue("acc_cmr_error_old.at(1)",&control_adaptiveclimbing.acc_cmr_error_old.at(1),"error_L1");
+  addInspectableValue("acc_cmr_error.at(2)",&control_adaptiveclimbing.acc_cmr_error.at(2),"error_L0");
+  addInspectableValue("acc_cmr_error_old.at(2)",&control_adaptiveclimbing.acc_cmr_error_old.at(2),"error_L1");
 
 //  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
 //  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
