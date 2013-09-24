@@ -50,6 +50,8 @@ std::vector<lpzrobots::AbstractObstacle*> obst;
 // add head file for creating a sphere by Ren ------------
 
 
+bool gapcrossing_experiment_setup;
+
 class ThisSim : public lpzrobots::Simulation {
   public:
 
@@ -86,6 +88,30 @@ class ThisSim : public lpzrobots::Simulation {
 //    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
 //    playground->setPosition(osg::Vec3(0,0,.0));
 //    global.obstacles.push_back(playground);
+
+
+    //----------create gap by KOH-----------------------------
+    //the first sphere
+    lpzrobots::OdeHandle playgroundHandle = odeHandle;
+    playgroundHandle.substance = lpzrobots::Substance(0.8/* 3.0 roughness*/, 0.0/*0 slip*/, 100.0/* 50 hardness*/, 0.0/*elasticity*/); //substance for playgrounds (NON-SLIPPERY!!!)
+
+    //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
+    gapcrossing_experiment_setup = true;
+    int obtacle_no = 2;
+    double gap_distance = 2.22; // 2.3 fail!!
+    for(int i=0;i<obtacle_no;i++){
+      double obstacle_height = 0.01+0.01*i;
+      double obstacle_distance = 0.01;
+      if (gapcrossing_experiment_setup) {
+        lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(obstacle_distance, 1.0/*size*/,
+            0.1/*obstacle_height*/), 1, false);
+        playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
+        playground->setPosition(osg::Vec3(gap_distance*i/*distance between platforms*/, 0, .0));
+        global.obstacles.push_back(playground);
+      }
+    }
+    //----------create gap by KOH-----------------------------
+
 
     //----------create a sphere as the target by Ren-----------------------------
     //the first sphere
