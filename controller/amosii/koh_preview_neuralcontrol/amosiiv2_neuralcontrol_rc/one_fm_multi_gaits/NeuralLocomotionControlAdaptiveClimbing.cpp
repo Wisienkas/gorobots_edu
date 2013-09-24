@@ -4457,24 +4457,64 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
     for(unsigned int i=0; i<acc_cmr_error.size();i++)
      {
+//
+//      offset_tcr.at(i) = acc_cmr_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+//      offset_tcl.at(i) = acc_cml_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+//
+//      min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcr.at(i);
+//      max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
+//
+//      min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcr.at(1);
+//      max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
+//
+//      min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcl.at(i);
+//      max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
+//
+//      min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcl.at(1);
+//      max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
+//
+//      m_reflex.at(i+TR0_m/*6*/) = (((m_pre.at(i+TR0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
+//      m_reflex.at(i+TL0_m/*6*/) = (((m_pre.at(i+TL0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+//
 
-      offset_tcr.at(i) = acc_cmr_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_tcl.at(i) = acc_cml_error.at(i)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
 
-      min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcr.at(i);
-      max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
+
+      offset_tcr.at(0) = acc_cmr_error.at(0)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_tcr.at(1) = acc_cmr_error.at(1)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_tcr.at(2) = acc_cmr_error.at(2)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
+      offset_tcl.at(0) = acc_cml_error.at(0)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+      offset_tcl.at(1) = acc_cml_error.at(1)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+      offset_tcl.at(2) = acc_cml_error.at(2)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+
+
+      min_tcr_nwalking.at(0) = 0.0143*min_tc_f_nwalking_deg+offset_tcr.at(0);
+      max_tcr_nwalking.at(0) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(0);
+      m_reflex.at(TR0_m) = (((m_pre.at(TR0_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(0)-min_tcr_nwalking.at(0)))+min_tcr_nwalking.at(0);
+
+
+      min_tcl_nwalking.at(0) = 0.0143*min_tc_f_nwalking_deg+offset_tcl.at(0);
+      max_tcl_nwalking.at(0) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(0);
+      m_reflex.at(TL0_m) = (((m_pre.at(TL0_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(0)-min_tcl_nwalking.at(0)))+min_tcl_nwalking.at(0);
+
 
       min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcr.at(1);
       max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
+      m_reflex.at(TR1_m) = (((m_pre.at(TR1_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(1)-min_tcr_nwalking.at(1)))+min_tcr_nwalking.at(1);
 
-      min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg+offset_tcl.at(i);
-      max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
 
       min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg+offset_tcl.at(1);
       max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
+      m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(1)-min_tcl_nwalking.at(1)))+min_tcl_nwalking.at(1);
 
-      m_reflex.at(i+TR0_m/*6*/) = (((m_pre.at(i+TR0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
-      m_reflex.at(i+TL0_m/*6*/) = (((m_pre.at(i+TL0_m/*6*/)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+
+      min_tcr_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcr.at(2);
+      max_tcr_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcr.at(2);
+      m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(2)-min_tcr_nwalking.at(2)))+min_tcr_nwalking.at(2);
+
+      min_tcl_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcl.at(2);
+      max_tcl_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcl.at(2);
+      m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(2)-min_tcl_nwalking.at(2)))+min_tcl_nwalking.at(2);
 
      }
 

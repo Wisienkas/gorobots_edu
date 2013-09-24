@@ -200,6 +200,11 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("acc_cmr_error.at(2)",&control_adaptiveclimbing.acc_cmr_error.at(2),"error_L0");
   addInspectableValue("acc_cmr_error_old.at(2)",&control_adaptiveclimbing.acc_cmr_error_old.at(2),"error_L1");
 
+  addInspectableValue("offset_tcr.at(0)",&control_adaptiveclimbing.offset_tcr.at(0),"error_L0");
+  addInspectableValue("offset_tcr.at(1)",&control_adaptiveclimbing.offset_tcr.at(1),"error_L1");
+
+
+
 //  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
 //  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
 //  addInspectableValue("WLTMR0_3",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(3),"LTMR0");
