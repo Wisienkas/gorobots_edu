@@ -6,6 +6,7 @@
  * Modify by Poramate Manoonpong on  23 September 2013
  * This example shows the usage of the real epuck interface
  *
+ *
  *To check epuck  MAC address
  *1) >> hcitool scan
  *
@@ -33,6 +34,7 @@
  *./start -g 1 -p /dev/rfcomm2 for Epuck 3202
  *./start -g 1 -p /dev/rfcomm3 for Epuck 2899
  *./start -g 1 -p /dev/rfcomm4 for Epuck 3068
+ *
  *
  * GUI logger
  * xR[0]= accX
@@ -62,6 +64,20 @@
  *
  * xR[22].... = MIC0, MIC1, MIC02, CAM
  *
+ *
+ *
+ *Note if epuck cannot connect to PC try:
+ *
+ * 1) >> hcitool scan --->Search for active bluetooth devices to check MAC address whether it is correct!!!
+ * e.g., 10:00:E8:AD:77:CA e-puck_2358. This address should be similar to the one in "/etc/bluetooh/rfcomm.conf"
+ *
+ * 2) >> hcitool con --> Display active bluetooth connections.
+ *
+ * 3) >> (sudo) rfcomm release X --> Release rfcommX port.
+ *
+ * 4) >> (sudo) rfcomm bind X --> Bind the rfcommX device again!.
+ *
+ * 5) >> ls /dev/rfcomm* --> List rfcomm devices
  */
 
 #include <iostream>
