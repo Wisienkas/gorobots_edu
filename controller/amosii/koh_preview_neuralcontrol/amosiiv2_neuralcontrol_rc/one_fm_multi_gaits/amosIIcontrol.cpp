@@ -195,14 +195,27 @@ AmosIIControl::AmosIIControl()
 
   addInspectableValue("acc_cmr_error.at(0)",&control_adaptiveclimbing.acc_cmr_error.at(0),"error_L0");
   addInspectableValue("acc_cmr_error_old.at(0)",&control_adaptiveclimbing.acc_cmr_error_old.at(0),"error_L1");
+  addInspectableValue("max_error_cmr_pre_step.at(0)",&control_adaptiveclimbing.max_error_cmr_pre_step.at(0),"error_L1");
   addInspectableValue("acc_cmr_error.at(1)",&control_adaptiveclimbing.acc_cmr_error.at(1),"error_L0");
   addInspectableValue("acc_cmr_error_old.at(1)",&control_adaptiveclimbing.acc_cmr_error_old.at(1),"error_L1");
+  addInspectableValue("max_error_cmr_pre_step.at(1)",&control_adaptiveclimbing.max_error_cmr_pre_step.at(1),"error_L1");
   addInspectableValue("acc_cmr_error.at(2)",&control_adaptiveclimbing.acc_cmr_error.at(2),"error_L0");
   addInspectableValue("acc_cmr_error_old.at(2)",&control_adaptiveclimbing.acc_cmr_error_old.at(2),"error_L1");
+  addInspectableValue("max_error_cmr_pre_step.at(2)",&control_adaptiveclimbing.max_error_cmr_pre_step.at(2),"error_L1");
+
+  addInspectableValue("offset_bj",&control_adaptiveclimbing.offset_bj,"error_L1");
+
+
 
   addInspectableValue("offset_tcr.at(0)",&control_adaptiveclimbing.offset_tcr.at(0),"error_L0");
   addInspectableValue("offset_tcr.at(1)",&control_adaptiveclimbing.offset_tcr.at(1),"error_L1");
 
+  addInspectableValue("offset_ctr.at(0)",&control_adaptiveclimbing.offset_tcr.at(0),"error_L0");
+  addInspectableValue("offset_ctr.at(1)",&control_adaptiveclimbing.offset_tcr.at(1),"error_L1");
+  addInspectableValue("offset_ctr.at(2)",&control_adaptiveclimbing.offset_tcr.at(2),"error_L0");
+  addInspectableValue("offset_ctl.at(0)",&control_adaptiveclimbing.offset_tcl.at(0),"error_L1");
+  addInspectableValue("offset_ctl.at(1)",&control_adaptiveclimbing.offset_tcl.at(1),"error_L0");
+  addInspectableValue("offset_ctl.at(2)",&control_adaptiveclimbing.offset_tcl.at(2),"error_L1");
 
 
 //  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");

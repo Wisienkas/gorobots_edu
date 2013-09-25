@@ -221,6 +221,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double>  error_cmr_elev;				//error for elevator reflex
     std::vector<double>  acc_cmr_error_posi_neg;		//forward model biases
     std::vector<double>  dervi_fmodel_cmr_output;
+    std::vector<double>  max_error_cmr_pre_step;
 
     std::vector<double> lr_fmodel_cl;					//learning rate
     std::vector<double> fmodel_cml_w;					//forward model weights
@@ -234,6 +235,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     std::vector<double>  error_cml_elev;				//error for elevator reflex
     std::vector<double>  acc_cml_error_posi_neg;		//forward model biases
     std::vector<double>  dervi_fmodel_cml_output;
+    std::vector<double>  max_error_cml_pre_step;
 
 
     std::vector<double> lowpass_cmr_error_activity;		//lowpass neuron activities
@@ -396,6 +398,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     double max_bj_fwalking_deg; //deg
     double min_bj_fwalking;
     double max_bj_fwalking;
+    double offset_bj; // gap crossing
 
     double max_c; // max range
     double max_f; // max range
@@ -463,6 +466,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
 
     double old_pcpg;
     int total_c;
+    double max_scale;
 
 
   private:
@@ -512,7 +516,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool ltm_v3;
     bool loadweight;
     bool crossing_gap;
-
+    bool use_pre_step_to_adjust_searching;
 
 };
 

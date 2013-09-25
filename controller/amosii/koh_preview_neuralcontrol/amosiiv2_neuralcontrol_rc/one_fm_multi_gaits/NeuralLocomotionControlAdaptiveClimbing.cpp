@@ -104,7 +104,9 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_ED = false;
 
   //Switch on or off reflexes
-  switchon_reflexes = false;//true;// true;//true;//1;// true==on after learning or when uses learned weights, false == off during learning
+  switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
+  use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
+  max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
   //Switch on pure foot signal
   switchon_purefootsignal = false; // 1==on using only foot signal, 0 == using forward model & foot signal
@@ -118,8 +120,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
   softlanding = false;//true;
 
-  elevator_reflexes = false;
-  switchoff_searching_reflexes = true;//false;
+  elevator_reflexes = true;//false;
+  switchoff_searching_reflexes = false;
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
 
@@ -128,8 +130,15 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = true;
+  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
 
+  if(crossing_gap)
+  {
+    switchon_reflexes = false;
+    elevator_reflexes = false;
+    switchoff_searching_reflexes = true;
+
+  }
 
   //RC network setup---------------------------------------------------------------//
   loadweight = true; // true = use learned weights, false = let the RC learn
@@ -317,6 +326,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   dervi_fmodel_cmr_output.resize(3);
   low_pass_fmodel_cmr_error_old.resize(3);
   low_pass_fmodel_cmr_error.resize(3);
+  max_error_cmr_pre_step.resize(3);
 
   fmodel_cml_w.resize(3);
   fmodel_fmodel_cml_w.resize(3);
@@ -333,6 +343,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   dervi_fmodel_cml_output.resize(3);
   low_pass_fmodel_cml_error_old.resize(3);
   low_pass_fmodel_cml_error.resize(3);
+  max_error_cml_pre_step.resize(3);
 
   lowpass_cmr_error_activity.resize(3);
   lowpass_cmr__error_output.resize(3);
@@ -731,6 +742,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   min_bj_fwalking_deg = -45; //deg ** MIN -45 deg
   max_bj_fwalking_deg = 45; //deg ** MAX 45 deg
 
+  offset_bj = 0.0;
 
   if(lift_body_up==true)
   {
@@ -3572,11 +3584,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             }
           }
 
-          if(global_count>1000)
-          {
-            switchon_reflexes = true;
-            elevator_reflexes = true;
-          }
+//          if(global_count>1000)
+//          {
+//            switchon_reflexes = true;
+//            elevator_reflexes = true;
+//          }
 
           //To start capture output activation for LTM learning
           if(global_count>1000 && postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
@@ -3593,8 +3605,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         if(global_count>learning_steps /*3000*/ && loadweight == false)
         {
           learn = false;
-          switchon_reflexes = true;
-          elevator_reflexes = true;
+//          switchon_reflexes = true;
+//          elevator_reflexes = true;
 
           if (singlegait)
           {
@@ -4267,31 +4279,30 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           std::cout<<"pid_control"<<std::endl;
 
           //------------------Right legs------------------------------------//
-          //---------------------Searching control--------------------------//
-
-          if(m_pre.at(i+CR0_m/*6*/)<-0.7)//==-1) // stance phase
+          //-------STANCE--------------Searching control--------------------//
+          if(postcr.at(i)<postcrold.at(i)) //stance
           {
-
-            //acc_cmr_error_old.at(i) = acc_cmr_error.at(i);
-
-            if(acc_cmr_error.at(i)>200)
-              acc_cmr_error_old.at(i) = 3.0;
-            else
-              acc_cmr_error_old.at(i) = 0.0;
-
 
             //Positive Error signal for controlling searching reflexes
             if(abs(low_pass_fmodel_cmr_error.at(i))>0.15)
             {
+
               d_r.at(i) = low_pass_fmodel_cmr_error.at(i)-low_pass_fmodel_cmr_error_old.at(i);
               int_r.at(i) += abs(low_pass_fmodel_cmr_error.at(i));
               acc_cmr_error.at(i) = abs(low_pass_fmodel_cmr_error.at(i))*kp_r.at(i)+int_r.at(i)*ki_r.at(i)+d_r.at(i)*kd_r.at(i);
+
+              if(acc_cmr_error.at(i)>500)
+                acc_cmr_error.at(i) = 500;
             }
             else
             {
               acc_cmr_error.at(i) = 0.0;
             }
-            std::cout<<"acc_error_control"<<i<<" "<<acc_cmr_error.at(i)<<std::endl;
+
+            //To store the last acc_error value of in stance phase
+            acc_cmr_error_old.at(i) = acc_cmr_error.at(i);
+
+            //std::cout<<"acc_error_control"<<i<<" "<<acc_cmr_error.at(i)<<std::endl;
 
             //Reset error signals of elevator
             acc_cmr_error_elev.at(i) = 0.0;
@@ -4299,7 +4310,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           }
           else // swing phase
           {
-            //---------------------Elevation control--------------------------//
+            //-----SWING----------------Elevation control-----------------//
+
+            //To store the last acc_error value of in stance phase-> for setting max or min in the next swing & stance phases
+            max_error_cmr_pre_step.at(i) =  acc_cmr_error_old.at(i);
 
             //Negative Error signal for controlling elevator reflexes
             if(low_pass_fmodel_cmr_error.at(i)<0.25)
@@ -4320,33 +4334,30 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           }
 
           //------------------Left legs------------------------------------//
-          //---------------------Searching control--------------------------//
-
-          if(m_pre.at(i+CL0_m/*9*/)<-0.7)//==-1) // stance phase
+          //-------STANCE--------------Searching control--------------------//
+          if(postcl.at(i)<postclold.at(i)) //stance
           {
-            //acc_cml_error_old.at(i) = acc_cml_error.at(i);
 
             //Positive Error signal for controlling searching reflexes
             if(abs(low_pass_fmodel_cml_error.at(i))>0.15)
             {
 
-              if(acc_cml_error.at(i)>200)
-                acc_cml_error_old.at(i) = 3.0;
-              else
-                acc_cml_error_old.at(i) = 0.0;
-
               d_l.at(i) = low_pass_fmodel_cml_error.at(i)-low_pass_fmodel_cml_error_old.at(i);
               int_l.at(i) += abs(low_pass_fmodel_cml_error.at(i));
-
-              std::cout<<"acc_error_control_old"<<i<<" "<<acc_cml_error_old.at(i)<<std::endl;
-
               acc_cml_error.at(i) = abs(low_pass_fmodel_cml_error.at(i))*kp_l.at(i)+int_l.at(i)*ki_l.at(i)+d_l.at(i)*kd_l.at(i);
+
+              if(acc_cml_error.at(i)>500)
+                acc_cml_error.at(i) = 500;
             }
             else
             {
               acc_cml_error.at(i) = 0.0;
             }
-            std::cout<<"acc_error_control"<<i<<" "<<acc_cml_error.at(i)<<std::endl;
+
+            //To store the last acc_error value of in stance phase
+            acc_cml_error_old.at(i) = acc_cml_error.at(i);
+
+            //std::cout<<"acc_error_control"<<i<<" "<<acc_cml_error.at(i)<<std::endl;
 
             //Reset error signals of elevator
             acc_cml_error_elev.at(i) = 0.0;
@@ -4354,7 +4365,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           }
           else //swing phase
           {
-            //---------------------Elevation control--------------------------//
+            //-----SWING----------------Elevation control-----------------//
+            //To store the last acc_error value of in stance phase-> for setting max or min in the next swing & stance phases
+            max_error_cml_pre_step.at(i) =  acc_cml_error_old.at(i);
+
             //Negative Error signal for controlling elevator reflexes
             if(low_pass_fmodel_cml_error.at(i)<0.25)
             {
@@ -4389,7 +4403,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //  outFilenlc5<<m_pre.at(CL1_m)<<' '<<reflex_L_fs.at(1)<<' '<<fmodel_cml_output.at(1)<<' '<<fmodel_cml_errorW.at(1)<<' '<<fmodel_cml_outputfinal.at(1)<<' '<<fmodel_cml_error.at(1)<<' '<<low_pass_fmodel_cml_error.at(1)<<' '<<acc_cml_error_old.at(1)<<' '<<acc_cml_error.at(1) /*searching reflex*/<<' '<<acc_cml_error_elev.at(1) /*elevator reflexes*/<<' '<<fmodel_cml_w.at(1)<<' '<<fmodel_fmodel_cml_w.at(1)<<' '<<fmodel_cml_bias.at(1)<<' '<<endl;
 
 
-
+  outFilepower1<<acc_cmr_error.at(0)<<' '<<acc_cmr_error_old.at(0)<<' '<<max_error_cmr_pre_step.at(0)<<' '<<m_reflex.at(TR0_m)<<' '<<m_reflex.at(CR0_m)<<' '<<m_reflex.at(FR0_m)<<' '<<postcr.at(0)<<' '<<acc_cmr_error.at(1)<<' '<<acc_cmr_error_old.at(1)<<' '<<max_error_cmr_pre_step.at(1)<<' '<<acc_cmr_error.at(2)<<' '<<acc_cmr_error_old.at(2)<<' '<<max_error_cmr_pre_step.at(2)<<' '<<endl;
 
   //******Reflex mechanisms end******
 
@@ -4452,41 +4466,32 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
   m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
 
-  if(crossing_gap)
+  /*Gap crossing*/
+  if(crossing_gap && global_count>700)
   {
 
     for(unsigned int i=0; i<acc_cmr_error.size();i++)
      {
 
-      static double offset_tcr0_mem = 0;
+      //Max value for Control input 0.09 is 260
+      if(max_error_cmr_pre_step.at(i)>260)
+        max_error_cmr_pre_step.at(i) = 260;
 
-      if(postcr.at(0)<postcrold.at(0) /*stance*/&& acc_cmr_error.at(0)>50)
-        offset_tcr0_mem = 0.3;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      if(max_error_cml_pre_step.at(i)>260)
+        max_error_cml_pre_step.at(i) = 260;
 
-      if(postcr.at(0)<postcrold.at(0) /*stance*/&& acc_cmr_error.at(0)<50)
-      offset_tcr0_mem = 0.0;
-
-      if(postcr.at(0)>postcrold.at(0) /*swing*/)
-        offset_tcr.at(0) = offset_tcr0_mem;
-      else
-        offset_tcr.at(0) = 0.0;
-
-      offset_tcr.at(1) = 0.3;//acc_cmr_error.at(1)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_tcr.at(2) = 0;//acc_cmr_error.at(2)/10;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-
-      offset_tcl.at(0) = 0.3;//acc_cml_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
-      offset_tcl.at(1) = 0.3;//acc_cml_error.at(1)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
-      offset_tcl.at(2) = 0;//acc_cml_error.at(2)/10;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+      offset_tcr.at(i) = (max_error_cmr_pre_step.at(i)/1000)*1.15; // (max_error_cmr_pre_step = 260, max offset_tcr = 0.3)
+      offset_tcl.at(i) = (max_error_cml_pre_step.at(i)/1000)*1.15;//0.3;//acc_cml_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
 
 
-      min_tcr_nwalking.at(0) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
-      max_tcr_nwalking.at(0) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(0);
-      m_reflex.at(TR0_m) = (((m_pre.at(TR0_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(0)-min_tcr_nwalking.at(0)))+min_tcr_nwalking.at(0);
+      min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
+      max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
+      m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
 
 
-      min_tcl_nwalking.at(0) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
-      max_tcl_nwalking.at(0) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(0);
-      m_reflex.at(TL0_m) = (((m_pre.at(TL0_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(0)-min_tcl_nwalking.at(0)))+min_tcl_nwalking.at(0);
+      min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
+      max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
+      m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
 
 
       min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcr.at(1);
@@ -4540,11 +4545,24 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     {
       /*2) TO DO NEED TO BE ADJUSTED THIS MAPPING FROM ACC_ERROR TO OFFSET*/
 
+      if(use_pre_step_to_adjust_searching)
+      {
+
+      offset_ctr.at(i) = (max_error_cmr_pre_step.at(i)/max_scale)*acc_cmr_error.at(i)*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_ctl.at(i) = (max_error_cml_pre_step.at(i)/max_scale)*acc_cml_error.at(i)*(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
+
+      offset_ctr.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ctl.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      }
+      else
+      {
+
       offset_ctr.at(i) = acc_cmr_error.at(i)*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
       offset_ctl.at(i) = acc_cml_error.at(i)*(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
 
-      offset_ctr.at(2) = acc_cmr_error.at(i)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ctl.at(2) = acc_cml_error.at(i)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ctr.at(2) = acc_cmr_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ctl.at(2) = acc_cml_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      }
 
 
       //      offset_ctr.at(i) = acc_cmr_error.at(i)/10;//*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
@@ -4622,12 +4640,24 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     {
       /*2) TO DO NEED TO BE ADJUSTED THIS MAPPING FROM ACC_ERROR TO OFFSET*/
 
+      if(use_pre_step_to_adjust_searching)
+      {
+      offset_ftir.at(i) = (max_error_cmr_pre_step.at(i)/max_scale)*acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftil.at(i) = (max_error_cml_pre_step.at(i)/max_scale)*acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+
+      //Too make FTI less extend for more stable walking
+      offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      }
+      else
+      {
       offset_ftir.at(i) = acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
       offset_ftil.at(i) = acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
 
       //Too make FTI less extend for more stable walking
-      offset_ftir.at(2) = acc_cmr_error.at(i)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(2) = acc_cml_error.at(i)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftir.at(2) = acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftil.at(2) = acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      }
 
 
       //      offset_ftir.at(i) = acc_cmr_error.at(i)/10;//*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
@@ -4666,11 +4696,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m_reflex.at(i+FR0_m/*12*/) = (((m_pre.at(i+FR0_m/*12*/)-min_fti)/(max_fti-min_fti))*(max_ftir_nwalking.at(i)-min_ftir_nwalking.at(i)))+min_ftir_nwalking.at(i);
 
 
-    if(crossing_gap)
+    /*Gap crossing*/
+    if(crossing_gap && global_count>700)
     {
-      offset_ftir.at(i) = 5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftir.at(0) = 15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftir.at(1) = 15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
+      if(max_error_cmr_pre_step.at(i)>260)
+        max_error_cmr_pre_step.at(i) = 260;
+
+      offset_ftir.at(0) = max_error_cmr_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_ftir.at(1) = max_error_cmr_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_ftir.at(2) = max_error_cmr_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
 
       min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i))+1.3636;
       max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.3636;
@@ -4764,18 +4799,24 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
     m_reflex.at(i+FL0_m) = (((m_pre.at(i+FL0_m)-min_fti)/(max_fti-min_fti))*(max_ftil_nwalking.at(i)-min_ftil_nwalking.at(i)))+min_ftil_nwalking.at(i);
 
-    if(crossing_gap)
+    //-----------Searching reflexes START----------------------------------------//
+
+    //Gap crossing
+    if(crossing_gap && global_count>700)
     {
-      offset_ftil.at(i) = 5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftil.at(0) = 15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftil.at(1) = 15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      if(max_error_cml_pre_step.at(i)>260)
+        max_error_cml_pre_step.at(i) = 260;
+
+      offset_ftil.at(0) = max_error_cml_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_ftil.at(1) = max_error_cml_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+      offset_ftil.at(2) = max_error_cml_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
 
       min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i))+1.3636;
       max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.3636;
 
       m_reflex.at(i+FL0_m) = (((m_pre.at(i+FL0_m)-min_fti)/(max_fti-min_fti))*(max_ftil_nwalking.at(i)-min_ftil_nwalking.at(i)))+min_ftil_nwalking.at(i);
     }
-    //-----------Searching reflexes START----------------------------------------//
+
 
     //-----------Elevator reflexes START----------------------------------------//
 
@@ -4864,10 +4905,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //normal walking range
   //=0.0
 
-  min_bj_fwalking = 0.0222*min_bj_fwalking_deg;
-  max_bj_fwalking = 0.0222*max_bj_fwalking_deg;
+  /*Gap crossing*/
+  if(crossing_gap && global_count>700)
+  {
+    static int local_counter_bj = 0;
 
-  m_reflex.at(BJ_m) = (((bj_output.at(0)-min_bj)/(max_bj-min_bj))*(max_bj_fwalking-min_bj_fwalking))+min_bj_fwalking;
+    if(max_error_cmr_pre_step.at(0)>260) // Max value for control input = 0.09 is 260
+      max_error_cmr_pre_step.at(0) = 260;
+
+    if(max_error_cml_pre_step.at(0)>260)
+      max_error_cml_pre_step.at(0) = 260;
+
+
+    offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/850;
+
+    if((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2>50)
+      local_counter_bj++;
+
+
+    if(local_counter_bj>80)
+    {
+      offset_bj = 0.0;
+
+      //Reset
+      if(local_counter_bj>100)
+      local_counter_bj = 0;
+    }
+    std::cout<<"local_counter_bj"<<":"<<local_counter_bj<< " Value check:" <<(max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2<<"offset_bj "<<offset_bj<<"\n";
+
+
+    min_bj_fwalking = 0.0222*min_bj_fwalking_deg+offset_bj;
+    max_bj_fwalking = 0.0222*max_bj_fwalking_deg+offset_bj;
+    m_reflex.at(BJ_m) = (((bj_output.at(0)-min_bj)/(max_bj-min_bj))*(max_bj_fwalking-min_bj_fwalking))+min_bj_fwalking;
+  }
+  else{
+
+    min_bj_fwalking = 0.0222*min_bj_fwalking_deg;
+    max_bj_fwalking = 0.0222*max_bj_fwalking_deg;
+    m_reflex.at(BJ_m) = (((bj_output.at(0)-min_bj)/(max_bj-min_bj))*(max_bj_fwalking-min_bj_fwalking))+min_bj_fwalking;
+  }
+
 
   //convert from activation to deg
   m_deg.at(BJ_m) =  45*m_reflex.at(BJ_m);
@@ -5194,7 +5271,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   outFilegait<<Control_input<<' '<<cpg_output.at(0)<<' '<<cpg_output.at(1)<<' '<<pcpg_output.at(0)<<' '<<pcpg_output.at(1)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<input.at(3)<<' '<<input.at(4)<<' '<<endl;
   outFilegait2<<Control_input<<' '<<duty_factor<<' '<<stance_time<<' '<<swing_time<<' '<<stride_period<<' '<<in1.at(BX_spd)<<' '<<in1.at(BY_spd)<<' '<<endl;
-  outFilepower1<<ac_motor<<' '<<i_motor<<' '<<motor_power_con<<' '<<incli_x<<' '<<incli_y<<' '<<in0.at(R0_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R2_fs)<<' '<<in0.at(L0_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L2_fs)<<' '<<' '<<endl;
+  //outFilepower1<<ac_motor<<' '<<i_motor<<' '<<motor_power_con<<' '<<incli_x<<' '<<incli_y<<' '<<in0.at(R0_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R2_fs)<<' '<<in0.at(L0_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L2_fs)<<' '<<' '<<endl;
 
   outFilenlc_tc <<m.at(TR2_m)<<' '<<m_deg.at(TR2_m)<<' '<<m.at(TR1_m)<<' '<<m_deg.at(TR1_m)<<' '<<m.at(TR0_m)<<' '<<m_deg.at(TR0_m)<<' '<<m.at(TL2_m)<<' '<<m_deg.at(TL2_m)<<' '<<m.at(TL1_m)<<' '<<m_deg.at(TL1_m)<<' '<<m.at(TL0_m)<<' '<<m_deg.at(TL0_m)<<' '<<endl;
   outFilenlc_ctr<<m.at(CR2_m)<<' '<<m_deg.at(CR2_m)<<' '<<m.at(CR1_m)<<' '<<m_deg.at(CR1_m)<<' '<<m.at(CR0_m)<<' '<<m_deg.at(CR0_m)<<' '<<m.at(CL2_m)<<' '<<m_deg.at(CL2_m)<<' '<<m.at(CL1_m)<<' '<<m_deg.at(CL1_m)<<' '<<m.at(CL0_m)<<' '<<m_deg.at(CL0_m)<<' '<<endl;
