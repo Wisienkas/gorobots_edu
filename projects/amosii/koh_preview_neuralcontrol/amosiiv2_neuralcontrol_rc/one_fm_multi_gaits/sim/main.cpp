@@ -91,19 +91,20 @@ class ThisSim : public lpzrobots::Simulation {
 
 
     //----------create gap by KOH-----------------------------
-    //the first sphere
     lpzrobots::OdeHandle playgroundHandle = odeHandle;
-    playgroundHandle.substance = lpzrobots::Substance(0.8/* 3.0 roughness*/, 0.0/*0 slip*/, 100.0/* 50 hardness*/, 0.0/*elasticity*/); //substance for playgrounds (NON-SLIPPERY!!!)
+    playgroundHandle.substance = lpzrobots::Substance(0.5/* 3.0 roughness*/, 0.0/*0 slip*/, 100.0/* 50 hardness*/, 0.0/*elasticity*/); //substance for playgrounds (NON-SLIPPERY!!!)
 
     //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
     gapcrossing_experiment_setup = true;
-    int obtacle_no = 2;
+    int obtacle_no = 1;//2; // set to 2 for two platforms
     double gap_distance = 2.22; // 2.3 fail!!
+    double size = 100.0; // set to 1.0 for gap crossing experiment
+
     for(int i=0;i<obtacle_no;i++){
       double obstacle_height = 0.01+0.01*i;
       double obstacle_distance = 0.01;
       if (gapcrossing_experiment_setup) {
-        lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(obstacle_distance, 1.0/*size*/,
+        lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(obstacle_distance, size/*size*/,
             0.1/*obstacle_height*/), 1, false);
         playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
         playground->setPosition(osg::Vec3(gap_distance*i/*distance between platforms*/, 0, .0));
@@ -116,7 +117,7 @@ class ThisSim : public lpzrobots::Simulation {
     //----------create a sphere as the target by Ren-----------------------------
     //the first sphere
     lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
+    s1->setPosition(osg::Vec3(3.0, 0.0, 2.0/*0.1 = above ground in z direction*/));
     s1->setTexture("Images/dusty.rgb");
     s1->setColor(lpzrobots::Color(1,0,0));
     obst.push_back(s1);
@@ -126,7 +127,7 @@ class ThisSim : public lpzrobots::Simulation {
 
     //the second sphere
     lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
+    s2->setPosition(osg::Vec3(0.0, 3.0, 2.0/*0.1 = above ground in z direction*/));
     s2->setTexture("Images/dusty.rgb");
     s2->setColor(lpzrobots::Color(0,1,0));
     obst.push_back(s2);
@@ -136,7 +137,7 @@ class ThisSim : public lpzrobots::Simulation {
 
     //the third sphere
     lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
+    s3->setPosition(osg::Vec3(0.0, -3.0, 2.0/*0.1 = above ground in z direction*/));
     s3->setTexture("Images/dusty.rgb");
     s3->setColor(lpzrobots::Color(0,0,1));
     obst.push_back(s3);

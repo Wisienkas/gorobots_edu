@@ -104,7 +104,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_ED = false;
 
   //Switch on or off reflexes
-  switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
+  switchon_reflexes = false;// true;// true==on after learning or when uses learned weights, false == off during learning
   use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
   max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
@@ -130,7 +130,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  crossing_gap = false;//true; // if set gap crossing --> on, searching and elevator reflex have to switch off
 
   if(crossing_gap)
   {
@@ -141,8 +141,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   }
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = true; // true = use learned weights, false = let the RC learn
-  learn = false; // true = learning, false = use learned weights
+  loadweight = false;// true; // true = use learned weights, false = let the RC learn
+  learn = true;//false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -1287,7 +1287,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       iii = 0;
 
     //Fixed gait to one gait for gap crossing
+    if(crossing_gap)
+    {
     Control_input = gait3;
+    }
   }
 
   //  //Lateral right NOT WORKING YET!!!!
@@ -3584,11 +3587,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             }
           }
 
-//          if(global_count>1000)
-//          {
-//            switchon_reflexes = true;
-//            elevator_reflexes = true;
-//          }
+          if(global_count>1000)
+          {
+            switchon_reflexes = true;
+            elevator_reflexes = true;
+          }
 
           //To start capture output activation for LTM learning
           if(global_count>1000 && postcr.at(0)>-0.8 && postcr.at(0)>postcrold.at(0))
