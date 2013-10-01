@@ -104,7 +104,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_ED = false;
 
   //Switch on or off reflexes
-  switchon_reflexes = false;// true;// true==on after learning or when uses learned weights, false == off during learning
+  switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
   use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
   max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
@@ -130,7 +130,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = false;//true; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
 
   if(crossing_gap)
   {
@@ -141,8 +141,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   }
 
   //RC network setup---------------------------------------------------------------//
-  loadweight = false;// true; // true = use learned weights, false = let the RC learn
-  learn = true;//false; // true = learning, false = use learned weights
+  loadweight = true; // true = use learned weights, false = let the RC learn
+  learn = false; // true = learning, false = use learned weights
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -1210,7 +1210,7 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 
 };
 
-std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> in0, const std::vector<double> in1){//, bool Footinhibition){
+std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> in0 /*x_prep*/, const std::vector<double> in1 /*x*/){//, bool Footinhibition){
 
   // Define local parameters//
   //std::vector<double> m;
@@ -1267,6 +1267,22 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   input.at(2) = 1; //PSN control  = I2 in paper
   input.at(3) = -1; //turn left = 1,  = I3 in paper
   input.at(4) = -1; //turn right = 1,  = I4 in paper
+
+
+
+  //Autonomously steering to always walk straight line
+  input.at(3)=-1.0 + 4.5*(in1.at(BY_ori));
+  input.at(4)=-1.0 - 4.5*(in1.at(BY_ori));
+  if(input.at(3)> 1.0)
+    input.at(3)=1.0;
+  if(input.at(3)< -1.0)
+    input.at(3)=-1.0;
+  if(input.at(4)> 1.0)
+    input.at(4)=1.0;
+  if(input.at(4)< -1.0)
+    input.at(4)=-1.0;
+
+
 
   if(sequentiral_learning)
   {
@@ -3587,10 +3603,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             }
           }
 
-          if(global_count>1000)
+          if(!crossing_gap)
           {
-            switchon_reflexes = true;
-            elevator_reflexes = true;
+            if(global_count>1000)
+            {
+              switchon_reflexes = true;
+              elevator_reflexes = true;
+            }
           }
 
           //To start capture output activation for LTM learning
@@ -4287,7 +4306,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           {
 
             //Positive Error signal for controlling searching reflexes
-            if(abs(low_pass_fmodel_cmr_error.at(i))>0.15)
+            if(abs(low_pass_fmodel_cmr_error.at(i))>0.45)//0.15)
             {
 
               d_r.at(i) = low_pass_fmodel_cmr_error.at(i)-low_pass_fmodel_cmr_error_old.at(i);
@@ -4319,7 +4338,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             max_error_cmr_pre_step.at(i) =  acc_cmr_error_old.at(i);
 
             //Negative Error signal for controlling elevator reflexes
-            if(low_pass_fmodel_cmr_error.at(i)<0.25)
+            if(low_pass_fmodel_cmr_error.at(i)<0.35)//0.25)
             {
               acc_cmr_error_elev.at(i) += abs(low_pass_fmodel_cmr_error.at(i));
             }
@@ -4342,7 +4361,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           {
 
             //Positive Error signal for controlling searching reflexes
-            if(abs(low_pass_fmodel_cml_error.at(i))>0.15)
+            if(abs(low_pass_fmodel_cml_error.at(i))>0.45)//0.15)
             {
 
               d_l.at(i) = low_pass_fmodel_cml_error.at(i)-low_pass_fmodel_cml_error_old.at(i);
@@ -4373,7 +4392,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             max_error_cml_pre_step.at(i) =  acc_cml_error_old.at(i);
 
             //Negative Error signal for controlling elevator reflexes
-            if(low_pass_fmodel_cml_error.at(i)<0.25)
+            if(low_pass_fmodel_cml_error.at(i)<0.35)//0.25)
             {
               acc_cml_error_elev.at(i) += abs(low_pass_fmodel_cml_error.at(i));
             }
@@ -4920,19 +4939,24 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       max_error_cml_pre_step.at(0) = 260;
 
 
-    offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/850;
+    offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/400; //300 "850" can be optimize by learning
 
     if((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2>50)
       local_counter_bj++;
 
 
-    if(local_counter_bj>80)
+    if(local_counter_bj>80 /*"80" can be optimized*/)
     {
-      offset_bj = 0.0;
+      //Move BJ to downward
+      offset_bj = -0.1;
+
+      //Move BJ to normal position for 200-80 = 120 time steps
+      if(local_counter_bj>100)//200)
+        offset_bj = 0.0;
 
       //Reset
-      if(local_counter_bj>100)
-      local_counter_bj = 0;
+      if(local_counter_bj>200 /*"200" can be optimized*/)
+        local_counter_bj = 0;
     }
     std::cout<<"local_counter_bj"<<":"<<local_counter_bj<< " Value check:" <<(max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2<<"offset_bj "<<offset_bj<<"\n";
 
