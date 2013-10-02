@@ -18,6 +18,9 @@
 //Add ENS network--(1)
 #include <esn-framework/networkmatrix.h>
 
+// select which version of AMOSII should be used
+bool use_amosii_version1 = true;
+bool use_amosii_version2 = false;
 
 
 //-----ESN network-----//
@@ -133,7 +136,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = false; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
 
   if(crossing_gap)
   {
@@ -649,136 +652,228 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   max_down=0;
   max_fmodel = 0.0;
 
+  //-----------------------------AMOSiiV1_Config------------------------------------------//
+   if (use_amosii_version1 && !use_amosii_version2)
+   {
+     //Motor mapping
+     //TC_front
+     //Fix
+     min_tc = -0.906124;//-0.91; // network output range
+     max_tc = 0.900653;//0.91;// network output range
+     //Adjust
+     min_tc_f_nwalking_deg = -16.7;//-10.7; //deg ** MIN -45 deg
+     max_tc_f_nwalking_deg = 14.7;//12.7; //deg ** MAX +45 deg
+     min_tc_f_nwalking = -1;
+     max_tc_f_nwalking = 1;
+
+     //TC_middle
+     //Adjust
+     min_tc_m_nwalking_deg = -13.47; //deg ** MIN -45 deg
+     max_tc_m_nwalking_deg = 13.47; //deg ** MAX +45 deg
+     min_tc_m_nwalking = -1;
+     max_tc_m_nwalking = 1;
+
+     //TC_rear
+     //Adjust
+     min_tc_r_nwalking_deg = -17.0; //deg ** MIN -70 deg
+     max_tc_r_nwalking_deg = 6.4; //deg ** MAX +70 deg
+     min_tc_r_nwalking = -1;
+     max_tc_r_nwalking = 1;
+
+
+     //CTR
+     //Fix
+     min_ctr = -1; // network output range
+     max_ctr = 0.96;// network output range
+
+     //FTI
+     //Fix
+     min_fti = -0.995;//-1; // network output range
+     max_fti = 0.955;//1;// network output range
+
+     for(unsigned int i=0; i< min_ctr_nwalking_deg.size(); i++)
+     {
+       //Parameter set up for normal walking on flat terrain
+       min_ctr_nwalking_deg.at(i) = 81;//** MIN -30 deg
+       max_ctr_nwalking_deg.at(i) = 100;//** MAX +100 deg
+       min_ctr_nwalking.at(i) = -1;
+       max_ctr_nwalking.at(i) =1;
+
+       min_ctl_nwalking_deg.at(i) = 81;//** MIN -30 deg
+       max_ctl_nwalking_deg.at(i) = 100;//** MAX +100 deg
+       min_ctl_nwalking.at(i) = -1;
+       max_ctl_nwalking.at(i) = 1;
+
+       min_ftir_nwalking_deg.at(i) = -140; //deg ** MIN -140 deg
+       max_ftir_nwalking_deg.at(i) = -120; //deg ** MAX -15 deg
+       min_ftir_nwalking.at(i) = -1;
+       max_ftir_nwalking.at(i) = 1;
+
+       min_ftil_nwalking_deg.at(i) = -140; //deg ** MIN -140 deg
+       max_ftil_nwalking_deg.at(i)  = -120; //deg ** MAX -15 deg
+       min_ftil_nwalking.at(i) = -1;
+       max_ftil_nwalking.at(i) = 1;
+     }
+
+
+     //For relfex action
+     max_c = 115.0; // max range
+     max_f = 110.0; // max range
+
+     //if  max_c_offset, max_f_offset very low = 45 then robot will extend its legs very fast--> walk very high good for rough terrain
+     //if  max_c_offset, max_f_offset very large = 180 then robot will extend its legs very slow--> walk very low good for normal walking
+
+     max_c_offset = 110;//110 (normal); 180 (lower the body)
+     //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
+     max_f_offset = 110;//110 (normal); 180 (lower the body)
+     //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
+     //80,100,185 == amlost the same height when using forward model and foot but different height using only foot signal
+
+     //
+     //BJ
+     //Fix
+     min_bj = -1; // network output range
+     max_bj = 1; // network output range
+
+     //Adjust
+     min_bj_fwalking_deg = -45; //deg ** MIN -45 deg
+     max_bj_fwalking_deg = 45; //deg ** MAX 45 deg
+   }
+   //-----------------------------AMOSiiV1_Config------------------------------------------//
 
   //-----------------------------AMOSiiV2_Config------------------------------------------//
-  //Motor mapping
-  //TC_front
-  //Fix
-  min_tc = -0.91; // network output range
-  max_tc = 0.91;// network output range
-  //Adjust
-  min_tc_f_nwalking_deg = 0; //deg ** MIN -70 deg
-  max_tc_f_nwalking_deg = 50; //deg ** MAX +70 deg
-  min_tc_f_nwalking = -1;
-  max_tc_f_nwalking = 1;
-
-  //TC_middle
-  //Adjust
-  min_tc_m_nwalking_deg = -30; //deg ** MIN -60 deg
-  max_tc_m_nwalking_deg = 20;//10; //deg ** MAX +60 deg
-  min_tc_m_nwalking = -1;
-  max_tc_m_nwalking = 1;
-
-  //TC_rear
-  //Adjust
-  min_tc_r_nwalking_deg = -60; //deg ** MIN -70 deg
-  max_tc_r_nwalking_deg = -10; //deg ** MAX +70 deg
-  min_tc_r_nwalking = -1;
-  max_tc_r_nwalking = 1;
-
-  //CTR
-  //Fix
-  min_ctr = -1; // network output range
-  max_ctr = 0.96;// network output range
-
-  //FTI
-  //Fix
-  min_fti = -1; // network output range
-  max_fti = 1;// network output range
-
-  for(unsigned int i=0; i< min_ctr_nwalking_deg.size(); i++)
+  if (use_amosii_version2 && !use_amosii_version1)
   {
-    //Parameter set up for normal walking on flat terrain
-    min_ctr_nwalking_deg.at(i) = 45;//48;//45;//50 is good; //40deg ** MIN -70 deg
-    max_ctr_nwalking_deg.at(i) = 75; //75deg ** MAX +70 deg
-    min_ctr_nwalking.at(i) = -1;
-    max_ctr_nwalking.at(i) =1;
+    //Motor mapping
+    //TC_front
+    //Fix
+    min_tc = -0.91; // network output range
+    max_tc = 0.91;// network output range
+    //Adjust
+    min_tc_f_nwalking_deg = 0; //deg ** MIN -70 deg
+    max_tc_f_nwalking_deg = 50; //deg ** MAX +70 deg
+    min_tc_f_nwalking = -1;
+    max_tc_f_nwalking = 1;
 
-    min_ctl_nwalking_deg.at(i) = 45;//48;//45;//50 is good; //deg ** MIN -70 deg
-    max_ctl_nwalking_deg.at(i) = 75; //deg ** MAX +70 deg
-    min_ctl_nwalking.at(i) = -1;
-    max_ctl_nwalking.at(i) = 1;
+    //TC_middle
+    //Adjust
+    min_tc_m_nwalking_deg = -30; //deg ** MIN -60 deg
+    max_tc_m_nwalking_deg = 20;//10; //deg ** MAX +60 deg
+    min_tc_m_nwalking = -1;
+    max_tc_m_nwalking = 1;
 
-    min_ftir_nwalking_deg.at(i) = -130; //deg ** MIN -130 deg
-    max_ftir_nwalking_deg.at(i) = -120; //deg ** MAX -20 deg
-    min_ftir_nwalking.at(i) = -1;
-    max_ftir_nwalking.at(i) = 1;
+    //TC_rear
+    //Adjust
+    min_tc_r_nwalking_deg = -60; //deg ** MIN -70 deg
+    max_tc_r_nwalking_deg = -10; //deg ** MAX +70 deg
+    min_tc_r_nwalking = -1;
+    max_tc_r_nwalking = 1;
 
-    min_ftil_nwalking_deg.at(i) = -130;
-    max_ftil_nwalking_deg.at(i) = -120;
-    min_ftil_nwalking.at(i) = -1;
-    max_ftil_nwalking.at(i) = 1;
-  }
+    //CTR
+    //Fix
+    min_ctr = -1; // network output range
+    max_ctr = 0.96;// network output range
 
-  //------Used values-------------//
-  max_c = 115.0; // max range
-  max_f = 110.0; // max range
+    //FTI
+    //Fix
+    min_fti = -1; // network output range
+    max_fti = 1;// network output range
 
-  //if  max_c_offset, max_f_offset very low = 45 then robot will extend its legs very fast--> walk very high good for rough terrain
-  //if  max_c_offset, max_f_offset very large = 180 then robot will extend its legs very slow--> walk very low good for normal walking
+    for(unsigned int i=0; i< min_ctr_nwalking_deg.size(); i++)
+    {
+      //Parameter set up for normal walking on flat terrain
+      min_ctr_nwalking_deg.at(i) = 45;//48;//45;//50 is good; //40deg ** MIN -70 deg
+      max_ctr_nwalking_deg.at(i) = 75; //75deg ** MAX +70 deg
+      min_ctr_nwalking.at(i) = -1;
+      max_ctr_nwalking.at(i) =1;
 
-  //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
+      min_ctl_nwalking_deg.at(i) = 45;//48;//45;//50 is good; //deg ** MIN -70 deg
+      max_ctl_nwalking_deg.at(i) = 75; //deg ** MAX +70 deg
+      min_ctl_nwalking.at(i) = -1;
+      max_ctl_nwalking.at(i) = 1;
 
-  max_c_offset = 95;//110;//110 (normal); 180 (lower the body)
-  max_f_offset = 95;//110;//110 (normal); 180 (lower the body)
+      min_ftir_nwalking_deg.at(i) = -130; //deg ** MIN -130 deg
+      max_ftir_nwalking_deg.at(i) = -120; //deg ** MAX -20 deg
+      min_ftir_nwalking.at(i) = -1;
+      max_ftir_nwalking.at(i) = 1;
 
-  //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
-  //80,100,185 == amlost the same height when using forward model and foot but different height using only foot signal
+      min_ftil_nwalking_deg.at(i) = -130;
+      max_ftil_nwalking_deg.at(i) = -120;
+      min_ftil_nwalking.at(i) = -1;
+      max_ftil_nwalking.at(i) = 1;
+    }
 
-  //------Used values-------------//
-
-  if(switchon_less_reflexes==true)
-  {
-    //For testing pure reflex in order to NOT to extend too much
+    //------Used values-------------//
     max_c = 115.0; // max range
     max_f = 110.0; // max range
-    max_c_offset = max_c*2;//10;//2;//10; // or 1150
-    max_f_offset = max_c*2;//10;//2;//10; // or 1100
-  }
 
-  //BJ
-  //Fix
-  min_bj = -1; // network output range
-  max_bj = 1;	// network output range
+    //if  max_c_offset, max_f_offset very low = 45 then robot will extend its legs very fast--> walk very high good for rough terrain
+    //if  max_c_offset, max_f_offset very large = 180 then robot will extend its legs very slow--> walk very low good for normal walking
 
-  //Adjust
-  min_bj_fwalking_deg = -45; //deg ** MIN -45 deg
-  max_bj_fwalking_deg = 45; //deg ** MAX 45 deg
+    //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
 
-  offset_bj = 0.0;
+    max_c_offset = 95;//110;//110 (normal); 180 (lower the body)
+    max_f_offset = 95;//110;//110 (normal); 180 (lower the body)
 
-  if(lift_body_up==true)
-  {
-    //Lifting body up
-    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+    //60/*Use to compare*/;//80;//100.0;//55.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
+    //80,100,185 == amlost the same height when using forward model and foot but different height using only foot signal
+
+    //------Used values-------------//
+
+    if(switchon_less_reflexes==true)
     {
-      int lifting_value = 10;//5;//10; //20
-
-      //lifting_value = 10; small lifting body up
-      //lifting_value = 20; small lifting body up
-      //lifting_value = 50; high lifting body up
-
-      //These parameters need to be adjust the high values, the more lifting body!!!
-      offset_ftil_downward.at(i) = lifting_value; //KOH-->Eduard
-      offset_ftir_downward.at(i) = lifting_value; //KOH-->Eduard
-      offset_ctl_downward.at(i) = lifting_value; //KOH-->Eduard
-      offset_ctr_downward.at(i) = lifting_value; //KOH-->Eduard
+      //For testing pure reflex in order to NOT to extend too much
+      max_c = 115.0; // max range
+      max_f = 110.0; // max range
+      max_c_offset = max_c*2;//10;//2;//10; // or 1150
+      max_f_offset = max_c*2;//10;//2;//10; // or 1100
     }
-  }
-  else
-  {
-    //Lifting body up
-    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+
+    //BJ
+    //Fix
+    min_bj = -1; // network output range
+    max_bj = 1;	// network output range
+
+    //Adjust
+    min_bj_fwalking_deg = -45; //deg ** MIN -45 deg
+    max_bj_fwalking_deg = 45; //deg ** MAX 45 deg
+
+    offset_bj = 0.0;
+
+    if(lift_body_up==true)
     {
-      offset_ftil_downward.at(i) = 0; //KOH-->Eduard
-      offset_ftir_downward.at(i) = 0; //KOH-->Eduard
-      offset_ctl_downward.at(i) = 0; //KOH-->Eduard
-      offset_ctr_downward.at(i) = 0; //KOH-->Eduard
+      //Lifting body up
+      for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+      {
+        int lifting_value = 10;//5;//10; //20
+
+        //lifting_value = 10; small lifting body up
+        //lifting_value = 20; small lifting body up
+        //lifting_value = 50; high lifting body up
+
+        //These parameters need to be adjust the high values, the more lifting body!!!
+        offset_ftil_downward.at(i) = lifting_value; //KOH-->Eduard
+        offset_ftir_downward.at(i) = lifting_value; //KOH-->Eduard
+        offset_ctl_downward.at(i) = lifting_value; //KOH-->Eduard
+        offset_ctr_downward.at(i) = lifting_value; //KOH-->Eduard
+      }
     }
+    else
+    {
+      //Lifting body up
+      for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+      {
+        offset_ftil_downward.at(i) = 0; //KOH-->Eduard
+        offset_ftir_downward.at(i) = 0; //KOH-->Eduard
+        offset_ctl_downward.at(i) = 0; //KOH-->Eduard
+        offset_ctr_downward.at(i) = 0; //KOH-->Eduard
+      }
+    }
+
   }
-
-
   //-----------------------------AMOSiiV2_Config------------------------------------------//
+
+
 
 
   //Other parameters
@@ -4458,14 +4553,30 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex_old.at(TL2_m) = m_reflex.at(TL2_m);
 
 
-  //1) TC_front//->normal walking range: front legs 60 deg Max = 0.858, -10 deg Min = -0.143
+  //1) TC_front//->normal walking range:
 
-  min_tc_f_nwalking = 0.0143*min_tc_f_nwalking_deg;
-  max_tc_f_nwalking = 0.0143*max_tc_f_nwalking_deg;
+
+  if (use_amosii_version1 && !use_amosii_version2)
+  {//front legs 12.7 deg Max = 0.28194, -10.7 deg Min = -0.23754
+    min_tc_f_nwalking = 0.0222*min_tc_f_nwalking_deg;
+    max_tc_f_nwalking = 0.0222*max_tc_f_nwalking_deg;
+  }
+
+  if (use_amosii_version2 && !use_amosii_version1)
+  {//front legs 60 deg Max = 0.858, -10 deg Min = -0.143
+    min_tc_f_nwalking = 0.0143*min_tc_f_nwalking_deg;
+    max_tc_f_nwalking = 0.0143*max_tc_f_nwalking_deg;
+  }
 
   m_reflex.at(TR0_m) = (((m_pre.at(TR0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
   m_reflex.at(TL0_m) = (((m_pre.at(TL0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
 
+  //amosiiv1
+  //convert from activation to deg => x = 45*y; y = angle deg [-45,.., 45 deg] , x = neural activation [-1,..,+1]
+  //m_deg.at(TR0_m) = 45*m_reflex.at(TR0_m);
+  //m_deg.at(TL0_m) = 45*m_reflex.at(TL0_m);
+
+  //amosiiv2
   //  //convert from activation to deg
   //  m_deg.at(TR0_m) = 70*m_reflex.at(TR0_m);
   //  m_deg.at(TL0_m) = 70*m_reflex.at(TL0_m);
@@ -4473,14 +4584,29 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //  std::cout<<"motor deg TR0"<<":"<<m_deg.at(TR0_m)<< "\n";
   //  std::cout<<"motor deg TL0"<<":"<<m_deg.at(TL0_m)<< "\n";
 
-  //TC_middle//->normal walking range: middle legs 30 deg Max = 0.501, -40 deg Min = -0.668
+  //TC_middle//->normal walking range:
 
-  min_tc_m_nwalking = 0.0167*min_tc_m_nwalking_deg;
-  max_tc_m_nwalking = 0.0167*max_tc_m_nwalking_deg;
+  if (use_amosii_version1 && !use_amosii_version2)
+  {//middle legs 13.88 deg Max = 0.308136, -13.47 deg Min = -0.299034
+    min_tc_m_nwalking = 0.0222*min_tc_m_nwalking_deg;
+    max_tc_m_nwalking = 0.0222*max_tc_m_nwalking_deg;
+  }
+
+  if (use_amosii_version2 && !use_amosii_version1)
+  {//middle legs 30 deg Max = 0.501, -40 deg Min = -0.668
+    min_tc_m_nwalking = 0.0167*min_tc_m_nwalking_deg;
+    max_tc_m_nwalking = 0.0167*max_tc_m_nwalking_deg;
+  }
 
   m_reflex.at(TR1_m) = (((m_pre.at(TR1_m)-min_tc)/(max_tc-min_tc))*(max_tc_m_nwalking-min_tc_m_nwalking))+min_tc_m_nwalking;
   m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tc_m_nwalking-min_tc_m_nwalking))+min_tc_m_nwalking;
 
+  //amosiiv1
+  //convert from activation to deg
+  //m_deg.at(TR1_m) = 45*m_reflex.at(TR1_m);
+  //m_deg.at(TL1_m) = 45*m_reflex.at(TL1_m);
+
+  //amosiiv2
   //convert from activation to deg
   //  m_deg.at(TR1_m) = 60*m_reflex.at(TR1_m);
   //  m_deg.at(TL1_m) = 60*m_reflex.at(TL1_m);
@@ -4488,10 +4614,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //  std::cout<<"motor deg TR1"<<":"<<m_deg.at(TR1_m)<< "\n";
   //  std::cout<<"motor deg TL1"<<":"<<m_deg.at(TL1_m)<< "\n";
 
-  //TC_rear//->normal walking range: hind legs 10 deg Max = 0.143, -60 deg Min = -0.858
+  //TC_rear//->normal walking range:
 
-  min_tc_r_nwalking = 0.0143*min_tc_r_nwalking_deg;
-  max_tc_r_nwalking = 0.0143*max_tc_r_nwalking_deg;
+  if (use_amosii_version1 && !use_amosii_version2)
+  {//hind legs 6.4 deg Max = 0.14208, -17 deg Min = -0.3774
+    min_tc_r_nwalking = 0.0222*min_tc_r_nwalking_deg;
+    max_tc_r_nwalking = 0.0222*max_tc_r_nwalking_deg;
+  }
+
+  if (use_amosii_version2 && !use_amosii_version1)
+  {//hind legs 10 deg Max = 0.143, -60 deg Min = -0.858
+    min_tc_r_nwalking = 0.0143*min_tc_r_nwalking_deg;
+    max_tc_r_nwalking = 0.0143*max_tc_r_nwalking_deg;
+  }
 
   m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
   m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
@@ -4513,41 +4648,60 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       offset_tcr.at(i) = (max_error_cmr_pre_step.at(i)/1000)*1.15; // (max_error_cmr_pre_step = 260, max offset_tcr = 0.3)
       offset_tcl.at(i) = (max_error_cml_pre_step.at(i)/1000)*1.15;//0.3;//acc_cml_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
 
-
-      min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
-      max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
-      m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
-
-
-      min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
-      max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
-      m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+      if (use_amosii_version1 && !use_amosii_version2)
+      {
+        min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
+        max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcr.at(i);
+        m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
 
 
-      min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcr.at(1);
-      max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
-      m_reflex.at(TR1_m) = (((m_pre.at(TR1_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(1)-min_tcr_nwalking.at(1)))+min_tcr_nwalking.at(1);
+        min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
+        max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcl.at(i);
+        m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+
+      }
+
+      if (use_amosii_version2 && !use_amosii_version1)
+      {
+        min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
+        max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
+        m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
 
 
-      min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcl.at(1);
-      max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
-      m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(1)-min_tcl_nwalking.at(1)))+min_tcl_nwalking.at(1);
+        min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
+        max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
+        m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
 
 
-      min_tcr_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcr.at(2);
-      max_tcr_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcr.at(2);
-      m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(2)-min_tcr_nwalking.at(2)))+min_tcr_nwalking.at(2);
+        min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcr.at(1);
+        max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
+        m_reflex.at(TR1_m) = (((m_pre.at(TR1_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(1)-min_tcr_nwalking.at(1)))+min_tcr_nwalking.at(1);
 
-      min_tcl_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcl.at(2);
-      max_tcl_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcl.at(2);
-      m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(2)-min_tcl_nwalking.at(2)))+min_tcl_nwalking.at(2);
 
+        min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcl.at(1);
+        max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
+        m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(1)-min_tcl_nwalking.at(1)))+min_tcl_nwalking.at(1);
+
+
+        min_tcr_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcr.at(2);
+        max_tcr_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcr.at(2);
+        m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(2)-min_tcr_nwalking.at(2)))+min_tcr_nwalking.at(2);
+
+        min_tcl_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcl.at(2);
+        max_tcl_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcl.at(2);
+        m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(2)-min_tcl_nwalking.at(2)))+min_tcl_nwalking.at(2);
+      }
      }
 
 
   }
 
+  //amosiiv1
+  //convert from activation to deg
+  // m_deg.at(TR2_m) = 45*m_reflex.at(TR2_m);
+  // m_deg.at(TL2_m) = 45*m_reflex.at(TL2_m);
 
+  //amosiiv2
   //convert from activation to deg
   //  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);
   //  m_deg.at(TL2_m) = 70*m_reflex.at(TL2_m);
@@ -4558,6 +4712,13 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   //*****Motor mapping & Searching reflexes
 
+  //amosiiv1
+  //2) CTr range [+100,...,-30 deg]
+  //normal walking range
+  //up 100 deg Max = 1.0, 80 deg Min = 0.715
+
+
+  //amosiiv2
   //2) CTr range [+75,...,-75 deg]
   //normal walking range
   //up 75 deg Max = 1.0, 50 deg Min = 0.715
@@ -4583,6 +4744,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       offset_ctr.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
       offset_ctl.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+
       }
       else
       {
@@ -4592,16 +4754,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       offset_ctr.at(2) = acc_cmr_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
       offset_ctl.at(2) = acc_cml_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+
       }
 
-
-      //      offset_ctr.at(i) = acc_cmr_error.at(i)/10;//*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      //      offset_ctl.at(i) = acc_cml_error.at(i)/10;//*(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
-      //
-      //      offset_ctr.at(2) = acc_cmr_error.at(i)/10;//*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      //      offset_ctl.at(2) = acc_cml_error.at(i)/10;//*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-
-      //max_c_offset ; Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
     }
 
     if(switchoff_searching_reflexes)
@@ -4613,22 +4768,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //offset_ctr.at(i) = 150.0;// Change this parameter to extend leg
     //offset_ctl.at(i) = 150.0;// Change this parameter to extend leg
 
+
+
     //------Right CTR joints---------------------//
     //acc error upto 0...180
 
     //-----------Searching reflexes START---------------------------------------//
-    //min_ctr_nwalking.at(i) = 0.0143*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i));//0.715;// MIN -70 deg
-    //max_ctr_nwalking.at(i) = 0.0143*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i));//1; // MAX +70 deg
+    // CTR_front, middle, hind//->normal walking range: 100 deg Max = 1.0, 80 deg Min = 0.6935
+    //Converting from deg to neural activation
+    if (use_amosii_version1 && !use_amosii_version2)
+    {
+      min_ctr_nwalking.at(i) = 0.0154*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MIN 80 deg
+      max_ctr_nwalking.at(i) =  0.0154*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MAX +100 deg
 
+      //min_ctr_nwalking.at(i) = 0.0154*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i))-0.5385;//normal walking MIN 80 deg
+      //max_ctr_nwalking.at(i) =  0.0154*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i))-0.5385;//normal walking MAX +100 deg
 
-    //KOH-->Eduard
-    min_ctr_nwalking.at(i) = 0.0133*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i));//0.715;// 50 deg, MIN -75 deg
-    max_ctr_nwalking.at(i) = 0.0133*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i));//1; // 70 deg, MAX +75 deg
-
-    m_reflex.at(i+CR0_m/*6*/) = (((m_pre.at(i+CR0_m/*6*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
-    //m_reflex.at(i+CR0_m/*6*/) = 0.7865; //= +55 deg M shape with body touch ground
+      m_reflex.at(i+CR0_m/*6*/) = (((m_pre.at(i+CR0_m/*6*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
+    }
     //-----------Searching reflexes END----------------------------------------//
 
+
+    //-----------Searching reflexes START---------------------------------------//
+    if (use_amosii_version2 && !use_amosii_version1)
+    {
+      //KOH-->Eduard
+      min_ctr_nwalking.at(i) = 0.0133*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i));//0.715;// 50 deg, MIN -75 deg
+      max_ctr_nwalking.at(i) = 0.0133*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i));//1; // 70 deg, MAX +75 deg
+
+      m_reflex.at(i+CR0_m/*6*/) = (((m_pre.at(i+CR0_m/*6*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctr_nwalking.at(i)-min_ctr_nwalking.at(i)))+min_ctr_nwalking.at(i);
+      //m_reflex.at(i+CR0_m/*6*/) = 0.7865; //= +55 deg M shape with body touch ground
+    }
+    //-----------Searching reflexes END----------------------------------------//
+
+
+    //amosiiv1
+    //convert from activation to deg
+    //m_deg.at(i+CR0_m/*6*/) = 65*m_reflex.at(i+CR0_m/*6*/)+35;
+    //std::cout<<"motor deg CR0"<<":"<<m_deg.at(CR0_m)<< "\n";
+
+    //amosiiv2
     //convert from activation to deg
     //m_deg.at(i+CR0_m/*6*/) = 75*m_reflex.at(i+CR0_m/*6*/);
     //std::cout<<"motor deg CR0"<<":"<<m_deg.at(CR0_m)<< "\n";
@@ -4637,13 +4816,30 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //------Left CTR joints---------------------//
     //acc error upto 0...180
 
+
     //-----------Searching reflexes START----------------------------------------//
+    if (use_amosii_version1 && !use_amosii_version2)
+    {
+      min_ctl_nwalking.at(i) = 0.0154*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MIN 80 deg
+      max_ctl_nwalking.at(i) = 0.0154*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MAX +100 deg
 
-    //KOH-->Eduard
-    min_ctl_nwalking.at(i) = 0.0133*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i));//0.715;// 50 deg
-    max_ctl_nwalking.at(i) = 0.0133*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i));//1; // 70 deg
+      //min_ctl_nwalking.at(i) = 0.0154*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i))-0.5385;//normal walking MIN 80 deg
+      //max_ctl_nwalking.at(i) = 0.0154*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i))-0.5385;//normal walking MAX +100 deg
 
-    m_reflex.at(i+CL0_m/*9*/) = (((m_pre.at(i+CL0_m/*9*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+      m_reflex.at(i+CL0_m/*9*/) = (((m_pre.at(i+CL0_m/*9*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+    }
+    //-----------Searching reflexes END-----------------------------------------//
+
+
+    //-----------Searching reflexes START----------------------------------------//
+    if (use_amosii_version2 && !use_amosii_version1)
+    {
+      //KOH-->Eduard
+      min_ctl_nwalking.at(i) = 0.0133*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i));//0.715;// 50 deg
+      max_ctl_nwalking.at(i) = 0.0133*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i));//1; // 70 deg
+
+      m_reflex.at(i+CL0_m/*9*/) = (((m_pre.at(i+CL0_m/*9*/)-min_ctr)/(max_ctr-min_ctr))*(max_ctl_nwalking.at(i)-min_ctl_nwalking.at(i)))+min_ctl_nwalking.at(i);
+    }
     //-----------Searching reflexes END-----------------------------------------//
 
 
@@ -4672,32 +4868,49 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if(use_pre_step_to_adjust_searching)
       {
-      offset_ftir.at(i) = (max_error_cmr_pre_step.at(i)/max_scale)*acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(i) = (max_error_cml_pre_step.at(i)/max_scale)*acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+        offset_ftir.at(i) = (max_error_cmr_pre_step.at(i)/max_scale)*acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+        offset_ftil.at(i) = (max_error_cml_pre_step.at(i)/max_scale)*acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
 
-      //Too make FTI less extend for more stable walking
-      offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+        if (use_amosii_version1 && !use_amosii_version2)
+        {
+          //Too make FTI less extend for more stable walking
+          offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+        }
+
+        if (use_amosii_version2 && !use_amosii_version1)
+        {
+          //Too make FTI less extend for more stable walking
+          offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+        }
+
       }
       else
       {
-      offset_ftir.at(i) = acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(i) = acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
 
-      //Too make FTI less extend for more stable walking
-      offset_ftir.at(2) = acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(2) = acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+        offset_ftir.at(i) = acc_cmr_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+        offset_ftil.at(i) = acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
+
+        if (use_amosii_version1 && !use_amosii_version2)
+        {
+          //Too make FTI less extend for more stable walking
+          offset_ftir.at(2) = acc_cmr_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+        }
+
+        if (use_amosii_version2 && !use_amosii_version1)
+        {
+          //Too make FTI less extend for more stable walking
+          offset_ftir.at(2) = acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+        }
+
       }
 
-
-      //      offset_ftir.at(i) = acc_cmr_error.at(i)/10;//*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
-      //      offset_ftil.at(i) = acc_cml_error.at(i)/10;//*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
-      //
-      //      //Too make FTI less extend for more stable walking
-      //      offset_ftir.at(2) = acc_cmr_error.at(i)/10;//*(max_f/ (max_f_offset));//+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      //      offset_ftil.at(2) = acc_cml_error.at(i)/10;//*(max_f/ (max_f_offset));//+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-
       //max_f_offset = 45.0; // Adjust from 45,...185=> 185 (cin= 0.02, wave), 45 (cin= 0.18, tripod)
+
+
 
     }
 
@@ -4720,10 +4933,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //offset_ftil.at(i) = 150.0;// Change this parameter to extend leg
 
     //-----------Searching reflexes START----------------------------------------//
-    min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.3636;
-    max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.3636;
 
+
+    //-----------Searching reflexes START----------------------------------------//
+
+    if (use_amosii_version1 && !use_amosii_version2)
+    {
+      min_ftir_nwalking.at(i) = 0.016*(min_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.24;
+      max_ftir_nwalking.at(i) = 0.016*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.24;
+    }
+
+    if (use_amosii_version2 && !use_amosii_version1)
+    {
+      min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.3636;
+      max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i)+offset_ftir_downward.at(i))+1.3636;
+    }
     m_reflex.at(i+FR0_m/*12*/) = (((m_pre.at(i+FR0_m/*12*/)-min_fti)/(max_fti-min_fti))*(max_ftir_nwalking.at(i)-min_ftir_nwalking.at(i)))+min_ftir_nwalking.at(i);
+    //-----------Searching reflexes END-----------------------------------------//
 
 
     /*Gap crossing*/
@@ -4737,8 +4963,18 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       offset_ftir.at(1) = max_error_cmr_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
       offset_ftir.at(2) = max_error_cmr_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
 
-      min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i))+1.3636;
-      max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.3636;
+
+      if (use_amosii_version1 && !use_amosii_version2)
+      {
+        min_ftir_nwalking.at(i) = 0.016*(min_ftir_nwalking_deg.at(i))+1.24;
+        max_ftir_nwalking.at(i) = 0.016*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.24;
+      }
+
+      if (use_amosii_version2 && !use_amosii_version1)
+      {
+        min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i))+1.3636;
+        max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.3636;
+      }
 
       m_reflex.at(i+FR0_m/*12*/) = (((m_pre.at(i+FR0_m/*12*/)-min_fti)/(max_fti-min_fti))*(max_ftir_nwalking.at(i)-min_ftir_nwalking.at(i)))+min_ftir_nwalking.at(i);
     }
@@ -4815,6 +5051,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       }
     }
+
+    //amosiiv1
+    //convert from activation to deg
+    //m_deg.at(i+FR0_m/*12*/) = 62.5*m_reflex.at(i+FR0_m/*12*/)-77.5;
+
+    //amosiiv2
     //convert from activation to deg
     //m_deg.at(i+FR0_m/*12*/) = 55*m_reflex.at(i+FR0_m/*12*/)-75;
 
@@ -4824,8 +5066,21 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //acc error upto 0...180
 
     //-----------Searching reflexes START----------------------------------------//
-    min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.3636;
-    max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.3636;
+
+
+    //-----------Searching reflexes START----------------------------------------//
+    if (use_amosii_version1 && !use_amosii_version2)
+    {
+      min_ftil_nwalking.at(i) = 0.016*(min_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.24;
+      max_ftil_nwalking.at(i) = 0.016*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.24;
+    }
+
+
+    if (use_amosii_version2 && !use_amosii_version1)
+    {
+      min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.3636;
+      max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i)+offset_ftil_downward.at(i))+1.3636;
+    }
 
     m_reflex.at(i+FL0_m) = (((m_pre.at(i+FL0_m)-min_fti)/(max_fti-min_fti))*(max_ftil_nwalking.at(i)-min_ftil_nwalking.at(i)))+min_ftil_nwalking.at(i);
 
@@ -4841,9 +5096,17 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       offset_ftil.at(1) = max_error_cml_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
       offset_ftil.at(2) = max_error_cml_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
 
-      min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i))+1.3636;
-      max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.3636;
+      if (use_amosii_version1 && !use_amosii_version2)
+      {
+        min_ftil_nwalking.at(i) = 0.016*(min_ftil_nwalking_deg.at(i))+1.24;
+        max_ftil_nwalking.at(i) = 0.016*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.24;
+      }
 
+      if (use_amosii_version2 && !use_amosii_version1)
+      {
+        min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i))+1.3636;
+        max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.3636;
+      }
       m_reflex.at(i+FL0_m) = (((m_pre.at(i+FL0_m)-min_fti)/(max_fti-min_fti))*(max_ftil_nwalking.at(i)-min_ftil_nwalking.at(i)))+min_ftil_nwalking.at(i);
     }
 

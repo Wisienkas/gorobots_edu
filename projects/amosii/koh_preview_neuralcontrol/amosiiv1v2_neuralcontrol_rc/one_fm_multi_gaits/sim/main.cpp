@@ -97,7 +97,7 @@ class ThisSim : public lpzrobots::Simulation {
     //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
     gapcrossing_experiment_setup = true;
     int obtacle_no = 2; // set to 1 for learning and set to 2 for two platforms
-    double gap_distance = 2.25;//2.22; // 2.3 fail!!
+    double gap_distance = 2.25; //2.22, 2.3 fail!!
     double size = 1.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
 
     for(int i=0;i<obtacle_no;i++){
