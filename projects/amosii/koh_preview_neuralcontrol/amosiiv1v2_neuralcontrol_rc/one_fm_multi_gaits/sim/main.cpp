@@ -97,7 +97,7 @@ class ThisSim : public lpzrobots::Simulation {
     //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
     gapcrossing_experiment_setup = true;
     int obtacle_no = 2; // set to 1 for learning and set to 2 for two platforms
-    double gap_distance = 2.25; //2.22, 2.3 fail!!
+    double gap_distance = 2.23;//2.23;//2.14 /*amosiiv1*/; //2.23 /*amosiiv2*/, 2.3 fail!!
     double size = 1.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
 
     for(int i=0;i<obtacle_no;i++){
@@ -150,8 +150,8 @@ class ThisSim : public lpzrobots::Simulation {
 
 
     // select which version of AMOSII should be used
-    bool use_amosii_version1 = true;
-    bool use_amosii_version2 = false;
+    bool use_amosii_version1 = false;
+    bool use_amosii_version2 = true;
 
     //AMOS V1
     if (use_amosii_version1 && !use_amosii_version2){

@@ -19,8 +19,8 @@
 #include <esn-framework/networkmatrix.h>
 
 // select which version of AMOSII should be used
-bool use_amosii_version1 = true;
-bool use_amosii_version2 = false;
+bool use_amosii_version1 = false;
+bool use_amosii_version2 = true;
 
 
 //-----ESN network-----//
@@ -2140,8 +2140,17 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if(buffer_f.size()>0)
       {
-        //m_pre.at(FR2_m) = 1.5*buffer_f[buffer_f.size()-1];
-        m_pre.at(FR2_m) = 1.5*buffer_f[buffer_f.size()-1]*-1*input.at(4)*input.at(0);//-----------------------------EDurd------------------------------------------------------Omin_KOH_24_6_2012
+        if (use_amosii_version1 && !use_amosii_version2)
+        {
+          //m_pre.at(FR2_m) = 1.5*buffer_f[buffer_f.size()-1];
+          m_pre.at(FR2_m) = -1.5*buffer_f[buffer_f.size()-1]*-1*input.at(4)*input.at(0);//-----------------------------EDurd------------------------------------------------------Omin_KOH_24_6_2012
+        }
+
+        if (use_amosii_version2 && !use_amosii_version1)
+        {
+          //m_pre.at(FR2_m) = 1.5*buffer_f[buffer_f.size()-1];
+          m_pre.at(FR2_m) = 1.5*buffer_f[buffer_f.size()-1]*-1*input.at(4)*input.at(0);//-----------------------------EDurd------------------------------------------------------Omin_KOH_24_6_2012
+        }
 
       }
       else
@@ -2173,8 +2182,19 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if((buffer_f.size()-tau_l)>0)
       {
-        //m_pre.at(FL2_m) = 1.5*buffer_f[buffer_f.size()-tau_l-1];
-        m_pre.at(FL2_m) = 1.5*buffer_f[buffer_f.size()-tau_l-1]*-1*input.at(3)*input.at(0);//-----------------------------------------------------------------------------------Omin_KOH_24_6_2012
+
+        if (use_amosii_version1 && !use_amosii_version2)
+        {
+          //m_pre.at(FL2_m) = 1.5*buffer_f[buffer_f.size()-tau_l-1];
+          m_pre.at(FL2_m) = -1.5*buffer_f[buffer_f.size()-tau_l-1]*-1*input.at(3)*input.at(0);//-----------------------------------------------------------------------------------Omin_KOH_24_6_2012
+        }
+
+        if (use_amosii_version2 && !use_amosii_version1)
+        {
+          //m_pre.at(FL2_m) = 1.5*buffer_f[buffer_f.size()-tau_l-1];
+          m_pre.at(FL2_m) = 1.5*buffer_f[buffer_f.size()-tau_l-1]*-1*input.at(3)*input.at(0);//-----------------------------------------------------------------------------------Omin_KOH_24_6_2012
+        }
+
       }
       else
       {
@@ -4650,15 +4670,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if (use_amosii_version1 && !use_amosii_version2)
       {
-        min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
-        max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcr.at(i);
-        m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+//        min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcr.at(i);
+//        max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcr.at(i);
+//        m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+//
+//        min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcl.at(i);
+//        max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcl.at(i);
+//        m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
 
+      //  if(i==0 || i==2)
+        //{ //move more forward to front
+          min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+3*offset_tcr.at(i);
+          max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+3*offset_tcr.at(i);
+          m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
 
-        min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
-        max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcl.at(i);
-        m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+          min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+3*offset_tcl.at(i);
+          max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+3*offset_tcl.at(i);
+          m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+       // }
 
+        if(i==1)
+        { //move more forward to front
+          min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcr.at(i);
+          max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcr.at(i);
+          m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+
+          min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcl.at(i);
+          max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcl.at(i);
+          m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+        }
+
+//        if(i==2)
+//        { //move more backward to hind
+//          min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg-offset_tcr.at(i);
+//          max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg;//-offset_tcr.at(i);
+//          m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+//
+//          min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg-offset_tcl.at(i);
+//          max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg;//-offset_tcl.at(i);
+//          m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+//        }
       }
 
       if (use_amosii_version2 && !use_amosii_version1)
@@ -4781,6 +4832,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       min_ctr_nwalking.at(i) = 0.0154*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MIN 80 deg
       max_ctr_nwalking.at(i) =  0.0154*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MAX +100 deg
 
+      if(crossing_gap && global_count>700)
+      {
+        min_ctr_nwalking.at(i) = 0.0154*(min_ctr_nwalking_deg.at(i)-2*offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MIN 80 deg
+        max_ctr_nwalking.at(i) =  0.0154*(max_ctr_nwalking_deg.at(i)-2*offset_ctr.at(i)-offset_ctr_downward.at(i))-0.5385;//normal walking MAX +100 deg
+      }
       //min_ctr_nwalking.at(i) = 0.0154*(min_ctr_nwalking_deg.at(i)-offset_ctr.at(i))-0.5385;//normal walking MIN 80 deg
       //max_ctr_nwalking.at(i) =  0.0154*(max_ctr_nwalking_deg.at(i)-offset_ctr.at(i))-0.5385;//normal walking MAX +100 deg
 
@@ -4822,6 +4878,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     {
       min_ctl_nwalking.at(i) = 0.0154*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MIN 80 deg
       max_ctl_nwalking.at(i) = 0.0154*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MAX +100 deg
+
+      if(crossing_gap && global_count>700)
+      {
+        min_ctl_nwalking.at(i) = 0.0154*(min_ctl_nwalking_deg.at(i)-2*offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MIN 80 deg
+        max_ctl_nwalking.at(i) = 0.0154*(max_ctl_nwalking_deg.at(i)-2*offset_ctl.at(i)-offset_ctl_downward.at(i))-0.5385;//normal walking MAX +100 deg
+      }
 
       //min_ctl_nwalking.at(i) = 0.0154*(min_ctl_nwalking_deg.at(i)-offset_ctl.at(i))-0.5385;//normal walking MIN 80 deg
       //max_ctl_nwalking.at(i) = 0.0154*(max_ctl_nwalking_deg.at(i)-offset_ctl.at(i))-0.5385;//normal walking MAX +100 deg
@@ -4959,19 +5021,23 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(max_error_cmr_pre_step.at(i)>260)
         max_error_cmr_pre_step.at(i) = 260;
 
-      offset_ftir.at(0) = max_error_cmr_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftir.at(1) = max_error_cmr_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftir.at(2) = max_error_cmr_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-
-
       if (use_amosii_version1 && !use_amosii_version2)
       {
+        offset_ftir.at(0) = max_error_cmr_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftir.at(1) = max_error_cmr_pre_step.at(1)/15;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftir.at(2) = max_error_cmr_pre_step.at(2)/15;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
         min_ftir_nwalking.at(i) = 0.016*(min_ftir_nwalking_deg.at(i))+1.24;
-        max_ftir_nwalking.at(i) = 0.016*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.24;
+        max_ftir_nwalking.at(i) = 0.016*(max_ftir_nwalking_deg.at(i)+2*offset_ftir.at(i))+1.24;
       }
 
       if (use_amosii_version2 && !use_amosii_version1)
       {
+        offset_ftir.at(0) = max_error_cmr_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftir.at(1) = max_error_cmr_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftir.at(2) = max_error_cmr_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
+
         min_ftir_nwalking.at(i) = 0.0182*(min_ftir_nwalking_deg.at(i))+1.3636;
         max_ftir_nwalking.at(i) = 0.0182*(max_ftir_nwalking_deg.at(i)+offset_ftir.at(i))+1.3636;
       }
@@ -5092,18 +5158,22 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(max_error_cml_pre_step.at(i)>260)
         max_error_cml_pre_step.at(i) = 260;
 
-      offset_ftil.at(0) = max_error_cml_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftil.at(1) = max_error_cml_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-      offset_ftil.at(2) = max_error_cml_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
-
       if (use_amosii_version1 && !use_amosii_version2)
       {
+        offset_ftil.at(0) = max_error_cml_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftil.at(1) = max_error_cml_pre_step.at(1)/15;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftil.at(2) = max_error_cml_pre_step.at(2)/15;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
         min_ftil_nwalking.at(i) = 0.016*(min_ftil_nwalking_deg.at(i))+1.24;
-        max_ftil_nwalking.at(i) = 0.016*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.24;
+        max_ftil_nwalking.at(i) = 0.016*(max_ftil_nwalking_deg.at(i)+2*offset_ftil.at(i))+1.24;
       }
 
       if (use_amosii_version2 && !use_amosii_version1)
       {
+        offset_ftil.at(0) = max_error_cml_pre_step.at(0)/15;//18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftil.at(1) = max_error_cml_pre_step.at(1)/18;//15;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+        offset_ftil.at(2) = max_error_cml_pre_step.at(2)/52;//5;//acc_cmr_error.at(0)/100;//(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
+
         min_ftil_nwalking.at(i) = 0.0182*(min_ftil_nwalking_deg.at(i))+1.3636;
         max_ftil_nwalking.at(i) = 0.0182*(max_ftil_nwalking_deg.at(i)+offset_ftil.at(i))+1.3636;
       }
@@ -5210,7 +5280,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       max_error_cml_pre_step.at(0) = 260;
 
 
-    offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/800; //300 "850" can be optimize by learning
+    offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/300; //300 = large bending upward  "850 = small beanding" can be optimize by learning
 
     if((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2>50)
       local_counter_bj++;
@@ -5238,7 +5308,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     max_bj_fwalking = 0.0222*max_bj_fwalking_deg+offset_bj;
     m_reflex.at(BJ_m) = (((bj_output.at(0)-min_bj)/(max_bj-min_bj))*(max_bj_fwalking-min_bj_fwalking))+min_bj_fwalking;
   }
-  else{
+
+  else
+
+  {
 
     min_bj_fwalking = 0.0222*min_bj_fwalking_deg;
     max_bj_fwalking = 0.0222*max_bj_fwalking_deg;
