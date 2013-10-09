@@ -2,15 +2,15 @@
 * \brief: genetic programming, solving the problem of prime factori-    *
 *         zation. This is a minimum environment to allow genetic        *
 *         programming based on machine language including crossover.    *
-*																		*
-* (c) copyright by Jörn Fischer											*
+*																		                                    *
+* (c) copyright by Joern Fischer											                    *
 *                                                                       *
 *  This source may be distributed freely without any warranty.          *
 *  If it is used to produce data for publication of any kind            *
 *  please cite any of my genetic programming papers related to this.    *
-*																		* 
-* @autor: Prof.Dr.Jörn Fischer											*
-* @email: j.fischer@hs-mannheim.de										*
+*																		                                    *
+* @autor: Prof.Dr.Joern Fischer											                    *
+* @email: j.fischer@hs-mannheim.de										                  *
 *                                                                       *
 * @file : TinyVM.h                                                      *
 *************************************************************************/
