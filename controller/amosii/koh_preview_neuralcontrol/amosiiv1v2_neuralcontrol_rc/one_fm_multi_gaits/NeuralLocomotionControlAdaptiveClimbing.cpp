@@ -110,7 +110,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_ED = false;
 
   //Switch on or off reflexes
-  switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
+  switchon_reflexes = false;// true==on after learning or when uses learned weights, false == off during learning
   use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
   max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
@@ -915,7 +915,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_R0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_R0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_R0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R0->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_R0->autocorr = pow(10,4); //set as high as possible, default = 1
   ESN_R0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_R0->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -953,7 +953,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_R1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_R1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_R1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R1->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_R1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_R1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_R1->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -992,7 +992,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_R2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_R2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_R2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_R2->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_R2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_R2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_R2->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -1031,7 +1031,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_L0->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_L0->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_L0->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L0->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_L0->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_L0->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_L0->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -1070,7 +1070,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_L1->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_L1->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_L1->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L1->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_L1->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_L1->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_L1->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -1109,7 +1109,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   ESN_L2->nonlinearity = 2; // 0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
   ESN_L2->withRL = 2; // 2 = stand ESN learning, 1 = RL with TD learning
 
-  ESN_L2->InputSparsity = 70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
+  ESN_L2->InputSparsity = 50;//70; // if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN_L2->autocorr = pow(10,4); //pow(10,4); set as high as possible, default = 1
   ESN_L2->InputWeightRange = 0.1; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN_L2->LearnMode = 1; //1;//RLS = 1. LMS =2
@@ -3457,114 +3457,221 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         // Saving output weights of, e.g., R0
         //ESN_R0->endweights->val(i /*output 0,...,2 */,j /*hidden, 0,..,29 */)
 
+//        outFilenlc1<<global_count<<' '<<
+//            Control_input<<' '<<
+//            reflex_R_fs.at(1)<<' '<<
+//            ESTrainOutput_R1[0]<<' '<<
+//            ESTrainOutput_R1[1]<<' '<<
+//            ESTrainOutput_R1[2]<<' '<<
+//            ESinput_R1[0]<<' '<<
+//            fmodel_cmr1_output_rc.at(2)<<' '<<
+//            fmodel_cmr1_output_rc.at(1)<<' '<<
+//            fmodel_cmr1_output_rc.at(0)<<' '<<
+//            fmodel_cmr_output_rc.at(1)<<' '<<endl;
+//
+//        outFilenlc2<<global_count<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
+//
+//        outFilenlc3<<global_count<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
+//
+//        outFilenlc4<<global_count<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+//            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
+
         outFilenlc1<<global_count<<' '<<
-            Control_input<<' '<<
-            reflex_R_fs.at(1)<<' '<<
-            ESTrainOutput_R1[0]<<' '<<
-            ESTrainOutput_R1[1]<<' '<<
-            ESTrainOutput_R1[2]<<' '<<
-            ESinput_R1[0]<<' '<<
-            fmodel_cmr1_output_rc.at(2)<<' '<<
-            fmodel_cmr1_output_rc.at(1)<<' '<<
-            fmodel_cmr1_output_rc.at(0)<<' '<<
-            fmodel_cmr_output_rc.at(1)<<' '<<endl;
+                Control_input<<' '<<
+                reflex_R_fs.at(0)<<' '<<
+                ESTrainOutput_R0[0]<<' '<<
+                ESTrainOutput_R0[1]<<' '<<
+                ESTrainOutput_R0[2]<<' '<<
+                ESinput_R0[0]<<' '<<
+                fmodel_cmr0_output_rc.at(2)<<' '<<
+                fmodel_cmr0_output_rc.at(1)<<' '<<
+                fmodel_cmr0_output_rc.at(0)<<' '<<
+                fmodel_cmr_output_rc.at(0)<<' '<<endl;
 
-        outFilenlc2<<global_count<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(0 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
+            outFilenlc2<<global_count<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(0 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
 
-        outFilenlc3<<global_count<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(1 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
+            outFilenlc3<<global_count<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(1 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
 
-        outFilenlc4<<global_count<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
-            ESN_R1->endweights->val(2 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
-
+            outFilenlc4<<global_count<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,0 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,1 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,2 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,3 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,4 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,5 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,6 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,7 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,8 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,9 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,10 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,11 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,12 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,13 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,14 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,15 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,16 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,17 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,18 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,19 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,20 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,21 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,22 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,23 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,24 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,25 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,26 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,27 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,28 /*output, 0,..,29 */)<<' '<<
+                ESN_R0->endweights->val(2 /*hidden to output 0,..., 2 */,29 /*output, 0,..,29 */)<<' '<<endl;
 
         //Using learned weights from files
         if (learn == false && loadweight == true)

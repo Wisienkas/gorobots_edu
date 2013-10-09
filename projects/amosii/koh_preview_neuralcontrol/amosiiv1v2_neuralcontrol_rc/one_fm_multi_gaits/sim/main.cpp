@@ -98,7 +98,7 @@ class ThisSim : public lpzrobots::Simulation {
     gapcrossing_experiment_setup = true;
     int obtacle_no = 2; // set to 1 for learning and set to 2 for two platforms
     double gap_distance = 2.23;//2.23;//2.14 /*amosiiv1*/; //2.23 /*amosiiv2*/, 2.3 fail!!
-    double size = 1.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
+    double size = 100.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
 
     for(int i=0;i<obtacle_no;i++){
       double obstacle_height = 0.01+0.01*i;
@@ -211,7 +211,7 @@ class ThisSim : public lpzrobots::Simulation {
       // Add amosII robot
 
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-      myAmosIIConf.rubberFeet = false;//true;
+      myAmosIIConf.rubberFeet = false; // false
       myAmosIIConf.useLocalVelSensor = true;
       //myAmosIIConf.legContactSensorIsBinary = true;
 
