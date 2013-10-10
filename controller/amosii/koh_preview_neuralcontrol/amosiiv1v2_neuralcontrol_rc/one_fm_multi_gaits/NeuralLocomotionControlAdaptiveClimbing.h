@@ -518,6 +518,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
     bool loadweight;
     bool crossing_gap;
     bool use_pre_step_to_adjust_searching;
+    bool rough_terrain;
 
 };
 

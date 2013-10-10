@@ -71,7 +71,7 @@ bool ltm_start = false;
 
 bool singlegait = false; //false = learn 3 gaits, ture = learn only one gait
 
-//Three selected gaits
+//Three selected gaits // 0.03 wave for climbing,0.06 for rough terrain
 double gait1 = 0.04;// fast wave gait for loose terrain
 double gait2 = 0.06;// tetrapod gait for rough terrain
 double gait3 = 0.09;// caterpillar gait for gap crossing
@@ -110,7 +110,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   switchon_ED = false;
 
   //Switch on or off reflexes
-  switchon_reflexes = false;// true==on after learning or when uses learned weights, false == off during learning
+  switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
   use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
   max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
@@ -131,12 +131,13 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
 
-  lift_body_up = false;// if set to true = lifting the bod up above ground, if set to false = not lefting
+  lift_body_up = true;// if set to true = lifting the bod up above ground, if set to false = not lefting
 
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  crossing_gap = false; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  rough_terrain = true; // if set this to true then amos walks with the tetrapod gait (0.06)
 
   if(crossing_gap)
   {
@@ -1409,6 +1410,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     if(crossing_gap)
     {
     Control_input = gait3;
+    }
+
+    if(rough_terrain)
+    {
+    Control_input = gait2;
     }
   }
 
