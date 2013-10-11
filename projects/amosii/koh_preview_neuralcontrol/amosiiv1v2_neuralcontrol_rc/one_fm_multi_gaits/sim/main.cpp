@@ -23,6 +23,8 @@
  *                                                                         *
  ***************************************************************************/
 
+//Include header fiels from /ode_robots/include/ode_robots XXX
+
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
 // include agent (class for holding a robot, a controller and a wiring)
@@ -44,13 +46,22 @@
 #include <selforg/abstractcontroller.h>
 #include <ode_robots/color.h>
 #include <iostream>
+
+
+// add terrains
+#include <ode_robots/terrainground.h>
+
+
+
 using namespace std;
 std::vector<lpzrobots::AbstractObstacle*> obst;
 //std::vector<lpzrobots::FixedJoint*> fixator;
 // add head file for creating a sphere by Ren ------------
 
-
-bool gapcrossing_experiment_setup;
+//Select only one of these
+bool gapcrossing_experiment_setup = true;
+bool add_playground = false;
+bool add_rough_terrain = false;
 
 class ThisSim : public lpzrobots::Simulation {
   public:
@@ -82,23 +93,23 @@ class ThisSim : public lpzrobots::Simulation {
     global.odeConfig.setParam("noise", 0.0);//0.02); // 0.02
 
     // add playground
-//    lpzrobots::Playground* playground
-//    = new lpzrobots::Playground(odeHandle, osgHandle,
-//        osg::Vec3(10, 0.2, 0.3));
-//    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
-//    playground->setPosition(osg::Vec3(0,0,.0));
-//    global.obstacles.push_back(playground);
-
+    if(add_playground){
+    lpzrobots::Playground* playground
+    = new lpzrobots::Playground(odeHandle, osgHandle,
+        osg::Vec3(10, 0.2, 0.3));
+    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
+    playground->setPosition(osg::Vec3(0,0,.0));
+    global.obstacles.push_back(playground);
+    }
 
     //----------create gap by KOH-----------------------------
     lpzrobots::OdeHandle playgroundHandle = odeHandle;
     playgroundHandle.substance = lpzrobots::Substance(0.5/* 3.0 roughness*/, 0.0/*0 slip*/, 100.0/* 50 hardness*/, 0.0/*elasticity*/); //substance for playgrounds (NON-SLIPPERY!!!)
 
     //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
-    gapcrossing_experiment_setup = true;
     int obtacle_no = 2; // set to 1 for learning and set to 2 for two platforms
     double gap_distance = 2.23;//2.23;//2.14 /*amosiiv1*/; //2.23 /*amosiiv2*/, 2.3 fail!!
-    double size = 100.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
+    double size = 1.0; // set to 100 for learning and set to 1.0 for gap crossing experiment
 
     for(int i=0;i<obtacle_no;i++){
       double obstacle_height = 0.01+0.01*i;
@@ -106,12 +117,30 @@ class ThisSim : public lpzrobots::Simulation {
       if (gapcrossing_experiment_setup) {
         lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(obstacle_distance, size/*size*/,
             0.1/*obstacle_height*/), 1, false);
-        playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
+        playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg" /*ode_robots/osg/data/images/*/, -0.5, -3));
         playground->setPosition(osg::Vec3(gap_distance*i/*distance between platforms*/, 0, .0));
         global.obstacles.push_back(playground);
       }
     }
     //----------create gap by KOH-----------------------------
+
+
+
+    //----------Added terrains----------------------------------
+
+    if(add_rough_terrain){
+    lpzrobots::TerrainGround* terrainground = new lpzrobots::TerrainGround(odeHandle,
+        osgHandle,"terrains/3potential_texture.ppm" /* ode_robots/osg/data/terrains/terrain_bumpInDip128.ppm*/,"Images/pandafur.jpg" /*ode_robots/osg/data/images/*/,10.0,5.0,0.6/*0.15, height*/);
+    //TerrainGround* terrainground = TerrainGround(odeHandle,
+        //osgHandle,"../../../pmanoonpong-gorobots-fork/projects/amosii/koh_preview_neuralcontrol/amosiiv1v2_neuralcontrol_rc/one_fm_multi_gaits/sim/rough1.ppm" /*terrains/macrospheresTex_256.ppm ode_robots/osg/data/terrains/terrain_bumpInDip128.ppm*/,"Images/pandafur.jpg" /*ode_robots/osg/data/images/*/,10.0,5.0,0.6/*0.15, height*/);
+    //   Substance* subst =new Substance();
+
+    terrainground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(terrainground);
+    }
+    //----------Added terrains----------------------------------
+
+
 
 
     //----------create a sphere as the target by Ren-----------------------------
@@ -211,7 +240,7 @@ class ThisSim : public lpzrobots::Simulation {
       // Add amosII robot
 
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-      myAmosIIConf.rubberFeet = false; // false
+      myAmosIIConf.rubberFeet = false;
       myAmosIIConf.useLocalVelSensor = true;
       //myAmosIIConf.legContactSensorIsBinary = true;
 

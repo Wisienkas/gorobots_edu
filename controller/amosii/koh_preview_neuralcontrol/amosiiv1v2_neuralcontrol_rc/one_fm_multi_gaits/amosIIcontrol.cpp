@@ -223,6 +223,19 @@ AmosIIControl::AmosIIControl()
   addInspectableValue("input.at(3)",&control_adaptiveclimbing.input.at(3),"input.at(3)");
   addInspectableValue("input.at(4)",&control_adaptiveclimbing.input.at(4),"input.at(4)");
 
+  addInspectableValue("fmodel_cmr_error.at(0)",&control_adaptiveclimbing.fmodel_cmr_error.at(0),"fmodel_cmr_error.at(0)");
+  addInspectableValue("reflex_R_fs.at(0)",&control_adaptiveclimbing.reflex_R_fs.at(0),"reflex_R_fs.at(0)");
+  addInspectableValue("fmodel_cmr_output_rc.at(0)",&control_adaptiveclimbing.fmodel_cmr_output_rc.at(0),"fmodel_cmr_output_rc.at(0)");
+  addInspectableValue("low_pass_fmodel_cmr_error.at(0)",&control_adaptiveclimbing.low_pass_fmodel_cmr_error.at(0),"low_pass_fmodel_cmr_error.at(0)");
+  addInspectableValue("acc_cmr_error.at(0)",&control_adaptiveclimbing.acc_cmr_error.at(0),"acc_cmr_error.at(0)");
+  addInspectableValue("max_error_cmr_pre_step.at(0)",&control_adaptiveclimbing.max_error_cmr_pre_step.at(0),"max_error_cmr_pre_step.at(0)");
+
+  addInspectableValue("m_deg.at(BJ_m)",&control_adaptiveclimbing.m_deg.at(BJ_m),"m_deg.at(BJ_m)");
+  addInspectableValue("m_deg.at(TR0_m)",&control_adaptiveclimbing.m_deg.at(TR0_m),"m_deg.at(TR0_m)");
+  addInspectableValue("m_deg.at(CR0_m)",&control_adaptiveclimbing.m_deg.at(CR0_m),"m_deg.at(CR0_m)");
+  addInspectableValue("m_deg.at(FR0_m)",&control_adaptiveclimbing.m_deg.at(FR0_m),"m_deg.at(FR0_m)");
+  addInspectableValue("offset_bj",&control_adaptiveclimbing.offset_bj,"offset_bj");
+
 
 //  addInspectableValue("WLTMR0_1",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(1),"LTMR0");
 //  addInspectableValue("WLTMR0_2",&control_adaptiveclimbing.cmr0_ltm_neuron_w.at(2),"LTMR0");
