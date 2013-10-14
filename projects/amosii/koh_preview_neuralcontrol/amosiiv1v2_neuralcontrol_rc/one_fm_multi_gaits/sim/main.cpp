@@ -59,9 +59,9 @@ std::vector<lpzrobots::AbstractObstacle*> obst;
 // add head file for creating a sphere by Ren ------------
 
 //Select only one of these
-bool gapcrossing_experiment_setup = true;
+bool gapcrossing_experiment_setup = false;
 bool add_playground = false;
-bool add_rough_terrain = false;
+bool add_rough_terrain = true;
 
 class ThisSim : public lpzrobots::Simulation {
   public:
@@ -131,7 +131,7 @@ class ThisSim : public lpzrobots::Simulation {
     //Changing terrains, e.g., labyrinth.ppm, rough1.ppm, rough6.ppm, rough6flatstart.ppm test.ppm
     if(add_rough_terrain){
     lpzrobots::TerrainGround* terrainground = new lpzrobots::TerrainGround(odeHandle,
-        osgHandle, "test.ppm" /* "terrains/3potential_texture.ppm"-->ode_robots/osg/data/terrains/terrain_bumpInDip128.ppm*/,"Images/pandafur.jpg" /*ode_robots/osg/data/images/*/,10.0,10.0,0.05/*0.15, height*/);
+        osgHandle, "rough1.ppm" /* "terrains/3potential_texture.ppm"-->ode_robots/osg/data/terrains/terrain_bumpInDip128.ppm*/,"Images/pandafur.jpg" /*ode_robots/osg/data/images/*/,3.0,3.0,0.05/*0.15, height*/);
     //TerrainGround* terrainground = TerrainGround(odeHandle,
         //osgHandle,"../../../pmanoonpong-gorobots-fork/projects/amosii/koh_preview_neuralcontrol/amosiiv1v2_neuralcontrol_rc/one_fm_multi_gaits/sim/rough1.ppm" /*terrains/macrospheresTex_256.ppm ode_robots/osg/data/terrains/terrain_bumpInDip128.ppm*/,"Images/pandafur.jpg" /*ode_robots/osg/data/images/*/,10.0,5.0,0.6/*0.15, height*/);
     //   Substance* subst =new Substance();

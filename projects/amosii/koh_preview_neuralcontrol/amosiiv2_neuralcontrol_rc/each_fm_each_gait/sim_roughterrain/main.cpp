@@ -168,7 +168,7 @@ public:
 
     	TerrainGround* terrainground =
     			new TerrainGround(oodeHandle, osgHandle.changeColor(Color(83.0/255.0,48.0/255.0,0.0/255.0)),
-    					/*"obstacles.ppm"*/"rough6.ppm" /*rough1.ppm*//*"1.ppm"*/,"", /*10*/10, /*10*/10, 0.1/*0.1 (without BJ), 0.13 (with BJ), 0.03 (ren) actual ob height, 0.065 m*//*0.15 m*/ /* //Changing terrain height*/);
+    					/*"obstacles.ppm"*/"rough6.ppm" /*rough1.ppm*//*"1.ppm"*/,"", /*10*/3, /*10*/3, 0.05/*0.1 (without BJ), 0.13 (with BJ), 0.03 (ren) actual ob height, 0.065 m*//*0.15 m*/ /* //Changing terrain height*/);
     	terrainground->setPose(osg::Matrix::translate(0, 0, 0.01));
     	global.obstacles.push_back(terrainground);
     }

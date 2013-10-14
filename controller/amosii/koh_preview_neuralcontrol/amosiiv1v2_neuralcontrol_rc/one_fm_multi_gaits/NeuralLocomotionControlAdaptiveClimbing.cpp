@@ -126,7 +126,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
   softlanding = false;//true;
 
-  elevator_reflexes = false;
+  elevator_reflexes = true;
   switchoff_searching_reflexes = false;
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
@@ -3846,7 +3846,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             if(global_count>1000)
             {
               switchon_reflexes = true;
-              elevator_reflexes = false;//true;
+              elevator_reflexes = true;
             }
           }
 
@@ -5045,14 +5045,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           //Too make FTI less extend for more stable walking
           offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
-          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
         }
 
         if (use_amosii_version2 && !use_amosii_version1)
         {
           //Too make FTI less extend for more stable walking
           offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
         }
 
       }
