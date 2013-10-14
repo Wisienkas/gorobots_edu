@@ -3932,8 +3932,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       offset_ctr.at(i) = acc_cmr_error.at(i)*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
       offset_ctl.at(i) = acc_cml_error.at(i)*(max_c/max_c_offset);//0.6216;/*Linear or Exponential function!!**/
 
-      offset_ctr.at(2) = acc_cmr_error.at(i)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ctl.at(2) = acc_cml_error.at(i)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ctr.at(2) = acc_cmr_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ctl.at(2) = acc_cml_error.at(2)*(max_c/ (max_c_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
 
 
       //      offset_ctr.at(i) = acc_cmr_error.at(i)/10;//*(max_c/max_c_offset);//0.6216;/*0...115 Linear or Exponential function!!**/
@@ -4015,8 +4015,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       offset_ftil.at(i) = acc_cml_error.at(i)*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
 
       //Too make FTI less extend for more stable walking
-      offset_ftir.at(2) = acc_cmr_error.at(i)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-      offset_ftil.at(2) = acc_cml_error.at(i)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftir.at(2) = acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+      offset_ftil.at(2) = acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
 
 
       //      offset_ftir.at(i) = acc_cmr_error.at(i)/10;//*(max_f/ max_f_offset);//0.5946;/*0...110 Linear or Exponential function!!**/
