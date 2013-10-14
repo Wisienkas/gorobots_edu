@@ -126,24 +126,25 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
   softlanding = false;//true;
 
-  elevator_reflexes = true;
+  elevator_reflexes = false;
   switchoff_searching_reflexes = false;
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
 
-  lift_body_up = false;// if set to true = lifting the bod up above ground, if set to false = not lefting
+  lift_body_up = true;// if set to true = lifting the bod up above ground, if set to false = not lefting
 
   //Testing controller from text (e.g. SOINN control as motor memory network)
   reading_text_testing = false;
 
-  crossing_gap = true; // if set gap crossing --> on, searching and elevator reflex have to switch off
-  rough_terrain = false; // if set this to true then amos walks with the tetrapod gait (0.06)
+  crossing_gap = false; // if set gap crossing --> on, searching and elevator reflex have to switch off
+  rough_terrain = true; // if set this to true then amos walks with the tetrapod gait (0.06)
 
   if(crossing_gap)
   {
     switchon_reflexes = false;
     elevator_reflexes = false;
     switchoff_searching_reflexes = true;
+    lift_body_up = false;
 
   }
 
@@ -3845,7 +3846,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             if(global_count>1000)
             {
               switchon_reflexes = true;
-              elevator_reflexes = true;
+              elevator_reflexes = false;//true;
             }
           }
 
@@ -5183,7 +5184,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(acc_cmr_error_elev.at(i)>elevator_th)//25.0)//20.0)--------------------------------------------------Dennis needs to change this 7.06.2012
         //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
-        m_reflex.at(i+FR0_m/*12*/) = 0.8;//0.3;//0.1;//1.0;//0.6;//0.4; -0.4
+        m_reflex.at(i+FR0_m/*12*/) = 0.3;//0.3;//0.1;//1.0;//0.6;//0.4; -0.4
         m_reflex.at(i+CR0_m) = 1.0;
 
         //For TR0
@@ -5316,7 +5317,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
         //if(acc_cml_error_old.at(0)<-1)
-        m_reflex.at(i+FL0_m/*12*/) = 0.8;//0.3;//-0.4;
+        m_reflex.at(i+FL0_m/*12*/) = 0.3;//0.3;//-0.4;
         m_reflex.at(i+CL0_m) = 1.0;
 
         //For TL0
