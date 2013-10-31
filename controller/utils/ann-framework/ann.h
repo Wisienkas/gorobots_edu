@@ -23,6 +23,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <string>
 #include "transferfunction.h"
 
 // forward declarations
@@ -51,6 +52,11 @@ public:
     virtual ~ANN();
 
     void backpropagationStep();
+
+    std::string dumpBiases();
+
+    std::string dumpWeights();
+
     void feedForwardStep();
 
     /**
