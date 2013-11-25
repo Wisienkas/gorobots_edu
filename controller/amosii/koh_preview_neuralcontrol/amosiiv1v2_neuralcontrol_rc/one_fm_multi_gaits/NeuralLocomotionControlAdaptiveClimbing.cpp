@@ -126,7 +126,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
   softlanding = false;//true;
 
-  elevator_reflexes = true;
+  elevator_reflexes = false;//true;
   switchoff_searching_reflexes = false;
 
   switchon_less_reflexes = true;// = very high leg extension during searching reflex
@@ -3846,7 +3846,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             if(global_count>1000)
             {
               switchon_reflexes = true;
-              elevator_reflexes = true;
+              //elevator_reflexes = true;
             }
           }
 
