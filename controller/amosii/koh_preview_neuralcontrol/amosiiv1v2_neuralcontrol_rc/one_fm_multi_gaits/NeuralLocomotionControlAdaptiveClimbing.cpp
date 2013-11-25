@@ -71,8 +71,8 @@ bool ltm_start = false;
 
 bool singlegait = false; //false = learn 3 gaits, ture = learn only one gait
 
-//Three selected gaits // 0.03 wave for climbing,0.06 for rough terrain
-double gait1 = 0.03;// fast wave gait for climbing//loose terrain
+//Three selected gaits
+double gait1 = 0.04;// fast wave gait for loose terrain
 double gait2 = 0.06;// tetrapod gait for rough terrain
 double gait3 = 0.09;// caterpillar gait for gap crossing
 int t_change_gait1 = 3000; // each gait is learned for 3000 time steps
@@ -112,7 +112,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on or off reflexes
   switchon_reflexes = true;// true==on after learning or when uses learned weights, false == off during learning
   use_pre_step_to_adjust_searching = true; // for effective rough terraihn walking!! always set to "true" leg will extend more using previous acc_error!
-  max_scale = 100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
+  max_scale = 50;//100; // if set to large value e.g., 100 or 200 the extension of leg will have less effect from previous step--> extend less
 
   //Switch on pure foot signal
   switchon_purefootsignal = false; // 1==on using only foot signal, 0 == using forward model & foot signal
@@ -126,10 +126,10 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   //Switch on soft landing  = reset to normal walking as  soon as acc error = 0
   softlanding = false;//true;
 
-  elevator_reflexes = false;//true;
+  elevator_reflexes = false;
   switchoff_searching_reflexes = false;
 
-  switchon_less_reflexes = true;// = very high leg extension during searching reflex
+  switchon_less_reflexes = false;// = very high leg extension during searching reflex
 
   lift_body_up = true;// if set to true = lifting the bod up above ground, if set to false = not lefting
 
@@ -137,21 +137,18 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   reading_text_testing = false;
 
   crossing_gap = false; // if set gap crossing --> on, searching and elevator reflex have to switch off
-  rough_terrain = true; // if set this to true then amos walks with the tetrapod gait (0.06)
 
   if(crossing_gap)
   {
     switchon_reflexes = false;
     elevator_reflexes = false;
     switchoff_searching_reflexes = true;
-    lift_body_up = false;
 
   }
 
   //RC network setup---------------------------------------------------------------//
   loadweight = true; // true = use learned weights, false = let the RC learn
   learn = false; // true = learning, false = use learned weights
-
 
   //LTM option
   ltm_v1 = false;//true; // learn pattern
@@ -848,7 +845,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
       //Lifting body up
       for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
       {
-        int lifting_value = 10;//5;//10; //20
+        int lifting_value = 25;//10;//5;//10; //20
 
         //lifting_value = 10; small lifting body up
         //lifting_value = 20; small lifting body up
@@ -1412,11 +1409,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     if(crossing_gap)
     {
     Control_input = gait3;
-    }
-
-    if(rough_terrain)
-    {
-    Control_input = gait2;
     }
   }
 
@@ -3846,7 +3838,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
             if(global_count>1000)
             {
               switchon_reflexes = true;
-              //elevator_reflexes = true;
+              elevator_reflexes = false;//true;
             }
           }
 
@@ -4527,26 +4519,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           low_pass_fmodel_cmr_error_old.at(i) = low_pass_fmodel_cmr_error.at(i);
           low_pass_fmodel_cml_error_old.at(i) = low_pass_fmodel_cml_error.at(i);
 
-          if(switchon_purefootsignal)//Only foot contact signal
-          {
-            //Calculate error right legs
-            fmodel_cmr_error.at(i) = reflex_R_fs.at(i)-(-1/*constant error*/); //target - output // only positive error
-            low_pass_fmodel_cmr_error.at(i) = low_pass_fmodel_cmr_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cmr_error.at(i);
+          //Calculate error
+          fmodel_cmr_error.at(i) = reflex_R_fs.at(i)-fmodel_cmr_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+          low_pass_fmodel_cmr_error.at(i) = low_pass_fmodel_cmr_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cmr_error.at(i);
 
-            //Calculate error left legs
-            fmodel_cml_error.at(i) = reflex_L_fs.at(i)-(-1/*constant error*/); //target - output // only positive error
-            low_pass_fmodel_cml_error.at(i) = low_pass_fmodel_cml_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cml_error.at(i);
-          }
-          else
-          {
-            //Calculate error
-            fmodel_cmr_error.at(i) = reflex_R_fs.at(i)-fmodel_cmr_output_rc.at(i) /*regulate error*/; //target - output // only positive error
-            low_pass_fmodel_cmr_error.at(i) = low_pass_fmodel_cmr_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cmr_error.at(i);
+          //Calculate error
+          fmodel_cml_error.at(i) = reflex_L_fs.at(i)-fmodel_cml_output_rc.at(i) /*regulate error*/; //target - output // only positive error
+          low_pass_fmodel_cml_error.at(i) = low_pass_fmodel_cml_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cml_error.at(i);
 
-            //Calculate error
-            fmodel_cml_error.at(i) = reflex_L_fs.at(i)-fmodel_cml_output_rc.at(i) /*regulate error*/; //target - output // only positive error
-            low_pass_fmodel_cml_error.at(i) = low_pass_fmodel_cml_error_old.at(i)*lowpass_error_gain+(1-lowpass_error_gain)*fmodel_cml_error.at(i);
-          }
 
           std::cout<<"pid_control"<<std::endl;
 
@@ -4797,8 +4777,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if (use_amosii_version1 && !use_amosii_version2)
       {
+//        min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcr.at(i);
+//        max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcr.at(i);
+//        m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+//
+//        min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg+offset_tcl.at(i);
+//        max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+offset_tcl.at(i);
+//        m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
 
-        //move more forward to front
+      //  if(i==0 || i==2)
+        //{ //move more forward to front
           min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+3*offset_tcr.at(i);
           max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+3*offset_tcr.at(i);
           m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
@@ -4806,6 +4794,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg;//+3*offset_tcl.at(i);
           max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg+3*offset_tcl.at(i);
           m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+       // }
 
         if(i==1)
         { //move more forward to front
@@ -4818,36 +4807,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
           m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
         }
 
+//        if(i==2)
+//        { //move more backward to hind
+//          min_tcr_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg-offset_tcr.at(i);
+//          max_tcr_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg;//-offset_tcr.at(i);
+//          m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
+//
+//          min_tcl_nwalking.at(i) = 0.0222*min_tc_f_nwalking_deg-offset_tcl.at(i);
+//          max_tcl_nwalking.at(i) = 0.0222*max_tc_f_nwalking_deg;//-offset_tcl.at(i);
+//          m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
+//        }
       }
 
       if (use_amosii_version2 && !use_amosii_version1)
       {
         min_tcr_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcr.at(0);
-        max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+1.5*offset_tcr.at(i);
+        max_tcr_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcr.at(i);
         m_reflex.at(TR0_m+i) = (((m_pre.at(TR0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(i)-min_tcr_nwalking.at(i)))+min_tcr_nwalking.at(i);
 
 
         min_tcl_nwalking.at(i) = 0.0143*min_tc_f_nwalking_deg;//+offset_tcl.at(0);
-        max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+1.5*offset_tcl.at(i);
+        max_tcl_nwalking.at(i) = 0.0143*max_tc_f_nwalking_deg+offset_tcl.at(i);
         m_reflex.at(TL0_m+i) = (((m_pre.at(TL0_m+i)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(i)-min_tcl_nwalking.at(i)))+min_tcl_nwalking.at(i);
 
 
         min_tcr_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcr.at(1);
-        max_tcr_nwalking.at(1) = 1.2*0.0167*max_tc_m_nwalking_deg+2*offset_tcr.at(1);
+        max_tcr_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcr.at(1);
         m_reflex.at(TR1_m) = (((m_pre.at(TR1_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(1)-min_tcr_nwalking.at(1)))+min_tcr_nwalking.at(1);
 
 
         min_tcl_nwalking.at(1) = 0.0167*min_tc_m_nwalking_deg;//+offset_tcl.at(1);
-        max_tcl_nwalking.at(1) = 1.2*0.0167*max_tc_m_nwalking_deg+2*offset_tcl.at(1);
+        max_tcl_nwalking.at(1) = 0.0167*max_tc_m_nwalking_deg+offset_tcl.at(1);
         m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(1)-min_tcl_nwalking.at(1)))+min_tcl_nwalking.at(1);
 
 
         min_tcr_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcr.at(2);
-        max_tcr_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+2*offset_tcr.at(2);
+        max_tcr_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcr.at(2);
         m_reflex.at(TR2_m) = (((m_pre.at(TR2_m)-min_tc)/(max_tc-min_tc))*(max_tcr_nwalking.at(2)-min_tcr_nwalking.at(2)))+min_tcr_nwalking.at(2);
 
         min_tcl_nwalking.at(2) = 0.0143*min_tc_r_nwalking_deg+offset_tcl.at(2);
-        max_tcl_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+2*offset_tcl.at(2);
+        max_tcl_nwalking.at(2) = 0.0143*max_tc_r_nwalking_deg+offset_tcl.at(2);
         m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tcl_nwalking.at(2)-min_tcl_nwalking.at(2)))+min_tcl_nwalking.at(2);
       }
      }
@@ -5045,14 +5044,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         {
           //Too make FTI less extend for more stable walking
           offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
-          offset_ftil.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset));//0.5946;/*0...110 Linear or Exponential function!!**/
         }
 
         if (use_amosii_version2 && !use_amosii_version1)
         {
           //Too make FTI less extend for more stable walking
           offset_ftir.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cmr_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
-          offset_ftil.at(2) = (max_error_cml_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
+          offset_ftil.at(2) = (max_error_cmr_pre_step.at(2)/max_scale)*acc_cml_error.at(2)*(max_f/ (max_f_offset+40));//0.5946;/*0...110 Linear or Exponential function!!**/
         }
 
       }
@@ -5184,7 +5183,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
       if(acc_cmr_error_elev.at(i)>elevator_th)//25.0)//20.0)--------------------------------------------------Dennis needs to change this 7.06.2012
         //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
-        m_reflex.at(i+FR0_m/*12*/) = 0.3;//0.3;//0.1;//1.0;//0.6;//0.4; -0.4
+        m_reflex.at(i+FR0_m/*12*/) = 0.8;//0.3;//0.1;//1.0;//0.6;//0.4; -0.4
         m_reflex.at(i+CR0_m) = 1.0;
 
         //For TR0
@@ -5317,7 +5316,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         //if(acc_cmr_error_elev.at(i)>elevator_th || reflex_R_irs.at(i) > 0.9 && reflex_R_irs.at(i) < 1.1)//7.0
       {
         //if(acc_cml_error_old.at(0)<-1)
-        m_reflex.at(i+FL0_m/*12*/) = 0.3;//0.3;//-0.4;
+        m_reflex.at(i+FL0_m/*12*/) = 0.8;//0.3;//-0.4;
         m_reflex.at(i+CL0_m) = 1.0;
 
         //For TL0
@@ -5381,21 +5380,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   {
     static int local_counter_bj = 0;
 
-    int step1, step2, step3;
-
-    if(Control_input == gait1){
-      step1 = 30;
-      step2 = 90;
-    }
-    if(Control_input == gait2){
-      step1 = 30;
-      step2 = 150;
-    }
-    if(Control_input == gait3){
-      step1 = 50;
-      step2 = 60;
-    }
-
     if(max_error_cmr_pre_step.at(0)>260) // Max value for control input = 0.09 is 260
       max_error_cmr_pre_step.at(0) = 260;
 
@@ -5405,11 +5389,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
     offset_bj = ((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2)/300; //300 = large bending upward  "850 = small beanding" can be optimize by learning
 
-    if((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2>step1)
+    if((max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2>50)
       local_counter_bj++;
 
 
-    int increase = step2; //60 for gait3; 80 for gait 1; depend on gap size larger gap = 60, middle gap = 30, small gap = 0
+    int increase = 60; // depend on gap size larger gap = 60, middle gap = 30, small gap = 0
 
     if(local_counter_bj>100+increase /*"80" can be optimized Lean up for 80 time steps then lean downward*/)
     {
@@ -5421,7 +5405,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
         offset_bj = 0.0;
 
       //Reset
-      if(local_counter_bj>300+increase /*"200" can be optimized: Keep in normal position after learning for 80 time steps */)
+      if(local_counter_bj>200+increase /*"200" can be optimized: Keep in normal position after learning for 80 time steps */)
         local_counter_bj = 0;
     }
     std::cout<<"local_counter_bj"<<":"<<local_counter_bj<< " Value check:" <<(max_error_cmr_pre_step.at(0)+max_error_cml_pre_step.at(0))/2<<"offset_bj "<<offset_bj<<"\n";
@@ -5765,8 +5749,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //outFilenlc1<<in0.at(R2_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R0_fs)<<' '<<in0.at(L2_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<endl;
   //outFilenlc3<<relative_phase.at(CL0_m)<<' '<<relative_phase.at(CR0_m)<<' '<<relative_phase.at(CR1_m)<<' '<<relative_phase.at(CR2_m)<<' '<<relative_phase.at(CL1_m)<<' '<<relative_phase.at(CL2_m)<<' '<<endl;
 
-  //outFilegait<<Control_input<<' '<<cpg_output.at(0)<<' '<<cpg_output.at(1)<<' '<<pcpg_output.at(0)<<' '<<pcpg_output.at(1)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<input.at(3)<<' '<<input.at(4)<<' '<<endl;
-  //outFilegait2<<Control_input<<' '<<duty_factor<<' '<<stance_time<<' '<<swing_time<<' '<<stride_period<<' '<<in1.at(BX_spd)<<' '<<in1.at(BY_spd)<<' '<<endl;
+  outFilegait<<Control_input<<' '<<cpg_output.at(0)<<' '<<cpg_output.at(1)<<' '<<pcpg_output.at(0)<<' '<<pcpg_output.at(1)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<input.at(3)<<' '<<input.at(4)<<' '<<endl;
+  outFilegait2<<Control_input<<' '<<duty_factor<<' '<<stance_time<<' '<<swing_time<<' '<<stride_period<<' '<<in1.at(BX_spd)<<' '<<in1.at(BY_spd)<<' '<<endl;
   //outFilepower1<<ac_motor<<' '<<i_motor<<' '<<motor_power_con<<' '<<incli_x<<' '<<incli_y<<' '<<in0.at(R0_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R2_fs)<<' '<<in0.at(L0_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L2_fs)<<' '<<' '<<endl;
 
   outFilenlc_tc <<m.at(TR2_m)<<' '<<m_deg.at(TR2_m)<<' '<<m.at(TR1_m)<<' '<<m_deg.at(TR1_m)<<' '<<m.at(TR0_m)<<' '<<m_deg.at(TR0_m)<<' '<<m.at(TL2_m)<<' '<<m_deg.at(TL2_m)<<' '<<m.at(TL1_m)<<' '<<m_deg.at(TL1_m)<<' '<<m.at(TL0_m)<<' '<<m_deg.at(TL0_m)<<' '<<endl;
@@ -5776,13 +5760,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   outFilenlc_tc_pre <<m_pre.at(TR2_m)<<' '<<m_pre.at(TR1_m)<<' '<<m_pre.at(TR0_m)<<' '<<m_pre.at(TL2_m)<<' '<<m_pre.at(TL1_m)<<' '<<m_pre.at(TL0_m)<<' '<<endl;
   outFilenlc_ctr_pre <<m_pre.at(CR2_m)<<' '<<m_pre.at(CR1_m)<<' '<<m_pre.at(CR0_m)<<' '<<m_pre.at(CL2_m)<<' '<<m_pre.at(CL1_m)<<' '<<m_pre.at(CL0_m)<<' '<<endl;
   outFilenlF_fti_pre <<m_pre.at(FR2_m)<<' '<<m_pre.at(FR1_m)<<' '<<m_pre.at(FR0_m)<<' '<<m_pre.at(FL2_m)<<' '<<m_pre.at(FL1_m)<<' '<<m_pre.at(FL0_m)<<' '<<endl;
-
-
-  outFilegait<<fmodel_cmr_error.at(0)<<' '<<reflex_R_fs.at(0)<<' '<<fmodel_cmr_output_rc.at(0)<<' '<<low_pass_fmodel_cmr_error.at(0)<<' '<<acc_cmr_error.at(0)<<' '<<max_error_cmr_pre_step.at(0)<<' '<<endl;
-  outFilegait2<<m_deg.at(BJ_m)<<' '<<m_deg.at(TR0_m)<<' '<<m_deg.at(CR0_m)<<' '<<m_deg.at(FR0_m)<<' '<<
-      m_deg.at(TR1_m)<<' '<<m_deg.at(CR1_m)<<' '<<m_deg.at(FR1_m)<<' '<<m_deg.at(TR2_m)<<' '<<m_deg.at(CR2_m)<<' '<<m_deg.at(FR2_m)<<' '<<endl;
-
-
 
 
   std::cout<<"i_motor: "<<i_motor<<"ac_motor : "<<ac_motor<<endl;

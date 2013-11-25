@@ -197,7 +197,7 @@ class ThisSim : public lpzrobots::Simulation {
       lpzrobots::OdeHandle rodeHandle = odeHandle;
 
       //Change surface property (lpzrobots / ode_robots / osg / substance.cpp)
-      rodeHandle.substance = lpzrobots::Substance(3.0/*3.0*//*roughness*/, 0.0/*0 slip*/, 50.0/*hardness*/, 0.8/*elasticity*/);
+      rodeHandle.substance = lpzrobots::Substance(3.0/*3.0*//*3.0*//*roughness*/, 0.0/*0 slip*/, 50/*50.0*//*hardness*/, 0.8/*elasticity*/);
       //rodeHandle.substance = lpzrobots::Substance::getFoam(5/*roughness*/);
       //rodeHandle.substance = lpzrobots::Substance::getSnow(0.0/*_slip > 1.0 = high slip, <1.0 low slip*/);
       //rodeHandle.substance = lpzrobots::Substance::Substance::getRubber(50/*_hardness [5-50]*/);
@@ -381,6 +381,20 @@ class ThisSim : public lpzrobots::Simulation {
     // create agent and init it with controller, robot and wiring
     lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
     agent->init(controller, amos, wiring);
+
+
+    // Possibility to add tracking for robot
+    bool track = false;
+    if (track)
+      agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+    //if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
+
+    // create a fixed joint to hold the robot in the air at the beginning
+    //    robotfixator = new lpzrobots::FixedJoint(
+    //        amos->getMainPrimitive(),
+    //        global.environment);
+    //    robotfixator->init(odeHandle, osgHandle, false);
+
 
     //    // add playground
     //    lpzrobots::Playground* playground
