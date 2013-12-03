@@ -26,7 +26,7 @@
 // base class for real robot experiments
 #include "realexperiment.h"
 // adaptive controller
-#include "adaptive_oscillator_controller.h"
+#include "controllers/adaptive_oscillator_controller.h"
 
 class ThisExperiment : public lpzrobots::RealExperiment{
   public:

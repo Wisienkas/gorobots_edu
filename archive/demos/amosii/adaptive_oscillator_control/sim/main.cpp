@@ -30,7 +30,7 @@
 // robot
 #include <ode_robots/amosII.h>
 // controller
-#include "adaptive_oscillator_controller.h"
+#include "controllers/adaptive_oscillator_controller.h"
 // terrainground for slope
 #include <ode_robots/terrainground.h>
 // joints for creating fixed joint to hold robot in air
