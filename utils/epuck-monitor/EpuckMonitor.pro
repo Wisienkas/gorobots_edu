@@ -12,19 +12,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         monitor.cpp \
-     /home/bachelor/git/tobiasjahn-lpzrobots-fork/real_robots/robots/epuck/SerialComm.cpp \
-     /home/bachelor/git/tobiasjahn-lpzrobots-fork/real_robots/robots/epuck/epuckbluetooth.cpp \
+        SerialComm.cpp \
+        epuckbluetooth.cpp \
         plotwidget.cpp
 
 HEADERS  += monitor.h \
-     /home/bachelor/git/tobiasjahn-lpzrobots-fork/real_robots/robots/epuck/SerialComm.h \
-     /home/bachelor/git/tobiasjahn-lpzrobots-fork/real_robots/robots/epuck/epuckbluetooth.h \
-        plotwidget.h
+            SerialComm.h \
+            epuckbluetooth.h \
+            plotwidget.h
 
 FORMS    += \
-    monitor.ui
-
-
+         monitor.ui
 
 INCLUDEPATH +=  /home/bachelor/git/lpzrobots/selforg \
                 /home/bachelor/LPZ/include/ \
