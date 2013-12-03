@@ -16,7 +16,7 @@
 #include <cmath>
 #include <ode_robots/amosiisensormotordefinition.h>
 #include "delayline.h"
-#include "../../utils/ann-framework/ann.h"
+#include "utils/ann-framework/ann.h"
 
 //Save files
 #include <iostream>

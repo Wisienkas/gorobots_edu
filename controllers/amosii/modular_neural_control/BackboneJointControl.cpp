@@ -9,7 +9,7 @@
  **************************************************************************/
 
 #include "BackboneJointControl.h"
-#include "../utils/ann-framework/ann.h"
+#include "utils/ann-framework/ann.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <vector>
 using namespace std;

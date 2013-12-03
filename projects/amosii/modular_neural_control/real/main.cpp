@@ -25,7 +25,7 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "amosIIcontrol.h"
+#include "controllers/amosii/modular_neural_control/amosIIcontrol.h"
 
 #include "amosIIserialv1.h"  //serial interface to AMOSII version 1
 #include "amosIIserialv2.h"  //serial interface to AMOSII version 2
