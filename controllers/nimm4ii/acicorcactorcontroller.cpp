@@ -21,10 +21,10 @@
  * Poramate Manoonpong July 27, 2011
  **************************************************************************/
 
-#include "acicoRCcontroller.h"
+#include "acicorcactorcontroller.h"
 #include <selforg/controller_misc.h>
 //#include <../Echo-State-Network/networkmatrix.h>
-#include <esn-framework/networkmatrix.h>
+#include "utils/esn-framework/networkmatrix.h"
 
 //----AC network parameters------------//
 #include "ngnet.h"
@@ -69,7 +69,7 @@ double r_total = 0.0;
 
 double accum_error = 0.0;
 
-ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
+AcIcoRcActorController::AcIcoRcActorController(const AcIcoRcActorControllerConf& _conf)
 : AbstractController("ACICOControllerV14", "$Id: "), conf(_conf)
 {
 	//added:
@@ -316,7 +316,7 @@ ACICOControllerV14::ACICOControllerV14(const ACICOControllerV14Conf& _conf)
 };
 
 
-ACICOControllerV14::~ACICOControllerV14()
+AcIcoRcActorController::~AcIcoRcActorController()
 {
 	//Save files
 	outFileacico.close();
@@ -352,7 +352,7 @@ ACICOControllerV14::~ACICOControllerV14()
 
 
 
-void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGen)
+void AcIcoRcActorController::init(int sensornumber, int motornumber, RandGen* randGen)
 {
 	stepnumber_t = 0;
 	if(!initialized) //-----------------------------------------------(FRANK)
@@ -577,7 +577,7 @@ void ACICOControllerV14::init(int sensornumber, int motornumber, RandGen* randGe
 	}
 
 }
-void ACICOControllerV14::calculateAnglePositionFromSensors(const sensor* x_) //as it says on the tin
+void AcIcoRcActorController::calculateAnglePositionFromSensors(const sensor* x_) //as it says on the tin
 {
 
 	//Goal 1 // red
@@ -674,7 +674,7 @@ void ACICOControllerV14::calculateAnglePositionFromSensors(const sensor* x_) //a
 
 }
 
-void ACICOControllerV14::calculateDistanceToGoals(const sensor* x_)
+void AcIcoRcActorController::calculateDistanceToGoals(const sensor* x_)
 {
 	max_dis = position_x_robot*position_x_robot; //normalize
 	distance = (sqrt(pow(x_[13/*11 y*/],2)+pow(x_[12/*10 x*/],2)));
@@ -693,7 +693,7 @@ void ACICOControllerV14::calculateDistanceToGoals(const sensor* x_)
 	input_distance_s4 = distance4/100;//85;//max_dis;
 }
 
-void ACICOControllerV14::inputSensorSignals(const sensor* x_)
+void AcIcoRcActorController::inputSensorSignals(const sensor* x_)
 {
 	xt_ico[_ias0] = input_angle_s.at(0);
 
@@ -737,7 +737,7 @@ void ACICOControllerV14::inputSensorSignals(const sensor* x_)
 
 }
 
-void ACICOControllerV14::calculateAngleReflexSignals(const sensor* x_)
+void AcIcoRcActorController::calculateAngleReflexSignals(const sensor* x_)
 {
 	//Angle reflex signals
 	//1) goal 1
@@ -817,7 +817,7 @@ void ACICOControllerV14::calculateAngleReflexSignals(const sensor* x_)
 }
 
 
-void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, int number_motors){
+void AcIcoRcActorController::step(const sensor* x_, int number_sensors, motor* y_, int number_motors){
 
 	u_ico_old = u_ico[0]*w_ico;
 	ut_old = ut[0]*w_ac;
@@ -1672,17 +1672,17 @@ void ACICOControllerV14::step(const sensor* x_, int number_sensors, motor* y_, i
 	stepnumber_t++;
 }
 
-void ACICOControllerV14::stepNoLearning(const sensor* x_, int number_sensors,
+void AcIcoRcActorController::stepNoLearning(const sensor* x_, int number_sensors,
 		motor* y_, int number_motors)
 {
 
 }
-double ACICOControllerV14::sigmoid(double num)
+double AcIcoRcActorController::sigmoid(double num)
 {
 	return 1./(1.+exp(-num));
 }
 
-double ACICOControllerV14::tanh(double num)
+double AcIcoRcActorController::tanh(double num)
 {
 	return 2./(1.+exp(-2*num))-1.;
 }
@@ -1694,7 +1694,7 @@ double ACICOControllerV14::tanh(double num)
  *	ACTOR (1)
  *************************************************************/
 
-void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
+void AcIcoRcActorController::output_policy(double *x /*in*/, double *u /*return*/)
 {
 	bool lowpassnoise = true;
 
@@ -1915,7 +1915,7 @@ void ACICOControllerV14::output_policy(double *x /*in*/, double *u /*return*/)
 /*************************************************************
  *	EXPLORATION (1.1)
  *************************************************************/
-void ACICOControllerV14::exploration_output(double *sig /*return*/, double si, double *x /*in*/)
+void AcIcoRcActorController::exploration_output(double *sig /*return*/, double si, double *x /*in*/)
 {
 
 	for(int i=0;i<UDIM;i++)
@@ -1932,7 +1932,7 @@ void ACICOControllerV14::exploration_output(double *sig /*return*/, double si, d
  *	Gaussian random variable: just a sum of uniform distribution
  *	Average = 0, Variance = 1, (1.2)
  *************************************************************/
-double ACICOControllerV14::gauss()
+double AcIcoRcActorController::gauss()
 {
 	double	sum;
 	int 	i;
@@ -1944,7 +1944,7 @@ double ACICOControllerV14::gauss()
 /*************************************************************
  *	CALCULATE REWARD (2)
  *************************************************************/
-double ACICOControllerV14::reward_function(double *x /*state*/, double *u /*action*/)
+double AcIcoRcActorController::reward_function(double *x /*state*/, double *u /*action*/)
 {
 
 	r_total = 0.0;
@@ -1988,7 +1988,7 @@ double ACICOControllerV14::reward_function(double *x /*state*/, double *u /*acti
 /*************************************************************
  *	CHECK STATE (3)
  *************************************************************/
-int ACICOControllerV14::check_limit(double *x)//, double irr_back, double irl_back)
+int AcIcoRcActorController::check_limit(double *x)//, double irr_back, double irl_back)
 {
 
 	int flag=0;
@@ -2021,7 +2021,7 @@ int ACICOControllerV14::check_limit(double *x)//, double irr_back, double irl_ba
 /*************************************************************
  *	Initial RBF network (0)
  *************************************************************/
-void ACICOControllerV14::init_funcapprox()
+void AcIcoRcActorController::init_funcapprox()
 {
 
 	//std::cout<<"\n\n"<<std::endl;
@@ -2207,7 +2207,7 @@ void ACICOControllerV14::init_funcapprox()
 /*************************************************************
  *	Value function calculation (4)
  *************************************************************/
-double ACICOControllerV14::value_function(double *x /*in*/)
+double AcIcoRcActorController::value_function(double *x /*in*/)
 {
 	double Value;
 
@@ -2219,7 +2219,7 @@ double ACICOControllerV14::value_function(double *x /*in*/)
 /*************************************************************
  *	EXPLORATION GRADIENT METHOD (5)
  *************************************************************/
-void ACICOControllerV14:: exploration_grad(double *exp_output, double *sig_elig, double *sig, double si)
+void AcIcoRcActorController:: exploration_grad(double *exp_output, double *sig_elig, double *sig, double si)
 {
 	int i;
 
@@ -2245,7 +2245,7 @@ void ACICOControllerV14:: exploration_grad(double *exp_output, double *sig_elig,
  *	UPDATE VALUE FUNCTION TRACE (6)
  *************************************************************/
 
-void ACICOControllerV14::update_valuefunction_trace(double *x)
+void AcIcoRcActorController::update_valuefunction_trace(double *x)
 {
 	ngnet->incsbox_trace(&VALUE, x, lambda_v /*trace, set to 0.0 = no trace*/, &nbasis /*number of hidden neurons*/);
 }
@@ -2254,7 +2254,7 @@ void ACICOControllerV14::update_valuefunction_trace(double *x)
  *	UPDATE VALUE FUNCTION WEIGHTS (7)
  *************************************************************/
 
-void ACICOControllerV14::update_valuefunction(double *x, double td/*TDerror*/, double rate)
+void AcIcoRcActorController::update_valuefunction(double *x, double td/*TDerror*/, double rate)
 {
 
 	//CHANGE
@@ -2278,7 +2278,7 @@ void ACICOControllerV14::update_valuefunction(double *x, double td/*TDerror*/, d
 /*************************************************************
  * 	UPDATE POLICY TRACE (8)
  *************************************************************/
-void ACICOControllerV14::update_policy_trace(double *xt, double lambda)
+void AcIcoRcActorController::update_policy_trace(double *xt, double lambda)
 {
 
 	// output_elig = noise * input => Dimension of output_elig = WDIM
@@ -2363,7 +2363,7 @@ void ACICOControllerV14::update_policy_trace(double *xt, double lambda)
 /*************************************************************
  *	UPDATE POLICY WEIGHTS (9)
  *************************************************************/
-void ACICOControllerV14::update_policy(double td_error, double rate)
+void AcIcoRcActorController::update_policy(double td_error, double rate)
 {
 	int i;
 

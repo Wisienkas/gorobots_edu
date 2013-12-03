@@ -57,7 +57,7 @@
 //#include "acicocontrollerv11.h" // ICO + AC with Obstacles Change all weights: One angle input and one distance and one IR sensor 6 synapses separated linear controllers
 //#include "acicocontrollerv12.h" // ICO goal directed steering angle
 //#include "acicocontrollerv13.h" // ICO + AC 2 goals MAX 4 goals no obstacle
-#include <acicoRCcontroller.h> // ICO + AC 3 goals no obstacle
+#include <controllers/nimm4ii/acicorcactorcontroller.h> // ICO + AC 3 goals no obstacle
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -83,7 +83,7 @@ using namespace lpzrobots;
 //ACICOControllerV11* qcontroller;
 //ACICOControllerV12* qcontroller;
 //ACICOControllerV13* qcontroller;
-ACICOControllerV14* qcontroller;
+AcIcoRcActorController* qcontroller;
 
 bool obstacle_on = true; //true;//true;
 bool drawtrace_on = false;//true;//true;//---------------------------------------------------------------------------TEST
@@ -448,12 +448,12 @@ public:
 			//qcontroller = new ACICOControllerV11(); ///////////////////// call this function NEW controller!!
 			//qcontroller = new ACICOControllerV12(); ///////////////////// call this function NEW controller!!
 			//qcontroller = new ACICOControllerV13(); ///////////////////// call this function NEW controller!!
-			qcontroller = new ACICOControllerV14(); ///////////////////// call this function NEW controller!!
+			qcontroller = new AcIcoRcActorController(); ///////////////////// call this function NEW controller!!
 
 
 			//((ACICOControllerV12*)qcontroller)->setCurrentCycle(currentCycle);
 			//((ACICOControllerV13*)qcontroller)->setCurrentCycle(currentCycle);
-			((ACICOControllerV14*)qcontroller)->setCurrentCycle(currentCycle);
+			((AcIcoRcActorController*)qcontroller)->setCurrentCycle(currentCycle);
 			qcontroller->position(position_x); //send the position
 
 			//Homeo + Q
@@ -716,7 +716,7 @@ public:
 
 			//((ACICOControllerV12*)controller)->setCurrentCycle(currentCycle);
 			//((ACICOControllerV13*)controller)->setCurrentCycle(currentCycle);
-			((ACICOControllerV14*)controller)->setCurrentCycle(currentCycle);
+			((AcIcoRcActorController*)controller)->setCurrentCycle(currentCycle);
 
 			OdeRobot* robot = agent->getRobot();
 			AbstractWiring* wiring = agent->getWiring();
@@ -856,7 +856,7 @@ public:
 			//qcontroller = new ACICOControllerV11();
 			//qcontroller = new ACICOControllerV12();
 			//qcontroller = new ACICOControllerV13();
-			qcontroller = new ACICOControllerV14();
+			qcontroller = new AcIcoRcActorController();
 
 			qcontroller->setParam("eps", 0.1);//doesn't need to be changed if using previous controller
 		} else {
@@ -873,7 +873,7 @@ public:
 			//qcontroller = (ACICOControllerV11*)temp_controller;
 			//qcontroller = (ACICOControllerV12*)temp_controller;
 			//qcontroller = (ACICOControllerV13*)temp_controller;
-			qcontroller = (ACICOControllerV14*)temp_controller;
+			qcontroller = (AcIcoRcActorController*)temp_controller;
 		}
 
 

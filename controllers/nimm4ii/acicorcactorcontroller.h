@@ -88,7 +88,7 @@ using namespace std;
 //----AC network parameters------------//
 
 
-struct ACICOControllerV14Conf{
+struct AcIcoRcActorControllerConf{
 } ;
 
 
@@ -96,7 +96,7 @@ struct ACICOControllerV14Conf{
  * class for robot controller 
  * using several controllers, see comments for the configuration above
  */
-class ACICOControllerV14 : public AbstractController {
+class AcIcoRcActorController : public AbstractController {
 
 public:
 
@@ -138,10 +138,10 @@ public:
 //	ofstream outFilevtcurveY;
 	//Save files
 
-	ACICOControllerV14(const ACICOControllerV14Conf& conf = getDefaultConf());
+	AcIcoRcActorController(const AcIcoRcActorControllerConf& conf = getDefaultConf());
 	virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
-	virtual ~ACICOControllerV14();
+	virtual ~AcIcoRcActorController();
 
 	/// returns the number of sensors the controller was initialised with or 0 if not initialised
 	virtual int getSensorNumber() const { return number_sensors; }
@@ -175,8 +175,8 @@ public:
 
 
 
-	static ACICOControllerV14Conf getDefaultConf(){
-		ACICOControllerV14Conf c;
+	static AcIcoRcActorControllerConf getDefaultConf(){
+		AcIcoRcActorControllerConf c;
 		//TODO: Do something here!
 		return c;
 	}
@@ -473,7 +473,7 @@ public:
 
 
 protected:
-	ACICOControllerV14Conf conf;
+	AcIcoRcActorControllerConf conf;
 
 	unsigned short number_sensors;
 	unsigned short number_motors;
