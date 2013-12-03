@@ -1,4 +1,4 @@
-Real folders:
+camera Real folders:
 This program uses camera (hardware) for landmark detection.
 It requires opencv and aprilTag for camera interface. 
 
