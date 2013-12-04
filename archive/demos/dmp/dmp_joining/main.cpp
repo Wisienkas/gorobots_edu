@@ -6,8 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-//#include "dmp.h"
-
 #include <utils/dmp-framework/dmp.h>
 
 using namespace std;
