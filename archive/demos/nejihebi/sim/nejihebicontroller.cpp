@@ -21,7 +21,7 @@
 
 #include "nejihebicontroller.h"
 
-#include "nejihebi/nejihebiinterface.h"
+#include "controllers/nejihebi/nejihebiinterface.h"
 
 NejihebiController::NejihebiController(void)
 {

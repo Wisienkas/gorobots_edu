@@ -29,7 +29,7 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the controller
-#include "nejihebi/nejihebilpzinterface.h"
+#include "controllers/nejihebi/nejihebilpzinterface.h"
 // the robot
 #include <ode_robots/nejihebi.h>
 // we need to increase the stack size

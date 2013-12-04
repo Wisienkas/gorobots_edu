@@ -22,7 +22,7 @@
 #ifndef NEJIHEBICONTROLLER_H_
 #define NEJIHEBICONTROLLER_H_
 
-#include "nejihebi/nejihebicontrollerbase.h"
+#include "controllers/nejihebi/nejihebicontrollerbase.h"
 #include <map>
 
 // forward declarations
