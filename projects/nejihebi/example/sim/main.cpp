@@ -29,6 +29,7 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the controller
+#include "controllers/nejihebi/nejihebiexamplecontroller.h"
 #include "controllers/nejihebi/nejihebilpzinterface.h"
 // the robot
 #include <ode_robots/nejihebi.h>
@@ -40,7 +41,9 @@ class ThisSim : public lpzrobots::Simulation {
   public:
 
     ThisSim(){
-
+      controller = 0;
+      lpzController = 0;
+      snake = 0;
     }
 
     /**
@@ -75,7 +78,7 @@ class ThisSim : public lpzrobots::Simulation {
       snake->place(osg::Matrix::translate(.0, .0, 2.0));
 
       // create controller and lpz interface
-      controller = new NejihebiController();
+      controller = new NejihebiExampleController();
       lpzController = new NejihebiLpzInterface(controller);
 
       // neccessary to map sensor and motor values into the range of -1 to 1
@@ -116,7 +119,7 @@ class ThisSim : public lpzrobots::Simulation {
       return false;
     }
   protected:
-    NejihebiController*   controller;
+    NejihebiExampleController*   controller;
     NejihebiLpzInterface* lpzController;
     lpzrobots::Nejihebi*  snake;
 };

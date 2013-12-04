@@ -22,7 +22,6 @@
 #define GOROBOTS_CONTROLLER_NEJIHEBI_NEJIHEBIBUFFER_H_
 
 #include "nejihebiinterface.h"
-#include "nejihebicontroller.h"
 #include <selforg/abstractcontroller.h>
 
 // forward declarations
@@ -43,7 +42,7 @@ class NejihebiControllerBase;
  * controller.
  */
 class NejihebiLpzInterface : public AbstractController,
-public NejihebiInterface {
+    public NejihebiInterface {
   public:
     /**
      * Constructor

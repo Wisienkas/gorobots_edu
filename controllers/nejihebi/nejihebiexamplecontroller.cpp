@@ -19,21 +19,21 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "nejihebicontroller.h"
+#include "nejihebiexamplecontroller.h"
 
 #include "controllers/nejihebi/nejihebiinterface.h"
 
-NejihebiController::NejihebiController(void)
+NejihebiExampleController::NejihebiExampleController(void)
 {
   t = 0;
 }
 
-NejihebiController::~NejihebiController(void)
+NejihebiExampleController::~NejihebiExampleController(void)
 {
   for (int i=0;i<4;i++) nejihebi->setRotationUnitSpeed(i,0);
 }
 
-void NejihebiController::init(NejihebiInterface * neji)
+void NejihebiExampleController::init(NejihebiInterface * neji)
 {
   nejihebi = neji;
 
@@ -54,7 +54,7 @@ void NejihebiController::init(NejihebiInterface * neji)
 }
 
 
-void NejihebiController::step()
+void NejihebiExampleController::step()
 {
 
   if (t%50==0) {

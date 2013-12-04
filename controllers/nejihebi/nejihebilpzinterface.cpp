@@ -20,6 +20,7 @@
  ***************************************************************************/
 
 #include "nejihebilpzinterface.h"
+#include "nejihebicontrollerbase.h"
 
 NejihebiLpzInterface::NejihebiLpzInterface(NejihebiControllerBase*
     acontroller)
@@ -33,7 +34,7 @@ void NejihebiLpzInterface::init(int sensornumber, int motornumber,
   controller->init(this); // todo: get frequency from argument
   NejihebiControllerBase::InspectableValueList l =
       controller->getInspectableValues();
-  for (NejihebiController::InspectableValueList::iterator it = l.begin();
+  for (NejihebiControllerBase::InspectableValueList::iterator it = l.begin();
       it != l.end(); it++) {
     addInspectableValue(it->name, it->value, it->description);
   }

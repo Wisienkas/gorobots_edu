@@ -35,10 +35,10 @@ class NejihebiInterface;
  * demonstrates different movement gaits. Without further adjustments it can
  * be used for the simulated as wells as for the real machine.
  */
-class NejihebiController : public NejihebiControllerBase{
+class NejihebiExampleController : public NejihebiControllerBase{
 public:
-  NejihebiController(void);
-  ~NejihebiController(void);
+  NejihebiExampleController(void);
+  ~NejihebiExampleController(void);
   void init(NejihebiInterface* nejihebi);
   void step();
 private:
