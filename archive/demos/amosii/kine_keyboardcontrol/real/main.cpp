@@ -30,7 +30,7 @@
 
 // instead of tripodgait18dof.h you can add your controller here
 //#include "tripodgait18dof.h"
-#include "amosIIcontrol.h"
+#include "controllers/amosIIcontrol.h"
 
 #include "amosIIserialv1.h"  //serial interface to AMOSII version 1
 #include "amosIIserialv2.h"  //serial interface to AMOSII version 2
