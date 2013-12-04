@@ -9,13 +9,13 @@
  */
 
 #include "ModularNeuralControl.h"
-#include "ann-library/so2cpg.h"
-#include "ann-library/pcpg.h"
-#include "ann-library/psn.h"
-#include "ann-library/vrn.h"
-#include "ann-library/pmn.h"
-#include "ann-framework/neuron.h"
-#include "ann-library/adaptiveso2cpgsynplas.h"
+#include "utils/ann-library/so2cpg.h"
+#include "utils/ann-library/pcpg.h"
+#include "utils/ann-library/psn.h"
+#include "utils/ann-library/vrn.h"
+#include "utils/ann-library/pmn.h"
+#include "utils/ann-framework/neuron.h"
+#include "utils/ann-library/adaptiveso2cpgsynplas.h"
 
 
 

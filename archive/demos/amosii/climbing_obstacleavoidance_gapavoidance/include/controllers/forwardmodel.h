@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
-#include "../../utils/ann-framework/ann.h"
+#include "utils/ann-framework/ann.h"
 using namespace std;
 
 
