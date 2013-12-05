@@ -36,7 +36,7 @@
 #include <selforg/one2onewiring.h>
 
 #include "amosII.h"
-#include "amosIIcontrol.h"
+#include "controllers/amosIIcontrol.h"
 
 #include <selforg/trackrobots.h>
 
