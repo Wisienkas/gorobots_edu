@@ -36,7 +36,7 @@ void Monitor::on_pushButton_Connect_clicked()
 
     if(robot==NULL){
         conf.CAM_TYPE=1;
-        conf.port = ui->lineEdit_Port->text().toAscii().data();
+        conf.port = ui->lineEdit_Port->text().toStdString();
         conf.MIC_STATE = ui->checkBox_Micros->isChecked();
         conf.CAM_STATE = ui->checkBox_Cam->isChecked();
         conf.SENSOR_STATE = ui->checkBox_Sensors->isChecked();

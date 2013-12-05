@@ -1,10 +1,10 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-#include <QMainWindow>
 #include "epuckbluetooth.h"
-#include <QImage>
-#include <QLabel>
+#include <QtGui/QImage>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QLabel>
 
 using namespace lpzrobots;
 

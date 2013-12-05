@@ -4,40 +4,36 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui widgets
 
 TARGET = EpuckMonitor
 TEMPLATE = app
 
-
-SOURCES += main.cpp\
-        monitor.cpp \
-        SerialComm.cpp \
-        epuckbluetooth.cpp \
-        plotwidget.cpp
-
-HEADERS  += monitor.h \
-            SerialComm.h \
-            epuckbluetooth.h \
-            plotwidget.h
+LPZROBOTS = $$system("ode_robots-config --srcprefix")/..
+SELFORGLIBFILE = $$system(selforg-config --libfile)
 
 FORMS    += \
-         monitor.ui
+    monitor.ui
 
-INCLUDEPATH +=  /home/bachelor/git/lpzrobots/selforg \
-                /home/bachelor/LPZ/include/ \
-                /home/bachelor/LPZ/lib/ \
-                /home/bachelor/git/lpzrobots/selforg/utils \
-                /home/bachelor/git/lpzrobots/ode_robots/osg \
-                /home/bachelor/git/lpzrobots/ode_robots/utils \
-                /home/bachelor/git/lpzrobots/opende/include \
-                /home/bachelor/git/lpzrobots/ode_robots \
-                /home/bachelor/git/tobiasjahn-lpzrobots-fork/real_robots/robots/epuck/
+SOURCES += \
+   main.cpp\
+   monitor.cpp \
+   plotwidget.cpp \
+   $$LPZROBOTS/real_robots/robots/epuck/SerialComm.cpp \
+   $$LPZROBOTS/real_robots/robots/epuck/epuckbluetooth.cpp
 
+HEADERS  += \
+    monitor.h \
+    plotwidget.h \
+    $$LPZROBOTS/real_robots/robots/epuck/SerialComm.h \
+    $$LPZROBOTS/real_robots/robots/epuck/epuckbluetooth.h
 
+INCLUDEPATH += \
+    /home/timo/workspace/lpzrobots/real_robots/robots/epuck \
+    /home/timo/workspace/lpzrobots/selforg/include \
+    $$LPZROBOTS/real_robots/robots/epuck \
+    $$LPZROBOTS/selforg/include
 
 LIBS       += -lreadline \
-         -lncurses \
-          ~/LPZ/lib/libselforg.a \
-          ~/LPZ/lib/libselforg_dbg.a \
-          ~/LPZ/lib/libselforg_opt.a
+              -lncurses \
+              $$SELFORGLIBFILE
