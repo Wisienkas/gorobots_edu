@@ -72,34 +72,34 @@ using namespace ASHIGARU;
 class ThisSim : public Simulation {
 protected:
 	// high speed mode : The movie is stopped and it gains simulation speed!!
-	static const bool HIGHSPEED_MODE = false;
+	static constexpr bool HIGHSPEED_MODE = false;
 	// each simulation time (s)
-	static const double SIMULATION_TIME = 1200.;
+	static constexpr double SIMULATION_TIME = 1200.;
 	// evaluate step numbers
 	//  we will average each value for this period from the last logged data, and check convergence
-	static const int EVALUATE_STEP = 10;
+	static constexpr int EVALUATE_STEP = 10;
 	// detect Conv threshold
 	//  If the difference between above averaged value and sensed value is smaller than this threshold,
 	//  we regard that system converges!!
-	static const double CONVERGENCE_THRESHOLD = 0.05;
+	static constexpr double CONVERGENCE_THRESHOLD = 0.05;
 
 	// Duty rate change param
-	static const double S_DUTY_MAX = 0.6;
-	static const double S_DUTY_MIN = 0.6;
-	static const double S_DUTY_STEP = 0.1;
+	static constexpr double S_DUTY_MAX = 0.6;
+	static constexpr double S_DUTY_MIN = 0.6;
+	static constexpr double S_DUTY_STEP = 0.1;
 
 	// Freq change param
-	static const double S_FREQ_MAX = 0.3;
-	static const double S_FREQ_MIN = 0.3;
-	static const double S_FREQ_STEP = 0.05;
+	static constexpr double S_FREQ_MAX = 0.3;
+	static constexpr double S_FREQ_MIN = 0.3;
+	static constexpr double S_FREQ_STEP = 0.05;
 
 	// Initial Phase Difference
-	static const double S_PHASE_DIFF1_MIN =  M_PI;
-	static const double S_PHASE_DIFF1_MAX =  M_PI;
-	static const double S_PHASE_DIFF2_MIN =  M_PI;
-	static const double S_PHASE_DIFF2_MAX =  M_PI;
-	static const double S_PHASE_DIFF1_STEP = M_PI / 2.;
-	static const double S_PHASE_DIFF2_STEP = M_PI / 2.;
+	static constexpr double S_PHASE_DIFF1_MIN =  M_PI;
+	static constexpr double S_PHASE_DIFF1_MAX =  M_PI;
+	static constexpr double S_PHASE_DIFF2_MIN =  M_PI;
+	static constexpr double S_PHASE_DIFF2_MAX =  M_PI;
+	static constexpr double S_PHASE_DIFF1_STEP = M_PI / 2.;
+	static constexpr double S_PHASE_DIFF2_STEP = M_PI / 2.;
 
 	static const int	S_START_NUM = 1;
 
@@ -472,9 +472,9 @@ protected:
 	    // previous phase difference
 		double pDiff[Num-1];
 		// phase difference detect period(times of oscillation period)
-		static const double C_TIME = 5;
+		static constexpr double C_TIME = 5;
 		// phase diff threshold for convergence
-		static const double C_THRESHOLD = 0.01;
+		static constexpr double C_THRESHOLD = 0.01;
     }localConvParam;
     // The parameter to analyze for local convergence
     localConvParam lParam;
