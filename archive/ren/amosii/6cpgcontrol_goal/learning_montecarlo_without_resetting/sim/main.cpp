@@ -38,7 +38,7 @@
 
 
 // the controller
-#include "amosIIcontrol.h"
+#include "controllers/amosIIcontrol.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
