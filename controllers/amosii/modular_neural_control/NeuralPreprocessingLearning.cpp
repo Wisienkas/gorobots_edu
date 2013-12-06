@@ -12,42 +12,251 @@
  */
 
 #include "NeuralPreprocessingLearning.h"
-
+#include <iomanip>
+#include <time.h>
 ///-------------------------------------------------------------------------------------------------------------------------
 
 US_Obstacleavoidance::US_Obstacleavoidance(){
+//2013 by Eduard Grinke, BA-Thesis
 
-	setNeuronNumber(4);
+	//write OA values on the console if TRUE
+	debug=1;
 
-	setTransferFunction(getNeuron(2),thresholdFunction());
-	setTransferFunction(getNeuron(3),thresholdFunction());
-	ThresholdFunction().setTheta(0.5);
+	//log files with proper date as name!!
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer [80];
 
-	// synaptic weights
-	w(0, 0,  2.2);//1.8
-	w(0, 1,  -3.6);
-	w(1, 0,  -3.6);
-	w(1, 1,  2.2);//1.8
+	time (&rawtime);
+	timeinfo = localtime (&rawtime);
 
-	w(3,0,      1.0);
-	w(2,1,      1.0);
-};
+	strftime (buffer,80,"OAValues_%F_%H-%M-%S.txt",timeinfo);
+	puts (buffer);
 
-double US_Obstacleavoidance::getOutput(int i)
-{
-	if(ANN::getOutput(2)<0.05)
-		setOutput(2,-1);
-	else
-		output.at(0)=ANN::getOutput(2);
+	outOAValues.open(buffer);
+	outTezinhib.open("outTezinhib.txt"); //Just to write a File which is always overwritten for fast evaluation of the OA values
+	//end logfiles
 
-	if(ANN::getOutput(3)<0.05)
-		setOutput(3,-1);
-	else
-		output.at(1)=ANN::getOutput(3);
+	//Neuron 0 and 1 are input layer neurons, 2 and 3 are processing neurons. Neurons 5 and 6 are output layer.
+	setNeuronNumber(6);
+	setTransferFunction(getNeuron(0),identityFunction());
+	setTransferFunction(getNeuron(1),identityFunction());
+	setTransferFunction(getNeuron(4),identityFunction());
+	setTransferFunction(getNeuron(5),identityFunction());
 
-	return output.at(i);
+	//modes
+	//mode=1 sum each recurrent and each inhibitory  weights;;
+	//mode=2 sum only recurrent weights;;
+	//mode=3 sum only inhibitory weights;
+	//mode 4 learn recurrent, inhibitory weights static!!!
+	//mode 5 learn inhibitory, recurrent weights static!!!
+	//mode 6 full static MRC
+	//mode 7 BRAITENBERG
+	//mode 8 winner takes it all
+	//mode=0 default: sum nothing
+	mode=3;
+
+	neuron_weightsum_inhib=0;
+	//learning and forgetting parameters for adaptive MRC
+	mu    =0.0065;
+	gamma =0.0003;
+
+	mu2   =0.015;
+	gamma2=0.0003;
+
+	//Reflex cut, below this limit the incoming signal is ignored
+	reflex_cut=0.2;
+
+	//Initialization of the input output layer
+	u1=0;
+	u2=0;
+	u3=0;
+	u4=0;
+	v1=0;
+	v2=0;
+	v3=0;
+	v4=0;
+
+	//Initial synapse values of the adaptive MRC for neuron 2 and 3
+	weight_neuron1=2;
+	weight_neuron2=2;
+	weight_neuron3=3;
+	weight_neuron4=3;
+	//Weight for input layer for neuron 0 and 1
+	gain=4.7;
+
+	//Threshold for cutting off output signals of neuron 2 and 3.
+	e=0.009;
+
+
+	//Scaling term in my tezlaff learning!
+	//Negative will lead to a fixpoint for the synaptic weight at 0, so the agent forgets all learned weights
+	vt = -0.01;
+	vt2= -0.01;
+
+	//For aborting the simulation after xxx steps, if set to Zero, the simulation will not abort and run continuously
+	runsteps=0;
+	steps=0;
+
+	//Write 2 data streams
+	outOAValues<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
+	outOAValues<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
+
+	outTezinhib<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
+	outTezinhib<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
+
+
+	//Initialize OA CPG like network
+	w(2,0,gain);
+	w(3,1,gain);
+	w(4,2,	1);
+	w(5,3,	1);
+	//Produce first step, to avoid (stupid?) first oscillation of the OA values
+	ANN::step();
 }
 
+
+void US_Obstacleavoidance::step_oa(){
+//2013 by Eduard Grinke, BA-Thesis
+
+	//Input conversion of neuron 0 and 1 to 0...1
+	i1=0.5*(ANN::getOutput(0)+1);
+	i2=0.5*(ANN::getOutput(1)+1);
+	//Output conversion of neuron 2 and 3 to 0...1
+	u1=0.5*(ANN::getOutput(2)+1);
+	u2=0.5*(ANN::getOutput(3)+1);
+
+	//Different "modes" the network can be connected. Described in the constructor above.
+	switch (mode) {
+
+	case 1:
+		neuron_weightsum_inhib=(weight_neuron3+weight_neuron4)*0.5;
+		//recurrent
+		w(2, 2,  0.5*(weight_neuron1+weight_neuron2));
+		w(3, 3,  0.5*(weight_neuron1+weight_neuron2));
+		//inhibitory
+		w(3, 2,  -neuron_weightsum_inhib);
+		w(2, 3,  -neuron_weightsum_inhib);
+		break;
+
+	case 2:
+		//recurrent
+		w(2, 2,  0.5*(weight_neuron1+weight_neuron2));
+		w(3, 3,  0.5*(weight_neuron1+weight_neuron2));
+		//inhibitory
+		w(3, 2,  -weight_neuron3);
+		w(2, 3,  -weight_neuron4);
+		break;
+
+	case 3:
+		neuron_weightsum_inhib=(weight_neuron3+weight_neuron4)*0.5;
+		//recurrent
+		w(2, 2,  weight_neuron1);
+		w(3, 3,  weight_neuron2);
+		//inhibitory
+		w(3, 2,  -neuron_weightsum_inhib);
+		w(2, 3,  -neuron_weightsum_inhib);
+		break;
+
+	case 4:
+		//recurrent
+		w(2, 2,  weight_neuron1);
+		w(3, 3,  weight_neuron2);
+		//inhibitory
+		w(3, 2,  -3.5);
+		w(2, 3,  -3.5);
+		break;
+
+	case 5:
+		//recurrent
+		w(2, 2,  2.4);
+		w(3, 3,  2.4);
+		//inhibitory
+		w(3, 2,  -weight_neuron3);
+		w(2, 3,  -weight_neuron4);
+		break;
+
+	case 6:
+		//recurrent
+		w(2, 2,  2.4);//2.4
+		w(3, 3,  2.4);//2.4
+		//inhibitory
+		w(3, 2,  -3.5);//-3.5
+		w(2, 3,  -3.5);//-3.5
+		break;
+
+	case 7:
+		//recurrent
+		w(2, 2,  0);
+		w(3, 3,  0);
+		//inhibitory
+		w(3, 2,  0);
+		w(2, 3,  0);
+		break;
+
+	case 8:
+		//recurrent
+		w(2, 2,  0);
+		w(3, 3,  0);
+		//inhibitory
+		w(3, 2,  -weight_neuron3);
+		w(2, 3,  -weight_neuron4);
+		break;
+
+	default:
+		//recurrent
+		w(2, 2,  weight_neuron1);
+		w(3, 3,  weight_neuron2);
+		//inhibitory
+		w(3, 2,  -weight_neuron3);
+		w(2, 3,  -weight_neuron4);
+		break;
+	}
+
+	//Reflexcut for input signal
+	if(i1>reflex_cut){i1_refl=1;} else{i1_refl=0;}
+	if(i2>reflex_cut){i2_refl=1;} else{i2_refl=0;}
+	//Cut-off for neurons 2 and 3 output at time "t"
+	if(u1<e)u1=0;
+	if(u2<e)u2=0;
+
+	ANN::step();
+
+	//Output of neuron 2 and 3 conversion to 0...1
+	v1=0.5*(ANN::getOutput(2)+1);
+	v2=0.5*(ANN::getOutput(3)+1);
+	//Cut-off for neurons 2 and 3 output at time "t+1"
+	if(v1<e)v1=0;
+	if(v2<e)v2=0;
+
+	//Applying tetzlaffs modified adaptive algorithm
+	weight_neuron1+=mu *u1*v1*i1_refl+ gamma* (vt-v1)  *weight_neuron1* weight_neuron1;
+	weight_neuron2+=mu *u2*v2*i2_refl+ gamma* (vt-v2)  *weight_neuron2* weight_neuron2;
+	weight_neuron3+=mu2*u1*v1*i1_refl+ gamma2*(vt2-v1) *weight_neuron3* weight_neuron3;
+	weight_neuron4+=mu2*u2*v2*i2_refl+ gamma2*(vt2-v2) *weight_neuron4* weight_neuron4;
+
+	//OA values to Console output
+	if(debug==1){
+		cout<<setprecision(8)<<"i1:"<<i1<<" "<<"u1: "<<u1<<"\t v1: " << v1 <<"\t w1: "<< ANN::getWeight(2,2)<<endl;
+		cout<<setprecision(8)<<"i2:"<<i2<<" "<<"u2: "<<u2<<"\t v2: " << v2 <<"\t w2: "<< ANN::getWeight(3,3)<<endl;
+		cout<<setprecision(8)<<"u3: "<<u3<<"\t v3: " << v3 <<"\t w3: "<< ANN::getWeight(3,2)<<endl;
+		cout<<setprecision(8)<<"u4: "<<u4<<"\t v4: " << v4 <<"\t w4: "<< ANN::getWeight(2,3)<<endl;
+		cout<<"runsteps"<<runsteps<<endl;
+	}
+
+	outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
+	outTezinhib<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
+
+	//Count steps for running simulation and abort if specified a maximum number for abort
+	steps++;
+	if(steps>runsteps && runsteps!=0) abort();
+}
+
+US_Obstacleavoidance::~US_Obstacleavoidance(){
+	outTezinhib.close();
+	outOAValues.close();
+}
+;
 
 //1) Class for Neural preprocessing------------
 
@@ -65,8 +274,8 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
 	preprosensor.resize(AMOSII_SENSOR_MAX);
 	for(int i=0;i<AMOSII_SENSOR_MAX;i++){preprosensor[i].resize(2);}
 
-	preproobjvect.resize(AMOSII_SENSOR_MAX);
-	for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect[i].resize(2);
+	//preproobjvect.resize(AMOSII_SENSOR_MAX);
+	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect[i].resize(2);
 
 	ir_reflex_activity.resize(AMOSII_SENSOR_MAX);
 	ir_predic_activity.resize(AMOSII_SENSOR_MAX);
@@ -111,12 +320,12 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
 	}
 
 
-	//Neuronal Preprocessing Objects
-	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++){ if(i!=FR_us||FL_us){preproobjvect.at(i).at(0)        = new OneNeuron();}}
-	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++){preproobjvect.at(i).at(0) = new OneNeuron();}
-	// preproobjvect.at(FR_us).at(0) = new BJC_ANN;
-	preproobjvect.at(FR_us).at(1) = new US_Obstacleavoidance();
+	//Obstacleavoidance constructor
+	OA = new US_Obstacleavoidance();
 
+	//Include forn IR and set mix rate for IR and US signals
+	FRONT_IR=false;
+	rate=1;
 
 }
 ;
@@ -256,25 +465,27 @@ std::vector< vector<double> > NeuralPreprocessingLearning::step_npp(const std::v
 
 
 
-	//Eduard
-	//Obstacle avoidance, both sensors have the same network so I just use the FR_us
-	sensor_output.at(FR_us)=(in0.at(FR_us)*2.0-1.0);
-	sensor_output.at(FL_us)=(in0.at(FL_us)*2.0-1.0);
-	preproobjvect.at(FR_us).at(1)->setInput(0,4.3*sensor_output.at(FR_us));//4.1
-	preproobjvect.at(FR_us).at(1)->setInput(1,4.3*sensor_output.at(FL_us));//4.1 is good
-	preprosensor.at(FR_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(1);
-	preprosensor.at(FL_us).at(1)=preproobjvect.at(FR_us).at(1)->getOutput(0);
+	//Eduard Grinke 2013 BA-Thesis
+		//Obstacle avoidance, both sensors have the same network so I just use the FR_us
+			if(FRONT_IR){
+				sensor_output.at(FR_us)=(rate*in0.at(FR_us)+(1-rate)*in0.at(R0_irs));
+				sensor_output.at(FL_us)=(rate*in0.at(FL_us)+(1-rate)*in0.at(L0_irs));
+			}
+			else{
+				sensor_output.at(FL_us)=(in0.at(FL_us));
+				sensor_output.at(FR_us)=(in0.at(FR_us));
+			}
+			//non crossed US config
+			OA->setInput(0,sensor_output.at(FL_us)*2-1);
+			OA->setInput(1,sensor_output.at(FR_us)*2-1);
 
-	// outFilenpp2 << sensor_output.at(FR_us) << ' ' << sensor_output.at(FL_us) << ' '<< preprosensor.at(FR_us).at(1) << ' '<<preprosensor.at(FL_us).at(1) <<' '<<preproobjvect.at(FR_us).at(1)->getOutput(0)<<' '<<preproobjvect.at(FR_us).at(1)->getOutput(1)<<  endl;
-	//END obstacle-avoidance
+			//Return output of OA to preprosensor
+			preprosensor.at(FL_us).at(1)=(OA->ANN::getOutput(5));
+			preprosensor.at(FR_us).at(1)=(OA->ANN::getOutput(4));
 
-
-
-
-	//Do the Timestep for every Neuron!
-	// for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect.at(i).at(0)->step();
-	preproobjvect.at(FR_us).at(1)->step();
-	//Eduard END
+			//Run ANN step and update all neurons of OA network
+			OA->step_oa();
+		//Eduard Grinke ******************END
 
 
 

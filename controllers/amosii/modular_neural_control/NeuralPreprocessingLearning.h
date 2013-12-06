@@ -26,16 +26,54 @@ using namespace std;
 //Save files
 
 
-//1) Classs for Preproobjects------------
+//1) Classs for US Oabstacleavoidance------------
 
-class US_Obstacleavoidance: public ANN {
+class US_Obstacleavoidance:  public ANN {
 
 public:
 	US_Obstacleavoidance();
-	double getOutput(int i);
+	~US_Obstacleavoidance();
 
-private:
-	vector<double> output;
+	void step_oa();
+	double getOutput(int i);
+	double weight_neuron1;
+	double weight_neuron2;
+	double weight_neuron3;
+	double weight_neuron4;
+	double neuron_weightsum_inhib;
+	double i1_refl;
+	double i2_refl;
+	double reflex_cut;
+	double e;
+	double i1;
+	double i2;
+	double u1;
+	double u2;
+	double v1;
+	double v2;
+	double u3;
+	double u4;
+	double v3;
+	double v4;
+
+	double delta_w1;
+	double delta_w2;
+
+	double mu;
+	double gamma;
+	double vt;
+
+	double mu2;
+	double gamma2;
+	double vt2;
+	double gain;
+	int mode;
+	ofstream outTezinhib;
+	ofstream outOAValues;
+	int runsteps;
+	int steps;
+	bool debug;
+
 };
 
 //2) Class for Neural preprocessing and learning------------
@@ -63,7 +101,7 @@ public:
 	std::vector<double> sensor_activity;
 	std::vector<double> sensor_output;
 	std::vector< vector<double> > preprosensor;
-	std::vector< vector<ANN*> > preproobjvect;
+	//std::vector< vector<ANN*> > preproobjvect;
 	std::vector<double> ir_predic_activity;
 	std::vector<double> ir_reflex_activity;
 	std::vector<double> ir_predic_output;
@@ -86,8 +124,14 @@ public:
 	std::vector< Delayline* > irs_delayline;
 
 
+	US_Obstacleavoidance* OA;
+
 	//Save files
 	ofstream outFilenpp1;
+
+	bool FRONT_IR;
+	double rate;
+
 	//Save files
 
 private:
