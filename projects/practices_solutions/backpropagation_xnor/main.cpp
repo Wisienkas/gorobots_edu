@@ -1,25 +1,31 @@
-
-///////Serial Communication////////////////
-#include "Serial.h"
-#include <string.h>
-#include <stdio.h>
-#define BPM_ITER	200000 //1000000 epochs 
+// This example of Feedforward Network with
+// Online Backpropagation learning
+// for XNOR problem
+// By Poramate Manoonpong, 06.12.2013
 
 ///////////////////////////////////////////
+#include "ann_xnor.h"
+#include <string.h>
+#include <stdio.h>
+#define BPM_ITER  200000
+///////////////////////////////////////////
 
-Serial* robot;
+
+ANN_XNOR* callann;
 
 
 int main (int argc, char **argv)
 {
- 
-	
 
-robot = new Serial();	
-int t;
 
-/////Initial Neural network///////////////////////
-/*
+
+
+  callann = new ANN_XNOR();
+  int t;
+
+
+  /////Initial Neural network///////////////////////
+  /*
 
 // prepare XOR training data/////
 double data[][4]={// I XOR I XOR I = O
@@ -36,62 +42,62 @@ double data[][4]={// I XOR I XOR I = O
 /////////////////////////////////
 
 
-*/
+   */
 
 
-for (int i=0;i<BPM_ITER;i++) {
+  for (int i=0;i<BPM_ITER;i++) {
 
 
-//XNOR sigmoid function training//
-robot->FeedforwardNetwork(0,0,1);	
-robot->FeedforwardNetwork(0,1,0);
-robot->FeedforwardNetwork(1,0,0);
-robot->FeedforwardNetwork(1,1,1);
+    //XNOR sigmoid function training//
+    callann->FeedforwardNetwork(0,0,1);
+    callann->FeedforwardNetwork(0,1,0);
+    callann->FeedforwardNetwork(1,0,0);
+    callann->FeedforwardNetwork(1,1,1);
 
-/*
+    /*
 //XNOR tanh function training//
-robot->FeedforwardNetwork(-1,-1,1);	
-robot->FeedforwardNetwork(-1,1,-1);
-robot->FeedforwardNetwork(1,-1,-1);
-robot->FeedforwardNetwork(1,1,1);
-*/
+callann->FeedforwardNetwork(-1,-1,1);
+callann->FeedforwardNetwork(-1,1,-1);
+callann->FeedforwardNetwork(1,-1,-1);
+callann->FeedforwardNetwork(1,1,1);
+     */
 
-/*
+    /*
 //XOR tanh
-robot->FeedforwardNetwork(-1,-1,-1);
-robot->FeedforwardNetwork(-1,1,1);
-robot->FeedforwardNetwork(1,-1,1);
-robot->FeedforwardNetwork(1,1,-1);
-*/
+callann->FeedforwardNetwork(-1,-1,-1);
+callann->FeedforwardNetwork(-1,1,1);
+callann->FeedforwardNetwork(1,-1,1);
+callann->FeedforwardNetwork(1,1,-1);
+     */
 
-/*
+    /*
 //XOR sigmoid
-robot->FeedforwardNetwork(0,0,0);
-robot->FeedforwardNetwork(0,1,1);
-robot->FeedforwardNetwork(1,0,1);
-robot->FeedforwardNetwork(1,1,0);
-*/
+callann->FeedforwardNetwork(0,0,0);
+callann->FeedforwardNetwork(0,1,1);
+callann->FeedforwardNetwork(1,0,1);
+callann->FeedforwardNetwork(1,1,0);
+     */
 
 
 
 
 
-//XNOR function testing set //
+    //XNOR function testing set //
 
-/*
-robot->Run(-1,-1);
-robot->Run(-1,1);
-robot->Run(1,-1);
-robot->Run(1,1);
-*/
+    /*
+callann->Run(-1,-1);
+callann->Run(-1,1);
+callann->Run(1,-1);
+callann->Run(1,1);
+     */
 
-/*
-robot->Run(0,0);
-robot->Run(0,1);
-robot->Run(1,0);
-robot->Run(1,1);
-*/
-	}
+    /*
+callann->Run(0,0);
+callann->Run(0,1);
+callann->Run(1,0);
+callann->Run(1,1);
+     */
+  }
 
 
   return 0;
