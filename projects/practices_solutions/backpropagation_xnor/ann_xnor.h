@@ -1,13 +1,13 @@
 
-#ifndef __SERIAL_H__
-#define __SERIAL_H__
+#ifndef __ANN_XNOR_H__
+#define __ANN_XNOR_H__
+
 
 // #################### definitions #####################
 
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-//#include <windows>
 
 
 ///////// Save text////////////////////////
@@ -29,12 +29,12 @@ const double alpha = 0.9;
 
 
 
-class Serial
+class ANN_XNOR
 {
   public:
 
-    Serial();
-    ~Serial();
+    ANN_XNOR();
+    ~ANN_XNOR();
 
 
     // --- Save text------------//

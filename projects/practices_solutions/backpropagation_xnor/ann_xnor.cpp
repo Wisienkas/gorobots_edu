@@ -2,16 +2,17 @@
  * @author Poramate 02.12.2013
  */
 
-#include "Serial.h"
+#include "ann_xnor.h"
 #include <stdio.h>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+
 
 // ----------------------------------------------------------------------
 // ------------ Initial constructor -------------------------------------
 // ----------------------------------------------------------------------
 
-Serial::Serial()
+ANN_XNOR::ANN_XNOR()
 {
 
 
@@ -87,17 +88,16 @@ Serial::Serial()
 
   deltaOutput = 0.0;
 
-  	saveFile1.open("WeightH_I.txt",ios::out);
-  	saveFile2.open("WeightO_H.txt",ios::out);
-  	saveFile3.open("error.txt",ios::out);
+  saveFile1.open("WeightH_I.txt",ios::out);
+  saveFile2.open("WeightO_H.txt",ios::out);
+  saveFile3.open("error.txt",ios::out);
 
 }
 
 // ----------------------------------------------------------------------
 // ------------ destructor ----------------------------------------------
 // ----------------------------------------------------------------------
-
-Serial::~Serial()
+ANN_XNOR::~ANN_XNOR()
 {
 
 }
@@ -106,7 +106,8 @@ Serial::~Serial()
 // ----------------------------------------------------------------------
 // --- Multilayer Feedforward Neural Networks  --------------------------
 // ----------------------------------------------------------------------
-double Serial::FeedforwardNetwork (double i0, double i1, double d)
+
+double ANN_XNOR::FeedforwardNetwork (double i0, double i1, double d)
 
 /* Nonlinear seperate ///XOR = AND + OR
 1. in_j = sumk(w_k,j * a_k) // Forward pass starts. Compute weighed
@@ -262,14 +263,14 @@ double Serial::FeedforwardNetwork (double i0, double i1, double d)
 
 
   saveFile3 <<error*error
-	<<"  "<<WeightH_B[0]
-	<<"  "<<WeightH_I[0][0]
-	<<"  "<<WeightH_I[0][1]
-	<<"  "<<WeightO_I[0][0]
-	<<" "<<WeightO_I[0][1]
-	<<" "<<WeightO_B[0]
-	<<" "<<WeightO_H[0][0]
-	<<"   \n" << flush; //SAVE DATA
+      <<"  "<<WeightH_B[0]
+                        <<"  "<<WeightH_I[0][0]
+                                             <<"  "<<WeightH_I[0][1]
+                                                                  <<"  "<<WeightO_I[0][0]
+                                                                                       <<" "<<WeightO_I[0][1]
+                                                                                                           <<" "<<WeightO_B[0]
+                                                                                                                            <<" "<<WeightO_H[0][0]
+                                                                                                                                                <<"   \n" << flush; //SAVE DATA
 
 
   return o_Output[0];
@@ -278,9 +279,10 @@ double Serial::FeedforwardNetwork (double i0, double i1, double d)
 }
 
 // ----------------------------------------------------------------------
-// ------------ Neural controller ---------------------------------------
+// ------------ Run               ---------------------------------------
 // ----------------------------------------------------------------------
-double Serial::Run(double i0, double i1)
+
+double ANN_XNOR::Run(double i0, double i1)
 {
 
   if(set_logistic)
@@ -357,7 +359,8 @@ double Serial::Run(double i0, double i1)
 // ----------------------------------------------------------------------
 // ------------ Save Data         ---------------------------------------
 // ----------------------------------------------------------------------
-void Serial::saveData ()
+
+void ANN_XNOR::saveData ()
 
 {
 
@@ -369,7 +372,7 @@ void Serial::saveData ()
     for (int j=0;j<numberInput;j++) {
 
 
-       saveFile1 <<WeightH_I[i][j] <<"  " <<WeightH_B[i]<<"  "<<BiasH[i]<<"  " <<a_Hidden[i]<<"  " <<o_Hidden[i]<<"   \n" << flush; //SAVE DATA
+      saveFile1 <<WeightH_I[i][j] <<"  " <<WeightH_B[i]<<"  "<<BiasH[i]<<"  " <<a_Hidden[i]<<"  " <<o_Hidden[i]<<"   \n" << flush; //SAVE DATA
 
 
     }
@@ -397,7 +400,7 @@ void Serial::saveData ()
 }
 
 
-double Serial::sigmoid(double num)
+double ANN_XNOR::sigmoid(double num)
 {
 
   return 1./(1.+exp(-num));
@@ -406,7 +409,7 @@ double Serial::sigmoid(double num)
 }
 
 
-double Serial::tanh(double num)
+double ANN_XNOR::tanh(double num)
 {
 
   return 2./(1.+exp(-2.*num))-1.0;
@@ -415,7 +418,7 @@ double Serial::tanh(double num)
 
 
 
-double Serial::step(double num)
+double ANN_XNOR::step(double num)
 {
 
   if(num>0)
