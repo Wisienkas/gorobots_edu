@@ -54,6 +54,25 @@ std::vector<lpzrobots::AbstractObstacle*> obst;
 // add head file for creating a sphere by Ren ------------
 
 
+
+//************Bool variables of different functions
+//dennis climbing
+bool climbing_experiment_setup = false;
+bool stair_experiment_setup = false;
+//eduard avoiding obstacles, add different box terrain, to activate change false to true
+bool use_koh = 0; //kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
+bool use_box = 1; //sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.
+bool use_box_difficult = 1; //to use this you have to set also use_box=1
+//ren's goal sensor
+bool add_goals=0;
+
+//for avoiding obstacles
+bool use_broadusangle=true;
+//write tracking file
+bool track = true;
+///////////////////////End of bool variables of different functions
+
+
 class ThisSim : public lpzrobots::Simulation {
 public:
 
@@ -86,7 +105,6 @@ public:
 		double steplength = 0.43; //AMOS II body length
 
 		//EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
-		bool climbing_experiment_setup = false;
 		if (climbing_experiment_setup) {
 			lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
 					0.10), 1, false);
@@ -96,7 +114,6 @@ public:
 		}
 
 		//EXPERIMENTAL SETUP 2: STAIRS DECREASING IN LENGTH (Finding the minimal step length x which AMOS is able to negotiate)
-		bool stair_experiment_setup = false;
 		if (stair_experiment_setup) {
 			lpzrobots::Playground* stair1 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0, 4.0
 					* steplength, 0.08), 1, false);
@@ -122,11 +139,6 @@ public:
 
 
 		//-----------------------------Eduard-----------------------------------
-		// add box terrain
-		// to activate change false to true
-		bool use_koh = 0;
-		bool use_box = 1;
-		bool use_box_difficult = 1;
 
 
 		if (use_box){
@@ -266,40 +278,40 @@ public:
 
 
 
+		if (add_goals){
+			//----------create a sphere as the target by Ren-----------------------------
+			//the first sphere
+			lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+			s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
+			s1->setTexture("Images/dusty.rgb");
+			s1->setColor(lpzrobots::Color(1,0,0));
+			obst.push_back(s1);
+			global.obstacles.push_back(s1);
+			lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
+			fixator1->init(odeHandle, osgHandle);
 
-		//----------create a sphere as the target by Ren-----------------------------
-		//the first sphere
-		//    lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-		//    s1->setTexture("Images/dusty.rgb");
-		//    s1->setColor(lpzrobots::Color(1,0,0));
-		//    obst.push_back(s1);
-		//    global.obstacles.push_back(s1);
-		//    lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-		//    fixator1->init(odeHandle, osgHandle);
+			//the second sphere
+			lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+			s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
+			s2->setTexture("Images/dusty.rgb");
+			s2->setColor(lpzrobots::Color(0,1,0));
+			obst.push_back(s2);
+			global.obstacles.push_back(s2);
+			lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
+			fixator2->init(odeHandle, osgHandle);
 
-		//the second sphere
-		//    lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-		//    s2->setTexture("Images/dusty.rgb");
-		//    s2->setColor(lpzrobots::Color(0,1,0));
-		//    obst.push_back(s2);
-		//    global.obstacles.push_back(s2);
-		//    lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-		//    fixator2->init(odeHandle, osgHandle);
+			//the third sphere
+			lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+			s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
+			s3->setTexture("Images/dusty.rgb");
+			s3->setColor(lpzrobots::Color(0,0,1));
+			obst.push_back(s3);
+			global.obstacles.push_back(s3);
+			lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
+			fixator3->init(odeHandle, osgHandle);
 
-		//the third sphere
-		//    lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-		//    s3->setTexture("Images/dusty.rgb");
-		//    s3->setColor(lpzrobots::Color(0,0,1));
-		//    obst.push_back(s3);
-		//    global.obstacles.push_back(s3);
-		//    lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-		//    fixator3->init(odeHandle, osgHandle);
-
-		//----------create a sphere as the target by Ren-----------------------------
-
+			//----------create a sphere as the target by Ren-----------------------------
+		}
 		/*******  End Modify Environment *******/
 
 		// Add amosII robot
@@ -323,9 +335,12 @@ public:
 		//------------------- Link the sphere to the Goal Sensor by Ren---------------
 
 
-		//set Angle of the US sensors, they should cover the robots width
-		myAmosIIConf.usAngleX=0.7;
-
+		if (use_broadusangle){
+			//**************Eduard
+			//set Angle of the US sensors, they should cover the robots width
+			myAmosIIConf.usAngleX=0.7;
+			////////////////Eduard End
+		}
 
 		amos= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
 
@@ -353,9 +368,8 @@ public:
 		agent->init(controller, amos, wiring);
 
 		// Possibility to add tracking for robot
-		bool track = true;
-		if (track)
-			agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+
+		if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 		//if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
 
 		// create a fixed joint to hold the robot in the air at the beginning

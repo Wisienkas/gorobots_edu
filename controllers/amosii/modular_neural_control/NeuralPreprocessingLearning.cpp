@@ -20,7 +20,7 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 //2013 by Eduard Grinke, BA-Thesis
 
 	//write OA values on the console if TRUE
-	debug=1;
+	debug=0;
 
 	//log files with proper date as name!!
 	time_t rawtime;
@@ -95,8 +95,9 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 	vt2= -0.01;
 
 	//For aborting the simulation after xxx steps, if set to Zero, the simulation will not abort and run continuously
-	runsteps=0;
-	steps=0;
+	steps=0; //only count global running steps
+	runsteps=0; //aborts the programm after xxx steps, if 0 the programm does not abort
+
 
 	//Write 2 data streams
 	outOAValues<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
@@ -241,7 +242,7 @@ void US_Obstacleavoidance::step_oa(){
 		cout<<setprecision(8)<<"i2:"<<i2<<" "<<"u2: "<<u2<<"\t v2: " << v2 <<"\t w2: "<< ANN::getWeight(3,3)<<endl;
 		cout<<setprecision(8)<<"u3: "<<u3<<"\t v3: " << v3 <<"\t w3: "<< ANN::getWeight(3,2)<<endl;
 		cout<<setprecision(8)<<"u4: "<<u4<<"\t v4: " << v4 <<"\t w4: "<< ANN::getWeight(2,3)<<endl;
-		cout<<"runsteps"<<runsteps<<endl;
+		cout<<"steps"<<steps<<endl;
 	}
 
 	outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
@@ -250,6 +251,7 @@ void US_Obstacleavoidance::step_oa(){
 	//Count steps for running simulation and abort if specified a maximum number for abort
 	steps++;
 	if(steps>runsteps && runsteps!=0) abort();
+
 }
 
 US_Obstacleavoidance::~US_Obstacleavoidance(){
