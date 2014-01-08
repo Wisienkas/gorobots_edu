@@ -35,20 +35,20 @@ TestESN::TestESN()
   //--------------------------Add ESN network--(2)-----------------------------------//
 
   //For students
-  ESN = new ESNetwork(num_input_ESN/*no. input*/,num_output_ESN /*no. output*/, num_hidden_ESN /*rc hidden neurons*/, false /*feedback*/, false /*feeding input to output*/, leak /*0.1 leak = 0.0-1.0*/, false /*false IP*/);
-  ESN->outnonlinearity = 2; //0 = linear, 1 = sigmoid, 2  = tanh: transfer function of an output neuron
-  ESN->nonlinearity = 2; //0 = linear, 1 = sigmoid, 2  = tanh: transfer function of all hidden neurons
+  ESN = new ESNetwork(num_input_ESN/*no. input*/,num_output_ESN /*no. output*/, num_hidden_ESN /*rc hidden neurons*/, false /*W_back, feedback from output to hiddens*/, false /*feeding input to output*/, leak /*leak = 0.0-1.0*/, false /*IP*/);
+  ESN->outnonlinearity = 2; //0 = linear, 1 = sigmoid (logistic), 2  = tanh: transfer function of an output neuron
+  ESN->nonlinearity = 2; //0 = linear, 1 = sigmoid (logistic), 2  = tanh: transfer function of all hidden neurons
   ESN->withRL = 2; //2 = stand ESN learning, 1 = RL with TD learning
 
   ESN->InputSparsity = input_sparsity; //if 0 = input connects to all hidden neurons, if 100 = input does not connect to hidden neurons
   ESN->autocorr = pow(10,4);//set as high as possible, default = 1
-  ESN->InputWeightRange = 0.5; // scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
+  ESN->InputWeightRange = 0.5; //Input scaling--> scaling of input to hidden neurons, default 0.15 means [-0.15, +0.15]
   ESN->LearnMode = learning_mode; //RLS = 1 (learning rate needs to be large, 0.99). LMS =2 (learning rate needs to be very small, e.g., 0.01)
   ESN->Loadweight = false; // true = loading learned weights
   ESN->NoiseRange = 0.0001;// amplitude of noise
   ESN->RCneuronNoise = true;//= constant fixed bias, true = changing noise bias every time
 
-  ESN->generate_random_weights(50/*50*/ /*70  10% sparsity = 90% connectivity */, 0.9 /*2.0 /*1.2-1.5 = chaotic*/);
+  ESN->generate_random_weights(50/*if 10 means 10% sparsity = 90% connectivity */, 0.9 /*Spectral radius < 1.0 to maintain echo state property, 1.2-1.5 = chaotic*/);
 
   washout_time = 500;
 
