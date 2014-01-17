@@ -35,9 +35,16 @@
 #include <ode_robots/passivebox.h>
 
 
-// include the controller
-#include "emptycontroller.h"
+//To run SARSA
+//#include "sarsalearningcontroller.h"
 
+//To run Q learning & reactive MRC controller
+#include "qlearningcontroller.h"
+
+
+//#include "emptycontroller.h"
+
+//To run reactive obstacle avoidance controller
 // OR an examplecontroller of previous students
 //#include "examplecontroller_j_widenka.h"
 
@@ -49,8 +56,8 @@ using namespace lpzrobots;
 
 EmptyController* qcontroller;
 
-bool obstacle_on = false;
-bool drawtrace_on = false;//true;//---------------------------------------------------------------------------TEST
+bool obstacle_on = true;
+bool drawtrace_on = false;//---------------------------------------------------------------------------TEST
 
 bool random_positon_spheres = false;
 bool random_positon = false;//true;
@@ -76,7 +83,7 @@ double random_positiony;
 
 
 int number_spheres = 4; // SET NUMBER of TARGET MAX = 4
-int number_boxes = 1; // SET NUMBER of BOXES obstacles
+int number_boxes = 8; // SET NUMBER of BOXES obstacles
 
 bool repeat_experiment = false;//true; //if select true then set the follwing parameters
 int repeat_number = 500;// 1000;
@@ -120,7 +127,7 @@ public:
 		// initialization simulation parameters
 
 		//1) - set noise to 0.1
-		global.odeConfig.noise= 0.05;//0.05;//0.05;//0.05;
+		global.odeConfig.noise= 0.02;//0.05;
 
 		//2) - set controlinterval -> default = 1
 		global.odeConfig.setParam("controlinterval", 1);/*update frequency of the simulation ~> amos = 20*/
@@ -207,26 +214,26 @@ public:
 				random_position_S  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x; // Input 0 (m) between -2.4 and 2.4
 				std::cout<<"\n\n\n\n\n"<<"Inital Random Target X position"<<" = "<<-1*random_position_S<<"\t"<<"Inital Random Target Y position"<<" = "<<random_position_S<<"\n\n\n\n";
 				/************************************/
-				if (i==0) s1->setPosition(osg::Vec3(-1*random_position_S,random_position_S,0/*2*/));
+				if (i==0) s1->setPosition(osg::Vec3(-1*random_position_S,random_position_S,1.5/*2*/));
 			}
 			else
 			{
 				//position_S = 0.0;// -2.0---------------------------------------------------------------------------TEST
-				if (i==0) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 0.5/*0*/));
+				if (i==0) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 1.5/*0*/));
 			}
 
 			//Target 2
 
 			//if (i==1) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S+10, 0.5/*0*/));
-			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 0.5/*0*/));
+			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 1.5/*0*/));
 
 			//Target 3
 			//if (i==2) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S-10, 0.5/*0*/));
-			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/));
+			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 1.5/*0*/));
 
 
 			//Target 4
-			if (i==3) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 0.5/*0*/));
+			if (i==3) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 1.5/*0*/));
 			//if (i==3) s1->setPosition(osg::Vec3(-10, 10,2/*2*/));
 
 			s1->setTexture("Images/dusty.rgb");
@@ -278,7 +285,7 @@ public:
 
 
 		PassiveBox* b1;
-		double length = 1.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
+		double length = 10.0;//1.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
 		double width = 1.0;
 		double height = 1.0;
 
@@ -293,8 +300,8 @@ public:
 				//b1->setPosition(osg::Vec3(/*-4.5+*/i*4.5,3+i,0)); // Fixed robot position
 				//osg::Matrix pose;
 				//			pose.setTrans(osg::Vec3(/*-4.5+*/i*4.5,3+i,0));
-				//b1->setPose(osg::Matrix::rotate(0.5*(M_PI/2), 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*4.5,3+i,0.5) /* pose*/);
-				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+i*-pos_obstacle_y*2.0/*0+i*/,height/2) /* pose*/);
+				b1->setPose(osg::Matrix::rotate(0.3*(M_PI/2)*i, 0,0, 1) * osg::Matrix::translate(/*-4.5+*/i*5,5+i,0.5) /* pose*/);
+				//b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(/*i*4.5+*/pos_obstacle_x, pos_obstacle_y+i*-pos_obstacle_y*2.0/*0+i*/,height/2) /* pose*/);
 				global.obstacles.push_back(b1);
 				fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
 				fixator.at(i)->init(odeHandle, osgHandle);
