@@ -480,16 +480,19 @@ class EmptyController : public AbstractController {
       }
       ///////////////////////////////////////////////////////////////
 
-      printf("Q values \n\n");
+      if(!mrc_control)
+      {
+        printf("Q values Q learning\n\n");
 
-      for(int i_s = 0; i_s <number_state; ++i_s) {
-        for(int i_a = 0; i_a <number_action; ++i_a) {
+        for(int i_s = 0; i_s <number_state; ++i_s) {
+          for(int i_a = 0; i_a <number_action; ++i_a) {
 
-          printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
+            printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
 
+          }
         }
-      }
 
+      }
       //5) Motor command (actions)//////////////////
       //action = 1,..., 9;
       // Select action: 3 possible actions (fwd, rvs, stop) of each wheel and two wheel combinations = 3^2 = 9 actions
@@ -583,6 +586,8 @@ class EmptyController : public AbstractController {
         motors[1]=  -mrc_output.at(0);
         motors[2]=  -mrc_output.at(1);
         motors[3]=  -mrc_output.at(0);
+
+        printf("MRC neural control \n\n");
       }
 
       count++;
