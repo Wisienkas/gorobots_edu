@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #2013 Eduard Grinke eduard.grinke@gmail.com
+
+#needed for using some matplot lib functions
 from matplotlib.pyplot import *
 from numpy import *
 import sys, os 
@@ -10,33 +12,39 @@ import matplotlib as mpl
 
 def main():
 
+	#here i define one plot environment, check matplot lib documentation for another examples. you can add more plot windows for example...
 	f, axs = subplots(1, sharex=True,figsize=(8,8))
 	
+	#here you need to specify your tracking data file. tracking has to be activated in the main.cpp
 	data = loadtxt('AmosII_track__2013-12-09_12-50-08.log')
 
+	#create 2 vectors with the x y for storing the data
 	x = data[:,1]
 	y = data[:,2] 
 
+	#here i shift the grid and drawing of the plot, so my stuff is in center, depends on the built environment, may be you dont need it
 	x=x-3
-	
+	#anaother fine shift for the boxes
 	j=-0.5
 	i=-0.5
 	
+	#my environment can have turned walls so you can rotate each wall here
 	wall_deg=[0,0,0,0]
+	#position of the walls
 	wall_pos=[(-5+i,-5+j),(5+i,-5+j),(-5-i,5+j),(-5-i,-5+j)]
 	#all the length of the walls
 	l=[11,11,1,1]
 	#all the broadnesses of the walls
 	b=[1,1,9,9]
 	
-	#wall with optional rotation!
+	#adds  wall with optional rotation to the drawing!
 	for i in range(4):
 		r = patches.Rectangle(wall_pos[i], b[i], l[i], color="#505060", alpha=1)
 		t= mpl.transforms.Affine2D().rotate_deg(wall_deg[i]) + axs.transData
 		r.set_transform(t)
 		axs.add_patch(r)
 
-	#inner rectangles wirh rotation
+	#here you specify your environment, i use boxes here, they can have an angle, i and j is another shift. could be combined ...
 	angle = 1
 	j=-0.5
 	i=-3.5
@@ -52,15 +60,17 @@ def main():
 		r.set_transform(t)
 		axs.add_patch(r)
 
-		#draw arrow at the beginning and then in the field setted here but only every 1000 steps
-	i=0
-	drw_intervall=500
+
+	#draw arrow at the beginning and then in the field setted here but only every 500 steps
+	#i=0
+	#drw_intervall=500
 	#while i<9479:
 		#average over two deltas of (x,y) points
 		#arrow( x[i], y[i], (x[100+i]-x[i]+x[200+i]-x[i+100])*0.5 ,(y[100+i]-y[i]+y[200+i]-y[i+100])*0.5, fc="k", ec="k",head_width=0.2, head_length=0.3 )
 		#i=i+drw_intervall
 		
 
+	#set grid and x y ranges and also ticks
 	axs.grid(True)
 	axs.set_xticks([i/2 for i in range(-8,9)])
 	axs.set_yticks([i/2 for i in range(-8,9)])

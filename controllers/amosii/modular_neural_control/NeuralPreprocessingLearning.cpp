@@ -70,12 +70,8 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 	//Initialization of the input output layer
 	u1=0;
 	u2=0;
-	u3=0;
-	u4=0;
 	v1=0;
 	v2=0;
-	v3=0;
-	v4=0;
 
 	//Initial synapse values of the adaptive MRC for neuron 2 and 3
 	weight_neuron1=2;
@@ -100,9 +96,10 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 
 
 	//Write 2 data streams
+	//This creates a date file with date and so on as file name...
 	outOAValues<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
 	outOAValues<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
-
+	//this data file is overwritten everytime you run the programm, but it is easier to use my python files to visualize my adaptive mrc with this one
 	outTezinhib<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
 	outTezinhib<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
 
@@ -149,7 +146,7 @@ void US_Obstacleavoidance::step_oa(){
 		w(2, 3,  -weight_neuron4);
 		break;
 
-	case 3:
+	case 3://Best algorithm, adaptive two recurrent network, Eduard Thesis
 		neuron_weightsum_inhib=(weight_neuron3+weight_neuron4)*0.5;
 		//recurrent
 		w(2, 2,  weight_neuron1);
@@ -177,7 +174,7 @@ void US_Obstacleavoidance::step_oa(){
 		w(2, 3,  -weight_neuron4);
 		break;
 
-	case 6:
+	case 6:// MRC non adaptive
 		//recurrent
 		w(2, 2,  2.4);//2.4
 		w(3, 3,  2.4);//2.4
@@ -186,7 +183,7 @@ void US_Obstacleavoidance::step_oa(){
 		w(2, 3,  -3.5);//-3.5
 		break;
 
-	case 7:
+	case 7://Braitenberg
 		//recurrent
 		w(2, 2,  0);
 		w(3, 3,  0);
@@ -240,13 +237,13 @@ void US_Obstacleavoidance::step_oa(){
 	if(debug==1){
 		cout<<setprecision(8)<<"i1:"<<i1<<" "<<"u1: "<<u1<<"\t v1: " << v1 <<"\t w1: "<< ANN::getWeight(2,2)<<endl;
 		cout<<setprecision(8)<<"i2:"<<i2<<" "<<"u2: "<<u2<<"\t v2: " << v2 <<"\t w2: "<< ANN::getWeight(3,3)<<endl;
-		cout<<setprecision(8)<<"u3: "<<u3<<"\t v3: " << v3 <<"\t w3: "<< ANN::getWeight(3,2)<<endl;
-		cout<<setprecision(8)<<"u4: "<<u4<<"\t v4: " << v4 <<"\t w4: "<< ANN::getWeight(2,3)<<endl;
+		cout<<setprecision(8)<<"\t w3: "<< ANN::getWeight(3,2)<<endl;
+		cout<<setprecision(8)<<"\t w4: "<< ANN::getWeight(2,3)<<endl;
 		cout<<"steps"<<steps<<endl;
 	}
 
-	outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
-	outTezinhib<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
+	outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
+	outTezinhib<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
 
 	//Count steps for running simulation and abort if specified a maximum number for abort
 	steps++;
@@ -276,8 +273,6 @@ NeuralPreprocessingLearning::NeuralPreprocessingLearning() {
 	preprosensor.resize(AMOSII_SENSOR_MAX);
 	for(int i=0;i<AMOSII_SENSOR_MAX;i++){preprosensor[i].resize(2);}
 
-	//preproobjvect.resize(AMOSII_SENSOR_MAX);
-	//for(int i = 0;i < AMOSII_SENSOR_MAX;i++) preproobjvect[i].resize(2);
 
 	ir_reflex_activity.resize(AMOSII_SENSOR_MAX);
 	ir_predic_activity.resize(AMOSII_SENSOR_MAX);

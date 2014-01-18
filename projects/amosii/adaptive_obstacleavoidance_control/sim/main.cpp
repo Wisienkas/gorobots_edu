@@ -50,7 +50,7 @@ using namespace std;
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
-//std::vector<lpzrobots::FixedJoint*> fixator;
+
 // add head file for creating a sphere by Ren ------------
 
 
@@ -352,8 +352,6 @@ public:
 		amos->setLegPosUsage(amos->R1, amos->LEG);
 		amos->setLegPosUsage(amos->R2, amos->LEG);
 
-		// put amos a little bit in the air
-		//amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
 
 		if (use_box){amos->place(osg::Matrix::rotate(-0.38,0,0,1) * osg::Matrix::translate(3,-1,0.3));}
 		if (use_koh){amos->place(osg::Matrix::rotate(-0.75,0,0,1) * osg::Matrix::translate(0.5,1.5,0.3));}
@@ -370,14 +368,6 @@ public:
 		// Possibility to add tracking for robot
 
 		if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
-		//if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
-
-		// create a fixed joint to hold the robot in the air at the beginning
-		//    robotfixator = new lpzrobots::FixedJoint(
-		//        amos->getMainPrimitive(),
-		//        global.environment);
-		//    robotfixator->init(odeHandle, osgHandle, false);
-
 
 
 
@@ -385,11 +375,6 @@ public:
 		global.configs.push_back(amos);
 		global.agents.push_back(agent);
 		global.configs.push_back(controller);
-
-
-
-		std::cout << "\n\n" << "################################\n" << "#   Press x to free amosII!    #\n"
-				<< "################################\n" << "\n\n" << std::endl;
 	}
 
 	/**
@@ -400,13 +385,7 @@ public:
 			int key, bool down) {
 		if (down) { // only when key is pressed, not when released
 			switch (char(key)) {
-			case 'x':
-				if (robotfixator) {
-					std::cout << "dropping robot" << std::endl;
-					delete robotfixator;
-					robotfixator = NULL;
-				}
-				break;
+
 			case 'r':
 				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
 				((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
@@ -471,14 +450,7 @@ public:
 		// for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
 		// if simulation_time_reached is set to true, the simulation cycle is finished
 
-		//----------------------------Reset Function-----------------------------------------
-		//      if (globalData.sim_step >= 6000) {
-		//        if (robotfixator) {
-		//          std::cout << "dropping robot" << std::endl;
-		//          delete robotfixator;
-		//          robotfixator = NULL;
-		//        }
-		//      }
+
 		if (globalData.sim_step >= 0) //a small delay to make sure the robot will not restart at beginning!
 		{
 			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
