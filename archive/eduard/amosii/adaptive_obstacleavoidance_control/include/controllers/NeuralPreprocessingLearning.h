@@ -35,6 +35,7 @@ public:
 	~US_Obstacleavoidance();
 
 	void step_oa();
+	double getOutput(int i);
 	double weight_neuron1;
 	double weight_neuron2;
 	double weight_neuron3;
@@ -50,7 +51,13 @@ public:
 	double u2;
 	double v1;
 	double v2;
+	double u3;
+	double u4;
+	double v3;
+	double v4;
 
+	double delta_w1;
+	double delta_w2;
 
 	double mu;
 	double gamma;
@@ -61,9 +68,6 @@ public:
 	double vt2;
 	double gain;
 	int mode;
-
-
-private:
 	ofstream outTezinhib;
 	ofstream outOAValues;
 	int runsteps;
@@ -97,6 +101,7 @@ public:
 	std::vector<double> sensor_activity;
 	std::vector<double> sensor_output;
 	std::vector< vector<double> > preprosensor;
+	//std::vector< vector<ANN*> > preproobjvect;
 	std::vector<double> ir_predic_activity;
 	std::vector<double> ir_reflex_activity;
 	std::vector<double> ir_predic_output;
