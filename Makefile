@@ -10,11 +10,17 @@ LIB            := libgorobots.a
 DYNLIB         := libgorobots.so
 # name of the generated test executable
 TEST_EXEC_NAME := run_test
+# cpp files to exclude from the gorobots library
+# These files are excluded because they introduce a bunch of global variables
+# and defines which is not compatible with creating a library
+EXCLUDES = controllers/nimm4ii/ngnet.cpp \
+           controllers/nimm4ii/acicorcactorcontroller.cpp \
+           controllers/nimm4ii/acicorccriticcontroller.cpp
 
 # Routine to discover source files and generate .o targets
-# ignore *_test.cpp files, these are unit tests 
 find_files     = $(shell find $(dir) -name '*.cpp')
 CPPFILES      := $(foreach dir,$(DIRS),$(find_files))
+CPPFILES      := $(filter-out $(EXCLUDES), $(CPPFILES))
 OFILES        := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 DEP_FILES     := $(OFILES:.o=.d)
 
