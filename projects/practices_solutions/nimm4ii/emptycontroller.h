@@ -19,6 +19,10 @@ class EmptyController : public AbstractController {
 
     //Define global parameters-begin//
     std::vector<double> parameter;
+    double distance2;
+    double distance3;
+    double mc[4];
+
     //Define global parameters-end//
 
     /// contructor (hint: use $ID$ for revision)
@@ -69,6 +73,7 @@ class EmptyController : public AbstractController {
       assert(number_sensors == sensornumber);
       assert(number_motors == motornumber);
 
+
       /*****************************************************************************************/
       // motors 0-4
       // motor 0 = left front motor
@@ -98,19 +103,19 @@ class EmptyController : public AbstractController {
       // sensor 13 = y direction to the red object (goal detection sensor)
       // sensor 14 = z direction to the red object (goal detection sensor)
 
-      // sensor 15 = x direction to the blue object (goal detection sensor)
-      // sensor 16 = y direction to the blue object (goal detection sensor)
-      // sensor 17 = z direction to the blue object (goal detection sensor)
+      // sensor 15 = x direction to the green object (goal detection sensor)
+      // sensor 16 = y direction to the green object (goal detection sensor)
+      // sensor 17 = z direction to the green object (goal detection sensor)
 
-      // sensor 18 = x direction to the green object (goal detection sensor)
-      // sensor 19 = y direction to the green object (goal detection sensor)
-      // sensor 20 = z direction to the green object (goal detection sensor)
+      // sensor 18 = x direction to the blue object (goal detection sensor)
+      // sensor 19 = y direction to the blue object (goal detection sensor)
+      // sensor 20 = z direction to the blue object (goal detection sensor)
 
       // sensor 21 = x direction to the yellow object (goal detection sensor)
       // sensor 22 = y direction to the yellow object (goal detection sensor)
       // sensor 23 = z direction to the yellow object (goal detection sensor)
-
       /*****************************************************************************************/
+
 
       parameter.at(0) = sensors[4];
       parameter.at(1) = sensors[5];
@@ -145,6 +150,7 @@ class EmptyController : public AbstractController {
     };
 
 
+
     /********* STORABLE INTERFACE ******/
     /// @see Storable
     virtual bool store(FILE* f) const {
@@ -158,6 +164,13 @@ class EmptyController : public AbstractController {
       return true;
     }
 
+
+    virtual void setMC(double left, double right){
+      mc[0]=left;
+      mc[1]=right;
+      mc[2]=left;
+      mc[3]=right;
+    }
 
   protected:
 

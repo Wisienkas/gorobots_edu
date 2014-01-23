@@ -18,7 +18,9 @@ class EmptyController : public AbstractController {
 public:
 double lastSensor ;
 unsigned int target ;
-
+double distance2;
+double distance3;
+double mc[4];
     /// contructor (hint: use $ID$ for revision)
     EmptyController(const std::string& name, const std::string& revision)
     : AbstractController(name, revision){}
@@ -142,7 +144,12 @@ if (fabs(sensors[12+3*target]) < 0.5) target = (target+1) %3;
     return true;
   }
 
-
+  virtual void setMC(double left, double right){
+    mc[0]=left;
+    mc[1]=right;
+    mc[2]=left;
+    mc[3]=right;
+  }
 protected:
 
   int number_sensors;
