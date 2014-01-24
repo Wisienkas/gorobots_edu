@@ -5,8 +5,8 @@ BUILD_DIR      := build
 DIRS           := utils controllers
 # directories containing unit tests
 TEST_DIRS      := tests
-# name of the generated library file
-LIB            := libgorobots.a 
+# name of the generated library files
+STATLIB        := libgorobots.a 
 DYNLIB         := libgorobots.so
 # name of the generated test executable
 TEST_EXEC_NAME := run_test
@@ -18,14 +18,19 @@ EXCLUDES = controllers/nimm4ii/ngnet.cpp \
            controllers/nimm4ii/acicorccriticcontroller.cpp
 
 # Routine to discover source files and generate .o targets
-find_files     = $(shell find $(dir) -name '*.cpp')
-CPPFILES      := $(foreach dir,$(DIRS),$(find_files))
-CPPFILES      := $(filter-out $(EXCLUDES), $(CPPFILES))
+# find_files discovers all cpp files in a directory and all its subdirectories
+find_cppfiles     = $(shell find $(dir) -name '*.cpp')
+
+# CPPFILES contains all c++ source files that should be compiled
+CPPFILES      := $(filter-out $(EXCLUDES),$(foreach dir,$(DIRS),$(find_cppfiles)))
+# OFILES contains the names of the object files to generate from the sources
 OFILES        := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
+# DEP_FILES contains the names of the dependency files that give information
+# about which files need to be recompiled of certain files changed.
 DEP_FILES     := $(OFILES:.o=.d)
 
-find_testfiles  = $(shell find $(dir) -name '*.cpp')
-TEST_CPPFILES  := $(foreach dir,$(TEST_DIRS),$(find_testfiles))
+# source, object and dependency files belonging to unit tests
+TEST_CPPFILES  := $(foreach dir,$(TEST_DIRS),$(find_cppfiles))
 TEST_OFILES    := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(TEST_CPPFILES))
 TEST_DEP_FILES  := $(TEST_OFILES:.o=.d)
 
@@ -35,18 +40,23 @@ TEST_EXEC := $(BUILD_DIR)/$(TEST_EXEC_NAME)
 # include directories
 INC += -I.
 
-# libraries needed by ode_robots
-LIBS += $(shell ode_robots-config --static --libs)
-# libraries needed by selforg
-LIBS += $(shell selforg-config --static --libs)
+# libraries needed to link statically to ode_robots
+STATLIBS += $(shell ode_robots-config --static --libs)
+# libraries needed to link statically to selforg
+STATLIBS += $(shell selforg-config --static --libs)
 
+# libraries needed to link dynamically to ode_robots
 DYNLIBS += $(shell ode_robots-config --libs)
+# libraries needed to link dynamically to selforg
 DYNLIBS += $(shell selforg-config --libs)
 DYNLIBS += -ltinyxml2
 
 # libraries to include for testing
-# -lgtest : includes google test library
-TEST_LIBS += -lgtest -lgtest_main -lpthread $(LIB) 
+# -lgtest      : includes google test library
+# -lgtest_main : use the standard main method provided with google test
+# $(STATLIB)   : the static gorobots library
+# $(STATLIBS)  : dependencies of the static gorobots build
+TEST_LIBS += -lgtest -lgtest_main $(STATLIB) $(STATLIBS)
 
 # flags for the c++ compiler
 # -Wall             : enable all warnings
@@ -77,18 +87,24 @@ AFLAGS := -rcs
 LDFLAGS += -shared \
            -Wl,-rpath,$(shell selforg-config --srcprefix)
 
-all: lib dynlib
+# the normal build target: create the static and dynamic gorobots library
+normal: statlib dynlib
 
-# target defining that "lib" means build the library file
-lib: $(LIB)
+# build all: includes static and dynamic builds and the test excecutable
+all: normal test
 
+# target defining that "statlib" means build the static library file
+statlib: $(STATLIB)
+
+# target defining that "dynlib" means build the dynamic library file
 dynlib: $(DYNLIB)
 
-# target defining how to build the library file
-$(LIB): $(OFILES)
+# target defining how to build the static library file
+$(STATLIB): $(OFILES)
 	# packs all object files into the library file
-	$(AR) $(ARFLAGS) $(LIB) $(OFILES) 
+	$(AR) $(ARFLAGS) $(STATLIB) $(OFILES) 
 
+# target defining how to build the dynamic library file
 $(DYNLIB): $(OFILES)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OFILES) $(DYNLIBS) -o $(DYNLIB)
 
@@ -100,29 +116,37 @@ run_test: $(TEST_EXEC)
 	./$(TEST_EXEC)
 
 # target defining how to build the test executable
-$(TEST_EXEC): $(TEST_OFILES) $(LIB)
-	$(CXX) $(CPPFLAGS) $(TEST_OFILES) $(LIBS) $(TEST_LIBS) -o $(TEST_EXEC)
+$(TEST_EXEC): $(TEST_OFILES) $(STATLIB)
+	$(CXX) $(CPPFLAGS) $(TEST_OFILES) $(TEST_LIBS) -o $(TEST_EXEC)
 
 # target defining generic rule how to build object files from source files
 # 1. creates output directory if not existent
+#     $@        : gives the name of the object file to be build
+#     $(dir $@) : returns only the directoy part of the file name
+#     -p        : no error if existing, make parent directories as needed
+#     @mkdir    : The @-sign surpresses output of the command itself
 # 2. actual compiler call
-#     -c   : create object file
-#     -MMD : Output dependency rules (but only for user header files) while 
-#            at the same time compiling as usual
-#     -MP  : This option instructs CPP to add a phony target for each 
-#            dependency other than the main file, causing each to depend on 
-#            nothing. These dummy rules work around errors make gives if you 
-#            remove header files without updating the Makefile to match.
+#     -c        : create object file
+#     -MMD      : Output dependency rules (but only for user header files) 
+#                 while at the same time compiling as usual
+#     -MP       : This option instructs CPP to add a phony target for each 
+#                 dependency other than the main file, causing each to depend 
+#                 on nothing. These dummy rules work around errors make gives 
+#                 if you remove header files without updating the Makefile to 
+#                 match.
+#     $@        : gives the name of the object file to be build
+#     $<        : gives the first dependency (here: the source file)
+#
 ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -MMD -MP -c $(CXXFLAGS) $(INC) -o "$@" "$<"
+	$(CXX) -MMD -MP -c $(CXXFLAGS) $(INC) -o $@ $<
 
 # clean target does not depend on any files. if called, it should always be
 # executed => Make it phony
 .PHONY: clean
 # target to remove built files
 clean:
-	rm -rf $(OFILES) $(DEP_FILES) $(LIB) $(TEST_EXEC)
+	rm -rf $(OFILES) $(DEP_FILES) $(STATLIB) $(TEST_EXEC)
 
 # include the automatically created dependencies
 -include $(DEP_FILES)

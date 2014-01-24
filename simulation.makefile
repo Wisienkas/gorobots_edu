@@ -1,3 +1,16 @@
+# generic makefile for simulations and other projects inside the gorobots
+# repository
+#
+# You should include this Makefile inside the local Makefile of your project.
+# Before including, you need to fill the FILE variable with the source files
+# belonging to your project and set the GOROBOTS variable to point to the root
+# gorobots root directory. For instance:
+#
+#  FILES    += main
+#  GOROBOTS = ../../..
+#  include $(GOROBOTS)/simulation.makefile
+
+
 
 # filename of simulation executables
 EXEC = start
@@ -72,7 +85,7 @@ libode_robots:
 
 # Rule for updating the gorobots library
 libgorobots:
-	cd $(GOROBOTS) && $(MAKE)
+	cd $(GOROBOTS) && $(MAKE) statlib
 
 # remove all built files
 clean:
