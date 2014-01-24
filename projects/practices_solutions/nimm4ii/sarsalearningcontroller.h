@@ -22,7 +22,7 @@ bool avg_input = false; // true = use three IR signals on each side, false = use
 
 bool mrc = true; // true = use mrc control instead of Braitenberg vehicle control
 bool Braitenberg = false;// true = use Braitenberg vehicle control
-
+double mc[4];
 //testing sarsa learning:  bool mrc_control = false; bool avg_input = false; bool mrc = false; bool Braitenberg = false;
 //AND
 //bool sarsalearning_control = true;
@@ -59,6 +59,9 @@ class EmptyController : public AbstractController {
     std::vector<double> mrc_input_w;   //MRC neural weight from inputs to MRC neurons
     std::vector< std::vector<double> > mrc_w;       //MRC neural weights
     double mrc_bias;                  //MRC bias
+
+    double distance2;
+    double distance3;
 
     std::vector<double> post_mrc_output;   //postprocessing MRC neural outputs
     //MRC parameters -end//
@@ -467,18 +470,16 @@ class EmptyController : public AbstractController {
 
       //printf("Re: %d  OL: %d  OR: %d   Q:%f action: %d : noise %f > %f < %f\n",reward,e[1], e[2], Q[a_RL][i_RL], a_RL, rand_RL, exploration_g, exploration_lowpass_g);
 
-     if(!mrc_control)
-     {
-       printf("Q values SARSA \n\n");
+     printf("Q values \n\n");
 
-       for(int i_s = 0; i_s <number_state; ++i_s) {
-         for(int i_a = 0; i_a <number_action; ++i_a) {
+     for(int i_s = 0; i_s <number_state; ++i_s) {
+       for(int i_a = 0; i_a <number_action; ++i_a) {
 
-           printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
+         printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
 
-         }
        }
      }
+
 
       //5) Motor command (actions)//////////////////
       //action = 1,..., 9;
@@ -573,8 +574,6 @@ class EmptyController : public AbstractController {
         motors[1]=  -mrc_output.at(0);
         motors[2]=  -mrc_output.at(1);
         motors[3]=  -mrc_output.at(0);
-
-        printf("MRC neural control \n\n");
       }
 
       count++;
@@ -622,7 +621,12 @@ class EmptyController : public AbstractController {
     //Q learning//
 
 
-
+    virtual void setMC(double left, double right){
+      mc[0]=left;
+      mc[1]=right;
+      mc[2]=left;
+      mc[3]=right;
+    }
   protected:
 
     int number_sensors;

@@ -34,20 +34,21 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 
+#include "emptycontroller_icolearning.h"
+//#include "icolearning.h"
 
-//To run SARSA
+
+// include the controller
 //#include "sarsalearningcontroller.h"
 
-//To run Q learning & reactive MRC controller
-#include "qlearningcontroller.h"
-
+// include the controller
+//#include "qlearningcontroller.h"
 
 //#include "emptycontroller.h"
 
-//To run reactive obstacle avoidance controller
 // OR an examplecontroller of previous students
 //#include "examplecontroller_j_widenka.h"
-
+//#include "samplecontroller.h"
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -55,6 +56,26 @@ using namespace lpzrobots;
 
 
 EmptyController* qcontroller;
+
+
+////Use this setup for the task ICO learning
+//// students set this parameter = "true" for ico learning, and set it to "false" for RL
+bool ico_learning_task = true;
+
+// students set this to "true" for reset robot in ico learning, set to "false" for RL
+// set this to "false" to control the robot by keyboard for checking the robot sensory signals
+bool repeat_experiment = true;
+
+
+//Use this setup for the task RL & others
+// students set this parameter = "true" for ico learning, and set it to "false" for RL
+//bool ico_learning_task = false;
+//
+//// students set this to "true" for reset robot in ico learning, set to "false" for RL
+//// set this to "false" to control the robot by keyboard for checking the robot sensory signals
+//bool repeat_experiment = false;
+
+
 
 bool obstacle_on = true;
 bool drawtrace_on = false;//---------------------------------------------------------------------------TEST
@@ -85,7 +106,6 @@ double random_positiony;
 int number_spheres = 4; // SET NUMBER of TARGET MAX = 4
 int number_boxes = 8; // SET NUMBER of BOXES obstacles
 
-bool repeat_experiment = false;//true; //if select true then set the follwing parameters
 int repeat_number = 500;// 1000;
 double time_factor = 0.25/2;//0.25/2;
 
@@ -179,20 +199,23 @@ public:
 //      global.obstacles.push_back(s);
 //    }
 
-    for (int j=0;j<4;j++)
-    {
-      for(int i=0; i<4; i++)
-      {
-        PassiveBox* b =
-          new PassiveBox(odeHandle,
-                         osgHandle.changeColor(Color(1.0f,0.2f,0.2f,0.5f)), osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
-        b->setTexture("Images/light_chess.rgb");
-        b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
-        global.obstacles.push_back(b);
-      }
-    }
+		if(!ico_learning_task)
+		{
 
+		  for (int j=0;j<4;j++)
+		  {
+		    for(int i=0; i<4; i++)
+		    {
+		      PassiveBox* b =
+		          new PassiveBox(odeHandle,
+		              osgHandle.changeColor(Color(1.0f,0.2f,0.2f,0.5f)), osg::Vec3(1.5+i*0.01,1.5+i*0.01,1.5+i*0.01),40.0);
+		      b->setTexture("Images/light_chess.rgb");
+		      b->setPosition(Pos(i*4-5, -5+j*4, 1.0));
+		      global.obstacles.push_back(b);
+		    }
+		  }
 
+		}
 
 		//6) - add passive spheres as TARGET!
 		// - create pointer to sphere (with odehandle, osghandle and
@@ -202,6 +225,13 @@ public:
 		// - add sphere to list of obstacles
 
 		PassiveSphere* s1;
+
+		double target_z_position = 1.5;
+
+		if(ico_learning_task)
+		{
+		  target_z_position = 0.5;
+		}
 
 
 		for (int i=0; i < number_spheres; i++){
@@ -214,26 +244,26 @@ public:
 				random_position_S  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x; // Input 0 (m) between -2.4 and 2.4
 				std::cout<<"\n\n\n\n\n"<<"Inital Random Target X position"<<" = "<<-1*random_position_S<<"\t"<<"Inital Random Target Y position"<<" = "<<random_position_S<<"\n\n\n\n";
 				/************************************/
-				if (i==0) s1->setPosition(osg::Vec3(-1*random_position_S,random_position_S,1.5/*2*/));
+				if (i==0) s1->setPosition(osg::Vec3(-1*random_position_S,random_position_S,target_z_position/*2*/));
 			}
 			else
 			{
 				//position_S = 0.0;// -2.0---------------------------------------------------------------------------TEST
-				if (i==0) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 1.5/*0*/));
+				if (i==0) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, target_z_position/*0*/));
 			}
 
 			//Target 2
 
 			//if (i==1) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S+10, 0.5/*0*/));
-			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 1.5/*0*/));
+			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, target_z_position/*0*/));
 
 			//Target 3
 			//if (i==2) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S-10, 0.5/*0*/));
-			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 1.5/*0*/));
+			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, target_z_position/*0*/));
 
 
 			//Target 4
-			if (i==3) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 1.5/*0*/));
+			if (i==3) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, target_z_position/*0*/));
 			//if (i==3) s1->setPosition(osg::Vec3(-10, 10,2/*2*/));
 
 			s1->setTexture("Images/dusty.rgb");
@@ -289,6 +319,10 @@ public:
 		double width = 1.0;
 		double height = 1.0;
 
+		if(ico_learning_task)
+		{
+		  obstacle_on = false;
+		}
 
 
 		if(obstacle_on)
@@ -443,8 +477,27 @@ public:
 				fixator.clear();
 				break;
 			case 'q': // print Q-table
-//				qcontroller->printQTable();
-				break;
+			  //				qcontroller->printQTable();
+			  break;
+
+
+			case 'u': // move forward
+			  qcontroller->setMC(0.6, 0.6);
+			  break;
+			case 'j': // move backward
+			  qcontroller->setMC(-0.6, -0.6);
+			  break;
+			case 'b': // turn left
+			  qcontroller->setMC(-0.3, 0.3);
+			  break;
+			case 'k': // turn right
+			  qcontroller->setMC(0.3, -0.3);
+			  break;
+			case ' ': // stop
+			  qcontroller->setMC(0,0);
+			  break;
+
+
 			default:
 				return false;
 				break;
@@ -616,7 +669,10 @@ public:
 		}
 
 
-
+		if(repeat_experiment)
+		{
+		qcontroller = (EmptyController*)temp_controller;
+		}
 
 		global.configs.push_back(qcontroller);
 
@@ -667,7 +723,8 @@ public:
 		{
 			/***********************Reset Function*********************************************/
 
-			if (globalData.sim_step>=(time_factor*60.0*200.000) /*|| qcontroller->distance <5/ *10* /|| qcontroller->failure_flag==1*/)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
+			//if (globalData.sim_step>=(time_factor*60.0*200.000) /*|| qcontroller->distance <5/ *10* /|| qcontroller->failure_flag==1*/)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
+		  if (globalData.sim_step>=(time_factor*60.0*200.000) /*if time = 15s*/ || qcontroller->distance2 <5 /*if close to green object*/|| qcontroller->distance3 <5 /*if close to blue object*/)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
 			{
 				simulation_time_reached=true;
 

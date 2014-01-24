@@ -22,7 +22,7 @@ bool avg_input = false; // true = use three IR signals on each side, false = use
 
 bool mrc = true; // true = use mrc control instead of Braitenberg vehicle control
 bool Braitenberg = false;// true = use Braitenberg vehicle control
-
+double mc[4];
 //testing q learning:  bool mrc_control = false; bool avg_input = false; bool mrc = false; bool Braitenberg = false;
 //AND
 //bool qlearning_control = true;
@@ -62,6 +62,8 @@ class EmptyController : public AbstractController {
 
     std::vector<double> post_mrc_output;   //postprocessing MRC neural outputs
     //MRC parameters -end//
+    double distance2;
+    double distance3;
 
     //Q learning parameters -begin//
     double getRewardValue(int e);
@@ -480,19 +482,16 @@ class EmptyController : public AbstractController {
       }
       ///////////////////////////////////////////////////////////////
 
-      if(!mrc_control)
-      {
-        printf("Q values Q learning\n\n");
+      printf("Q values \n\n");
 
-        for(int i_s = 0; i_s <number_state; ++i_s) {
-          for(int i_a = 0; i_a <number_action; ++i_a) {
+      for(int i_s = 0; i_s <number_state; ++i_s) {
+        for(int i_a = 0; i_a <number_action; ++i_a) {
 
-            printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
+          printf("Q[%d][%d]: %f\n", i_a, i_s, Q[i_a][i_s]);
 
-          }
         }
-
       }
+
       //5) Motor command (actions)//////////////////
       //action = 1,..., 9;
       // Select action: 3 possible actions (fwd, rvs, stop) of each wheel and two wheel combinations = 3^2 = 9 actions
@@ -586,8 +585,6 @@ class EmptyController : public AbstractController {
         motors[1]=  -mrc_output.at(0);
         motors[2]=  -mrc_output.at(1);
         motors[3]=  -mrc_output.at(0);
-
-        printf("MRC neural control \n\n");
       }
 
       count++;
@@ -634,7 +631,12 @@ class EmptyController : public AbstractController {
     }
     //Q learning//
 
-
+    virtual void setMC(double left, double right){
+      mc[0]=left;
+      mc[1]=right;
+      mc[2]=left;
+      mc[3]=right;
+    }
 
   protected:
 
