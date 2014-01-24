@@ -1,0 +1,41 @@
+\section{Using the Google Test Framework for Unit Testing}
+
+We are trying to maintain our code with the help of a unit testing framework, namely googletest. To be able to use this feature and develop new test cases, you first have to install the googletest framework. Here are the necessary steps:
+
+Start by downloading the source code of the most recent googletest version. It is available under \url{https://code.google.com/p/googletest/downloads}. Decompress the archive and enter it in a terminal:
+\begin{lstlisting}
+$ cd gtest-1.7.0
+\end{lstlisting}
+Inside the decompressed folder, create a new directory called ``build'' and enter it:
+\begin{lstlisting}
+$ mkdir build
+$ cd build
+\end{lstlisting}
+Use cmake to create a Makefile and use this Makefile to build googletest:
+\begin{lstlisting}
+$ cmake ..
+$ make
+\end{lstlisting}
+You'll find a libgtest.a and libgtest\_main.a file inside the build directory. Copy these files to some path that is registered in the LD\_LIBRARY\_PATH evnironment variable. Typically, during the installation of lpzrobots, you add the lib folder in your home directory to the LD\_LIBRARY\_PATH. To copy the files there, type:
+\begin{lstlisting}
+$ cp libgtest.a libgtest_main.a ~/lib
+\end{lstlisting}
+Furthermore, you have to copy the folder gtest inside the include directory located in the googletest root folder to some path that you include into the search path while compiling gorobots simulations. You can use the include folder created during the lpzrobots installation (typically in your home folder). Starting in the build directory, type the following:
+\begin{lstlisting}
+$ cd ../include
+$ cp gtest ~/include/
+\end{lstlisting}
+This finishes the installation of the googletest framework. You may now enter the gorobots folder and build the test cases:
+\begin{lstlisting}
+$ cd ~/workspace/gorobots
+$ make test
+\end{lstlisting}
+You should also try to run the tests:
+\begin{lstlisting}
+$ ./build/run_test
+\end{lstlisting}
+
+All unit tests are located within the test folder in the gorobots root. Check them out to understand how to develop own tests.
+
+
+
