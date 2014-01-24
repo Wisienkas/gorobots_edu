@@ -44,7 +44,10 @@ class ThisSim : public lpzrobots::Simulation {
       controller = 0;
       lpzController = 0;
       snake = 0;
+      step_limit = 0;
     }
+
+
 
     /**
      * starting function (executed once at the beginning of the simulation loop)
@@ -100,6 +103,15 @@ class ThisSim : public lpzrobots::Simulation {
 
     }
 
+    virtual void end(lpzrobots::GlobalData& globalData) {
+      finalPosition = snake->getPosition();
+    }
+
+    void addCallback(lpzrobots::GlobalData& globalData, bool, bool, bool) {
+      if (step_limit >0 and globalData.sim_step > step_limit)
+        simulation_time_reached = true;
+    };
+
     /**
      * add own key handling stuff here, just insert some case values
      */
@@ -118,10 +130,22 @@ class ThisSim : public lpzrobots::Simulation {
       }
       return false;
     }
+
+    bool test() {
+      step_limit = 50;
+      char *args[] = {"-nographics"};
+      run(1, args);
+      return (fabs(finalPosition.x() - (-3.81729)) < 1e-5)
+          and (fabs(finalPosition.y() - (-0.23047)) < 1e-5)
+          and (fabs(finalPosition.z() - (0.844358)) < 1e-5);
+    }
+
   protected:
     NejihebiExampleController*   controller;
     NejihebiLpzInterface* lpzController;
     lpzrobots::Nejihebi*  snake;
+    lpzrobots::Pos finalPosition;
+    int step_limit;
 };
 
 int main(int argc, char **argv) {
@@ -144,6 +168,8 @@ int main(int argc, char **argv) {
 
   ThisSim sim;
   sim.setGroundTexture("Images/greenground.rgb");
-  return sim.run(argc, argv) ? 0 : 1;
+  sim.run(argc, argv) ? 0 : 1;
+  //std::cout << sim.getSnake()->getPosition().x << std::endl;
+
 }
 

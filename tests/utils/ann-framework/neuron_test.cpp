@@ -28,5 +28,17 @@ namespace {
     ASSERT_EQ(neuron.getSynapsesOut().size(), 1);
   }
 
+  TEST(NeuronTest, activity) {
+    Neuron neuron;
+    neuron.setActivity(1.2);
+    ASSERT_EQ(1.2, neuron.getActivity());
+  }
+
+  TEST(NeuronTest, bias) {
+    Neuron neuron;
+    neuron.setBias(-0.3);
+    ASSERT_EQ(-0.3, neuron.getBias());
+  }
+
 }
 
