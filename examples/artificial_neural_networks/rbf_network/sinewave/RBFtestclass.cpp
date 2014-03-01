@@ -68,7 +68,8 @@ void RBFtest::initalize_network() {
 	}
 }
 
-
+//Transform from a random signal to a sine wave signal
+//Using 1 input and 1 output and 10 hidden neurons
 void RBFtest::test1_SinWave() {
 	number_of_inputs = 1;
 	number_of_outputs = 1;
