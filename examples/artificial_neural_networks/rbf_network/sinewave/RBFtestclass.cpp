@@ -128,7 +128,7 @@ void RBFtest::test2_TimeSeries() {
 
 
 	int i_text_loop;
-	int ii;
+	int ii = 0;
 	bool initialized = 0;
 	double input_temp;
 	double target_temp;
