@@ -84,8 +84,15 @@ AFLAGS := -rcs
 # Flags for the linker
 # -shared           : Produce a shared object which can then be linked with 
 #                     other objects to form an executable.
+# -Wl,-rpath,$(shell selforg-config --srcprefix) : add the path in which the
+#                     selforg library is produced to the list of paths to check
+#                     at runtime for needed libraries
+# -Wl,-rpath,$(shell ode_robots-config --prefix)/lib : add the path in which 
+#                     the ode_robots library is produced to the list of paths
+#                     to check at runtime for needed libraries
 LDFLAGS += -shared \
-           -Wl,-rpath,$(shell selforg-config --srcprefix)
+           -Wl,-rpath,$(shell selforg-config --srcprefix) \
+           -Wl,-rpath,$(shell ode_robots-config --prefix)/lib
 
 # the normal build target: create the static and dynamic gorobots library
 normal: statlib dynlib
