@@ -131,13 +131,25 @@ class ThisSim : public lpzrobots::Simulation {
       return false;
     }
 
-    bool test() {
+    lpzrobots::Pos getFinalPosition()
+    {
+      return finalPosition;
+    }
+
+    void setStepLimit(int const& limit)
+    {
+      step_limit = limit;
+    }
+
+    std::vector< std::tuple<std::string, double, double> > test() {
       step_limit = 50;
       char *args[] = {"-nographics"};
       run(1, args);
-      return (fabs(finalPosition.x() - (-3.81729)) < 1e-5)
-          and (fabs(finalPosition.y() - (-0.23047)) < 1e-5)
-          and (fabs(finalPosition.z() - (0.844358)) < 1e-5);
+      typedef std::tuple<std::string, double, double> t;
+      return {
+        t("position-x", -3.81729, fabs(finalPosition.x())),
+        t("position-y", -0.23047, fabs(finalPosition.y())),
+        t("position-z", 0.844358, fabs(finalPosition.z()))};
     }
 
   protected:
@@ -168,8 +180,6 @@ int main(int argc, char **argv) {
 
   ThisSim sim;
   sim.setGroundTexture("Images/greenground.rgb");
-  sim.run(argc, argv) ? 0 : 1;
-  //std::cout << sim.getSnake()->getPosition().x << std::endl;
-
+  return sim.run(argc, argv);
 }
 

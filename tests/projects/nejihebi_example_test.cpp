@@ -24,7 +24,13 @@ namespace {
         setrlimit(RLIMIT_STACK, &rl);
     }
     ThisSim sim;
-    ASSERT_TRUE(sim.test());
+    sim.setStepLimit(50);
+    char *args[] = {"-nographics"};
+    sim.run(1, args);
+    lpzrobots::Pos final_pos = sim.getFinalPosition();
+    ASSERT_NEAR(-3.817293, final_pos.x(), 1e-4);
+    ASSERT_NEAR(-0.230475, final_pos.y(), 1e-4);
+    ASSERT_NEAR( 0.844358, final_pos.z(), 1e-4);
   }
 }
 
