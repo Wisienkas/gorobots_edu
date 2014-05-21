@@ -26,10 +26,7 @@
 //#include <../Echo-State-Network/networkmatrix.h>
 #include "utils/esn-framework/networkmatrix.h"
 
-//----AC network parameters------------//
 #include "ngnet.h"
-NGNet* ngnet;
-Cell VALUE;
 
 #ifndef clip
 #define	clip(x/*input*/,l /*lower limit*/,u /*upper limit*/)( ((x)<(l)) ? (l) : ((x)>(u)) ? (u) : (x))
@@ -44,30 +41,38 @@ Cell VALUE;
 #define max(x/*e.g., 0*/, y) ((x >= y) ? x : y)
 #endif
 
-//-----ESN network-----//
-
-ESNetwork * ESN, * ESN_actor;
-
-float * ESinput;
-float * EAinput;
-float * EATrainOutput;
-float * ESTrainOutput;
-
-double gain0, gain1, rate_rls, roh0, roh1;
-
-double EXP_keep_value;
 
 //----AC network parameters------------//
 
 using namespace matrix;
 using namespace std;
 
-bool learn_critic;
-bool learn_actor;
+// unit wide variables
+namespace {
+  //----AC network parameters------------//
+  NGNet* ngnet;
+  Cell VALUE;
 
-double r_total = 0.0;
+  //-----ESN network-----//
 
-double accum_error = 0.0;
+  ESNetwork * ESN, * ESN_actor;
+
+  float * ESinput;
+  float * EAinput;
+  float * EATrainOutput;
+  float * ESTrainOutput;
+
+  double gain0, gain1, rate_rls, roh0, roh1;
+
+  double EXP_keep_value;
+
+  bool learn_critic;
+  bool learn_actor;
+
+  double r_total = 0.0;
+
+  double accum_error = 0.0;
+}
 
 AcIcoRcCriticController::AcIcoRcCriticController(const AcIcoRcCriticControllerConf& _conf)
 : AbstractController("ACICOControllerV14", "$Id: "), conf(_conf)

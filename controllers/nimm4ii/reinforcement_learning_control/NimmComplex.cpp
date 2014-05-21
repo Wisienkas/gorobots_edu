@@ -76,20 +76,14 @@
 
 #include "NimmComplex.h"
 #include <selforg/controller_misc.h>
-#include "rbf-framework/ngnet.h"
+#include "utils/rbf-framework/ngnet.h"
 
 
-NGNet* ngnet;
 
 
 #define rbf_num_units 875//448//1080//2560
 #define rbf_num_IN 4
 #define rbf_num_out 2
-
-
-
-
-Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 
 
 #ifndef clip
@@ -113,9 +107,26 @@ Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 
 using namespace matrix;
 using namespace std;
-int current_epoch;
 
+namespace {
+  NGNet* ngnet;
+  Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
+  int current_epoch;
+  bool written = false;
+  bool done = false;
 
+  //help function to aid printing function
+  int get_number_of_digits(int n)
+  {
+      int count = 0;
+      while(n > 0)
+      {
+          n  /= 10;
+          count++;
+      }
+      return count;
+  }
+}
 
 
 NimmComplex::NimmComplex(const NimmComplexConf& _conf)
@@ -502,10 +513,6 @@ void NimmComplex::print_to_cout(int steps_period)
 	}
 }
 
-
-bool written = false;
-bool done = false;
-
 //reset function (called after each trial)
 void NimmComplex::reset_params()
 {
@@ -845,17 +852,7 @@ void NimmComplex::controller_core(const sensor* x_, int number_sensors, motor* y
 		failure_flag = true;
 	}
 }
-//help function to aid printing function
-int get_number_of_digits(int n)
-{
-    int count = 0;
-    while(n > 0)
-    {
-        n  /= 10;
-        count++;
-    }
-    return count;
-}
+
 
 #include <iostream>
 #include <string.h>

@@ -34,7 +34,6 @@
 #define absolute(x) (((x) < 0) ? -(x) : (x))
 #endif
 
-int counter = 0;
 #define absorbing_time 70
 #define PHASE_MAX_TIME 500//1600
 
@@ -43,6 +42,12 @@ int counter = 0;
 #define INIT_EXP_SCALE 0.4
 
 #define WRITE_AVERAGE_FILE 0
+
+namespace {
+  int counter = 0;
+  bool printed = false;
+
+}
 
 NimmLargeRobotState::NimmLargeRobotState() {
 	old_index = -2;
@@ -123,8 +128,6 @@ double NimmLargeRobotState::get_reward(double* distances) {
 
 	return 0;
 }
-
-bool printed = false;
 
 bool NimmLargeRobotState::reset_robot_state() {
 	epoch_number++;

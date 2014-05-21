@@ -35,12 +35,18 @@
 
 
 
-int counter = 0;
 #define FINAL_GOAL 3
 #define absorbing_time 100
 
 
 #define WRITE_AVERAGE_NUMBER 0
+
+namespace {
+
+  int counter = 0;
+  bool printed = false;
+
+}
 
 NimmExp1RobotState::NimmExp1RobotState() {
 	current_goal = 0;
@@ -100,9 +106,6 @@ double NimmExp1RobotState::get_reward(double* distances) {
 		}
 	return 0;
 }
-
-
-bool printed = false;
 
 bool NimmExp1RobotState::reset_robot_state() {
 	epoch_number++;

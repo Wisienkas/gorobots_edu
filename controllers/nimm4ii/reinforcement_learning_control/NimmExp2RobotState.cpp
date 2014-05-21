@@ -35,7 +35,6 @@
 #define absolute(x) (((x) < 0) ? -(x) : (x))
 #endif
 
-int counter = 0;
 #define FINAL_GOAL 3
 #define absorbing_time 70
 #define PHASE_MAX_TIME 3000
@@ -46,6 +45,11 @@ int counter = 0;
 #define EXP_SCALE 0.4
 
 #define PRINT_AVERAGE 0
+
+namespace {
+  int counter = 0;
+  bool printed = false;
+}
 
 NimmExp2RobotState::NimmExp2RobotState() {
 	current_goal = 0;
@@ -131,7 +135,6 @@ double NimmExp2RobotState::get_reward(double* distances) {
 	return 0;
 }
 
-bool printed = false;
 
 bool NimmExp2RobotState::reset_robot_state() {
 	epoch_number++;

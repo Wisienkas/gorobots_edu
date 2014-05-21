@@ -78,21 +78,12 @@
 
 #include "AmosMG.h"
 #include <selforg/controller_misc.h>
-#include "rbf-framework/ngnet.h"
+#include "utils/rbf-framework/ngnet.h"
 #include "hexapod_neurocontroller.h"
-
-NGNet* ngnet;
-
-
 
 #define rbf_num_units 1512
 #define rbf_num_IN 4
 #define rbf_num_out 2
-
-
-
-Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
-HexapodNeuroMotionGenerator* motiongenerator;
 
 #ifndef clip
 #define	clip(x/*input*/,l /*lower limit*/,u /*upper limit*/)( ((x)<(l)) ? (l) : ((x)>(u)) ? (u) : (x))
@@ -111,16 +102,23 @@ HexapodNeuroMotionGenerator* motiongenerator;
 #ifndef absolute
 #define absolute(x) (((x) < 0) ? -(x) : (x))
 #endif
-//----AC network parameters------------//
 
 using namespace matrix;
 using namespace std;
-int current_epoch;
 
 #define max_action 0.8
 
+namespace {
+  NGNet* ngnet;
+  Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
+  HexapodNeuroMotionGenerator* motiongenerator;
 
-int pause_step;
+  //----AC network parameters------------//
+  int current_epoch;
+
+  int pause_step;
+}
+
 
 
 AmosMG::AmosMG(const AmosMgConf& _conf)

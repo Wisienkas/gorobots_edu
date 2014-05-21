@@ -7,7 +7,7 @@
 
 #include "AmosOG.h"
 #include <selforg/controller_misc.h>
-#include "rbf-framework/ngnet.h"
+#include "utils/rbf-framework/ngnet.h"
 #include "hexapod_neurocontroller.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -84,11 +84,15 @@
 #define rbf_num_out 2
 
 
-
-
-NGNet* ngnet;
-Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
-HexapodNeuroMotionGenerator* motiongenerator;
+// mask unit-wide variables
+namespace {
+  NGNet* ngnet;
+  Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
+  HexapodNeuroMotionGenerator* motiongenerator;
+  int current_epoch;
+  int pause_step;
+  bool written = false;
+}
 
 #ifndef clip
 #define	clip(x/*input*/,l /*lower limit*/,u /*upper limit*/)( ((x)<(l)) ? (l) : ((x)>(u)) ? (u) : (x))
@@ -105,15 +109,6 @@ HexapodNeuroMotionGenerator* motiongenerator;
 
 using namespace matrix;
 using namespace std;
-int current_epoch;
-
-
-
-
-
-
-
-int pause_step;
 
 
 AmosOG::AmosOG(const AmosOGConf& _conf)
@@ -752,7 +747,6 @@ double AmosOG::reward_function(double *x /*state*/, double *u /*action*/)
 
 	return r_total;
 }
-bool written = false;
 //check the termination of the iteration (using Infrared signals)
 int AmosOG::check_limit(double *x)//, double irr_back, double irl_back)
 {
