@@ -13,9 +13,10 @@ TEST_EXEC_NAME := run_test
 # cpp files to exclude from the gorobots library
 # These files are excluded because they introduce a bunch of global variables
 # and defines which is not compatible with creating a library
-EXCLUDES = controllers/nimm4ii/ngnet.cpp \
-           controllers/nimm4ii/acicorcactorcontroller.cpp \
-           controllers/nimm4ii/acicorccriticcontroller.cpp
+#EXCLUDES = controllers/nimm4ii/ngnet.cpp \
+#           controllers/nimm4ii/acicorcactorcontroller.cpp \
+#           controllers/nimm4ii/acicorccriticcontroller.cpp \
+#           controllers/amosii/reinforcement_learning_control/*
 
 # Routine to discover source files and generate .o targets
 # find_files discovers all cpp files in a directory and all its subdirectories

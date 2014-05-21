@@ -71,20 +71,15 @@
 #define WRITE_AVERAGE_OF_EPOCHS 0
 #define WRITE_INPUT_OUTPUT_SIGNALS 0
 
+using namespace std;
 
 #include "NimmOG.h"
 #include <selforg/controller_misc.h>
-#include "rbf-framework/ngnet.h"
-
-NGNet* ngnet;
-
+#include "utils/rbf-framework/ngnet.h"
 
 #define rbf_num_units 1000
 #define rbf_num_IN 3
 #define rbf_num_out 2
-
-
-Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 
 
 #ifndef clip
@@ -99,9 +94,29 @@ Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 #define max(x/*e.g., 0*/, y) ((x >= y) ? x : y)
 #endif
 
-//----AC network parameters------------//
-using namespace std;
-int current_epoch;
+
+namespace {
+  NGNet* ngnet;
+
+  //----AC network parameters------------//
+  int current_epoch;
+
+  Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
+
+  //help function to aid printing function
+  int get_number_of_digits(int n)
+  {
+      int count = 0;
+      while(n > 0)
+      {
+          n  /= 10;
+          count++;
+      }
+      return count;
+  }
+
+  bool written = false;
+}
 
 //controller constructor
 NimmOG::NimmOG(const NimmOgConf& _conf)
@@ -662,17 +677,6 @@ void NimmOG::step(const sensor* x_, int number_sensors, motor* y_, int number_mo
 	//delete[] net_out;
 	stepnumber_t++;
 }
-//help function to aid printing function
-int get_number_of_digits(int n)
-{
-    int count = 0;
-    while(n > 0)
-    {
-        n  /= 10;
-        count++;
-    }
-    return count;
-}
 
 #include <iostream>
 #include <string.h>
@@ -798,7 +802,6 @@ double NimmOG::reward_function(double *x /*state*/, double *u /*action*/)
 	return r_total;
 }
 
-bool written = false;
 //called to terminate the current epoch according to certain conditions
 int NimmOG::check_limit(double *x)//, double irr_back, double irl_back)
 {

@@ -35,7 +35,6 @@
 #define absolute(x) (((x) < 0) ? -(x) : (x))
 #endif
 
-int counter = 0;
 #define absorbing_time 50
 #define PHASE_MAX_TIME 3500//1600
 
@@ -45,6 +44,11 @@ int counter = 0;
 #define WRITE_AVERAGE 0
 
 #define SCALER 0.5
+
+namespace {
+  int counter = 0;
+  bool printed = false;
+}
 
 NimmComplexRobotState::NimmComplexRobotState() {
 	 //vmax = 0.05;
@@ -131,8 +135,6 @@ double NimmComplexRobotState::get_reward(double* distances) {
 
 	return 0;
 }
-
-bool printed = false;
 
 bool NimmComplexRobotState::reset_robot_state() {
 	epoch_number++;

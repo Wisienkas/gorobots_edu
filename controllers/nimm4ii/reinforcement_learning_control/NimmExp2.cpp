@@ -73,18 +73,13 @@
 
 #include "NimmExp2.h"
 #include <selforg/controller_misc.h>
-#include "rbf-framework/ngnet.h"
-
-
-NGNet* ngnet;
+#include "utils/rbf-framework/ngnet.h"
 
 
 #define rbf_num_units 625//2560
 #define rbf_num_IN 4
 #define rbf_num_out 2
 
-
-Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 
 #ifndef clip
 #define	clip(x/*input*/,l /*lower limit*/,u /*upper limit*/)( ((x)<(l)) ? (l) : ((x)>(u)) ? (u) : (x))
@@ -109,11 +104,31 @@ Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
 
 using namespace matrix;
 using namespace std;
-int current_epoch;
 
 
 #define max_action 0.4
 
+
+namespace {
+  int current_epoch;
+  NGNet* ngnet;
+  Cell VALUE(rbf_num_units, rbf_num_IN, rbf_num_out);
+
+  bool written = false;
+  bool done = false;
+
+  //help function to aid printing function
+  int get_number_of_digits(int n)
+  {
+      int count = 0;
+      while(n > 0)
+      {
+          n  /= 10;
+          count++;
+      }
+      return count;
+  }
+}
 
 
 NimmExp2::NimmExp2(const NimmExp2Conf& _conf)
@@ -507,9 +522,6 @@ void NimmExp2::print_to_cout(int steps_period)
 	}
 }
 
-bool written = false;
-bool done = false;
-
 
 //reset function (called after each trial)
 void NimmExp2::reset_params()
@@ -820,17 +832,6 @@ void NimmExp2::controller_core(const sensor* x_, int number_sensors, motor* y_, 
 		terminate_after_this_step = false;
 		failure_flag = true;
 	}
-}
-//help function to aid printing function
-int get_number_of_digits(int n)
-{
-    int count = 0;
-    while(n > 0)
-    {
-        n  /= 10;
-        count++;
-    }
-    return count;
 }
 
 #include <iostream>
