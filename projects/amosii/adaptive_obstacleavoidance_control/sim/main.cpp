@@ -84,6 +84,9 @@ public:
 		setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
 		setTitle("Adaptive Climbing Behavior of Walking Machines");
 		//setCaption("right aligned text");
+
+	  // ADD:: Unit test
+		step_limit = 0;
 	}
 
 	/**
@@ -464,12 +467,38 @@ public:
 			}
 		}
 		//-----------------------------------------------------------------------------------
+
+
+		// ADD:: Unit test
+		 if (step_limit >0 and globalData.sim_step > step_limit)
+		      simulation_time_reached = true;
+
 	}
+
+	// ADD:: Unit test
+  virtual void end(lpzrobots::GlobalData& globalData) {
+    finalPosition = amos->getPosition();
+  }
+  // ADD:: Unit test
+  void setStepLimit(int const& limit)
+  {
+    step_limit = limit;
+  }
+  // ADD:: Unit test
+  lpzrobots::Pos getFinalPosition()
+   {
+     return finalPosition;
+   }
 
 protected:
 	lpzrobots::Joint* robotfixator;
 	AbstractController* controller;
 	lpzrobots::AmosII* amos;
+
+	// ADD:: Unit test
+  int step_limit;
+  lpzrobots::Pos finalPosition;
+
 
 };
 
