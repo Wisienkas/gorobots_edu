@@ -460,11 +460,11 @@ class ThisSim : public lpzrobots::Simulation {
 
     virtual void addCallback(lpzrobots::GlobalData& globalData, bool draw, bool pause, bool control) {
       // add speaker for sound sensor (4)
-      if(control)
-      {
+      //if(control)
+      //{
         speaker1->act(globalData);
         speaker2->act(globalData);
-      }
+      //}
       //------------------------------//
     };
 
