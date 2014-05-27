@@ -36,7 +36,7 @@
 // the robot
 #include <ode_robots/amosII.h>
 // the controller
-#include "controllers/amosii/modular_neural_control/amosIIcontrol.h"
+#include "controllers/amosIIcontrol.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
