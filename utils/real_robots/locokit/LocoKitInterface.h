@@ -7,7 +7,7 @@
  */
 
 #include <pthread.h>
-#include <ConnectionClass.h>
+#include "ConnectionClass.h"
 
 
 class LocoKitInterface {

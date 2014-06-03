@@ -26,13 +26,13 @@ TEST(AmosiiExampleTest, movement) {
 
   ThisSim sim;
   sim.setStepLimit(10000); // simulation time, e.g., 10000 time steps
-  char *args[] = {"-r","10"};
-  sim.run(2, args);
+  char *args[] = {"-r","10", "-rtf", "0"};
+  sim.run(4, args);
   lpzrobots::Pos final_pos = sim.getFinalPosition(); // print final position
   std::cout<< final_pos.x() << std::endl;
   std::cout<< final_pos.y() << std::endl;
   std::cout<< final_pos.z() << std::endl;
-  ASSERT_NEAR(3.89558, final_pos.x(), 1e-4);
-  ASSERT_NEAR(-1.30729, final_pos.y(), 1e-4);
-  ASSERT_NEAR(0.0439363, final_pos.z(), 1e-4);
+  ASSERT_NEAR(3.89558, final_pos.x(), 5e-2);
+  ASSERT_NEAR(-1.30729, final_pos.y(), 5e-2);
+  ASSERT_NEAR(0.0439363, final_pos.z(), 5e-2);
 }

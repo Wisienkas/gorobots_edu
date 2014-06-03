@@ -6,7 +6,7 @@
  */
 
 
-#include <ConnectionClass.h>
+#include "ConnectionClass.h"
 
 ConnectionClass::ConnectionClass(){//1211
 	socksize = sizeof(struct sockaddr_in);
