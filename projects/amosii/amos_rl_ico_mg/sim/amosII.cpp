@@ -1094,7 +1094,7 @@ namespace lpzrobots {
     	for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
     	{
     	  // Using 0 as second parameter if exact distance should be given as linear sensor
-    		RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
+    		RelativePositionSensor GoalSensor_tmp(1, 1,Sensor::X|Sensor::Y|Sensor::Z, true);
     		//max distance for normalization
     		//exponent for sensor characteristic
     		//dimensions to sense
