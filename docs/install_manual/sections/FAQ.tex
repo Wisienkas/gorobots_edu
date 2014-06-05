@@ -99,6 +99,17 @@ One quick fix for this is to just comment out line 668 in osg\/osgprimitive.cpp.
 Updating to a more recent version of lpzrobots would resolve the problem as 
 well.
 
+
+\subsubsection{cannot find -ltinyxml2}
+With the recent version of gorobots where unit test is embedded, you might have this problem after ``make'' in gorobots:
+\begin{lstlisting}
+/usr/bin/ld: cannot find -ltinyxml2
+collect2: error: ld returned 1 exit status
+make: *** [libgorobots.so] Error 1
+\end{lstlisting}
+You need to install -ltinyxml2. For installation, you could use synaptics and search for tinyxml2 and then select "libtinyxml2-dev and litinyxml2-0.0.0".
+
+
 \subsection{Errors when starting the simulation}
 
 The error messages was:
