@@ -225,16 +225,16 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	// For Multiple CPGs set to 20
 	// For climbing and adaptive obstacle avoidance set to 0
 	// The larger the value, the higher the body is lift.
-	//lifting_value = 0; not lifting body up
-	//lifting_value = 10; small lifting body up
-	//lifting_value = 20; intermediate lifting body up
-	//lifting_value = 50; high lifting body up
+	//lifting_value = 0; not lifting body up   // Walking on flat
+	//lifting_value = 10; small lifting body up // Walking on gravel
+	//lifting_value = 20; intermediate lifting body up // Walking on grass
+	//lifting_value = 50; high lifting body up // Walking on rocky terrain
 
 	//default is set to 0.0
 	lift_value= 0.0;
 
 	if(MCPGs == true)
-		lift_value= 20; // for MCPGs with foot contact sensory feedback (Subhi controller)
+		lift_value= 10.0; // for MCPGs with foot contact sensory feedback (Subhi controller)
 	else
 		lift_value= 0.0;
 

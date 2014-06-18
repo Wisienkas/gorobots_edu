@@ -85,7 +85,7 @@ public:
 		bool climbing_experiment_setup = true;
 		if (climbing_experiment_setup) {
 			lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
-					0.10), 1, false);
+					0.07), 1, false);
 			playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
 			playground->setPosition(osg::Vec3(0, 0, .0));
 			global.obstacles.push_back(playground);
