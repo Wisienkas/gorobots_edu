@@ -12,11 +12,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <ode_robots/amosiisensormotordefinition.h>
+#include "MuscleModel.h"
 #include "ModularNeuralControl.h"
 #include "BackboneJointControl.h"
 #include "delayline.h"
 #include "forwardmodel.h"
 #include "motormapping.h"
+
 
 //Save files
 #include <iostream>
@@ -33,6 +35,7 @@ public:
 
 	//---Start Define functions---//
 	NeuralLocomotionControlAdaptiveClimbing();
+	NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel);
 	~NeuralLocomotionControlAdaptiveClimbing();
 
 	double sigmoid(double num)
@@ -110,6 +113,8 @@ public:
 
 	//---Start Define vector----//
 
+
+	MuscleModel* muscleModel;
 	//---Reflex
 	std::vector<double> rev_reflex;
 	std::vector<double> rev_reflex_activity1;
@@ -178,6 +183,8 @@ public:
 	std::vector<double> fr_output; 				   	 	//motor neural outputs
 	std::vector<double> fl_output;						//motor neural outputs
 	std::vector<double> bj_output;						//motor neural outputs
+	std::vector<double> tr_outputOld;
+	std::vector<double> tl_outputOld;
 
 
 	std::vector<double> postcr;							//postCL motor neural outputs
@@ -287,6 +294,8 @@ public:
 	std::vector<double> fmodel_outputfinal;
 	std::vector<string> converge;
 
+
+
 	//Neural Locomotion Control
 	ModularNeuralControl* nlc;
 
@@ -323,7 +332,15 @@ public:
 	bool switchon_allreflexactions;
 	bool switchon_footinhibition;
 
+	int amosVersion;
+	bool MCPGs;
+	bool muscleModelIsEnabled;
+	int CPGID;
+	std::vector<NeuralLocomotionControlAdaptiveClimbing *> NLCAC;
 
+	void initializeMCPG(int cCPGID,std::vector<NeuralLocomotionControlAdaptiveClimbing *> nNLCAC);
+	void init(int aamosVersion,bool mMCPGs,bool mMuscleModel);
+	double lift_value;
 	//---End Define vector----//
 
 private:

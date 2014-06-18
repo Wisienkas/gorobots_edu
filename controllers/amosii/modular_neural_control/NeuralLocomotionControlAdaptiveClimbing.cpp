@@ -9,17 +9,39 @@
  *
  *      Edited by Eduard Grinke
  *      May 10, 2012
+ *
+ *      Edited by Subhi Shaker Barikhan
+ *      May 25, 2014
  */
 
 #include "NeuralLocomotionControlAdaptiveClimbing.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 
 //3) Step function of Neural locomotion control------
-
 NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing() {
+	init(2,false,false);
+};
 
+NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel)
+{
+	init(aamosVersion,mMCPGs,mMuscleModel);
+}
+
+/**
+ * init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
+ *param: aamosVersion -indicates to AMOS version
+ *param: mMCPGs		  -indicates whether single CPG-based control(false) or Multiple CPGs-based control (true)
+ *param: mMuscleModelIsEnabled -  muscle model is deployed when mMuscleModelIsEnabled =true
+ * author: subhi shaker barikhan
+ * date:27.05.2014
+ */
+void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
+{
 	//Save files
 	outFilenlc1.open("Neurallocomotion.txt");
+	amosVersion=aamosVersion;
+		MCPGs=mMCPGs;
+		muscleModelIsEnabled=mMuscleModelIsEnabled;
 
 	//---Set vector size----//
 
@@ -37,6 +59,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 	postclold.resize(AMOSII_MOTOR_MAX);
 	postcl.resize(AMOSII_MOTOR_MAX);
 
+
 	//NLC output vector sizes
 	cpg_output.resize(2);
 	pcpg_output.resize(2);
@@ -48,6 +71,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 	cl_output.resize(3);
 	fr_output.resize(3);
 	fl_output.resize(3);
+	tr_outputOld.resize(3);
+	tl_outputOld.resize(3);
 
 	//Motor vector sizes
 	m_pre.resize(AMOSII_MOTOR_MAX);
@@ -158,11 +183,18 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 	//Motor mapping constructor
 	motormap.resize(AMOSII_MOTOR_MAX);
+	//amosVersion=2;
+	if (amosVersion==1 || amosVersion==2)
+	{
 
 	for (unsigned int i = TR0_m; i < (FL2_m + 1); i++) {
-		motormap.at(i) = new Mapping();
+		motormap.at(i) = new Mapping(amosVersion); //amosVersion
 	}
-
+	if (muscleModelIsEnabled)
+	{
+		muscleModel=new MuscleModel(amosVersion);
+	}
+	}
 	/*******************************************************************************
 	 *  CONTROL OPTION!!!!
 	 *******************************************************************************/
@@ -189,6 +221,8 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 	switchon_obstacle = false;
 
+	// lift_value determines how much the lift of AMOS is.
+	lift_value=20;
 }
 ;
 
@@ -200,6 +234,11 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 }
 ;
 
+void NeuralLocomotionControlAdaptiveClimbing::initializeMCPG(int cCPGID,std::vector<NeuralLocomotionControlAdaptiveClimbing *> nNLCAC)
+{
+	 CPGID=cCPGID;
+	NLCAC=nNLCAC;
+}
 std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> inreflex,
 		const std::vector< vector<double> > in0, bool Footinhibition) {
 
@@ -230,7 +269,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 	}
 
+if(!MCPGs) // Single CPG is utilized
 	nlc->step();
+else // multiple CPGs are utilized
+	nlc->step(CPGID,NLCAC,inreflex);
 
 	cpg_output.at(0) = nlc->getCpgOutput(0);
 	cpg_output.at(1) = nlc->getCpgOutput(1);
@@ -308,76 +350,157 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 	}
 
 	/*******************************************************************************
-	 *  MODULE 3 WIRING
-	 *******************************************************************************/
-	//efficient delay line wiring (using delay line function)
+		 *  MODULE 3 WIRING
+		 *
+		 *  author: Subhi Shaker Barikhan
+		 *******************************************************************************/
 
-	//writing values into delayline buffer
-	tr_delayline->Write(tr_output.at(2));
-	tl_delayline->Write(tl_output.at(2));
-	ctr_delayline->Write(cr_output.at(2));
-	ftim_delayline->Write(fr_output.at(1));
-	fti_delayline->Write(fr_output.at(2));
+		if (MCPGs==false) // Single CPG-based control
+		{
+			//efficient delay line wiring (using delay line function)
 
-	for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
-		postcrold.at(i) = postcr.at(i);
-		postcr.at(i) = ctr_delayline->Read((CR2_m - i) * tau + (CR2_m - i));
-	}
-	for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
-		postclold.at(i) = postcl.at(i);
-		postcl.at(i) = ctr_delayline->Read((CL2_m - i) * tau + tau_l + (CL2_m - i));
-	}
+				//writing values into delayline buffer
+			// Single CPG
+			tr_delayline->Write(tr_output.at(2));
+				tl_delayline->Write(tl_output.at(2));
+				ctr_delayline->Write(cr_output.at(2));
+				ftim_delayline->Write(fr_output.at(1));
+				fti_delayline->Write(fr_output.at(2));
 
-	//read out delayed values
+				for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
+					postcrold.at(i) = postcr.at(i);
+					postcr.at(i) = ctr_delayline->Read((CR2_m - i) * tau + (CR2_m - i));
+				}
+				for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
+					postclold.at(i) = postcl.at(i);
+					postcl.at(i) = ctr_delayline->Read((CL2_m - i) * tau + tau_l + (CL2_m - i));
+				}
 
-	//TC joints
-	for (int i = TR0_m; i < (TL2_m + 1); i++) {
-		if (i < TL0_m) {
-			delta_m_pre.at(i) = tr_delayline->Read((TR2_m - i) * tau) - m_pre.at(i);
-			m_pre.at(i) = tr_delayline->Read((TR2_m - i) * tau); //Right side
-		} else {
-			delta_m_pre.at(i) = tl_delayline->Read((TL2_m - i) * tau + tau_l) - m_pre.at(i);
-			m_pre.at(i) = tl_delayline->Read((TL2_m - i) * tau + tau_l); //Left side
+				//read out delayed values
+
+				//TC joints
+				for (int i = TR0_m; i < (TL2_m + 1); i++) {
+					if (i < TL0_m) {
+						delta_m_pre.at(i) = tr_delayline->Read((TR2_m - i) * tau) - m_pre.at(i);
+						m_pre.at(i) = tr_delayline->Read((TR2_m - i) * tau); //Right side
+					} else {
+						delta_m_pre.at(i) = tl_delayline->Read((TL2_m - i) * tau + tau_l) - m_pre.at(i);
+						m_pre.at(i) = tl_delayline->Read((TL2_m - i) * tau + tau_l); //Left side
+					}
+				}
+
+				//CTr joints
+				for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
+					m_pre.at(i) = ctr_delayline->Read((CR2_m - i) * tau + (CR2_m - i));
+					if (postcrold.at(i) > postcr.at(i)) {
+						m_pre.at(i) = -1; //postprocessing
+					}
+				}
+				for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
+					m_pre.at(i) = ctr_delayline->Read((CL2_m - i) * tau + tau_l + (CL2_m - i));
+					if (postclold.at(i) > postcl.at(i)) {
+						m_pre.at(i) = -1; //postprocessing
+					}
+				}
+
+				//FTi joints
+				for (unsigned int i = FR0_m; i < (FR2_m + 1); i++) {
+					m_pre.at(i) = fti_delayline->Read((FR2_m - i) * tau);
+				}
+				for (unsigned int i = FL0_m; i < (FL2_m + 1); i++) {
+					m_pre.at(i) = fti_delayline->Read((FL2_m - i) * tau + tau_l);
+				}
+
+
+				//postprocessing
+				m_pre.at(FR1_m) = -1.2 * ftim_delayline->Read(tau - 1);
+				m_pre.at(FL1_m) = -1.2 * ftim_delayline->Read(tau + tau_l - 1);
+				m_pre.at(FR0_m) *= -1.5 * -input.at(4);
+				m_pre.at(FL0_m) *= -1.5 * -input.at(3);
+				m_pre.at(FR2_m) *= 1.5 * -input.at(4);
+				m_pre.at(FL2_m) *= 1.5 * -input.at(3);
+
+				//take one step
+				tr_delayline->Step();
+				tl_delayline->Step();
+				ctr_delayline->Step();
+				fti_delayline->Step();
+				ftim_delayline->Step();
 		}
-	}
+		else //  MCPGs-based control
+		{  //MCPGs
+			//TC joints
+			for (unsigned int i = TR0_m; i < (TL2_m + 1); i++)
+			{
+		      if (i < TL0_m)
+		      {
+		        tr_outputOld.at(i%tr_outputOld.size())=m_pre.at(i);
+		          m_pre.at(i)=tr_output.at(2);
+		      }
+		      else
+		      {
+		         tl_outputOld.at(i%tl_outputOld.size())=m_pre.at(i);
+		         m_pre.at(i)=tr_output.at(2);
+		      }
+			}
+		//
+		  for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
 
-	//CTr joints
-	for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
-		m_pre.at(i) = ctr_delayline->Read((CR2_m - i) * tau + (CR2_m - i));
-		if (postcrold.at(i) > postcr.at(i)) {
-			m_pre.at(i) = -1; //postprocessing
+		      postcr.at(i) = cr_output.at(2);//read(delay)
+		    }
+		  for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
+
+		      postcl.at(i) = cr_output.at(2);
+		    }
+
+			//CTr joints
+		  for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
+
+
+		      m_pre.at(i) = postcr.at(i);
+
+
+		      if (tr_outputOld.at(i%tr_outputOld.size()) >= tr_output.at(i%tr_output.size())) {//(tr_outputOld.at(i%tr_outputOld.size()) >= tr_output.at(i%tr_output.size()))  (postcrdelay.at(i) >= postcrold.at(i))
+		        m_pre.at(i) = -1; //postprocessing
+		      }
+		    }
+		  for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
+
+		      m_pre.at(i) = postcl.at(i);
+		       if (tl_outputOld.at(i%tl_outputOld.size()) >= tl_output.at(i%tl_output.size()))
+		      {
+
+		        m_pre.at(i) = -1; //postprocessing
+		      }
+		  }
+
+
+			//FTi joints
+			for (unsigned int i = FR0_m; i < (FR2_m + 1); i++) {
+				m_pre.at(i) = fr_output.at(2);
+			}
+			for (unsigned int i = FL0_m; i < (FL2_m + 1); i++) {
+				m_pre.at(i) = fr_output.at(2);
+			}
+
+
+			//postprocessing
+
+		  m_pre.at(FR1_m) = -1.2 *fr_output.at(1);
+		  m_pre.at(FL1_m) = -1.2 *fr_output.at(1);
+
+			m_pre.at(FR0_m) *= -1.5 * -input.at(4);
+			m_pre.at(FL0_m) *= -1.5 * -input.at(3);
+			m_pre.at(FR2_m) *= 1.5 * -input.at(4);
+			m_pre.at(FL2_m) *= 1.5 * -input.at(3);
 		}
-	}
-	for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
-		m_pre.at(i) = ctr_delayline->Read((CL2_m - i) * tau + tau_l + (CL2_m - i));
-		if (postclold.at(i) > postcl.at(i)) {
-			m_pre.at(i) = -1; //postprocessing
-		}
-	}
-
-	//FTi joints
-	for (unsigned int i = FR0_m; i < (FR2_m + 1); i++) {
-		m_pre.at(i) = fti_delayline->Read((FR2_m - i) * tau);
-	}
-	for (unsigned int i = FL0_m; i < (FL2_m + 1); i++) {
-		m_pre.at(i) = fti_delayline->Read((FL2_m - i) * tau + tau_l);
-	}
 
 
-	//postprocessing
-	m_pre.at(FR1_m) = -1.2 * ftim_delayline->Read(tau - 1);
-	m_pre.at(FL1_m) = -1.2 * ftim_delayline->Read(tau + tau_l - 1);
-	m_pre.at(FR0_m) *= -1.5 * -input.at(4);
-	m_pre.at(FL0_m) *= -1.5 * -input.at(3);
-	m_pre.at(FR2_m) *= 1.5 * -input.at(4);
-	m_pre.at(FL2_m) *= 1.5 * -input.at(3);
+		/*********************End*************************/
 
-	//take one step
-	tr_delayline->Step();
-	tl_delayline->Step();
-	ctr_delayline->Step();
-	fti_delayline->Step();
-	ftim_delayline->Step();
+
+
+
 
 	/*******************************************************************************
 	 *  MODULE 4 FORWARD MODELS OF PRE MOTOR NEURONS FOR STATE ESTIMATION
@@ -439,18 +562,28 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 	/*******************************************************************************
 	 *  MODULE 5 REFLEX MECHANISMS
 	 *******************************************************************************/
-	//  cout << "MODULE 5 " << endl;
-
-
 	//******Motor mapping and searching reflexes*****
+	if (amosVersion==1 || amosVersion==2 )
+		{
+			for (unsigned int i = TR0_m; i < (BJ_m); i++) {
+				if (i == CR0_m || i == CL0_m || i == FR0_m || i == FL0_m) {
+					m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), 0.5 * acc_error.at(i),amosVersion,lift_value);
+				} else
+					m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), acc_error.at(i),amosVersion,lift_value);
+				m_deg.at(i) = motormap.at(i)->getDegrees(i, m_reflex.at(i),amosVersion);
+			}
+		}
+		else
+		{
+			for (unsigned int i = TR0_m; i < (BJ_m); i++) {
+						if (i == CR0_m || i == CL0_m || i == FR0_m || i == FL0_m) {
+							m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), 0.5 * acc_error.at(i));
+						} else
+							m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), acc_error.at(i));
+						m_deg.at(i) = motormap.at(i)->getDegrees(i, m_reflex.at(i));
+					}
+		}
 
-	for (unsigned int i = TR0_m; i < (BJ_m); i++) {
-		if (i == CR0_m || i == CL0_m || i == FR0_m || i == FL0_m) {
-			m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), 0.5 * acc_error.at(i));
-		} else
-			m_reflex.at(i) = motormap.at(i)->getReflex(i, m_pre.at(i), acc_error.at(i));
-		m_deg.at(i) = motormap.at(i)->getDegrees(i, m_reflex.at(i));
-	}
 
 	//******BJC offset reflexes*****
 
@@ -483,14 +616,27 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 	/*******************************************************************************
 	 *  FINAL MOTOR OUTPUTS TO MOTOR NEURONS
 	 *******************************************************************************/
+	if (muscleModelIsEnabled) // Muscle model is utilized
+	{
+		std::vector<double> m_reflex_muscle=muscleModel->getMuscleReflex(m_reflex,inreflex);
 
+			for (unsigned int i = TR0_m; i < (BJ_m + 1); i++) {
+				m.at(i) =m_reflex_muscle.at(i);
+			}
+
+			  m.at(BJ_m) = m_pre.at(BJ_m);
+
+	}
+	else
+	{
 	for (unsigned int i = TR0_m; i < (BJ_m + 1); i++) {
 		m.at(i) = m_reflex.at(i);
 	}
 	m.at(BJ_m) = m_pre.at(BJ_m);
 
-	global_count++;
 
+	}
+	global_count++;
 	return m;
 
 }
