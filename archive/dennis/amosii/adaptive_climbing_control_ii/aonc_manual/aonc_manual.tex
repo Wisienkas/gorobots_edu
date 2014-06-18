@@ -1,0 +1,442 @@
+\documentclass[a3, 14pt]{sciposter}
+%\usepackage[a4paper]{geometry}
+
+
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multicol}
+%\usepackage{fancybullets}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+
+
+\usetikzlibrary{shadows}
+\usepackage{verbatim}
+\usetikzlibrary{trees}
+\newtheorem{Def}{Definition}
+
+\newcommand*\keystroke[1]{%
+  \tikz[baseline=(key.base)]
+    \node[%
+      draw,
+      fill=white,
+      drop shadow={shadow xshift=0.25ex,shadow yshift=-0.25ex,fill=black,opacity=0.75},
+      rectangle,
+      rounded corners=2pt,
+      inner sep=3pt,
+      line width=0.5pt,
+      font=\small\sffamily
+    ](key) {#1\strut}
+  ;
+}
+
+\definecolor{BoxCol}{rgb}{0.9,0.9,0.9}
+% uncomment for grey background to \section boxes 
+% for use with default option boxedsections
+
+%\definecolor{BoxCol}{rgb}{0.9,0.9,1}
+% uncomment for light blue background to \section boxes 
+% for use with default option boxedsections
+
+%\definecolor{SectionCol}{rgb}{0.5,0,0.}
+% uncomment for dark blue \section text 
+
+
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{textcomp}
+
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\definecolor{darkorchid}{RGB}{153,50,204}
+\definecolor{Darkgreen}{RGB}{0,153,0}
+
+\lstset{
+backgroundcolor=\color{lbcolor},
+    tabsize=4,    
+%   rulecolor=,
+    language=[GNU]C++,
+        basicstyle=\scriptsize,
+        upquote=true,
+        aboveskip={1.5\baselineskip},
+        columns=fixed,
+        showstringspaces=false,
+        extendedchars=false,
+        breaklines=true,
+        prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+        frame=single,
+        numbers=left,
+        showtabs=false,
+        showspaces=false,
+        showstringspaces=false,
+        identifierstyle=\ttfamily,
+        keywordstyle=\color[rgb]{0,0,1},
+        commentstyle=\color[rgb]{0.026,0.112,0.095},
+        stringstyle=\color[rgb]{0.627,0.126,0.941},
+        numberstyle=\color[rgb]{0.205, 0.142, 0.73},
+%        \lstdefinestyle{C++}{language=C++,style=numbers}’.
+}
+\lstset{
+    backgroundcolor=\color{lbcolor},
+    tabsize=4,
+  language=C++,
+  xleftmargin = 18pt,
+  xrightmargin = 6pt,
+  captionpos=b,
+  tabsize=3,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  breaklines=true,
+  showstringspaces=false,
+  basicstyle=\footnotesize,
+%  identifierstyle=\color{magenta},
+  keywordstyle=\color[rgb]{0,0,1},
+  keywordstyle=[2]\color{darkorchid},  
+  keywords=[2]{iparamkey,string,iparamval,BackboneJointControl,Playground},
+  commentstyle=\color{Darkgreen},
+  stringstyle=\color{red}
+  }
+
+
+
+
+
+\title{How to use the \textit{adaptive obstacle negotiation} controller in lpzrobots}
+
+% Note: only give author names, not institute
+\author{Dennis Goldschmidt}
+ 
+% insert correct institute name
+%\institute{Institute for Mathematics and Computing Science,\\
+           %University of Groningen\\}
+
+\email{goldschmidtd@ini.phys.ethz.ch}  % shows author email address below institute
+
+%\date is unused by the current \maketitle
+
+
+% The following commands can be used to alter the default logo settings
+%\leftlogo[0.9]{logoWenI}{  % defines logo to left of title (with scale factor)
+%\rightlogo[0.52]{RuGlogo}  % same but on right
+
+% NOTE: This will require presence of files logoWenI.eps and RuGlogo.eps, 
+% or other supported format in the current directory  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Begin of Document
+
+
+\begin{document}
+%define conference poster is presented at (appears as footer)
+
+%\conference{{\bf ICPR 2002}, 16th International Conference on Pattern
+ % Recognition, 11-15 August 2002, Qu\'ebec City, Canada}
+
+%\LEFTSIDEfootlogo  
+% Uncomment to put footer logo on left side, and 
+% conference name on right side of footer
+
+% Some examples of caption control (remove % to check result)
+
+%\renewcommand{\algorithmname}{Algoritme} % for Dutch
+
+%\renewcommand{\mastercapstartstyle}[1]{\textit{\textbf{#1}}}
+%\renewcommand{\algcapstartstyle}[1]{\textsc{\textbf{#1}}}
+%\renewcommand{\algcapbodystyle}{\bfseries}
+%\renewcommand{\thealgorithm}{\Roman{algorithm}}
+
+\maketitle
+
+%%% Begin of Multicols-Enviroment
+\begin{multicols}{2}
+
+File structure in git repository \textit{gorobots/master}:
+
+\vspace{0.5cm}
+
+ \tikzstyle{every node}=[draw=black,thick,anchor=west]
+\tikzstyle{selected}=[draw=red,fill=red!30]
+\tikzstyle{optional}=[dashed,fill=gray!50]
+\footnotesize
+\begin{tikzpicture}[%
+  grow via three points={one child at (0.5,-0.7) and
+  two children at (0.5,-0.7) and (0.5,-1.4)},
+  edge from parent path={(\tikzparentnode.south) -- +(-0,0pt) |- (\tikzchildnode.west)}]
+  \node [draw, align=left] {archive/dennis/amosii \\
+  /adaptive\_climbing\_control\_ii/}
+  child [missing] {}
+    child { node {include/}
+      child { node {controllers/}
+	child { node [font=\scriptsize, text=blue] {amosIIcontrol.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {BackboneJointControl.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {delayline.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {forwardmodel.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {ModularNeuralControl.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {motormapping.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {NeuralLocomotionControlAdaptiveClimbing.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {NeuralPreprocessingLearning.cpp \&.h}}
+      }
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child { node {utils/}
+	child { node {ann-framework/}
+	child { node [optional] {...}}}
+	child [missing] {}
+	child { node {ann-library/}
+		child { node [font=\scriptsize, text=blue] {adaptiveso2cpgsynplas.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {extendedso2cpg.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {pcpg.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {pmn.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {psn.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {so2cpg.cpp \&.h}}
+	child { node [font=\scriptsize, text=blue] {vrn.cpp \&.h}}
+	}
+	child [missing] {}
+	      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}
+	child { node [font=\scriptsize, text=blue] {interpolator2d.cpp \&.h}}
+      }
+      }
+            child [missing] {}				
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}
+            child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}	
+      child [missing] {}				
+      child [missing] {}
+            child [missing] {}		
+             child [missing] {}
+      child [missing] {}
+    child [missing] {}				
+    child [missing] {}				
+    child { node {sim/}
+      child { node [font=\scriptsize, text=blue] {main.cpp}}
+      child { node [font=\scriptsize, text=blue] {makefile.conf}}
+      };
+\end{tikzpicture}
+
+\normalsize
+
+%%% Introduction
+\section{Introduction}
+
+The adaptive obstacle negotiation controller was developed to enable hexapod robots to autonomously learn to overcome obstacles with a height up to 15 cm \cite{Goldschmidt2014}. Besides applying locomotion control and local leg reflexes (presented in \cite{Manoonpong2013}), its core module is the so-called adaptive Backbone Joint Control (BJC) which drives an actuated hinge joint connecting the front with the hind body segment. We implemented a correlation-based learning algorithm (ICO learning rule \cite{Porr2006}) to enable the robot to learn the optimal control in tilting up the front body when approaching an obstacle. This way, the speed and amplitude of the backbone joint motion can be adapted to various conditions of obstacle heights and walking speeds of the robot. 
+
+The controller (\textbf{amosIIcontrol}) contains control submodules (\textbf{NeuralPreprocessingLearning}, \textbf{NeuralLocomotionControlAdaptiveClimbing}) with several artificial neural networks found in \textit{ann-library} using the ANN class from \textit{ann-framework}. In \textit{/sim}, \textbf{main} handles everything of the simulation (creating the environment, the robot, etc.), while \textbf{makefile.conf} configures the files for compiling.
+
+
+
+
+\section{Setting up the controller}
+
+The main controller file is \textbf{amosIIcontrol.cpp} and handles incoming sensory inputs, control submodules, and motor outputs. In here, you should only change code to add/remove variables to plotted by the Guilogger using
+
+\begin{lstlisting}[numbers=none]
+addInspectableValue(const iparamkey& key, iparamval const* val, const std::string& descr));
+\end{lstlisting}
+
+where the first argument is a string for the variable name, the second argument is a pointer to the variable, and the third argument is a string for the description of the variable. To access variable which are defined in one of the control submodules, use the pointer to the object as prefix (e.g., \textit{\&subcontroller.variable}).
+\\ \\
+To activate or deactivate learning, just change the Boolean switch in \textbf{NeuralPreprocessingLearning.cpp}:
+
+\begin{lstlisting}[numbers = left, firstnumber = 59]
+ switchon_IRlearning = false;
+\end{lstlisting}
+
+where \texttt{true} means that the weights to the backbone joint are initially zero and are trained throughout the experiment, and \texttt{false} means that stored weights are used for given conditions (obstacle height, walking gait).
+
+\vspace{0.5cm}
+
+In \textbf{NeuralLocomotionControlAdaptiveClimbing.cpp}, you can change the following control options:
+\begin{lstlisting}[numbers = left, firstnumber = 179]
+//Switch on or off backbone joint control
+  switchon_backbonejoint = true;
+
+//Switch on or off reflexes
+  switchon_reflexes = true; // true==on, false == off
+
+//Switch on pure foot signal
+  switchon_purefootsignal = true; // 1==on using only foot signal, 0 == using forward model & foot signal
+
+//Switch on or off IR reflexes
+  switchon_irreflexes = true;
+
+//Switch on foot inhibition
+  switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+
+//Switch on soft landing  = reset to normal walking as  soon as acc error = 0
+  softlanding = false;
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+These options can switch on and off the submodules controlling reflexes and backbone joint which can be used for comparing climbing performances of the robot.  
+\section{Setting up the simulation}
+
+In order to evaluate the capabilities of the adaptive obstacle negotiation control, we implemented a series of experimental setups in \textbf{main.cpp}:
+
+\begin{lstlisting}[numbers = left, firstnumber = 126]
+      //EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
+      climbing_experiment_setup = 1;
+      for(int i=0;i<30;i++){
+          double obstacle_height = 0.01+0.01*i;
+          double obstacle_distance = 1.5;
+          if (climbing_experiment_setup) {
+            lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(obstacle_distance, 0.6,
+                    obstacle_height), 1, false);
+            playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
+            playground->setPosition(osg::Vec3(10*i, 0, .0));
+            global.obstacles.push_back(playground);
+          }
+      }
+
+
+      //EXPERIMENTAL SETUP 2: STAIRS DECREASING IN LENGTH (Finding the minimal step length x which AMOS is able to negotiate)
+      bool stair_experiment_setup = 1;
+      if (stair_experiment_setup) {
+        lpzrobots::Playground* stair1 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0, 2.0
+            * steplength, 0.01*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair2 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + 2.0
+            * steplength, 1.0 * steplength, 0.02*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair3 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (2.0
+            + 1.0) * steplength, 0.5 * steplength, 0.03*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair4 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.5
+            + 2.0 + 1.0) * steplength, 0.25 * steplength, 0.04*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair5 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5) * steplength, 0.25 * steplength, 0.05*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair6 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5 + 0.25) * steplength, 0.25 * steplength, 0.06*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair7 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5 + 0.5) * steplength, 0.25 * steplength, 0.07*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair8 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5 + 0.75) * steplength, 0.25 * steplength, 0.08*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair9 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5 + 0.75 + 0.5) * steplength, 0.5 * steplength, 0.09*(climb_height+1)), 1, false);
+        lpzrobots::Playground* stair10 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (0.25
+            + 2.0 + 1.0 + 0.5 + 0.75 + 0.5 + 0.75) * steplength, 2.0 * steplength, 0.1*(climb_height+1)), 1, false);
+
+        stair1->setPosition(osg::Vec3(0, 0, .0));
+        stair2->setPosition(osg::Vec3(0, 0, .0));
+        stair3->setPosition(osg::Vec3(0, 0, .0));
+        stair4->setPosition(osg::Vec3(0, 0, .0));
+        stair5->setPosition(osg::Vec3(0, 0, .0));
+        stair6->setPosition(osg::Vec3(0, 0, .0));
+        stair7->setPosition(osg::Vec3(0, 0, .0));
+        stair8->setPosition(osg::Vec3(0, 0, .0));
+        stair9->setPosition(osg::Vec3(0, 0, .0));
+        stair10->setPosition(osg::Vec3(0, 0, .0));
+
+        global.obstacles.push_back(stair1);
+        global.obstacles.push_back(stair2);
+        global.obstacles.push_back(stair3);
+        global.obstacles.push_back(stair4);
+        global.obstacles.push_back(stair5);
+        global.obstacles.push_back(stair6);
+        global.obstacles.push_back(stair7);
+        global.obstacles.push_back(stair8);
+        global.obstacles.push_back(stair9);
+        global.obstacles.push_back(stair10);
+      }
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+The first setup is a single obstacle with a variable height (here between 1 and 30 cm). The variable defining the height is called \texttt{climb\_height} (integer, default value $= 2$). Note, that \texttt{climb\_height} $= i$ means $i+1$ cm obstacle height. If learning is activated, the robot approaches the obstacle repeatedly until the weights converge, then increasing the obstacle height by 1 cm. After completing all obstacle heights, the gait parameter is increased as well. If learning is deactivated, the climbing performance using stored weights is tested in 30 trials. 
+
+\vspace{0.5cm}
+
+The second setup is a staircase with varying step lengths. It has been used to show the versatility of the controller. The robot shows successful climbing for step heights up to about 8 cm (see Supplementary Video S2 in \cite{Goldschmidt2014}). 
+
+\vspace{0.5cm}
+
+There are also in-built keyboard commands to control the experiment:
+
+\begin{itemize}
+ \item \keystroke{B}: Switches the BJC on/off,
+ \item \keystroke{N}: Skips the current obstacle height ($h \rightarrow h+1$ cm),
+ \item \keystroke{R}: Resets the robot to its initial position (default: $x=0$, $y=0$),
+ \item \keystroke{S}: Skips the current gait parameter ($c \rightarrow c+0.01$),
+ \item \keystroke{X}: Releases the robot fixator, if used.
+\end{itemize}
+
+
+\section{Using BJC for your own project}
+
+In order to use BJC for obstacle negotiation behavior in any hexapod robot, you have to make sure to fulfil following requirements for the robot:
+
+\begin{itemize}
+ \item an actuated body joint (called here \texttt{y\_[BJ\_m]}),
+ \item a proximity sensor, such as ultrasonic or infrared sensors, attached to the front (called here \texttt{x\_[front\_s]}),
+ \item and sufficient locomotion control.
+\end{itemize}
+
+Here is a minimal example of how to use BJC in your controller cpp file. Copy \textbf{BackboneJointControl.cpp \&.h} to your controller folder and create a BJC object in the preamble of your controller cpp file:
+
+\begin{lstlisting}[numbers=none]
+//Backbone Joint Control constructor
+  bjc = new BackboneJointControl();
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+Then copy this to your time step function:
+  
+\begin{lstlisting}[numbers=none]
+  bjc->setInput(0, x_[front_s]);
+  bjc->setInput(1, 0.5 * (x_[front_Rfoot_s] + x_[front_Lfoot_s])); // front foot contact sensors (not necessary)
+  bjc->setInput(2, std::max(0., bjc->getOutput(6)));
+  bjc->setInput(3, std::min(0., bjc->getOutput(6)));
+  bjc->step();
+
+  y_[BJ_m] = bjc->getOutput(6);
+\end{lstlisting}
+Here, we added input from both front foot contact sensors to drive the backbone joint downwards for more stability (see \cite{Goldschmidt2014} for more details).
+
+\vspace{0.5cm}
+
+In the header file of your controller, include
+
+\begin{lstlisting}[numbers=none]
+//Backbone Joint Control
+  BackboneJointControl* bjc;
+\end{lstlisting}
+
+to declare the pointer to the BJC. Note that this simple example does \underline{not} include the learning algorithm for the adaptive BJC. However, it allows the backbone joint of the robot to respond reactively to obstacles detected by the proximity sensor. 
+
+
+%%% References
+
+%% Note: use of BibTeX als works!!
+
+\bibliographystyle{plain}
+\bibliography{manual}
+
+\end{multicols}
+
+\end{document}
+
