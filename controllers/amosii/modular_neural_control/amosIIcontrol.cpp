@@ -90,12 +90,13 @@ else
   //1) Neural preprocessing plotting-----
   if(MCPGs==true)
   {
-  addInspectableValue("CPG.R0_0",&control_adaptiveclimbing.at(0)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
-  addInspectableValue("CPG.R0_1",&control_adaptiveclimbing.at(0)->cpg_output.at(1),"CPG.R0_1");
-  addInspectableValue("CPG.R1_0",&control_adaptiveclimbing.at(1)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
-  addInspectableValue("CPG.R1_1",&control_adaptiveclimbing.at(1)->cpg_output.at(1),"CPG.R0_1");
-  addInspectableValue("CPG.R2_0",&control_adaptiveclimbing.at(2)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
-  addInspectableValue("CPG.R2_1",&control_adaptiveclimbing.at(2)->cpg_output.at(1),"CPG.R0_1");
+   // press Ctrl M to display matrix
+  addInspectableValue("CPG[0]",&control_adaptiveclimbing.at(0)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
+  addInspectableValue("CPG[1]",&control_adaptiveclimbing.at(0)->cpg_output.at(1),"CPG.R0_1");
+  addInspectableValue("CPG[2]",&control_adaptiveclimbing.at(1)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
+  addInspectableValue("CPG[3]",&control_adaptiveclimbing.at(1)->cpg_output.at(1),"CPG.R0_1");
+  addInspectableValue("CPG[4]",&control_adaptiveclimbing.at(2)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
+  addInspectableValue("CPG[5]",&control_adaptiveclimbing.at(2)->cpg_output.at(1),"CPG.R0_1");
 
   addInspectableValue("CPG.L0_0",&control_adaptiveclimbing.at(3)->cpg_output.at(0),"CPG.R0_0"); // cpg0 control leg R0
      addInspectableValue("CPG.L0_1",&control_adaptiveclimbing.at(3)->cpg_output.at(1),"CPG.R0_1");
