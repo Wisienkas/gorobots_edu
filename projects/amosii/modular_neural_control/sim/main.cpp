@@ -85,7 +85,7 @@ public:
 		bool climbing_experiment_setup = true;
 		if (climbing_experiment_setup) {
 			lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
-					0.10), 1, false);
+					0.07), 1, false);
 			playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
 			playground->setPosition(osg::Vec3(0, 0, .0));
 			global.obstacles.push_back(playground);
@@ -183,7 +183,11 @@ public:
 		// put amos a little bit in the air
 		amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
 
-		controller = new AmosIIControl();//TripodGait18DOF();
+
+		//controller = new AmosIIControl();//TripodGait18DOF();
+
+		controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/false,/*Muscle Model =true*/false);
+
 		// create wiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
@@ -233,40 +237,40 @@ public:
 				std::cout << "RESET" << endl;
 				break;
 			case 'b':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
+				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint) {
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
 					std::cout << "BJC is OFF" << endl;
 				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = true;
 					((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
 					std::cout << "BJC is ON" << endl;
 				}
 				break;
 			case 'a':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle = false;
+				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle) {
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle = false;
 					std::cout << "OA is OFF" << endl;
 				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_obstacle = true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
 					std::cout << "OA is ON" << endl;
 				}
 				break;
 
 			case 'e':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=false;
+				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions) {
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
 					std::cout << "Reflex is OFF" << endl;
 				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_allreflexactions = true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_reflexes=true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_irreflexes=true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_purefootsignal=true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=true;
+					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=true;
 					std::cout << "Reflex is ON" << endl;
 				}
 				break;
@@ -303,10 +307,10 @@ public:
 		{
 			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
 					&& ((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.m.at(BJ_m) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.switchon_backbonejoint = false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(0) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(5) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->m.at(BJ_m) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
 				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
 				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
 			}

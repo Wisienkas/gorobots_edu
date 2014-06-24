@@ -88,7 +88,7 @@ nimm4_doublePole::nimm4_doublePole(const OdeHandle& odeHandle, const OsgHandle& 
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
  */
-void nimm4_doublePole::setMotors(const motor* motors, int motornumber){
+void nimm4_doublePole::setMotorsIntern(const motor* motors, int motornumber){
 	assert(created); // robot must exist
 	// the number of controlled motors is minimum of
 	// "number of motorcommands" (motornumber) and
@@ -108,7 +108,7 @@ void nimm4_doublePole::setMotors(const motor* motors, int motornumber){
       @param sensornumber length of the sensor array
       @return number of actually written sensors
  */
-int nimm4_doublePole::getSensors(sensor* sensors, int sensornumber){
+int nimm4_doublePole::getSensorsIntern(sensor* sensors, int sensornumber){
 	assert(created); // robot must exist
 
 	// the number of sensors to read is the minimum of
@@ -138,7 +138,7 @@ int nimm4_doublePole::getSensors(sensor* sensors, int sensornumber){
 };
 
 
-void nimm4_doublePole::place(const osg::Matrix& pose){
+void nimm4_doublePole::placeIntern(const osg::Matrix& pose){
 	// the position of the robot is the center of the body (without wheels)
 	// to set the vehicle on the ground when the z component of the position is 0
 	// width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -152,22 +152,28 @@ void nimm4_doublePole::place(const osg::Matrix& pose){
  * updates the osg notes
  */
 void nimm4_doublePole::update(){
+
+	OdeRobot::update();
+
 	assert(created); // robot must exist
 
-	for (unsigned int i=0; i<objects.size(); i++) { // update objects
+	/*for (unsigned int i=0; i<objects.size(); i++) { // update objects
 		objects[i]->update();
 	}
 
 	for (unsigned int i=0; i < joints.size(); i++) { // update joints //change here
 		joints[i]->update();
 	}
+*/
+
 
 	if (inquireFailure())
 	{
 		//std::cout <<"Failure" << std::endl;
 		double xDisplace;
 		if (controller) xDisplace=((newACICO*)controller)->indexX; else xDisplace = 0;
-		((OdeRobot*)this)->place(Pos(xDisplace,1,0.2));
+		//((OdeRobot*)this)->place(Pos(xDisplace,1,0.2));
+		((OdeRobot*)this)->place(osg::Matrix::translate(xDisplace,1,0.2) * osg::Matrix::rotate(0.0, 0, 0, 0));
 		if (controller) ((newACICO*)controller)->failure_flag = 1;
 		//((Box*)objects[5])->setPose();   // (Matrix::rotate(0, 0, 0, 0) * Matrix::translate(0,0,0));
 	}
@@ -177,7 +183,10 @@ void nimm4_doublePole::update(){
       like space-internal collision detection, sensor resets/update etc.
       @param global structure that contains global data from the simulation environment
  */
-void nimm4_doublePole::doInternalStuff(GlobalData& global){}
+void nimm4_doublePole::doInternalStuff(GlobalData& global){
+
+	 OdeRobot::doInternalStuff(global);
+}
 
 /** creates vehicle at desired pose
       @param pose matrix with desired position and orientation

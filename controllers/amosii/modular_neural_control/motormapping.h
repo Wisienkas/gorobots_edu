@@ -17,8 +17,13 @@
 class Mapping{
   public:
     Mapping();
+    Mapping(int amosVersion);
     double getDegrees(int motor, double reflex); //converts neural motor signals to degrees
+    double getDegrees(int motor, double reflex,int amosVersion);
     double getReflex(int motor, double motorvalue, double fmodel_error); //converts neural motor signals to motor signals used for reflexes
+  //  double getReflex(int motor, double motorvalue, double fmodel_error,double offset_Lift); //converts neural motor signals to motor signals used for reflexes
+    double getReflex(int motor, double motorvalue, double fmodel_error,int amosVersion,double offset_Lift=0);
+    // double applyLift(int motor, double motorvalue, double fmodel_error);
     double getElevator(int motor); //return leg lift for elevator reflex
     int getIRsensor(int motor);
     bool TC(int motor);

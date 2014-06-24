@@ -21,6 +21,7 @@ class PSN;
 class VRN;
 class PMN;
 class AdaptiveSO2CPGSynPlas;
+class NeuralLocomotionControlAdaptiveClimbing;
 //class ModularNeuralControl;
 
 
@@ -40,7 +41,7 @@ public:
     void setInputVrnLeft(int input, double value);
     void setInputVrnRight(int input, double value);
     void setInputPsn(int input, double value);
-
+    void setCpgOutput(int neuron,double value);
     void setInputNeuronInput(int input, double value);
     void setInputMotorNeuronInput(int input, double value);
     double getMotorNeuronActivity(AmosIIMotorNames motor);
@@ -49,8 +50,28 @@ public:
     double cpg_bias;
     double getCpgWeight(int neuron1, int neuron2);
     double getCpgBias(int neuron);
+    void enableoscillatorsCoupling(bool mMCPGs);
+    void disableoscillatorsCoupling();
 
+    void enableContactForce(bool MCPGs);
+    void disableContactForce();
+/**********************************/
 
+    bool oscillatorsCouplingIsEnabled;
+       std::vector<double> currentActivity;
+       double delta[6][6];
+       double cnctCoeffMat[6][6];
+     void  changeControlInput(double new_ControlInput);
+    void changeGaitpattern(int gaitPattern);
+    virtual void step();
+    virtual void step(int CPGID, std::vector<NeuralLocomotionControlAdaptiveClimbing*> NLCAC,const std::vector<double> x);
+    bool contactForceIsEnabled;
+    double oscillatorcouple1;
+    double oscillatorcouple0;
+    double ContactForceEffect1;
+    double ContactForceEffect0;
+
+/*************************************/
 
 private:
     SO2CPG * cpg;
