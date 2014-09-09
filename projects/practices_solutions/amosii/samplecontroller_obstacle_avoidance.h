@@ -20,6 +20,9 @@ typedef struct EmptyControllerConf {
     double fact;
     double direction;
     double bias;
+
+    double TR;
+    double TL;
 } EmptyControllerConf;
 
 
@@ -46,9 +49,13 @@ class EmptyController : public AbstractController {
       conf.WeightH1_H2 = 0.4;
       conf.WeightH2_H1 = -0.4;
       conf.fact = 0.3; //0.7;
-      conf.direction = -1;
+      conf.direction = 1;
       conf.bias = 0.0; //negative is legs up
 
+      addInspectableValue("outputH1", &outputH1,"outputH1");
+      addInspectableValue("outputH2", &outputH2,"outputH2");
+      addInspectableValue("conf.TR", &conf.TR,"conf.TR");
+      addInspectableValue("conf.TL", &conf.TL,"conf.TL");
     };
 
 
@@ -101,29 +108,68 @@ class EmptyController : public AbstractController {
 
       // generate motor commands
       // right rear coxa (knee) forward-backward joint (back is positive)
-      y_[TR2_m] = outputH2 * conf.fact + conf.bias;
-      y_[CR2_m] = outputH1 * conf.fact * conf.direction;
-      y_[FR2_m] = -y_[1];
+//      y_[TR2_m] = outputH2 * conf.fact + conf.bias;
+//      y_[CR2_m] = outputH1 * conf.fact * conf.direction;
+//      y_[FR2_m] = -y_[1];
+//      //left rear coxa (knee) forward-backward joint
+//      y_[TL2_m] = -outputH2 * conf.fact + conf.bias;
+//      y_[CL2_m] = -outputH1 * conf.fact * conf.direction;
+//      y_[FL2_m] = -y_[4];
+//      //right middle coxa (knee) forward-backward joint
+//      y_[TR1_m] = -outputH2 * conf.fact + conf.bias;
+//      y_[CR1_m] = -outputH1 * conf.fact * conf.direction;
+//      y_[FR1_m] = -y_[7];
+//      //left middle coxa (knee) forward-backward joint
+//      y_[TL1_m] = outputH2 * conf.fact + conf.bias;
+//      y_[CL1_m] = outputH1 * conf.fact * conf.direction;
+//      y_[FL1_m] = -y_[10];
+//      //right front coxa (knee) forward-backward joint
+//      y_[TR0_m] = outputH2 * conf.fact + conf.bias;
+//      y_[CR0_m] = outputH1 * conf.fact * conf.direction;
+//      y_[FR0_m] = -y_[13];
+//      //left front coxa (knee) forward-backward joint
+//      y_[TL0_m] = -outputH2 * conf.fact + conf.bias;
+//      y_[CL0_m] = -outputH1 * conf.fact * conf.direction;
+//      y_[FL0_m] = -y_[16];
+//      // backbone joint
+//      y_[BJ_m] = 0;
+
+      conf.TL = 1.0;
+
+      if(x_[FL_us]>0.35)
+    	  conf.TR = -1.0;
+      else
+    	  conf.TR = 1.0;
+
+
+      if(x_[FR_us]>0.35)
+    	  conf.TR = -1.0;
+      else
+    	  conf.TR = 1.0;
+
+      y_[TR2_m] = outputH1 * conf.fact * conf.direction * conf.TL+ conf.bias;
+      y_[CR2_m] = outputH2 * conf.fact*0.7 ;
+      y_[FR2_m] = 0;//-y_[1];//outputH2*0.1;//
       //left rear coxa (knee) forward-backward joint
-      y_[TL2_m] = -outputH2 * conf.fact + conf.bias;
-      y_[CL2_m] = -outputH1 * conf.fact * conf.direction;
-      y_[FL2_m] = -y_[4];
+      y_[TL2_m] = -outputH1 * conf.fact * conf.direction * conf.TR+ conf.bias;
+      y_[CL2_m] = -outputH2 * conf.fact*0.7 ;
+      y_[FL2_m] = 0;//-y_[4];//-outputH2*0.1;//
       //right middle coxa (knee) forward-backward joint
-      y_[TR1_m] = -outputH2 * conf.fact + conf.bias;
-      y_[CR1_m] = -outputH1 * conf.fact * conf.direction;
-      y_[FR1_m] = -y_[7];
+      y_[TR1_m] = -outputH1 * conf.fact * conf.direction * conf.TL+ conf.bias;
+      y_[CR1_m] = -outputH2 * conf.fact*0.7 ;
+      y_[FR1_m] = 0;//-y_[7];//-outputH2*0.1;//
       //left middle coxa (knee) forward-backward joint
-      y_[TL1_m] = outputH2 * conf.fact + conf.bias;
-      y_[CL1_m] = outputH1 * conf.fact * conf.direction;
-      y_[FL1_m] = -y_[10];
+      y_[TL1_m] = outputH1 * conf.fact * conf.direction * conf.TR+ conf.bias;
+      y_[CL1_m] = outputH2 * conf.fact*0.7 ;
+      y_[FL1_m] = 0;//-y_[10];//outputH2*0.1;//
       //right front coxa (knee) forward-backward joint
-      y_[TR0_m] = outputH2 * conf.fact + conf.bias;
-      y_[CR0_m] = outputH1 * conf.fact * conf.direction;
-      y_[FR0_m] = -y_[13];
+      y_[TR0_m] = outputH1 * conf.fact * conf.direction * conf.TL + conf.bias;
+      y_[CR0_m] = outputH2 * conf.fact*0.7 ;
+      y_[FR0_m] = 0;//-y_[13];//outputH2*0.1;//
       //left front coxa (knee) forward-backward joint
-      y_[TL0_m] = -outputH2 * conf.fact + conf.bias;
-      y_[CL0_m] = -outputH1 * conf.fact * conf.direction;
-      y_[FL0_m] = -y_[16];
+      y_[TL0_m] = -outputH1 * conf.fact * conf.direction * conf.TR+ conf.bias;
+      y_[CL0_m] = -outputH2 * conf.fact*0.7 ;
+      y_[FL0_m] = 0;//-y_[16];//-outputH2*0.1;//
       // backbone joint
       y_[BJ_m] = 0;
 

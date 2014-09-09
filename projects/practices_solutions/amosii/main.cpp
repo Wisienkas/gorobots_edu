@@ -34,8 +34,8 @@
 #include <ode_robots/amosII.h>
 
 // include the controller
-#include "emptycontroller.h"
-
+//#include "emptycontroller.h"
+#include "samplecontroller_obstacle_avoidance.h"
 // OR an examplecontroller of previous students
 //#include "examplecontroller_d_buchwald.h"
 //#include "examplecontroller_m_schoeler.h"
