@@ -29,6 +29,11 @@ class EmptyController : public AbstractController {
 
       outputH1 = 0.001;
       outputH2 = 0.001;
+
+      // plot parameters using GUI "To display GUI, in terminal, type ./start -g 1 "
+      addInspectableValue("outputH1", &outputH1,"outputH1");
+      addInspectableValue("outputH2", &outputH2,"outputH2");
+
     };
 
 
