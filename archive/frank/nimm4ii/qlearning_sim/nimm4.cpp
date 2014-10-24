@@ -189,8 +189,7 @@ Nimm4::Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		for (std::vector<Primitive*>::iterator it = conf_.rpos_sensor_references.begin(); it<conf_.rpos_sensor_references.end();it++){
 			RelativePositionSensor rpos_sens_tmp(/*max distance for normalization*/ 1,
 					/*exponent for sensor characteristic*/ 1,
-					/*dimensions to sense*/ Sensor::X|   //X
-					Sensor::Y|Sensor::Z, // use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+					/*dimensions to sense*/ Sensor::XYZ, // use Z as x-coordinate ( robot was created with vertical capsule or something like that)
 					/*local_coordinates*/ true);
 			rpos_sens_tmp.setReference(*it);
 			rpos_sensor.push_back(rpos_sens_tmp);
@@ -208,7 +207,7 @@ Nimm4::Nimm4(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
       @param motors motors scaled to [-1,1] 
       @param motornumber length of the motor array
  */
-void Nimm4::setMotors(const motor* motors, int motornumber){
+void Nimm4::setMotorsIntern(const motor* motors, int motornumber){
 	assert(created); // robot must exist
 	// the number of controlled motors is minimum of
 	// "number of motorcommands" (motornumber) and
@@ -228,7 +227,7 @@ void Nimm4::setMotors(const motor* motors, int motornumber){
       @param sensornumber length of the sensor array
       @return number of actually written sensors
  */
-int Nimm4::getSensors(sensor* sensors, int sensornumber){
+int Nimm4::getSensorsIntern(sensor* sensors, int sensornumber){
 	assert(created); // robot must exist
 	assert (sensornumber = sensorno);  // sensornumbers must match
 	int len = 0;
@@ -243,7 +242,7 @@ int Nimm4::getSensors(sensor* sensors, int sensornumber){
 	if (rpos_sensing_active) {
 		for (std::vector<RelativePositionSensor>::iterator it = rpos_sensor.begin(); it<rpos_sensor.end();it++){
 
-			std::list<sensor> rps_val = it->get();
+			std::list<sensor> rps_val = it->getList();//it->get();
 					for (int i=0; i<it->getSensorNumber(); i++){
 						sensors[len]=rps_val.back();  // z is taken as first value,
 						// since it is x in local coordinates (see above)
@@ -252,6 +251,7 @@ int Nimm4::getSensors(sensor* sensors, int sensornumber){
 						rps_val.pop_back();
 						len++;
 					}
+
 		}
 
 		// temp, to show angle in sensorvalues
@@ -264,7 +264,7 @@ int Nimm4::getSensors(sensor* sensors, int sensornumber){
 };
 
 
-void Nimm4::place(const osg::Matrix& pose){
+void Nimm4::placeIntern(const osg::Matrix& pose){
 	// the position of the robot is the center of the body (without wheels)
 	// to set the vehicle on the ground when the z component of the position is 0
 	// width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -278,6 +278,9 @@ void Nimm4::place(const osg::Matrix& pose){
  * updates the osg notes
  */
 void Nimm4::update(){
+
+	OdeRobot::update();
+
 	assert(created); // robot must exist
 
 	for (int i=0; i<segmentsno; i++) { // update objects
@@ -293,7 +296,11 @@ void Nimm4::update(){
       like space-internal collision detection, sensor resets/update etc.
       @param global structure that contains global data from the simulation environment
  */
-void Nimm4::doInternalStuff(GlobalData& global){}
+void Nimm4::doInternalStuff(GlobalData& global){
+
+
+	 OdeRobot::doInternalStuff(global);
+}
 
 /** creates vehicle at desired pose
       @param pose matrix with desired position and orientation
