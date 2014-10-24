@@ -173,7 +173,7 @@ namespace lpzrobots {
   }
   ;
   
-  int AmosII::getMotorNumber() {
+  int AmosII::getMotorNumberIntern() {
 //    return  2*hipservos.size();
     return coxaservos.size() + secondservos.size() + /*conf.useTebiaJoints **/tebiaservos.size() + conf.useBack;
     std::cout << "motornumber:"
@@ -185,7 +185,7 @@ namespace lpzrobots {
    @param motors motors scaled to [-1,1]
    @param motornumber length of the motor array
    */
-  void AmosII::setMotors(const motor* motors, int motornumber) {
+  void AmosII::setMotorsIntern(const motor* motors, int motornumber) {
 #ifdef VERBOSE
     std::cout << "begin set motors \n";
 #endif
@@ -237,7 +237,7 @@ namespace lpzrobots {
   
   //%%%%%%%%%%%%%%%%%%%%%%%%%Default Sensors as Real robot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
   
-  int AmosII::getSensorNumber() {
+  int AmosII::getSensorNumberIntern() {
     
     //-1)---------Add number of sensors
     return coxaservos.size() + secondservos.size() + tebiaservos.size() + conf.useBack + irSensorBank.size()
@@ -259,7 +259,7 @@ namespace lpzrobots {
    @param sensornumber length of the sensor array
    @return number of actually written sensors
    */
-  int AmosII::getSensors(sensor* sensors, int sensornumber) {
+  int AmosII::getSensorsIntern(sensor* sensors, int sensornumber) {
     
 #ifdef VERBOSE
     std::cout << "begin get sensors \n";
@@ -377,7 +377,7 @@ namespace lpzrobots {
   
   //%%%%%%%%%%%%%%%%%%%%%%%%%Default Sensors as Real robot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
   
-  void AmosII::place(const osg::Matrix& pose) {
+  void AmosII::placeIntern(const osg::Matrix& pose) {
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
