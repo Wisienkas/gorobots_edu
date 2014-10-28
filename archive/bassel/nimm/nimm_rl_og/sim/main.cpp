@@ -52,7 +52,6 @@ bool drawtrace_on = false;//true;//---------------------------------------------
 
 bool random_positon_spheres = false;
 bool random_positon = false;//true;
-bool random_positon_frist = false;//-------------------------------------------------CH
 bool random_orientation = false;
 
 #define MAX_x   11.0//10.0 //11.0//9.0	//Max range-------------------------------------------------CH VERY IMPORTANT FACTOR
@@ -232,34 +231,16 @@ public:
 			}
 			vehicle3 = new FourWheeledRPos(odeHandle, osgHandle, fconf);
 			/****Initial position of Nimm4******/
-			if(random_positon_frist)
-			{
-				/*******Generating Random Position****/
-				// Input 0 (m) between -2.4 and 2.4
-				random_position  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
-				/************************************/
-				do
-				{
-					int r = rand();
-					std::cout << "random value 1: " << r << std::endl;
-					random_position  = ((MAX_x-MIN_x)*((float)r/RAND_MAX))+MIN_x;
-				}while(abs(abs(position_S) - abs(random_position)) <= 4);
-				std::cout<<"\n\n"<<"Inital Random X position"<<" = "<<random_position<<"\t"<<"Inital Random Y position"<<" = "<<-1*random_position<<"\n\n";
-				//vehicle3->place(Pos(position_x-10.0 /* 20 random_position*/  /*+x = to left (sphere in front of robot), -x = to right sphere behind robot*/, 0.0 /*-1*random_position*/ /*+y = to up, -y = to down*/,0.0/*z*/));
-				vehicle3->place(Pos(position_x-15.0 /* 20 random_position*/  /*+x = to left (sphere in front of robot), -x = to right sphere behind robot*/, 0.0 /*-1*random_position*/ /*+y = to up, -y = to down*/,0.0/*z*/));
-			}
-			else
-			{
-				/*******Generating Random Position****/
-				int r = rand();
-				std::cout << "random value 2: " << r << std::endl;
-				random_or  = -PI/2.0;//((MAX_or-MIN_or)*((float)r/RAND_MAX))+MIN_or; // between -pi/3 (60 deg) and pi/3 (60 deg)
-				/************************************/
-				Pos pos(position_x-8.0/*, +x = to left, -x = to right*/,-11.0/*y*/,0.0/*z*/);
-				std::cout << "random_or1: " << random_or << std::endl;
-				//setting position and orientation
-				vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
-			}
+
+			/*******Generating Random Position****/
+			int r = rand();
+			std::cout << "random value 2: " << r << std::endl;
+			random_or  = -PI/2.0;//((MAX_or-MIN_or)*((float)r/RAND_MAX))+MIN_or; // between -pi/3 (60 deg) and pi/3 (60 deg)
+			/************************************/
+			Pos pos(position_x-8.0/*, +x = to left, -x = to right*/,-11.0/*y*/,0.0/*z*/);
+			std::cout << "random_or1: " << random_or << std::endl;
+			//setting position and orientation
+			vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
 
 
 			//AC Lernen
@@ -311,8 +292,8 @@ public:
 			}
 
 			agent3->init(qcontroller, vehicle3, wiring3);///////////// Initial controller!!!
+			vehicle3->storeToFile("vehicle_init.rob");
 			global.agents.push_back(agent3);
-
 		}
 
 		////////////////////////////////////Another set up and Control//////////////////////////////////////////////
@@ -507,7 +488,14 @@ public:
 		/************************************/
 		Pos pos(position_x-8.0/*, +x = to left, -x = to right*/,-11.0/*y*/,0.0/*z*/);
 		//setting position and orientation
-		vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
+
+		vehicle3->restoreFromFile("vehicle_init.rob");
+		//vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
+
+		//vehicle3->moveToPose(ROTM(M_PI_2,0,-1,0)* // rotate body (capsule such that it is horizontal)
+		//ROTM(random_or,0,0,1)* // rotate to direction
+		//TRANSM(pos));
+
 	}
 
 	virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
