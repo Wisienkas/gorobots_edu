@@ -23,195 +23,347 @@
  *                                                                         *
  ***************************************************************************/
 
-// include simulation environment stuff
 #include <ode_robots/simulation.h>
-// include agent (class for holding a robot, a controller and a wiring)
+
 #include <ode_robots/odeagent.h>
-// playground
 #include <ode_robots/playground.h>
 #include <ode_robots/complexplayground.h>
 #include <ode_robots/terrainground.h>
 #include <ode_robots/passivebox.h>
+
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/noisegenerator.h>
-// simple wiring
 #include <selforg/one2onewiring.h>
-// the robot
-#include <ode_robots/amosII.h>
-// the controller
+
+#include "amosII.h"
 #include "controllers/amosIIcontrol.h"
-// joint needed for fixation of the robot in the beginning
-#include <ode_robots/joint.h>
 
-// add head file for creating a sphere by Ren ------------
-#include <ode_robots/passivesphere.h>
-//#include <ode_robots/passivebox.h>
-#include <selforg/abstractcontroller.h>
-#include <ode_robots/color.h>
-#include <iostream>
-using namespace std;
-std::vector<lpzrobots::AbstractObstacle*> obst;
-//std::vector<lpzrobots::FixedJoint*> fixator;
-// add head file for creating a sphere by Ren ------------
+#include <selforg/trackrobots.h>
 
-class ThisSim : public lpzrobots::Simulation {
+// fetch all the stuff of lpzrobots into scope
+using namespace lpzrobots;
+
+class ThisSim : public Simulation {
   public:
-
-  ThisSim(){
-    addPaletteFile("colors/UrbanExtraColors.gpl");
-    addColorAliasFile("colors/UrbanColorSchema.txt");
-    // you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
-    // addColorAliasFile("myColorSchema.txt");
-    setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
-    //setTitle("centered text");
-    //setCaption("right aligned text");
-  }
-
-    /**
-     * starting function (executed once at the beginning of the simulation loop)
-     */
-    virtual void start(const lpzrobots::OdeHandle& odeHandle,
-        const lpzrobots::OsgHandle& osgHandle,
-        lpzrobots::GlobalData& global) {
-      // set initial camera position
-      setCameraHomePos(
-          lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
-          lpzrobots::Pos(178.866, -7.43884, 0));
-
-      // set simulation parameters
-      global.odeConfig.setParam("controlinterval", 20);
-      global.odeConfig.setParam("simstepsize", 0.005);
-
-      // add playground
-      lpzrobots::Playground* playground 
-        = new lpzrobots::Playground(odeHandle, osgHandle, 
-                                    osg::Vec3(10, 0.2, 0.3)); 
-      playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
-      playground->setPosition(osg::Vec3(0,0,.0));
-      global.obstacles.push_back(playground);
-
-      //----------create a sphere as the target by Ren-----------------------------
-      //the first sphere
-      lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-      s1->setTexture("Images/dusty.rgb");
-      s1->setColor(lpzrobots::Color(1,0,0));
-      obst.push_back(s1);
-      global.obstacles.push_back(s1);
-      lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-      fixator1->init(odeHandle, osgHandle);
-
-      //the second sphere
-      lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-      s2->setTexture("Images/dusty.rgb");
-      s2->setColor(lpzrobots::Color(0,1,0));
-      obst.push_back(s2);
-      global.obstacles.push_back(s2);
-      lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-      fixator2->init(odeHandle, osgHandle);
-
-      //the third sphere
-      lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-      s3->setTexture("Images/dusty.rgb");
-      s3->setColor(lpzrobots::Color(0,0,1));
-      obst.push_back(s3);
-      global.obstacles.push_back(s3);
-      lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-      fixator3->init(odeHandle, osgHandle);
-
-      //----------create a sphere as the target by Ren-----------------------------
-
-      // Add amosII robot
-      lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-      myAmosIIConf.rubberFeet = true;
-      lpzrobots::OdeHandle rodeHandle = odeHandle;
-      rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
-      //------------------- Link the sphere to the Goal Sensor by Ren---------------
-      for(int i = 0; i<obst.size(); i++)
-      {
-    	  myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
-      }
-      //------------------- Link the sphere to the Goal Sensor by Ren---------------
-      amos = new lpzrobots::AmosII(
-    		  rodeHandle,
-    		  osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
-    		  myAmosIIConf, "AmosII");
-
-      // define the usage of the individual legs
-//      amos->setLegPosUsage(amos->L0, amos->LEG);
-//      amos->setLegPosUsage(amos->L1, amos->LEG);
-//      amos->setLegPosUsage(amos->L2, amos->LEG);
-//      amos->setLegPosUsage(amos->R0, amos->LEG);
-//      amos->setLegPosUsage(amos->R1, amos->LEG);
-//      amos->setLegPosUsage(amos->R2, amos->LEG);
-
-      // put amos a little bit in the air
-      amos->place(osg::Matrix::translate(.0, .0, 0.5));
-
-      controller = new AmosIIControl();//TripodGait18DOF();
-      // create wiring
-      One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
-
-      // create agent and init it with controller, robot and wiring
-      lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
-      agent->init(controller, amos, wiring);
-
-      // create a fixed joint to hold the robot in the air at the beginning
-      robotfixator = new lpzrobots::FixedJoint(
-          amos->getMainPrimitive(),
-          global.environment);
-      robotfixator->init(odeHandle, osgHandle, false);
-
-      // inform global variable over everything that happened:
-      global.configs.push_back(amos);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-
-      std::cout << "\n\n"
-          << "################################\n"
-          << "#   Press x to free amosII!    #\n"
-          << "################################\n"
-          << "\n\n" << std::endl;
-
-    }
-
-    /**
-     * add own key handling stuff here, just insert some case values
-     */
-    virtual bool command(const lpzrobots::OdeHandle&,
-        const lpzrobots::OsgHandle&,
-        lpzrobots::GlobalData& globalData,
-        int key,
-        bool down)
-        {
-      if (down) { // only when key is pressed, not when released
-        switch (char(key)) {
-          case 'x':
-            if (robotfixator) {
-              std::cout << "dropping robot" << std::endl;
-              delete robotfixator;
-              robotfixator = NULL;
-            }
-            break;
-          default:
-            return false;
-            break;
-        }
-      }
-      return false;
-    }
-  protected:
-    lpzrobots::Joint* robotfixator;
+    
     AbstractController* controller;
-    lpzrobots::AmosII* amos;
+    OdeRobot* robot;
+
+    // starting function (executed once at the beginning of the simulation loop)
+    void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) {
+      // set initial camera position
+      setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832), Pos(178.866, -7.43884, 0));
+      
+      // set simulation parameters
+      global.odeConfig.setParam("controlinterval", 20 /*Set update frequency of the simulation*/); //was 10
+      global.odeConfig.setParam("simstepsize", 0.005); //was 0.01 (martin)
+      //Update frequency of simulation = 20*0.005 = 0.1 s ; 10 Hz
+      
+      /*******  Begin Modify Environment *******/
+
+      // Possibility to add Playground as boundary:
+      // to activate change false to true
+      bool use_playground = false;
+      if (use_playground) {
+        Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
+        playground->setColor(Color(0, 0, 0, 0.8));
+        //playground->setGroundColor(Color(2,2,2,1));
+        playground->setPosition(osg::Vec3(0, 0, 0.05)); // place and generate playground
+        global.obstacles.push_back(playground);
+      }
+      
+      // Possibility to add obstacles
+      double scale_size = 10; //10;
+      int bars = 0;
+      for (int i = 0; i < bars; i++) {
+        PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0., 0.6, 0.)),
+            osg::Vec3(0.5 * scale_size /*width*/, 0.5 * scale_size /*length*/, scale_size * 0.06 + i * 0 /*height*/),
+            10); // size
+        b->setPosition(osg::Vec3(/*0.5*scale_size*/0.0 + i * 2, 0, 0));
+        global.obstacles.push_back(b);
+        // With fixed joints you can fix things in the environment
+        Joint* fixator;
+        Primitive* p = b->getMainPrimitive(); // set b or your object here
+        fixator = new FixedJoint(p, global.environment);
+        fixator->init(odeHandle, osgHandle);
+      }
+      
+      // add one box
+      // to activate change false to true
+      bool use_box = false;
+      if (use_box) {
+        double angle = 0.0;
+        Substance BoxSubstance(2.0, 0.001, 100.0, 0.4); //(roughness,slip,hardness,elasticity)
+        OdeHandle oodeHandle = odeHandle;
+        oodeHandle.substance = BoxSubstance; //.toRubber(boxsubparam);//toMetal(boxsubparam);
+        PassiveBox* s1 = new PassiveBox(oodeHandle, osgHandle, osg::Vec3(6, 6, 2), 0.0);
+        s1->setTexture("../../../../osg/data/Images/chess.rgb");
+        s1->setPose(osg::Matrix::rotate(-M_PI / 180.0 * angle, 0, 1, 0) * osg::Matrix::translate(0, 0, -.3));
+        global.obstacles.push_back(s1);
+      }
+
+      // add a small street through rough terrain
+      // to activate change false to true
+      bool use_channel = false;
+      if (use_channel) {
+        double angle = 0.0;
+        OdeHandle oodeHandle = odeHandle;
+        oodeHandle.createNewSimpleSpace(oodeHandle.space, true);
+        TerrainGround* terrainground = new TerrainGround(oodeHandle,
+            osgHandle.changeColor(Color(83.0 / 255.0, 48.0 / 255.0, 0.0 / 255.0)), "rough6.ppm", "", 10, 10,
+            0.1/*0.15*/);
+        terrainground->setPose(osg::Matrix::translate(0, 0, 0.01));
+        global.obstacles.push_back(terrainground);
+        Substance BoxSubstance(2.0, 0.001, 100.0, 0.4); //(roughness,slip,hardness,elasticity)
+        oodeHandle.substance = BoxSubstance; //.toRubber(boxsubparam);//toMetal(boxsubparam);
+        PassiveBox* s1 = new PassiveBox(oodeHandle, osgHandle, osg::Vec3(10, 10, 1), 0.0);
+        s1->setTexture("../../lpzrobots/ode_robots/osg/data/Images/chess.rgb");
+        s1->setPose(osg::Matrix::rotate(-M_PI / 180.0 * angle, 0, 1, 0) * osg::Matrix::translate(0, 5.3, 0));
+        global.obstacles.push_back(s1);
+        PassiveBox* s2 = new PassiveBox(oodeHandle, osgHandle, osg::Vec3(10, 10, 1), 0.0);
+        s2->setTexture("../../lpzrobots/ode_robots/osg/data/Images/chess.rgb");
+        s2->setPose(/*osg::Matrix::rotate(-M_PI/180.0 * angle,0,1,0) * */osg::Matrix::translate(0, -5.3, 0));
+        global.obstacles.push_back(s2);
+//		oodeHandle.addIgnoredPair(s1->getMainPrimitive(),s2->getMainPrimitive());
+        
+//		oodeHandle.addIgnoredPair(terrainground->getMainPrimitive(),s1->getMainPrimitive());
+//		oodeHandle.addIgnoredPair(terrainground->getMainPrimitive(),s2->getMainPrimitive());
+      }
+      
+      // add rough terrain
+      bool use_rough_ground = true;
+      if (use_rough_ground) {
+        
+        //**************Change Material substance*********//
+        Substance roughterrainSubstance(1.0, 0.0,/*100.0 friction*/500.0, 0.0); //(roughness,slip,hardness,elasticity)
+        OdeHandle oodeHandle = odeHandle;
+        oodeHandle.substance = roughterrainSubstance;
+        //**************Change Material substance*********//
+        
+        TerrainGround* terrainground = new TerrainGround(oodeHandle,
+            osgHandle.changeColor(Color(83.0 / 255.0, 48.0 / 255.0, 0.0 / 255.0)),
+            /*"obstacles.ppm"*/"test.ppm"/*"1.ppm"*/, "", /*10*/10, /*10*/10,
+            0.03/* 0.1 actual ob height, 0.065 m*//*0.15 m*/);
+        terrainground->setPose(osg::Matrix::translate(0, 0, 0.01));
+        global.obstacles.push_back(terrainground);
+      }
+      
+      /*******  End Modify Environment *******/
+
+      /******* Add robot A M O S II  *********/
+
+      //Adding feet
+      //AmosIIConf myAmosIIConf = AmosII::getDefaultConf(5.0/*5.0 size*/, 1 /*_useShoulder*/, 1/*activated feet*/, 1/*Backbone*/);
+
+      //Not adding feet
+      AmosIIConf myAmosIIConf = AmosII::getDefaultConf(1.0/*size*/, 1 /*_useShoulder*/, 1/*activated feet*/,
+          1/*Backbone*/);
+      //AmosIIConf myAmosIIConf = AmosII::getFranksDefaultConf(5.0/*size*/,1 /*_useShoulder*/,1/*activated feet*/,0/*Backbone*/);
+      //AmosIIConf myAmosIIConf = AmosII::getExperimentConf();
+      
+      //myAmosIIConf.coxaPower = 2.5;
+      //myAmosIIConf.coxaSpeed   = 10;
+      
+      //Robot physical property
+      OdeHandle rodeHandle = odeHandle;
+      
+      //Substance RobotSubstance(3.0,0.0,50.0,0.8);//(roughness,slip,hardness,elasticity)
+      Substance RobotSubstance(3.0, 0.0, 50.0, 0.8); //(roughness,slip,hardness,elasticity)
+      rodeHandle.substance = RobotSubstance;
+      
+      //Creating Robot & its color
+      robot = new AmosII(rodeHandle, osgHandle.changeColor(Color(0.8, 0.75, 1)), myAmosIIConf, "AmosII");
+      
+      //Initial position of the robot
+      
+      // upside down
+      // robot ->place(osg::Matrix::rotate(M_PI,1,0,0)*osg::Matrix::translate(0,0,3));
+      
+      // normal position
+      robot->place(osg::Matrix::rotate(0, 0, 0, 1) * osg::Matrix::translate(.3, .0, .5));
+      global.configs.push_back(robot); // add robot to configurables of simulation
+          
+      // Homemokinetic controller
+      //AbstractController* controller = new InvertNChannelController(20);
+      
+      // Standard Tripod controller
+      AbstractController* controller = new AmosIIControl();
+      
+      // create wiring between robot and controller (sensor <--> motor)
+      One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      OdeAgent* agent = new OdeAgent(global);
+      
+      // init agent with controller, robot and wiring
+      agent->init(controller, robot, wiring);
+      
+      // Possibility to add tracking for robot
+      bool track = true;
+      if (track)
+        agent->setTrackOptions(TrackRobot(true, false, true, false, "")); // Display trace
+//      if (track)
+//        agent->setTrackOptions(TrackRobot(false, false, false, false, ""));
+            
+//    TrackRobot* track2 = new TrackRobot(/*bool trackPos*/false,
+//               /*bool trackSpeed*/false,
+//               /*bool trackOrientation*/false,
+//               /*bool displayTrace*/true //,
+//               /*const char *scene="", int interval=1*/);
+//   agent2->setTrackOptions(*track2);
+      
+      //add agent to agents
+      global.agents.push_back(agent);
+      //add controller to configurables
+      global.configs.push_back(controller);
+      
+//      showParams(global.configs);
+      
+    }
+    
+    /**************************Reset Function***************************************************************/
+    virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) {
+      std::cout << "\n begin restart " << currentCycle << "\n";
+      // We would like to have 10 runs!
+      // after it we must clean all and return false because we don't want a new restart
+      if (this->currentCycle == 2) {
+        
+        //clean robots
+        while (global.agents.size() > 0) {
+          OdeAgent* agent = *global.agents.begin();
+          AbstractController* controller = agent->getController();
+          OdeRobot* robot = agent->getRobot();
+          AbstractWiring* wiring = agent->getWiring();
+          
+          global.configs.erase(std::find(global.configs.begin(), global.configs.end(), controller));
+          delete controller;
+          
+          delete robot;
+          delete wiring;
+          
+          delete (agent);
+          global.agents.erase(global.agents.begin());
+        }
+        
+        // clean the playgrounds
+        while (global.obstacles.size() > 0) {
+          std::vector<AbstractObstacle*>::iterator iter = global.obstacles.begin();
+          delete (*iter);
+          global.obstacles.erase(iter);
+        }
+        std::cout << "end.";
+        return false; // don't restart, just quit
+      }
+      
+      // Now we must delete all robots and agents from the simulation and create new robots and agents.
+      while (global.agents.size() > 0) {
+        //	  std::cout << "\n MAIN WHILE LOOP" << currentCycle << "\n";
+        OdeAgent* agent = *global.agents.begin();
+        AbstractController* controller = agent->getController();
+        OdeRobot* robot = agent->getRobot();
+        AbstractWiring* wiring = agent->getWiring();
+        
+        global.configs.erase(std::find(global.configs.begin(), global.configs.end(), controller));
+        
+        delete controller;
+        //this calls destroy:
+        delete robot;
+        
+        delete wiring;
+        
+        delete (agent);
+        
+        global.agents.erase(global.agents.begin());
+        //	  std::cout << "\n END OF MAIN WHILE LOOP" << currentCycle << "\n";
+        
+      }
+      
+      // add robot
+      /*******  A M O S II  *********/
+      Substance RobotSubstance(3.0, 0.0, 50.0, 0.8);
+      
+      AmosIIConf myAmosIIConf = AmosII::getDefaultConf();
+//  AmosIIConf myAmosIIConf = AmosII::getExperimentConf();
+      
+      //New configuration after Reset Function!!!!
+      myAmosIIConf.fLegTrunkAngleH = 0.15;
+      myAmosIIConf.mLegTrunkAngleH = 0.15;
+      myAmosIIConf.rLegTrunkAngleH = 0.15;
+      
+      OdeHandle rodeHandle = odeHandle;
+      rodeHandle.substance = RobotSubstance;
+      robot = new AmosII(rodeHandle, osgHandle.changeColor(Color(1, 1, 1)), myAmosIIConf, "AmosII");
+      
+      // normal position
+      robot->place(/*osg::Matrix::rotate(2*M_PI/10.0 * currentCycle,0,0,1) **/osg::Matrix::translate(.3, .0, .1));
+      global.configs.push_back(robot); // add robot to configurables of simulation
+          
+      // Homemokinetic controller
+      //AbstractController* controller = new InvertNChannelController(20);
+      
+      // Standard Tripod controller
+      AbstractController* controller = new AmosIIControl();
+      
+      // create wiring and agent
+      One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      OdeAgent* agent = new OdeAgent(global);
+      
+      // init agent with controller, robot and wiring
+      agent->init(controller, robot, wiring);
+      
+      // Possibility to add tracking for robot
+      bool track = 1;
+      if (track)
+        agent->setTrackOptions(TrackRobot(true, false, false, false, ""));
+      
+      //add agent to agents
+      global.agents.push_back(agent);
+      //add controller to configurables
+      global.configs.push_back(controller);
+      
+      //for some unknown reason the following crashes the simulation after a few cycles
+      //	showParams(global.configs);
+      std::cout << "\n end restart " << currentCycle << "\n";
+      // restart!
+      return true;
+    }
+    /****************************************************************************************************/
+
+    /** optional additional callback function which is called every simulation step.
+     Called between physical simulation step and drawing.
+     @param draw indicates that objects are drawn in this timestep
+     @param pause always false (only called of simulation is running)
+     @param control indicates that robots have been controlled this timestep
+     */
+    virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+      // for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
+      // if simulation_time_reached is set to true, the simulation cycle is finished
+      
+//	/***********************Reset Function*********************************************/
+//	if (globalData.sim_step>=(0.5*60.0*200.000)) ///this->currentCycle)) 60*60.0*200.000
+//    {
+//         simulation_time_reached=true;
+//    }
+//	/***********************************************************************************/
+      
+    }
+    
+//    // add own key handling stuff here, just insert some case values
+//    virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down) {
+//      if (down) { // only when key is pressed, not when released
+//        switch ((char) key) {
+//          default:
+//            return false;
+//            break;
+//        }
+//      }
+//      return false;
+//    }
+
 };
 
-int main(int argc, char **argv)
- {
+int main(int argc, char **argv) {
   ThisSim sim;
-  sim.setGroundTexture("Images/greenground.rgb");
+  sim.setGroundTexture("Images/greenground.rgb"); //green_velour_wb.rgb
+  sim.setCaption("lpzrobots Simulator        Biehl, de Chambrier, Martius 2010");
   return sim.run(argc, argv) ? 0 : 1;
 }
 
