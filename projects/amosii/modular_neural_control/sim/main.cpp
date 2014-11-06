@@ -45,9 +45,12 @@
 #include <ode_robots/color.h>
 #include <iostream>
 using namespace std;
+using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
 //std::vector<lpzrobots::FixedJoint*> fixator;
 // add head file for creating a sphere by Ren ------------
+
+bool track = true;
 
 
 class ThisSim : public lpzrobots::Simulation {
@@ -59,8 +62,6 @@ public:
 		// you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
 		// addColorAliasFile("myColorSchema.txt");
 		setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
-		setTitle("Adaptive Climbing Behavior of Walking Machines");
-		//setCaption("right aligned text");
 	}
 
 	/**
@@ -196,7 +197,6 @@ public:
 		agent->init(controller, amos, wiring);
 
 		// Possibility to add tracking for robot
-		bool track = true;
 		if (track)
 			agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 		//if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
@@ -216,6 +216,69 @@ public:
 				<< "################################\n" << "\n\n" << std::endl;
 	}
 
+
+/**************************Reset Function***************************************************************/
+    	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+   	{
+       	 	// inform global variable over everything that happened:
+        	global.configs.erase(global.configs.begin());
+
+        	delete amos;
+        	//delete (agent);
+        	global.agents.pop_back();
+
+        	//Add AMOSII robot
+		// Add amosII robot
+		lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/, 1 /*_useShoulder*/,
+				1 /*_useFoot*/, 1 /*_useBack*/);
+		myAmosIIConf.rubberFeet = true;
+
+		//lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+		//myAmosIIConf.rubberFeet = true;
+
+		//myAmosIIConf.legContactSensorIsBinary = true;
+		lpzrobots::OdeHandle rodeHandle = odeHandle;
+		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+		for (unsigned int i = 0; i < obst.size(); i++) {
+			myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
+		}
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+
+		amos
+		= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
+
+		// define the usage of the individual legs
+		amos->setLegPosUsage(amos->L0, amos->LEG);
+		amos->setLegPosUsage(amos->L1, amos->LEG);
+		amos->setLegPosUsage(amos->L2, amos->LEG);
+		amos->setLegPosUsage(amos->R0, amos->LEG);
+		amos->setLegPosUsage(amos->R1, amos->LEG);
+		amos->setLegPosUsage(amos->R2, amos->LEG);
+
+		// put amos a little bit in the air
+		amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
+
+       	 	//Create wiring
+        	One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+
+        	// create agent and init it with controller, robot and wiring
+        	lpzrobots::OdeAgent* agent = new OdeAgent(global);
+        	agent->init(controller, amos, wiring);
+
+        	// Possibility to add tracking for robot
+        	if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+
+        	// inform global variable over everything that happened:
+       	 	global.configs.push_back(amos);
+        	global.agents.push_back(agent);
+        	global.configs.push_back(controller);
+
+        	return true;
+    	}
+
+
 	/**
 	 * add own key handling stuff here, just insert some case values
 	 */
@@ -232,8 +295,7 @@ public:
 				}
 				break;
 			case 'r':
-				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
-				((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
+				simulation_time_reached=true;
 				std::cout << "RESET" << endl;
 				break;
 			case 'b':

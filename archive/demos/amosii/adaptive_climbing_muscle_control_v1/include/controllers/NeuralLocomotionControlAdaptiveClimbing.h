@@ -44,7 +44,6 @@ using namespace std;
 #define STNEUACT -0.6
 #define NUMFOOT 6
 #define NUMMOTOR 19
-#define PI 3.14159265358979
 #define PI_DEG 180.0
 #define TIMECOUNT 5000
 #define CRMAXOUT 1

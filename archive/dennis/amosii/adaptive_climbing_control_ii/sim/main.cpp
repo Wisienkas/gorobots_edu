@@ -49,10 +49,11 @@
 #include <chrono>
 
 using namespace std;
+using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
 //std::vector<lpzrobots::FixedJoint*> fixator;
 // add head file for creating a sphere by Ren ------------
-
+bool track = false;
 
 //Parameters for climbing experiments
 unsigned climb_height = 2;
@@ -97,8 +98,8 @@ class ThisSim : public lpzrobots::Simulation {
       // you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
       // addColorAliasFile("myColorSchema.txt");
       setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
-      setTitle("Adaptive Obstacle Negotiation");
-      setCaption("D Goldschmidt 2013");
+      //setTitle("Adaptive Obstacle Negotiation");
+      //setCaption("D Goldschmidt 2013");
     }
 
     /**
@@ -107,7 +108,7 @@ class ThisSim : public lpzrobots::Simulation {
     virtual void start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgHandle& osgHandle,
         lpzrobots::GlobalData& global) {
       // set initial camera position
-      setCameraHomePos(lpzrobots::Pos(-0.0114359, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
+      setCameraHomePos(lpzrobots::Pos(-0.0114359+climb_height*10.0+0.05, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
 
       //Learning experiments init
       no_delta_time.resize(2);
@@ -271,7 +272,6 @@ class ThisSim : public lpzrobots::Simulation {
       agent->init(controller, amos, wiring);
 
       // Possibility to add tracking for robot
-      bool track = false;
       if (track)
         agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
       //if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
@@ -291,6 +291,74 @@ class ThisSim : public lpzrobots::Simulation {
           << "################################\n" << "\n\n" << std::endl;
     }
 
+
+/**************************Reset Function***************************************************************/
+    	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+   	{
+ 		// set camera position
+      		setCameraHomePos(lpzrobots::Pos(-0.0114359+climb_height*10.0+0.05, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
+
+       	 	// inform global variable over everything that happened:
+        	global.configs.erase(global.configs.begin());
+
+        	delete amos;
+        	//delete (agent);
+        	global.agents.pop_back();
+
+        	//Add AMOSII robot
+		// Add amosII robot
+		lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/, 1 /*_useShoulder*/,
+				1 /*_useFoot*/, 1 /*_useBack*/);
+		myAmosIIConf.rubberFeet = true;
+
+		//lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+		//myAmosIIConf.rubberFeet = true;
+
+		//myAmosIIConf.legContactSensorIsBinary = true;
+		lpzrobots::OdeHandle rodeHandle = odeHandle;
+		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+		for (unsigned int i = 0; i < obst.size(); i++) {
+			myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
+		}
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+
+		amos
+		= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
+
+		// define the usage of the individual legs
+		amos->setLegPosUsage(amos->L0, amos->LEG);
+		amos->setLegPosUsage(amos->L1, amos->LEG);
+		amos->setLegPosUsage(amos->L2, amos->LEG);
+		amos->setLegPosUsage(amos->R0, amos->LEG);
+		amos->setLegPosUsage(amos->R1, amos->LEG);
+		amos->setLegPosUsage(amos->R2, amos->LEG);
+
+		// put amos a little bit in the air
+      		if(climbing_experiment_setup)
+       			amos->place(osg::Matrix::translate(climb_height*10.0+0.05, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+      		else
+        		amos->place(osg::Matrix::translate(0.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+
+       	 	//Create wiring
+        	One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+
+        	// create agent and init it with controller, robot and wiring
+        	lpzrobots::OdeAgent* agent = new OdeAgent(global);
+        	agent->init(controller, amos, wiring);
+
+        	// Possibility to add tracking for robot
+        	if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+
+        	// inform global variable over everything that happened:
+       	 	global.configs.push_back(amos);
+        	global.agents.push_back(agent);
+        	global.configs.push_back(controller);
+
+        	return true;
+    	}
+
     /**
      * add own key handling stuff here, just insert some case values
      */
@@ -300,15 +368,16 @@ class ThisSim : public lpzrobots::Simulation {
       if (down) { // only when key is pressed, not when released
         switch (char(key)) {
         	case 's':
-        		amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
         		((AmosIIControl*) controller)->preprocessing_learning.weight_reset =true;
         		((AmosIIControl*) controller)->control_adaptiveclimbing.nlc->Control_input += 0.01;
         		((AmosIIControl*) controller)->preprocessing_learning.outFilenpp1 <<  ((AmosIIControl*) controller)->preprocessing_learning.c << ' ' <<  ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) << ' ' <<  ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) << endl;
+			simulation_time_reached=true;
         		std::cout << "SUCCESSFUL" << endl;
         		break;
         	case 'n':
+			climb_height++;
           		((AmosIIControl*) controller)->control_adaptiveclimbing.climb_height++;
-          		amos->place(osg::Matrix::translate(((AmosIIControl*) controller)->control_adaptiveclimbing.climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+          		simulation_time_reached=true;
           		std::cout << "Starting trial for h = " << ((AmosIIControl*) controller)->control_adaptiveclimbing.climb_height+1 << " cm" << endl;
           		break;
         	case 't':
@@ -322,8 +391,7 @@ class ThisSim : public lpzrobots::Simulation {
             }
             break;
           case 'r':
-            amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
-            ((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
+            simulation_time_reached=true;
             std::cout << "RESET" << endl;
             break;
           case 'b':
@@ -559,7 +627,7 @@ class ThisSim : public lpzrobots::Simulation {
           start_trial_time = ((AmosIIControl*) controller)->control_adaptiveclimbing.global_count*0.1;
 
           resetSignals();
-          amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+          simulation_time_reached=true;
         }
 
         //Success
@@ -575,7 +643,7 @@ class ThisSim : public lpzrobots::Simulation {
           start_trial_time = ((AmosIIControl*) controller)->control_adaptiveclimbing.global_count*0.1;
 
           resetSignals();
-          amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+          simulation_time_reached=true;
         }
         //  && globalData.sim_step > 100
 
@@ -591,7 +659,7 @@ class ThisSim : public lpzrobots::Simulation {
           /*if(((AmosIIControl*) controller)->preprocessing_learning.convergence)*/
 
           resetSignals();
-          amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+          simulation_time_reached=true;
         }
 
         //Fail: Out of time
@@ -606,7 +674,7 @@ class ThisSim : public lpzrobots::Simulation {
           /*if(((AmosIIControl*) controller)->preprocessing_learning.convergence)*/
 
           resetSignals();
-          amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+          simulation_time_reached=true;
         }
 
 
@@ -704,7 +772,7 @@ class ThisSim : public lpzrobots::Simulation {
             resetWeights();
             ((AmosIIControl*) controller)->preprocessing_learning.ir_learnrate.at(25) = 0.01;
             ((AmosIIControl*) controller)->preprocessing_learning.ir_learnrate.at(26) = 0.01;
-            amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+            simulation_time_reached=true;
           }
 
           if(((AmosIIControl*) controller)->preprocessing_learning.drho1.at(25)!=0.0 /*&& !((AmosIIControl*) controller)->preprocessing_learning.convergence*/){
@@ -778,7 +846,7 @@ class ThisSim : public lpzrobots::Simulation {
             yrange_count = 0;
             sum_time = 0.0;
             resetSignals();
-            amos->place(osg::Matrix::translate(climb_height*10.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+            simulation_time_reached=true;
           } //----------------END Performance done
         } //----------------END Performance only
 

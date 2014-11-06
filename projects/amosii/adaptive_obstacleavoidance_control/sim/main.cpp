@@ -382,6 +382,78 @@ public:
 		global.configs.push_back(controller);
 	}
 
+
+/**************************Reset Function***************************************************************/
+    	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+   	{
+       	 	// inform global variable over everything that happened:
+        	global.configs.erase(global.configs.begin());
+
+        	delete amos;
+        	//delete (agent);
+        	global.agents.pop_back();
+
+        	//Add AMOSII robot
+		lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/, 1 /*_useShoulder*/,
+				1 /*_useFoot*/, 1 /*_useBack*/);
+		myAmosIIConf.rubberFeet = true;
+
+		//lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+		//myAmosIIConf.rubberFeet = true;
+
+		//myAmosIIConf.legContactSensorIsBinary = true;
+		lpzrobots::OdeHandle rodeHandle = odeHandle;
+		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+		for (unsigned int i = 0; i < obst.size(); i++) {
+			myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
+
+
+		}
+		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+
+
+		if (use_broadusangle){
+			//**************Eduard
+			//set Angle of the US sensors, they should cover the robots width
+			myAmosIIConf.usAngleX=0.7;
+			////////////////Eduard End
+		}
+
+		amos= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
+
+		// define the usage of the individual legs
+		amos->setLegPosUsage(amos->L0, amos->LEG);
+		amos->setLegPosUsage(amos->L1, amos->LEG);
+		amos->setLegPosUsage(amos->L2, amos->LEG);
+		amos->setLegPosUsage(amos->R0, amos->LEG);
+		amos->setLegPosUsage(amos->R1, amos->LEG);
+		amos->setLegPosUsage(amos->R2, amos->LEG);
+
+        	//Place AMOSII accordingly
+		if (use_box){amos->place(osg::Matrix::rotate(-0.38,0,0,1) * osg::Matrix::translate(3,-1,0.3));}
+		if (use_koh){amos->place(osg::Matrix::rotate(-0.75,0,0,1) * osg::Matrix::translate(0.5,1.5,0.3));}
+
+       	 	//Create wiring
+        	One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+
+        	// create agent and init it with controller, robot and wiring
+        	lpzrobots::OdeAgent* agent = new OdeAgent(global);
+        	agent->init(controller, amos, wiring);
+
+        	// Possibility to add tracking for robot
+        	if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+
+        	// inform global variable over everything that happened:
+       	 	global.configs.push_back(amos);
+        	global.agents.push_back(agent);
+        	global.configs.push_back(controller);
+
+        	return true;
+    	}
+
+
 	/**
 	 * add own key handling stuff here, just insert some case values
 	 */
@@ -392,8 +464,7 @@ public:
 			switch (char(key)) {
 
 			case 'r':
-				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
-				((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning = false;
+				simulation_time_reached=true;
 				std::cout << "RESET" << endl;
 				break;
 			case 'b':
