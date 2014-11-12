@@ -311,6 +311,7 @@ public:
 			}
 
 			agent3->init(qcontroller, vehicle3, wiring3);///////////// Initial controller!!!
+			vehicle3->storeToFile("vehicle_init.rob");
 			global.agents.push_back(agent3);
 
 		}
@@ -502,12 +503,13 @@ public:
 
 	void reset_robot()
 	{
-		int r = rand();
-		random_or  = -PI/2.0;//((MAX_or-MIN_or)*((float)r/RAND_MAX))+MIN_or; // between -pi/3 (60 deg) and pi/3 (60 deg)
+		vehicle3->restoreFromFile("vehicle_init.rob");
+//		int r = rand();
+//		random_or  = -PI/2.0;//((MAX_or-MIN_or)*((float)r/RAND_MAX))+MIN_or; // between -pi/3 (60 deg) and pi/3 (60 deg)
 		/************************************/
-		Pos pos(position_x-8.0/*, +x = to left, -x = to right*/,-11.0/*y*/,0.0/*z*/);
+//		Pos pos(position_x-8.0/*, +x = to left, -x = to right*/,-11.0/*y*/,0.0/*z*/);
 		//setting position and orientation
-		vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
+		//vehicle3->place(osg::Matrix::rotate(random_or, 0, 0, 1) *osg::Matrix::translate(pos));
 	}
 
 	virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)

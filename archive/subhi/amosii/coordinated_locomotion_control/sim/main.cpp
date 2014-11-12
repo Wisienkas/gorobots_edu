@@ -110,15 +110,15 @@ class ThisSim : public lpzrobots::Simulation {
             //lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
 
             bool use_amosii_version1 = false;
-               bool use_amosii_version2 =true ;
+               bool use_amosii_version2 = true;
 
                if (use_amosii_version1 && !use_amosii_version2){
                      std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
                      // using amosii version 1
                      // Add amosII robot
-                     myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/, true /*for using foot feedback mechanism*/);
+                     myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,0 /*_useBack*/, true /*for using foot feedback mechanism*/);
                      myAmosIIConf.rubberFeet = true;
-                     myAmosIIConf2 = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/, true /*for using foot feedback mechanism*/);
+                     myAmosIIConf2 = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,0 /*_useBack*/, true /*for using foot feedback mechanism*/);
                                      myAmosIIConf2.rubberFeet = true;
 
                      amos = new lpzrobots::AmosII(
@@ -135,6 +135,16 @@ class ThisSim : public lpzrobots::Simulation {
 
                      adaptiveCont = new AdaptiveController(/*amos version*/1);
                      adaptiveCont_2 = new AdaptiveController(/*amos version*/1);
+
+                     obj = new lpzrobots::PassiveSphere(odeHandle, osgHandle,0.115,obstweight);
+
+                      obj->setPosition(osg::Vec3(-4.5-(myAmosIIConf.size)/2-0.05, 0.0, 0.1));
+                 //     obj->setTexture("Images/dusty.rgb");
+                      obj->setColor(lpzrobots::Color(0.5,0.75,0.25));
+                         obst.push_back(obj);
+                         global.obstacles.push_back(obj);
+
+
                     // controller = new AmosIIControl();
                    } else {
                      std::cout<<"select only one version of AMOSII !"<<std::endl;
@@ -145,12 +155,12 @@ class ThisSim : public lpzrobots::Simulation {
                      std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 2 SELECTED!"<<std::endl<<std::endl;
                      // using amosii version 2
                      // Add amosII robot
-                     myAmosIIConf = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);
+                     myAmosIIConf = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,0 /*_useBack*/,true /*for using foot feedback mechanism*/);
                  //    lpzrobots::AmosIIConf myAmosIIConf1 = lpzrobots::AmosII::getAmosIIv1Conf();
                      myAmosIIConf.rubberFeet = true;
 
 
-                       myAmosIIConf2 = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);
+                       myAmosIIConf2 = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,0 /*_useBack*/,true /*for using foot feedback mechanism*/);
                        myAmosIIConf2.rubberFeet = true;
                        myAmosIIConf2.legContactSensorIsBinary=false;
                      amos = new lpzrobots::AmosII(

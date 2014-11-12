@@ -39,7 +39,7 @@
 #include <ode_robots/joint.h>
 
 // add head file for creating a sphere by Ren ------------
-#include <ode_robots/globaldata.h>
+//#include <ode_robots/globaldata.h>
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <selforg/abstractcontroller.h>
@@ -88,34 +88,37 @@ class ThisSim : public lpzrobots::Simulation {
 
       //----------create a sphere as the target by Ren-----------------------------
       //the first sphere
-      lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-      s1->setTexture("Images/dusty.rgb");
-      s1->setColor(lpzrobots::Color(1,0,0));
-      obst.push_back(s1);
-      global.obstacles.push_back(s1);
-      lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-      fixator1->init(odeHandle, osgHandle);
+//      lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+//      s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
+//      s1->setTexture("Images/dusty.rgb");
+//      s1->setColor(lpzrobots::Color(1,0,0));
+//      obst.push_back(s1);
+//      global.obstacles.push_back(s1);
+//      lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
+//      fixator1->init(odeHandle, osgHandle);
 
-      //the second sphere
-      lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-      s2->setTexture("Images/dusty.rgb");
-      s2->setColor(lpzrobots::Color(0,1,0));
-      obst.push_back(s2);
-      global.obstacles.push_back(s2);
-      lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-      fixator2->init(odeHandle, osgHandle);
 
-      //the third sphere
-      lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-      s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-      s3->setTexture("Images/dusty.rgb");
-      s3->setColor(lpzrobots::Color(0,0,1));
-      obst.push_back(s3);
-      global.obstacles.push_back(s3);
-      lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-      fixator3->init(odeHandle, osgHandle);
+//      //the second sphere
+//      lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+//      s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
+//      s2->setTexture("Images/dusty.rgb");
+//      s2->setColor(lpzrobots::Color(0,1,0));
+//      obst.push_back(s2);
+//      global.obstacles.push_back(s2);
+//      lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
+//      fixator2->init(odeHandle, osgHandle);
+//
+//      //the third sphere
+//      lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+//      s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
+//      s3->setTexture("Images/dusty.rgb");
+//      s3->setColor(lpzrobots::Color(0,0,1));
+//      obst.push_back(s3);
+//      global.obstacles.push_back(s3);
+//      lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
+//      fixator3->init(odeHandle, osgHandle);
+
+
 
       //----------create a sphere as the target by Ren-----------------------------
 
@@ -206,34 +209,34 @@ class ThisSim : public lpzrobots::Simulation {
     //	 @param pause always false (only called of simulation is running)
     //   @param control indicates that robots have been controlled this timestep
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void addCallback(lpzrobots::GlobalData& globalData,bool draw, bool pause, bool control) {
+ //   virtual void addCallback(lpzrobots::GlobalData& globalData,bool draw, bool pause, bool control) {
     // for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
     // if simulation_time_reached is set to true, the simulation cycle is finished
 
 	//----------------------------Reset Function-----------------------------------------
-    if( globalData.sim_step >= 6000 )
-    {
-    	if (robotfixator)
-    	{
-    		std::cout << "dropping robot" << std::endl;
-    	    delete robotfixator;
-    	    robotfixator = NULL;
-    	}
-    }
-    if( globalData.sim_step >= 100 )	//a small delay to make sure the robot will not restart at beginning!
-    {
-    	if ( (((AmosIIControl*)controller)->get_DistancetoGoal() <= 0.1) && (((AmosIIControl*)controller)->control_adaptiveclimbing.getlearning()) )
-    	{
-    		//simulation_time_reached=true;
-    		amos->place(osg::Matrix::translate(.0, .0, 0.2));
-    	}
-    	if( !((AmosIIControl*)controller)->control_adaptiveclimbing.getlearning() )
-    	{
-    		simulation_time_reached=true;
-    	}
-    }
+//    if( globalData.sim_step >= 6000 )
+//    {
+//    	if (robotfixator)
+//    	{
+//    		std::cout << "dropping robot" << std::endl;
+//    	    delete robotfixator;
+//    	    robotfixator = NULL;
+//    	}
+//    }
+//    if( globalData.sim_step >= 100 )	//a small delay to make sure the robot will not restart at beginning!
+//    {
+//    	if ( (((AmosIIControl*)controller)->get_DistancetoGoal() <= 0.1) && (((AmosIIControl*)controller)->control_adaptiveclimbing.getlearning()) )
+//    	{
+//    		//simulation_time_reached=true;
+//    		amos->place(osg::Matrix::translate(.0, .0, 0.2));
+//    	}
+//    	if( !((AmosIIControl*)controller)->control_adaptiveclimbing.getlearning() )
+//    	{
+//    		simulation_time_reached=true;
+//    	}
+//    }
 	//-----------------------------------------------------------------------------------
-    }
+  //  }
 
 //    //////////////////////////////////////////////////////////////////////////////////////
 //    //							reset function                                          //
@@ -346,6 +349,7 @@ protected:
     lpzrobots::Joint* robotfixator;
     AbstractController* controller;
     lpzrobots::AmosII* amos;
+
 };
 
 int main(int argc, char **argv)
