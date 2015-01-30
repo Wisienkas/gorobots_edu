@@ -33,24 +33,42 @@ void go_forward_WalkGait(LocoKitInterface* LKI, float period, float phaseoffset)
 	LKI->setConstantSpeedInterpolatingFunction(12, 0.75, 0, 0); 
 }
 
-void go_forward_BoundGait(LocoKitInterface* LKI, float period, float phaseoffset) {
+void go_forward_TrotGait(LocoKitInterface* LKI, float period, float phaseoffset) {
 	stop_actuators(LKI);
 
 	//Front legs, opposite direction
 	//Right
-	LKI->setConstantSpeedInterpolatingFunction(31, 0.35, 5, 0);
+	LKI->setConstantSpeedInterpolatingFunction(31, 0.35, 5, 1);
 	//Left
-	LKI->setConstantSpeedInterpolatingFunction(6, 0.35, 185, 1);
+	LKI->setConstantSpeedInterpolatingFunction(6, 0.35, 185, 0);
 
 	//Back legs, opposite direction
 	//Right
-	LKI->setConstantSpeedInterpolatingFunction(4, 0.35, 180, 0);
+	LKI->setConstantSpeedInterpolatingFunction(4, 0.35, 180, 1);
 	//Left
-	LKI->setConstantSpeedInterpolatingFunction(12, 0.35, 0, 1);
+	LKI->setConstantSpeedInterpolatingFunction(12, 0.35, 0, 0);
 
+	
+	
 }
 
-void go_forward_PaceGait(LocoKitInterface* LKI, float period, float phaseoffset) {
+void go_forward_CreepGait(LocoKitInterface* LKI, float period, float phaseoffset) {
+	stop_actuators(LKI);
+	
+	//Front legs, opposite direction
+	//Right
+	LKI->setConstantSpeedInterpolatingFunction(31, 1, 180, 1);
+	//Left
+	LKI->setConstantSpeedInterpolatingFunction(6, 1, 270, 0);
+
+	//Back legs, opposite direction
+	//Right
+	LKI->setConstantSpeedInterpolatingFunction(4, 1, 0, 1);
+	//Left
+	LKI->setConstantSpeedInterpolatingFunction(12, 1, 90, 0);
+}
+
+void go_forward_BoundGait(LocoKitInterface* LKI, float period, float phaseoffset) {
 	stop_actuators(LKI);
 	
 	//Front legs, opposite direction
@@ -66,20 +84,20 @@ void go_forward_PaceGait(LocoKitInterface* LKI, float period, float phaseoffset)
 	LKI->setConstantSpeedInterpolatingFunction(12, 0.75, 0, 0);
 }
 
-void go_forward_TrotGait(LocoKitInterface* LKI, float period, float phaseoffset) {
+void go_forward_PaceGait(LocoKitInterface* LKI, float period, float phaseoffset) {
 	stop_actuators(LKI);
 	
 	//Front legs, opposite direction
 	//Right
-	LKI->setConstantSpeedInterpolatingFunction(31, 0.75, 90, 0);
+	LKI->setConstantSpeedInterpolatingFunction(31, 0.75, 0, 0);
 	//Left
-	LKI->setConstantSpeedInterpolatingFunction(6, 0.75, 90, 1);
+	LKI->setConstantSpeedInterpolatingFunction(6, 0.75, 180, 1);
 
 	//Back legs, opposite direction
 	//Right
-	LKI->setConstantSpeedInterpolatingFunction(4, 0.75, 270, 0);
+	LKI->setConstantSpeedInterpolatingFunction(4, 0.75, 0, 0);
 	//Left
-	LKI->setConstantSpeedInterpolatingFunction(12, 0.75, 270, 1);
+	LKI->setConstantSpeedInterpolatingFunction(12, 0.75, 180, 1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,10 +245,10 @@ void controller(LocoKitInterface* LKI) {
 			go_forward_WalkGait(LKI, 1, 90);
 		} else if (input == '2') {
 			go_forward_TrotGait(LKI, 1, 90);
-		} else if (input == '3') {	
-			go_forward_PaceGait(LKI, 1, 90);	
 		} else if (input == '4') {
 			go_forward_BoundGait(LKI, 1, 90);
+		} else if (input == '3') {	
+			go_forward_PaceGait(LKI, 1, 90);
 		} else if (input == 's') {
 			//go_backward_pwm(LKI, main_pmw);
 			go_backward_ConstantSpeedInterpolating(LKI, 0.5, 90);
