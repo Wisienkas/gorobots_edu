@@ -26,20 +26,22 @@
 #include <ode_robots/oderobot.h>
 #include <ode_robots/nimm4.h>
 #include <ode_robots/raysensorbank.h>
+#include <selforg/inspectable.h>
+#include <ode_robots/contactsensor.h>
 //added
 
 #include <iostream>
 #include <fstream>
 #include <string.h>
 
-#include <ode_robots/relativepositionsensor.h>
+#include "relativepositionsensor.h"
 
 using namespace std;
 namespace lpzrobots {
 
-  class Primitive; 
-  class Hinge2Joint; 
-  class Joint; 
+  class Primitive;
+  class Hinge2Joint;
+  class Joint;
 
   typedef struct {
     double size;
@@ -59,13 +61,13 @@ namespace lpzrobots {
     bool relPosSensor;
     std::vector<Primitive*> rpos_sensor_references;
   } FourWheeledConf;
-  
-  /** Robot is based on nimm4 with 
-      4 wheels and a capsule like body   
+
+  /** Robot is based on nimm4 with
+      4 wheels and a capsule like body
   */
   class FourWheeledRPos : public Nimm4{
   public:
-  
+
     /**
      * constructor of nimm4 robot
      * @param odeHandle data structure for accessing ODE
@@ -102,39 +104,42 @@ namespace lpzrobots {
     /**
      * updates the OSG nodes of the vehicle
      */
-    virtual void update();
+    virtual void update() override;
     virtual Position getPosition();
-    virtual int getSensorNumber();
-    virtual int getMotorNumber();
+    virtual int getSensorNumberIntern() override;
+    virtual int getMotorNumberIntern() override;
 
-    virtual int getSensors(sensor* sensors, int sensornumber);
-    
-    virtual void setMotors(const motor* motors, int motornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber) override;
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
+    virtual void setMotorsIntern(const motor* motors, int motornumber)  override;
+
+    virtual void sense(GlobalData& globalData) override;   //replaces old doInternalStuff function
 
     // returns the joint with index i
     virtual Joint* getJoint(int i);
+
+    std::vector<RelativePositionSensor> rpos_sensor;
 
   protected:
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
     //added
-    std::vector<RelativePositionSensor> rpos_sensor;
+
     FourWheeledConf conf;
-    RaySensorBank irSensorBank; // a collection of ir sensors
+
     Primitive* bumpertrans;
     Primitive* bumper;
+
+  private:
+    RaySensorBank irSensorBank; // a collection of ir sensors
+    std::vector<RelativePositionSensor> rpos_goal_sensor;
+
   };
 
 }

@@ -33,6 +33,9 @@
 // used passive spheres
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
+#include <ode_robots/complexplayground.h>
+#include <ode_robots/terrainground.h>
+
 
 
 // used controller
@@ -57,7 +60,7 @@
 //#include "acicocontrollerv11.h" // ICO + AC with Obstacles Change all weights: One angle input and one distance and one IR sensor 6 synapses separated linear controllers
 //#include "acicocontrollerv12.h" // ICO goal directed steering angle
 //#include "acicocontrollerv13.h" // ICO + AC 2 goals MAX 4 goals no obstacle
-#include "controllers/nimm4ii/acicorccriticcontroller.h" // ICO + AC 3 goals no obstacle
+#include <controllers/nimm4ii/acicorccriticcontroller.h> // ICO + AC 3 goals no obstacle
 
 
 // fetch all the stuff of lpzrobots into scope
@@ -85,13 +88,15 @@ using namespace lpzrobots;
 //ACICOControllerV13* qcontroller;
 AcIcoRcCriticController* qcontroller;
 
+bool tmaze_on = false;
+
 bool obstacle_on = true; //true;//true;
 bool drawtrace_on = true;//true;//---------------------------------------------------------------------------TEST
 
 bool random_positon_spheres = false;
 bool random_positon = false;//true;
 bool random_positon_frist = false;//-------------------------------------------------CH
-bool random_orientation = false;
+bool random_orientation = true;
 
 int shiftObstacle = 0;
 
@@ -102,24 +107,28 @@ int shiftObstacle = 0;
 #define MIN_y   -2.5//-5.0//-9.0 	//Min range
 
 int pos_obstacle_x = 7.0; //5.0; //7.0; //7
-int pos_obstacle_y = 0;//5.0; //0; //7.0;//0; //0 //-7.0 // 0
+int pos_obstacle_y = 0.0;//5.0; //0; //7.0;//0; //0 //-7.0 // 0
 
-#define MAX_or	M_PI/3 // 60 deg
-#define MIN_or	-M_PI/3 // 60 deg
+#define MAX_or	M_PI/3 //45 // 60 deg
+#define MIN_or	-M_PI/3  //45 // 60 deg
 
 double random_or;
 double random_position_S;
+double random_position_S_x;
+double random_position_S_y;
 double random_position;
 double random_positionx;
 double random_positiony;
 
 
 int number_spheres = 4; // SET NUMBER of TARGET MAX = 4
-int number_boxes = 2; // SET NUMBER of BOXES obstacles
+int number_boxes = 1 ;//2; // SET NUMBER of BOXES obstacles
+
+int global_counter = 1;
 
 bool repeat_experiment = true;//true; //if select true then set the follwing parameters
-int repeat_number = 500;// 1000;
-double time_factor = 0.25;//0.25/2;
+int repeat_number = 500; //500;// 1000; for 200 repetitions of the program
+double time_factor = 0.25 ; //0.25;//0.25/2;
 
 //0.25/4 = 7.5s
 //0.25/2 = 15 s
@@ -131,7 +140,7 @@ double time_factor = 0.25;//0.25/2;
 double position_S = 0.0;
 int position_x = 20;
 
-bool delete_controller = false;// false if wants to repeat experiments but don't want to reset controller//DON'T delete controller if DON't want to reset controller!------------------------------------------------------(FRANK)
+bool delete_controller = false; //false;// false if wants to repeat experiments but don't want to reset controller//DON'T delete controller if DON't want to reset controller!------------------------------------------------------(FRANK)
 
 
 //***************************//
@@ -191,7 +200,11 @@ public:
 				osg::Vec3(length_pg /*length*/, width_pg /*width*/, height_pg/*height*/), /*factorxy = 1*/1, /*createGround=true*/true /*false*/);
 		playground->setPosition(osg::Vec3(4,0,0.0)); // playground positionieren und generieren
 		// register playground in obstacles list
+
+
 		global.obstacles.push_back(playground);
+
+
 
 
 
@@ -231,14 +244,19 @@ public:
 
 			//if (i==1) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S+10, 0.5/*0*/));
 
-			if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 0.5/*0*/)); //Green Sphere
+			if (i==1 && tmaze_on == false) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S+5, 0.5/*0*/)); //Green Sphere
+
+			if (i==1 && tmaze_on == true) s1->setPosition(osg::Vec3(-3.0 /*position_S*/, position_S+10, 0.5/*0*/)); //Green Sphere
+
 
 			//if (i==1) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/)); //Green Sphere
 
 			//Target 3
 			//if (i==2) s1->setPosition(osg::Vec3(15-11.0 /*position_S*/, position_S-10, 0.5/*0*/));
 
-			if (i==2) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/)); //Blue sphere
+			if (i==2 && tmaze_on == false) s1->setPosition(osg::Vec3(0.0 /*position_S*/, position_S-5, 0.5/*0*/)); //Blue sphere
+
+			if (i==2 && tmaze_on == true) s1->setPosition(osg::Vec3(-3.0 /*position_S*/, position_S-10, 0.5/*0*/)); //Blue sphere
 
 			//if (i==2) s1->setPosition(osg::Vec3(22.0 /*position_S*/, position_S+15, 0.5/*0*/)); //Blue sphere
 
@@ -247,7 +265,7 @@ public:
 			if (i==3) s1->setPosition(osg::Vec3(-10.0 /*position_S*/, position_S, 0.5/*0*/));
 			//if (i==3) s1->setPosition(osg::Vec3(-10, 10,2/*2*/));
 
-			s1->setTexture("Images/dusty.rgb");
+			s1->setTexture("Images/dusty.rgb"/*dusty.rgb*/);
 			//Target 1
 			if (i==0){ s1->setColor(Color(1,0,0)); }
 			//Target 2
@@ -264,6 +282,8 @@ public:
 			fixator2 = new  FixedJoint(s1->getMainPrimitive(), global.environment);
 			fixator2->init(odeHandle, osgHandle);
 		}
+
+
 
 
 		//		int number_spheres = 4;
@@ -295,11 +315,12 @@ public:
 		// - add sphere to list of obstacles
 
 
+
+
 		PassiveBox* b1;
 		double length = 6.5; //6.5 ; //20.0;//20.0; //4.5; //6.0 ; //4.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
 		double width = 1.0;
 		double height = 1.0;
-
 
 
 		if(obstacle_on)
@@ -337,9 +358,32 @@ public:
 
 		}
 
+		if(number_boxes >= 4) {
+			int k = 0;
+			while(k<=number_boxes)
+			{
+				b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(3.0, width, height /*size*/));
+				b1->setColor(Color(1,0,0));
+				random_position_S_x  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
+				random_position_S_y  = ((MAX_y-MIN_y)*((float)rand()/RAND_MAX))+MIN_y;
+				b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), random_position_S_x /*0*/,0,1) * osg::Matrix::translate(/*i*4.5+*/random_position_S_x, random_position_S_y/*i*-pos_obstacle_y*2.0*//*0+i*/,height/2) /* pose*/);
+
+				global.obstacles.push_back(b1);
+											fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
+											//fixator.at(i)->init(odeHandle, osgHandle);
+											fixator.at(0)->init(odeHandle, osgHandle);
+
+											k++;
+			}
 
 
 		}
+
+
+		}
+
+
+
 
 
 		// use Nimm2 vehicle as robot:
@@ -428,6 +472,8 @@ public:
 				/************************************/
 
 				Pos pos(position_x-5.0/*, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
+
+				//Pos pos(position_x/*, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
 
 			//	Pos pos(position_x-5.0/*, +x = to left, -x = to right*/,-2.0/*y*/,0.0/*z*/);
 				std::cout << "random_or1: " << random_or << std::endl;
@@ -671,6 +717,7 @@ public:
 
 		std::cout<<"Current Cycle"<<this->currentCycle<<std::endl;
 
+		 global_counter++;
 
 		//Temporary variable storing the pointer to the controller if the latter should not be resetted
 		AbstractController* temp_controller;
@@ -752,8 +799,6 @@ public:
 
 			//Need to add put the current controller to temp controller?????----STILL NOT IMPLEMENT-----------------------------(FRANK)
 
-			//delete (agent);
-
 
 			global.agents.erase(global.agents.begin());
 			//	  std::cout << "\n END OF MAIN WHILE LOOP" << currentCycle << "\n";
@@ -806,7 +851,10 @@ public:
 		}
 		else
 		{
-			vehicle3->place(Pos(position_x-5.0/*x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
+		//	vehicle3->place(Pos(position_x-5.0/*x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
+
+			vehicle3->place(Pos(position_x/*x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
+
 
 		//	vehicle3->place(Pos(position_x-5.0/*x, +x = to left, -x = to right*/,-3.0/*y*/,0.0/*z*/));
 
@@ -826,6 +874,10 @@ public:
 
 			Pos pos(position_x-5.0/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
 
+		//	Pos pos(position_x/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
+
+
+
 			std::cout << "random_or2: " << random_or<<std::endl;
 
 			//setting position and orientation
@@ -838,6 +890,8 @@ public:
 		{
 			Pos pos(position_x-5.0/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
 
+		//	Pos pos(position_x/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/);
+
 			//setting position and orientation
 			vehicle3->place(osg::Matrix::rotate(0.0, 0, 0, 1) *osg::Matrix::translate(pos));
 
@@ -845,6 +899,37 @@ public:
 			//setting only position
 			//vehicle3->place(Pos(position_x-5.0/*5.5x, +x = to left, -x = to right*/,0.0/*y*/,0.0/*z*/));
 		}
+
+
+	//	if (obstacle_on && global_counter%10 == 0)
+	//	{ PassiveBox* b1;
+	//	double length = 6.5; //6.5 ; //20.0;//20.0; //4.5; //6.0 ; //4.5 /*for learning*/; //3.5 /*for*/;//testing//---------------------------------------------------------------------------TEST
+	//	double width = 1.0;
+	//	double height = 1.0;
+
+
+	//	if(/*number_boxes >= 4*/ global_counter%5 == 0) {
+					//int k = 0;
+				//	while(k<=number_boxes)
+				//	{
+				//		b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(3.0, width, height /*size*/));
+				//		b1->setColor(Color(1,0,0));
+				//		random_position_S_x  = ((MAX_x-MIN_x)*((float)rand()/RAND_MAX))+MIN_x;
+				//		random_position_S_y  = ((MAX_y-MIN_y)*((float)rand()/RAND_MAX))+MIN_y;
+				//		b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), random_position_S_x /*0*/,0,1) * osg::Matrix::translate(/*i*4.5+*/random_position_S_x, random_position_S_y/*i*-pos_obstacle_y*2.0*//*0+i*/,height/2) /* pose*/);
+
+				//		global.obstacles.push_back(b1);
+				//									fixator.push_back(  new  FixedJoint(b1->getMainPrimitive(), global.environment));  //create pointer
+				//									//fixator.at(i)->init(odeHandle, osgHandle);
+				//									fixator.at(0)->init(odeHandle, osgHandle);
+
+					//								k++;
+				//	}
+
+
+			//	}
+
+	//	}
 
 
 
@@ -964,7 +1049,8 @@ public:
 		{
 			/***********************Reset Function*********************************************/
 
-			if (globalData.sim_step>=(time_factor*/*60.0*/60.0*200.000) || qcontroller->distance <5 /*5*/ || qcontroller->failure_flag==1)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
+
+			if (globalData.sim_step>=(time_factor*/*60.0*/60.0*200.000) /*|| qcontroller->distance <5 /*5*/ || qcontroller->failure_flag==1)//||qcontroller->Vt< -1000 ||qcontroller->Vt>1000)//(globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <= 5 )// || qcontroller->distance > 250)// || qcontroller->failure_flag==1 /*parameter from acicocontroller.cpp*/)
 			//if (globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->distance <5/*10*/|| qcontroller->failure_flag_ico==1)
 			//if (globalData.sim_step>=(time_factor*60.0*200.000) || qcontroller->failure_flag_ico==1 || qcontroller->failure_flag==1)
 			//if (globalData.sim_step>=(time_factor*100*60.0*200.000))
@@ -993,7 +1079,8 @@ int main (int argc, char **argv)
 {
 	//srand( time( NULL));
 	ThisSim sim;
-
+	  sim.setGroundTexture("wood.ppm"/*green-artificial-grass-texture.jpg*/);//green_velour_wb.rgb
+	  sim.setCaption("lpzrobots Simulator (NIMM4 robot)        Dasgupta 2012");
 	return sim.run(argc, argv) ? 0 : 1;
 
 
