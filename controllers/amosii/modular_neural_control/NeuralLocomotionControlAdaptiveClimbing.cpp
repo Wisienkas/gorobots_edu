@@ -107,7 +107,10 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	vrn_output.resize(num_cpgs);
 	for(unsigned int i = 0; i < num_cpgs; i++){
 		nlc.at(i) = new ModularNeuralControl(option_cpg);
-
+		if(i<3)
+			nlc.at(i)->setCpgOutput(0, -1.);
+		else
+			nlc.at(i)->setCpgOutput(0, 1.);
 		cpg_output.at(i).resize(2);
 		pcpg_output.at(i).resize(2);
 		psn_output.at(i).resize(12);
@@ -285,13 +288,21 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 			nlc.at(i_cpg)->step(i_cpg, cpg_output, inreflex);
 
 
-		for (unsigned int i_legs = 0; i_legs < tr_output.size(); i_legs++) {
-			tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
-			tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
-			cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
-			cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
-			fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
-			fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
+		for (int i_legs = 0; i_legs < num_legpairs; i_legs++) {
+			if(i_cpg<3){
+				if(i_legs == i_cpg){
+					tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
+					cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
+					fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
+				}
+			}
+			else{
+				if(i_legs == i_cpg%3){
+					tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
+					cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
+					fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
+				}
+			}
 		}
 	}
 
@@ -308,6 +319,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		vrn_output.at(i_cpg).at(12) = nlc.at(i_cpg)->getVrnLeftOutput(6);
 		vrn_output.at(i_cpg).at(13) = nlc.at(i_cpg)->getVrnRightOutput(6);
 	}
+
+
 
 	/*******************************************************************************
 	 *  MODULE 2 BACKBONE JOINT CONTROL
@@ -426,22 +439,22 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 			if (i < TL0_m)
 			{
 				tr_outputOld.at(i%tr_outputOld.size())=m_pre.at(i);
-				m_pre.at(i)=tr_output.at(2);
+				m_pre.at(i)=tr_output.at(i%tr_output.size());
 			}
 			else
 			{
 				tl_outputOld.at(i%tl_outputOld.size())=m_pre.at(i);
-				m_pre.at(i)=tr_output.at(2);
+				m_pre.at(i)=tl_output.at(i%tl_output.size());
 			}
 		}
 		//
 		for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
 
-			postcr.at(i) = cr_output.at(2);//read(delay)
+			postcr.at(i) = cr_output.at(i%cr_output.size());//read(delay)
 		}
 		for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
 
-			postcl.at(i) = cr_output.at(2);
+			postcl.at(i) = cl_output.at(i%cl_output.size());
 		}
 
 		//CTr joints
@@ -468,10 +481,10 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 		//FTi joints
 		for (unsigned int i = FR0_m; i < (FR2_m + 1); i++) {
-			m_pre.at(i) = fr_output.at(2);
+			m_pre.at(i) = fr_output.at(i%fr_output.size());
 		}
 		for (unsigned int i = FL0_m; i < (FL2_m + 1); i++) {
-			m_pre.at(i) = fr_output.at(2);
+			m_pre.at(i) = fl_output.at(i%fl_output.size());
 		}
 
 
@@ -485,7 +498,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		m_pre.at(FR2_m) *= 1.5 * -input.at(4);
 		m_pre.at(FL2_m) *= 1.5 * -input.at(3);
 	}
-
 
 	/*********************End*************************/
 
@@ -546,9 +558,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		}
 		bjc_offset = 0.0;
 	}
-	// >> i/o operations here <<
-	outFilenlc1 << m_pre.at(CL0_m) << ' ' << reflex_fs.at(L0_fs) << ' ' << m_pre.at(CL1_m) << ' ' << reflex_fs.at(L1_fs)
-    								  << ' ' << m_pre.at(CL2_m) << ' ' << reflex_fs.at(L2_fs) << endl;
 
 	/*******************************************************************************
 	 *  MODULE 5 REFLEX MECHANISMS

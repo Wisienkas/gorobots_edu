@@ -71,7 +71,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 		//Control_input = 0.34; //Faster than tripod
 
 		//destabilize cpg to oscillate
-		cpg->setOutput(0, 0.1);
+		//cpg->setOutput(0, 0.1);
 		cpg->setOutput(1, 0.1);
 		cpg->setActivity(0, 0.1);
 		cpg->setActivity(1, 0.1);

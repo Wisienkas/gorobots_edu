@@ -50,13 +50,9 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 	{
 		// press Ctrl M to display matrix
 		for(unsigned int i_cpg = 0; i_cpg < num_cpgs; i_cpg++){
-/*			string numstr; // enough to hold all numbers up to 64-bits
-			sprintf(numstr, " [%u]", i_cpg);
-			string numstr_lr; // enough to hold all numbers up to 64-bits
-			sprintf(numstr_lr, "%u", i_cpg%3);*/
 			string lr = (i_cpg<3) ? "R" : "L";
-			addInspectableValue("CPG" + to_string(i_cpg),&control_adaptiveclimbing->cpg_output.at(i_cpg).at(0), lr + to_string(i_cpg%3) + "_0");	//to_string() is C++11
-			addInspectableValue("CPG" + to_string(i_cpg),&control_adaptiveclimbing->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
+			addInspectableValue("CPG[" + to_string(i_cpg) + "]",&control_adaptiveclimbing->cpg_output.at(i_cpg).at(0), lr + to_string(i_cpg%3) + "_0");	//to_string() is C++11
+			addInspectableValue("CPG[" + to_string(i_cpg) + "]",&control_adaptiveclimbing->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
 		}
 	}
 
