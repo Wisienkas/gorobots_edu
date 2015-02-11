@@ -102,13 +102,10 @@ class ThisSim : public lpzrobots::Simulation {
 public:
 
 	ThisSim() {
-		addPaletteFile("colors/UrbanExtraColors.gpl");
-		addColorAliasFile("colors/UrbanColorSchema.txt");
-		// you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
-		// addColorAliasFile("myColorSchema.txt");
-		setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
-		setTitle("Adaptive Climbing Behavior of Walking Machines");
-		//setCaption("right aligned text");
+		//addPaletteFile("colors/UrbanExtraColors.gpl");
+		//addColorAliasFile("colors/UrbanColorSchema.txt");
+		setTitle("       Modular Robot Control Environment (MoRoCo)");
+		setCaption("2015");
 	}
 
 	/**
@@ -142,40 +139,40 @@ public:
 
 
 		// it is possible to chose between AMOSIIv1 and AMOSIIv2
-		               bool use_amosii_version1 = false;
-		               bool use_amosii_version2 =true ;
+		bool use_amosii_version1 = false;
+		bool use_amosii_version2 =true ;
 
-		               if (use_amosii_version1 && !use_amosii_version2){
-		                     std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
-		                     // using amosII version 1
-		                     // Add amosIIv1 robot
-		                      myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);
-		                     myAmosIIConf.rubberFeet = true;
+		if (use_amosii_version1 && !use_amosii_version2){
+			std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
+			// using amosII version 1
+			// Add amosIIv1 robot
+			myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);
+			myAmosIIConf.rubberFeet = true;
 
-		                     amos = new lpzrobots::AmosII(
-		                    		 rodeHandle,
-		                         osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
-		                         myAmosIIConf, "AmosIIv1");
-		                     controller = new AmosIIControl(/*AMOSv1*/1,/*MCPGs=true*/true,/*Muscle Model =true*/false);
-		                   }
-		               	   	  else {
-		                     std::cout<<"select only one version of AMOSII !"<<std::endl;
-		                     assert(use_amosii_version1 != use_amosii_version2);
-		                   }
+			amos = new lpzrobots::AmosII(
+					rodeHandle,
+					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
+					myAmosIIConf, "AmosIIv1");
+			controller = new AmosIIControl(/*AMOSv1*/1,/*MCPGs=true*/true,/*Muscle Model =true*/false);
+		}
+		else {
+			std::cout<<"select only one version of AMOSII !"<<std::endl;
+			assert(use_amosii_version1 != use_amosii_version2);
+		}
 
-		                   if (use_amosii_version2 && !use_amosii_version1){
-		                     std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 2 SELECTED!"<<std::endl<<std::endl;
-		                     myAmosIIConf = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);                    myAmosIIConf.rubberFeet = true;
-		                       myAmosIIConf.legContactSensorIsBinary=false;
+		if (use_amosii_version2 && !use_amosii_version1){
+			std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 2 SELECTED!"<<std::endl<<std::endl;
+			myAmosIIConf = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);                    myAmosIIConf.rubberFeet = true;
+			myAmosIIConf.legContactSensorIsBinary=false;
 
-		                     amos = new lpzrobots::AmosII(
-		                    		 rodeHandle,
-		                         osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
-		                         myAmosIIConf, "AmosIIv2");
-		                     controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/true,/*Muscle Model =true*/false);
+			amos = new lpzrobots::AmosII(
+					rodeHandle,
+					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
+					myAmosIIConf, "AmosIIv2");
+			controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/true,/*Muscle Model =true*/false);
 
 
-		                   }
+		}
 
 
 
@@ -230,41 +227,44 @@ public:
 			int key, bool down) {
 		if (down) { // only when key is pressed, not when released
 			switch (char(key)) {
-					case 'C': //enable sensory feedback mechanism
-						((AmosIIControl*) controller)->enableContactForceMech();
-							   break;
-					 case  'c':  //disable sensory feedback mechanism
-						 ((AmosIIControl*) controller)->disableContactForceMech();
-							   break;
-					 case 'q':  //increase modulatory input (frequency)
-						 ((AmosIIControl*) controller)->increaseFrequency();
-									 break;
-					 case 's': //decrease modulatory input (frequency)
-								((AmosIIControl*) controller)->decreaseFrequency();
-									break;
-					 case 'M': //enable oscillator coupling (fully connected network)
-						   ((AmosIIControl*) controller)->enableOscillatorCoupling();
-									 break;
-			         case  'm': //disable oscillator coupling (fully connected network)
-			        	 ((AmosIIControl*) controller)->disableOscillatorCoupling();
-			                 break;
+			case 'b': //switch backbone joint off
+				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint=false;
+				break;
+			case 'C': //enable sensory feedback mechanism
+				((AmosIIControl*) controller)->enableContactForceMech();
+				break;
+			case  'c':  //disable sensory feedback mechanism
+				((AmosIIControl*) controller)->disableContactForceMech();
+				break;
+			case 'q':  //increase modulatory input (frequency)
+				((AmosIIControl*) controller)->increaseFrequency();
+				break;
+			case 's': //decrease modulatory input (frequency)
+				((AmosIIControl*) controller)->decreaseFrequency();
+				break;
+			case 'M': //enable oscillator coupling (fully connected network)
+				((AmosIIControl*) controller)->enableOscillatorCoupling();
+				break;
+			case  'm': //disable oscillator coupling (fully connected network)
+				((AmosIIControl*) controller)->disableOscillatorCoupling();
+				break;
 
-			         case  '#':// select tetrapod gait
-			        	 ((AmosIIControl*) controller)->enableTetrapodGait();
-			                     break;
-			          case  '@': // select wave
-			        	  ((AmosIIControl*) controller)->enableWaveGait();
-			                  break;
-			          case  '!': // select tripod gait
-			        	  ((AmosIIControl*) controller)->enableTripodGait();
-			                   break;
-			          case  '$': //// select irregular gait
-			        	  ((AmosIIControl*) controller)->enableIrregularGait();
-			                   break;
+			case  '#':// select tetrapod gait
+				((AmosIIControl*) controller)->enableTetrapodGait();
+				break;
+			case  '@': // select wave
+				((AmosIIControl*) controller)->enableWaveGait();
+				break;
+			case  '!': // select tripod gait
+				((AmosIIControl*) controller)->enableTripodGait();
+				break;
+			case  '$': //// select irregular gait
+				((AmosIIControl*) controller)->enableIrregularGait();
+				break;
 
-					default:
-							return false;
-							break;
+			default:
+				return false;
+				break;
 			}
 		}
 
