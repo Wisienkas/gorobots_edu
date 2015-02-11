@@ -287,10 +287,10 @@ public:
 		{
 			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
 					&& ((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->m.at(BJ_m) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(0) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(5) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing->m.at(BJ_m) = 0.0;
+				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint = false;
 				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
 				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
 			}
