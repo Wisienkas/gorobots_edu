@@ -174,7 +174,7 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv1");
-			controller = new AmosIIControl(/*AMOSv1*/1,/*MCPGs=true*/true,/*Muscle Model =true*/false, false);
+			controller = new AmosIIControl(/*AMOSv1*/1,/*MCPGs=true*/true,/*Muscle Model =true*/false/*, false*/);
 		}
 		else {
 			std::cout<<"select only one version of AMOSII !"<<std::endl;
@@ -190,7 +190,7 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv2");
-			controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/false,/*Muscle Model =true*/false, false);
+			controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/false,/*Muscle Model =true*/false/*, false*/);
 		}
 
 

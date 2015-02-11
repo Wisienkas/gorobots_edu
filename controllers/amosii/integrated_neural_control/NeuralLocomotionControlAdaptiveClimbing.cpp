@@ -29,19 +29,24 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 
 /**
  * init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
- *param: aamosVersion -indicates to AMOS version
- *param: mMCPGs		  -indicates whether single CPG-based control(false) or Multiple CPGs-based control (true)
- *param: mMuscleModelIsEnabled -  muscle model is deployed when mMuscleModelIsEnabled =true
+ * param: aamosVersion -indicates to AMOS version
+ * param: mMCPGs		  -indicates whether single CPG-based control(false) or Multiple CPGs-based control (true)
+ * param: mMuscleModelIsEnabled -  muscle model is deployed when mMuscleModelIsEnabled =true
  * author: subhi shaker barikhan
  * date:27.05.2014
  */
 void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
 {
+	printf("Initialize: Neural Locomotion Control\nAMOS version=%u\nMultiple CPGs=%s\nMuscle model=%s\n", aamosVersion,  mMCPGs ? "ON" : "OFF", mMuscleModelIsEnabled ? "ON" : "OFF");
 	//Save files
 	outFilenlc1.open("Neurallocomotion.txt");
 	amosVersion=aamosVersion;
 	MCPGs=mMCPGs;
 	muscleModelIsEnabled=mMuscleModelIsEnabled;
+	if(MCPGs)
+		num_cpgs = 6;
+	else
+		num_cpgs = 1;
 
 	//---Set vector size----//
 
@@ -58,21 +63,6 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	postcr.resize(AMOSII_MOTOR_MAX);
 	postclold.resize(AMOSII_MOTOR_MAX);
 	postcl.resize(AMOSII_MOTOR_MAX);
-
-
-	//NLC output vector sizes
-	cpg_output.resize(2);
-	pcpg_output.resize(2);
-	psn_output.resize(12);
-	vrn_output.resize(14);
-	tr_output.resize(3);
-	tl_output.resize(3);
-	cr_output.resize(3);
-	cl_output.resize(3);
-	fr_output.resize(3);
-	fl_output.resize(3);
-	tr_outputOld.resize(3);
-	tl_outputOld.resize(3);
 
 	//Motor vector sizes
 	m_pre.resize(AMOSII_MOTOR_MAX);
@@ -98,11 +88,34 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	counter = 0;
 	ext = 0.0;
 
+	//NLC output vector sizes
+	tr_output.resize(3);
+	tl_output.resize(3);
+	cr_output.resize(3);
+	cl_output.resize(3);
+	fr_output.resize(3);
+	fl_output.resize(3);
+	tr_outputOld.resize(3);
+	tl_outputOld.resize(3);
+
 	//Neural Locomotion Control constructor
 	option_cpg = SO2cpg; // = 1, kohs CPG
-	nlc = new ModularNeuralControl(option_cpg);
+	nlc.resize(num_cpgs);
+	cpg_output.resize(num_cpgs);
+	pcpg_output.resize(num_cpgs);
+	psn_output.resize(num_cpgs);
+	vrn_output.resize(num_cpgs);
+	for(unsigned int i = 0; i < num_cpgs; i++){
+		nlc.at(i) = new ModularNeuralControl(option_cpg);
+
+		cpg_output.at(i).resize(2);
+		pcpg_output.at(i).resize(2);
+		psn_output.at(i).resize(12);
+		vrn_output.at(i).resize(14);
+	}
+	Control_input = nlc.at(0)->Control_input;
+
 	//---MODULE 1 parameters
-	Control_input = nlc->Control_input; //wave for climbing
 	turning = false;
 	counter_turn = 0;
 	//Inputs
@@ -239,7 +252,7 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 		lift_value= 0.0;
 
 }
-;
+
 
 NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbing() {
 
@@ -247,90 +260,49 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 	outFilenlc1.close();
 
 }
-;
 
-void NeuralLocomotionControlAdaptiveClimbing::initializeMCPG(int cCPGID,std::vector<NeuralLocomotionControlAdaptiveClimbing *> nNLCAC)
-{
-	CPGID=cCPGID;
-	NLCAC=nNLCAC;
-}
+
 std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> inreflex,
 		const std::vector< vector<double> > in0, bool Footinhibition) {
-
-
-
 
 	/*******************************************************************************
 	 *  MODULE 1 NEURAL LOCOMOTION CONTROL (ANN framework)
 	 *******************************************************************************/
 
-	for (unsigned int i = 0; i < 5; i++) {
-		//without obstacle avoidance, deactivate the lines below
-
-		input.at(0) = 0;
-		input.at(1) = 0;
-		input.at(2) = 1; // 0, or 1
-		input.at(3) = -1;
-		input.at(4) = -1;
-		nlc->setInputNeuronInput(i, input.at(i));
-	}
-
-	if( switchon_obstacle){
-		//for obstacle avoidance
+	if(switchon_obstacle){                 //for obstacle avoidance
 		input.at(3) = in0[FL_us][1];
 		input.at(4) = in0[FR_us][1];
-		nlc->setInputNeuronInput(3,input.at(3));//in0[FL_us][1]);
-		nlc->setInputNeuronInput(4,input.at(4));// in0[FR_us][1]);
-
 	}
 
-	if(!MCPGs) // Single CPG is utilized
-		nlc->step();
-	else // multiple CPGs are utilized
-		nlc->step(CPGID,NLCAC,inreflex);
+	for(unsigned int i_cpg = 0; i_cpg < num_cpgs; i_cpg++){
+		for(unsigned int i_in = 0; i_in < input.size(); i_in++)
+			nlc.at(i_cpg)->setInputNeuronInput(i_in, input.at(i_in));
 
-	cpg_output.at(0) = nlc->getCpgOutput(0);
-	cpg_output.at(1) = nlc->getCpgOutput(1);
-	cpg_act_0 = nlc->getCpgActivity(0);
-	cpg_act_1 = nlc->getCpgActivity(1);
-	cpg_w_0 = nlc->getCpgWeight(1, 0);
-	cpg_w_1 = nlc->getCpgWeight(0, 1);
-	cpg_rec_0 = nlc->getCpgWeight(0, 0);
-	cpg_rec_1 = nlc->getCpgWeight(1, 1);
-	cpg_bias_0 = nlc->getCpgBias(0);
-	cpg_bias_1 = nlc->getCpgBias(1);
+		if(!MCPGs) // Single CPG is utilized
+			nlc.at(i_cpg)->step();
+		else // multiple CPGs are utilized
+			nlc.at(i_cpg)->step(i_cpg, cpg_output, inreflex);
 
-	pcpg_output.at(0) = nlc->getpcpgOutput(0);
-	pcpg_output.at(1) = nlc->getpcpgOutput(1);
+		cpg_output.at(i_cpg).at(0) = nlc.at(i_cpg)->getCpgOutput(0);
+		cpg_output.at(i_cpg).at(1) = nlc.at(i_cpg)->getCpgOutput(1);
 
-	psn_output.at(10) = nlc->getPsnOutput(10);
-	psn_output.at(11) = nlc->getPsnOutput(11);
+		pcpg_output.at(i_cpg).at(0) = nlc.at(i_cpg)->getpcpgOutput(0);
+		pcpg_output.at(i_cpg).at(1) = nlc.at(i_cpg)->getpcpgOutput(1);
 
-	vrn_output.at(12) = nlc->getVrnLeftOutput(6);
-	vrn_output.at(13) = nlc->getVrnRightOutput(6);
+		psn_output.at(i_cpg).at(10) = nlc.at(i_cpg)->getPsnOutput(10);
+		psn_output.at(i_cpg).at(11) = nlc.at(i_cpg)->getPsnOutput(11);
 
-	for (unsigned int i = 0; i < tr_output.size(); i++) {
-		tr_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + TR0_m));
-	}
+		vrn_output.at(i_cpg).at(12) = nlc.at(i_cpg)->getVrnLeftOutput(6);
+		vrn_output.at(i_cpg).at(13) = nlc.at(i_cpg)->getVrnRightOutput(6);
 
-	for (unsigned int i = 0; i < tl_output.size(); i++) {
-		tl_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + TL0_m));
-	}
-
-	for (unsigned int i = 0; i < cr_output.size(); i++) {
-		cr_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + CR0_m));
-	}
-
-	for (unsigned int i = 0; i < cl_output.size(); i++) {
-		cl_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + CL0_m));
-	}
-
-	for (unsigned int i = 0; i < fr_output.size(); i++) {
-		fr_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + FR0_m));
-	}
-
-	for (unsigned int i = 0; i < fl_output.size(); i++) {
-		fl_output.at(i) = nlc->getMotorNeuronOutput(AmosIIMotorNames(i + FL0_m));
+		for (unsigned int i_legs = 0; i_legs < tr_output.size(); i_legs++) {
+			tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
+			tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
+			cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
+			cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
+			fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
+			fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
+		}
 	}
 
 	/*******************************************************************************

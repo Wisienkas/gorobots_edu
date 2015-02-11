@@ -28,10 +28,10 @@
 #include <selforg/configurable.h>
 #include <selforg/types.h>
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <string>
 #include <vector>
 
 #include <selforg/matrix.h>
@@ -51,17 +51,17 @@
 class AmosIIControl : public AbstractController {
 
   public:
-    AmosIIControl();
     /*The new controller has numerous privileges:
-    *1) selection between AMOSv1 (aAMOStype=1) and AMOSv2 (aAMOStype=2).
-    *2) selection between single CPG-based controller (mMCPGs=false) and Multiple CPGs-based control (mMCPGs=true).
-    *3) possibility to utilize muscle model (mMuscleModelisEnabled=true).
+    *1) selection between AMOSv1 (aAMOStype=1) and AMOSv2 (aAMOStype=2). [DEFAULT = 2]
+    *2) selection between single CPG-based controller (mMCPGs=false) and Multiple CPGs-based control (mMCPGs=true). [DEFAULT = false]
+    *3) possibility to utilize muscle model (mMuscleModelisEnabled=true). [DEFAULT = false]
+    *4) selection between integrated navigation controller (mNNC=true) and pure locomotion controller (mNNC=false). [DEFAULT = false]
     * */
-    AmosIIControl(int aAMOStype,bool mMCPGs,bool mMuscleModelisEnabled);
-    void initialize(int aAMOStype,bool mMCPGs,bool mMuscleModelisEnabled);
+    AmosIIControl(int aAMOStype=2, bool mMCPGs=false, bool mMuscleModelisEnabled=false/*, bool mNNC=false*/);
+    virtual ~AmosIIControl();
     virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
-   void enableContactForceMech();
-   void disableContactForceMech();
+    void enableContactForceMech();
+    void disableContactForceMech();
     void increaseFrequency();
     void decreaseFrequency();
     void enableOscillatorCoupling();
@@ -71,8 +71,6 @@ class AmosIIControl : public AbstractController {
     void enableWaveGait();
     void enableIrregularGait();
 
-
-    virtual ~AmosIIControl();
 
     double sigmoid(double num) {
       return 1.0 / (1.0 + exp(-num));
@@ -121,7 +119,6 @@ class AmosIIControl : public AbstractController {
     //Angle sensors
     std::vector<sensor> x;
     std::vector<sensor> y;
-    std::vector< std::vector<double> > y_MCPGs;
     //Adding more sensory inputs here
 
 
@@ -131,33 +128,13 @@ class AmosIIControl : public AbstractController {
 
     //2) Neural locomotion control------
 
-   // NeuralLocomotionControlAdaptiveClimbing control_adaptiveclimbing;
-
-    /********Subhi***********/
-    std::vector<NeuralLocomotionControlAdaptiveClimbing *> control_adaptiveclimbing;
+    NeuralLocomotionControlAdaptiveClimbing* control_adaptiveclimbing;
 
     /**********End ****************/
 
     //3) Motor postprocessing/scaling   ----------------
 
     //4) Any other parameters   ----------------
-
-    bool plot_irlearning;
-    bool plot_preprofc;
-    bool plot_preproirleg;
-    bool plot_fmodel_ctr;
-    bool plot_reflex_fs;
-    bool plot_post_ctr;
-    bool plot_fmodel_errors;
-    bool plot_fmodel_w;
-    bool plot_ussensor_obstacle_avoidance;
-    bool plot_reversegear;
-    bool plot_nlc;
-    bool plot_testbjc;
-    bool plot_cpg;
-    bool testing;
-    bool plot_fmodel_counter;
-    bool plot_preproirs;
 
     //End ADD YOUR VARIABLE HERE//
 
@@ -169,6 +146,7 @@ class AmosIIControl : public AbstractController {
     bool sensoryFeed;//indicates whether the used robot AMOSv1 (amosType=1)  or AMOSv2(amosType=2).
     bool muscleModel;//indicates whether the used robot AMOSv1 (amosType=1)  or AMOSv2(amosType=2).
    // bool mMuscleModelisEnabled;
+    unsigned int num_cpgs;
 
 };
 
