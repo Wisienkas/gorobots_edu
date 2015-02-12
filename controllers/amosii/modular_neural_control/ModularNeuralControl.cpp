@@ -71,7 +71,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 		//Control_input = 0.34; //Faster than tripod
 
 		//destabilize cpg to oscillate
-		//cpg->setOutput(0, 0.1);
+		cpg->setOutput(0, 0.1);
 		cpg->setOutput(1, 0.1);
 		cpg->setActivity(0, 0.1);
 		cpg->setActivity(1, 0.1);
@@ -191,7 +191,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 	w(pmn->getNeuron(TR2_m), inputNeurons[0], -10);
 
 	//CL CR
-	w(pmn->getNeuron(CL0_m), psn->getNeuron(11), 5.0); //-5.0
+	w(pmn->getNeuron(CL0_m), psn->getNeuron(11), -5.0);
 	w(pmn->getNeuron(CL0_m), inputNeurons[0], 10);
 	b(pmn->getNeuron(CL0_m), -0.5);
 
@@ -199,7 +199,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 	w(pmn->getNeuron(CL1_m), inputNeurons[0], 10);
 	b(pmn->getNeuron(CL1_m), -0.5);
 
-	w(pmn->getNeuron(CL2_m), psn->getNeuron(11), 5.0); //-5.0
+	w(pmn->getNeuron(CL2_m), psn->getNeuron(11), -5.0);
 	w(pmn->getNeuron(CL2_m), inputNeurons[0], 10);
 	b(pmn->getNeuron(CL2_m), -0.5);
 
@@ -207,7 +207,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 	w(pmn->getNeuron(CR0_m), inputNeurons[0], 10);
 	b(pmn->getNeuron(CR0_m), -0.5);
 
-	w(pmn->getNeuron(CR1_m), psn->getNeuron(11), 5.0); //-5.0
+	w(pmn->getNeuron(CR1_m), psn->getNeuron(11), -5.0);
 	w(pmn->getNeuron(CR1_m), inputNeurons[0], 10);
 	b(pmn->getNeuron(CR1_m), -0.5);
 

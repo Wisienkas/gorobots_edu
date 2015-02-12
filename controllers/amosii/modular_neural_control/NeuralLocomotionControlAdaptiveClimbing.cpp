@@ -107,10 +107,12 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	vrn_output.resize(num_cpgs);
 	for(unsigned int i = 0; i < num_cpgs; i++){
 		nlc.at(i) = new ModularNeuralControl(option_cpg);
-		if(i<3)
-			nlc.at(i)->setCpgOutput(0, -1.);
-		else
-			nlc.at(i)->setCpgOutput(0, 1.);
+		if(MCPGs){
+			if(i<3)
+				nlc.at(i)->setCpgOutput(0, -1.);
+			else
+				nlc.at(i)->setCpgOutput(0, 1.);
+		}
 		cpg_output.at(i).resize(2);
 		pcpg_output.at(i).resize(2);
 		psn_output.at(i).resize(12);
@@ -282,6 +284,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		for(unsigned int i_in = 0; i_in < input.size(); i_in++)
 			nlc.at(i_cpg)->setInputNeuronInput(i_in, input.at(i_in));
 
+
 		if(!MCPGs) // Single CPG is utilized
 			nlc.at(i_cpg)->step();
 		else // multiple CPGs are utilized
@@ -290,14 +293,22 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 		for (int i_legs = 0; i_legs < num_legpairs; i_legs++) {
 			if(i_cpg<3){
-				if(i_legs == i_cpg){
+				if(i_legs == i_cpg && MCPGs){
 					tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
 					cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
 					fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
 				}
+				else{
+					tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
+					cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
+					fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
+					tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
+					cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
+					fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
+				}
 			}
 			else{
-				if(i_legs == i_cpg%3){
+				if(i_legs == i_cpg%3 && MCPGs){
 					tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
 					cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
 					fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
