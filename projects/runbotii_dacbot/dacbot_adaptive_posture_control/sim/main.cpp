@@ -38,8 +38,8 @@
 #include <ode_robots/runbotii.h>
 
 
-#include "controllers/runbotii/muscleRunbotController.h"
-#include "controllers/runbotii/runbotANNController.h"
+#include "controllers/runbotii_dacbot/muscleRunbotController.h"
+#include "controllers/runbotii_dacbot/runbotANNController.h"
 
 
 #include <ode_robots/passivebox.h> //needed for obstacles
