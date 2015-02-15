@@ -18,17 +18,13 @@
 #include <ode_robots/amosiisensormotordefinition.h>
 
 //3) Step function of Neural locomotion control------
-NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing() {
-	init(2,false,false);
-};
-
 NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel)
 {
 	init(aamosVersion,mMCPGs,mMuscleModel);
 }
 
 /**
- * init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
+ * init(int aamosVersion, bool mMCPGs, bool mMuscleModelIsEnabled)
  * param: aamosVersion -indicates to AMOS version
  * param: mMCPGs		  -indicates whether single CPG-based control(false) or Multiple CPGs-based control (true)
  * param: mMuscleModelIsEnabled -  muscle model is deployed when mMuscleModelIsEnabled =true

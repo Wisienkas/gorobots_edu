@@ -67,9 +67,10 @@ AmosIIControl::~AmosIIControl() {
 }
 void AmosIIControl::enableContactForceMech() //enable sensory feedback mechanism
 {
-	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
+	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++){
 		control_adaptiveclimbing->nlc.at(i)->enableContactForce(MCPGs);
-	std::cout << "contactForce is enabled" <<control_adaptiveclimbing->nlc.at(0)->contactForceIsEnabled<< "\n";
+		std::cout << "[" << i << "] " <<"contactForce is enabled -> " <<control_adaptiveclimbing->nlc.at(i)->contactForceIsEnabled<< "\n";
+	}
 }
 
 void AmosIIControl::disableContactForceMech() //disable sensory feedback mechanism

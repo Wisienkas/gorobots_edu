@@ -23,6 +23,12 @@
 
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
+	//touchF=false;
+	//phaseResetInhibitionIsEnabled=false;
+	contactForceIsEnabled=true;
+	//oscillatorsRingCouplingIsEnabled=false;
+	oscillatorsCouplingIsEnabled=false;
+
 	/*******************************************************************************
 	 *  MODULE 0 IO'S for modularneuralcontrol
 	 *******************************************************************************/
@@ -390,6 +396,7 @@ void ModularNeuralControl::step()
  */
 void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const vector<double> x)
 {
+	printf("CPG[%u]\n%f\t%f\n", CPGID,currentActivity.at(0),currentActivity.at(1));
 	currentActivity.at(0)=cpg->getActivity(cpg->getNeuron(0));
 	currentActivity.at(1)=cpg->getActivity(cpg->getNeuron(1));
 	updateActivities();

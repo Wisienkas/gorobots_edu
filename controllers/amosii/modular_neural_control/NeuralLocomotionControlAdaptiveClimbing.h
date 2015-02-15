@@ -34,8 +34,7 @@ class NeuralLocomotionControlAdaptiveClimbing{
 public:
 
 	//---Start Define functions---//
-	NeuralLocomotionControlAdaptiveClimbing();
-	NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel);
+	NeuralLocomotionControlAdaptiveClimbing(int aamosVersion=2, bool mMCPGs=false, bool mMuscleModel=false);
 	~NeuralLocomotionControlAdaptiveClimbing();
 
 	double sigmoid(double num)
