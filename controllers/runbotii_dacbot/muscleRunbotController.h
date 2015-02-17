@@ -10,6 +10,17 @@
 
 #include "cgaittransition.h"
 #include "cnnet.h"
+#include "plastic.h"
+#include "lowPassfilter.h"
+#include <vector>
+//CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
+
+//#include "doublefann.h"
+//#include "floatfann.h"
+#include "fann.h"
+
+#include <iostream> //for plotting
+#include <fstream> //plotting
 
 #include <selforg/abstractcontroller.h>
 //#include "VAAMlib/dccontrollingvmm.h"
@@ -103,6 +114,26 @@ class MuscleRunbotController : public AbstractController {
        valarray<double> actualAD;		//array, used for mapping the sensor array to the right order
 
        bool initialized = false;
+       //giuliano
+
+       std::ofstream hipPlot;//plot
+       std::ofstream cpgPlot;
+       plastic* cpg;
+       double normalized_right;
+       lowPass_filter* filter;
+       std::vector<double> der_vector;
+       double cpg_right_hip=0;
+       double cpg_left_hip=0;
+
+       double cpg_left_knee=0;
+       double cpg_right_knee=0;
+
+       double cpg_signal_right;
+       double cpg_signal_left;
+       double perturbation;
+       //giuliano
+
+      struct fann *ann = fann_create_standard(4, 2, 8, 9, 1);
 
 };
 

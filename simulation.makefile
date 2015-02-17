@@ -43,7 +43,7 @@ LIBFILE_GOROBOTS   = $(GOROBOTS)/lib$(GOROBOTS_LIBNAME).a
 # Include folders
 INC += -I. -I$(GOROBOTS)
 # libraries needed to link everything
-LIBS += $(GOROBOTS_LIBS) $(ODE_ROBOTS_LIBS) $(SELFORG_LIBS) 
+LIBS += $(GOROBOTS_LIBS) $(ODE_ROBOTS_LIBS) $(SELFORG_LIBS) -lfann
 
 # Flags for the c++ compiler:
 # -Wall             : enable all warnings

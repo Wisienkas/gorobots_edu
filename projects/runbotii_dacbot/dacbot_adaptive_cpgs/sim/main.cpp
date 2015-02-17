@@ -66,7 +66,7 @@ public:
 			const lpzrobots::OsgHandle& osgHandle,
 			lpzrobots::GlobalData& global) {
 
-	  bool addterrain = true;
+	  bool addterrain = false;
 	  bool showRealController = false;
 		// set initial camera position
     setCameraHomePos(

@@ -20,11 +20,11 @@ class cGaitProfile {
     public:
         /// Create a new symmetric gait with dummy parameters.
         cGaitProfile() :
-                     m_maxhip_left(100),    m_maxhip_right(100),
+                     m_maxhip_left(100),    m_maxhip_right(100),// set to 100
                      m_minhip_left(78),     m_minhip_right(78),
                      m_maxknee_left(175),   m_maxknee_right(175),
                      m_minknee_left(115),   m_minknee_right(115),
-                     m_gain_hip_left(2.2),  m_gain_hip_right(2.2),
+                     m_gain_hip_left(2.2),  m_gain_hip_right(2.2),// set to 2.2
                      m_gain_knee_left(1.8), m_gain_knee_right(1.8) {};
 
         /// Create a new symmetric gait with specified parameters.

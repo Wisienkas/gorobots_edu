@@ -33,6 +33,22 @@ void MuscleRunbotController::init(int sensornumber, int motornumber, RandGen* ra
 nSensors = sensornumber;
 nMotors =  motornumber;
 steps = 0;
+
+//Giuliano
+hipPlot.open("/home/giuliano/Documents/thesis/plots/hips.dat");
+cpgPlot.open("/home/giuliano/Documents/thesis/plots/cpg.dat");
+
+der_vector.push_back(0);
+der_vector.push_back(0);
+//cpg= new plastic(0.2,0.2,0.2,0.04*2*3.14,1.01);
+cpg= new plastic(0.2,0.2,0.2,0.02*2*3.14,1.01);
+filter= new lowPass_filter(0.2);
+
+
+fann_print_parameters(ann);
+
+//Giuliano
+
 SigmoidTransitionFunction transF = SigmoidTransitionFunction(100);
 MuscleModelConfiguration config = MuscleModelConfiguration(transF);
 config.D = 1;         		//0.2
@@ -88,6 +104,8 @@ int MuscleRunbotController::getMotorNumber() const {
 void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor* motors, int motornumber) {
   valarray<double> motorOutput(4);
   steps++;
+
+
   actualAD[LEFT_HIP] = sensors[0];
   actualAD[RIGHT_HIP] = sensors[1];
   actualAD[LEFT_KNEE] = sensors[2];
@@ -96,8 +114,20 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
   actualAD[LEFT_FOOT] = sensors[5];
   actualAD[RIGHT_FOOT] = sensors[6];
   actualAD[0] = steps;
+
+
+
+
   motorOutput=nnet->update(actualAD,steps);
 
+  normalized_right=filter->update( actualAD[LEFT_HIP] ); // low pass filter
+  double n=normalized_right;
+  normalized_right=( (normalized_right-60)/60 ) * 0.4 -0.2;// mapping signal  from [60:120] to [0.2:0.2]
+
+
+
+
+  std::cout << steps << std::endl;
 
   //musclemodel start
   // execute the following codes in every time step
@@ -109,6 +139,8 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
   double leftLoad  = Raw_L_fs * (1 - Raw_R_fs*0.5);
 
   //VAAM needs radian angles
+  double lHAng_cpg_right= cpg_signal_right* DEGTORAD;
+  double lHAng_cpg_left= cpg_signal_left* DEGTORAD;
   double lHAng = sensors[0] * DEGTORAD;
   double rHAng = sensors[1] * DEGTORAD;
   double lKAng = sensors[2] * DEGTORAD;
@@ -133,8 +165,11 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
 
   leftMuscles->setState(0,motorOutput[2],leftLoad,lKAng);
   rightMuscles->setState(0,motorOutput[3],rightLoad,rKAng);
-  leftMuscles->setState(1,motorOutput[0],leftLoad,lHAng);
+  leftMuscles->setState(1,motorOutput[0],leftLoad,lHAng);//reflexive control
   rightMuscles->setState(1,motorOutput[1],rightLoad,rHAng);
+
+
+
 
   double tFactor = 0.003; //torquefactor, to  scale muscle models output into the right range (to motor voltage)
 
@@ -146,14 +181,95 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
   LHMusclTor = tFactor*leftMuscles->getSignal(1);
   RHMusclTor = tFactor*rightMuscles->getSignal(1);
 
-  motors[0] = LHMusclTor;
-  motors[1] = RHMusclTor;
-  motors[2] = LKMusclTor;
-  motors[3] = RKMusclTor;
+
+  if (steps < 3000 || steps > 15000)
+  {
+	  motors[0] = motorOutput[0];//LHMusclTor;
+	  motors[1] = motorOutput[1];//RHMusclTor;
+	  motors[2] = motorOutput[2];//LKMusclTor;
+	  motors[3] = motorOutput[3];//RKMusclTor;
+  }
+  else
+  {
+	  motors[0] = cpg_left_hip;
+	  motors[1] = cpg_right_hip;
+	  motors[2] = motorOutput[2];//LKMusclTor;
+	  motors[3] = motorOutput[3];//RKMusclTor;
+
+	  //motors[2] = //cpg_left_knee;
+	  //motors[3] = //cpg_right_knee;
+  }
+
+
   motors[4] = ubc+ubc_wabl;
 
+
+
+  hipPlot << steps << " " <<motorOutput[0] <<" " << motorOutput[2] << " " << cpg_left_hip << " "  <<   cpg_left_knee << " " << n << " " << actualAD[LEFT_HIP] << " " <<  normalized_right << std::endl;
+
+  cpgPlot << steps << " " <<  lHAng << " " << actualAD[LEFT_FOOT] << " " << actualAD[LEFT_KNEE]  << " " << actualAD[BOOM_ANGLE]  << " " << cpg_signal_left <<  std::endl;
+
+
+  perturbation=normalized_right;
+
+  cpg->update(perturbation);
   //muscle model end
 
+
+  //CPG PROCESSING
+
+  //bring signal to original range
+  //cpg_signal_right=((cpg->getOut0()+0.2)/0.4)*60+60;
+  cpg_signal_left=((cpg->getOut1()+0.2)/0.4)*(1.9)-1;
+
+  der_vector[0]=der_vector.at(1);
+  der_vector[1]=cpg_signal_left;
+
+  double derbig= der_vector[1]-der_vector[0];
+
+
+
+  if (cpg_signal_left>0)
+  {
+	cpg_right_knee=0;
+	if (derbig >= 0)
+	{
+		cpg_left_hip=2.18;
+		cpg_right_hip=-2.18;
+
+
+	}
+
+	else
+	{
+		cpg_left_hip=0;
+		cpg_right_hip=0;
+	}
+
+  }
+
+  if (cpg_signal_left <= 0)
+  {
+	  cpg_left_knee=0;
+	  if (derbig < 0)
+	  {
+		cpg_left_hip=-2.18;
+		cpg_right_hip=2.18;
+	  }
+
+	  else
+	  {
+		cpg_left_hip=0;
+		cpg_right_hip=0;
+
+	  }
+
+  }
+
+
+
+
+  //CPG PROCESSING
 
   //testing stability possible with fast moving upper body component:
   if (steps % ubc_time == 0)
