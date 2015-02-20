@@ -213,13 +213,13 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	 *  CONTROL OPTION!!!!
 	 *******************************************************************************/
 	//Switch on or off all reflexes
-	switchon_allreflexactions=false;
+	switchon_allreflexactions=true;
 
 	//Switch on or off backbone joint control
-	switchon_backbonejoint = false;//true;
+	switchon_backbonejoint = true;//true;
 
 	//Switch on or off reflexes
-	switchon_reflexes = false;//true;//true;//1;// true==on, false == off
+	switchon_reflexes = true;//true;//true;//1;// true==on, false == off
 
 	//Switch on pure foot signal
 	switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal

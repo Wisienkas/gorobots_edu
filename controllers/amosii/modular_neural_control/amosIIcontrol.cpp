@@ -170,9 +170,7 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
 	for (unsigned int i = 0; i < AMOSII_SENSOR_MAX; i++) {
 		x.at(i) = x_[i];
 	}
-	for (unsigned int i = 19; i < 25; i++)
-		data_sr << x.at(i) << "\t";
-	data_sr << endl;
+
 
 	/******   1) Neural preprocessing and learning   ******/
 
