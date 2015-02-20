@@ -35,7 +35,9 @@ using namespace matrix;
 using namespace std;
 
 AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEnabled) : AbstractController("AmosIIControl", "$Id: amosIIcontrol.cpp,v 0.1 $") {
-
+	//data_wr.open("results_n.dat");
+	//data_sr.open("sensor_n.dat");
+	//data_mr.open("motor_n.dat");
 	//---ADD YOUR initialization here---//
 	t = 0; // step counter
 	MCPGs=mMCPGs;
@@ -63,7 +65,9 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 }
 
 AmosIIControl::~AmosIIControl() {
-
+	//data_wr.close();
+	//data_sr.close();
+	//data_mr.close();
 }
 void AmosIIControl::enableContactForceMech() //enable sensory feedback mechanism
 {
@@ -166,7 +170,9 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
 	for (unsigned int i = 0; i < AMOSII_SENSOR_MAX; i++) {
 		x.at(i) = x_[i];
 	}
-
+	for (unsigned int i = 19; i < 25; i++)
+		data_sr << x.at(i) << "\t";
+	data_sr << endl;
 
 	/******   1) Neural preprocessing and learning   ******/
 
@@ -183,8 +189,6 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
 	for (unsigned int i = 0; i < AMOSII_MOTOR_MAX; i++) {
 		y_[i] = y.at(i);
 	}
-
-
 
 	// update step counter
 	t++;

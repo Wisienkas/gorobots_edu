@@ -136,6 +136,10 @@ class AmosIIControl : public AbstractController {
 
     //4) Any other parameters   ----------------
 
+    ofstream data_wr;
+    ofstream data_sr;
+    ofstream data_mr;
+
     //End ADD YOUR VARIABLE HERE//
 
 

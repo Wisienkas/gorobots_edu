@@ -25,9 +25,9 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
 	//touchF=false;
 	//phaseResetInhibitionIsEnabled=false;
-	contactForceIsEnabled=true;
+	contactForceIsEnabled=false;
 	//oscillatorsRingCouplingIsEnabled=false;
-	oscillatorsCouplingIsEnabled=false;
+	//oscillatorsCouplingIsEnabled=false;
 
 	/*******************************************************************************
 	 *  MODULE 0 IO'S for modularneuralcontrol
@@ -396,7 +396,6 @@ void ModularNeuralControl::step()
  */
 void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const vector<double> x)
 {
-	printf("CPG[%u]\n%f\t%f\n", CPGID,currentActivity.at(0),currentActivity.at(1));
 	currentActivity.at(0)=cpg->getActivity(cpg->getNeuron(0));
 	currentActivity.at(1)=cpg->getActivity(cpg->getNeuron(1));
 	updateActivities();
@@ -429,7 +428,6 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
 	}
 	if (contactForceIsEnabled && !oscillatorsCouplingIsEnabled)
 	{
-
 		if (sensorname==R1_fs || sensorname==L1_fs )
 		{
 			ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));//predictActivity
@@ -452,7 +450,6 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
 	 */
 	else if(contactForceIsEnabled && oscillatorsCouplingIsEnabled)
 	{
-
 		ContactForceEffect0=-(0.035)*(x.at(sensorname))*cos(currentActivity.at(0));
 		ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));
 

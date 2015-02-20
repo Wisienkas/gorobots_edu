@@ -301,8 +301,6 @@ public:
 				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
 			}
 		}
-		//if(globalData.sim_step >= 100)
-			//simulation_time_reached = true;
 		//-----------------------------------------------------------------------------------
 	}
 

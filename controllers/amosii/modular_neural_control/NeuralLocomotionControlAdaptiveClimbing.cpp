@@ -213,13 +213,13 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	 *  CONTROL OPTION!!!!
 	 *******************************************************************************/
 	//Switch on or off all reflexes
-	switchon_allreflexactions=true;
+	switchon_allreflexactions=false;
 
 	//Switch on or off backbone joint control
-	switchon_backbonejoint = true;//true;
+	switchon_backbonejoint = false;//true;
 
 	//Switch on or off reflexes
-	switchon_reflexes = true;//true;//true;//1;// true==on, false == off
+	switchon_reflexes = false;//true;//true;//1;// true==on, false == off
 
 	//Switch on pure foot signal
 	switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
@@ -291,10 +291,16 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 			if(i_cpg<3){
 				if(i_legs == i_cpg && MCPGs){
 					tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
-					cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
-					fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
+					if(i_legs%2)
+						cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(((i_legs + 3)%6) + CR0_m));		// TODO: Hack for uneven leg CTR signals to take the even counterpart
+					else
+						cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
+					if(i_legs==1)
+						fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(FR1_m));
+					else
+						fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(FR2_m));
 				}
-				else{
+				if(!MCPGs){
 					tr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TR0_m));
 					cr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CR0_m));
 					fr_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FR0_m));
@@ -306,8 +312,14 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 			else{
 				if(i_legs == i_cpg%3 && MCPGs){
 					tl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + TL0_m));
-					cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + CL0_m));
-					fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(i_legs + FL0_m));
+					if(i_cpg%2)
+						cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(((i_cpg + 3)%6) + CR0_m));	// TODO: Hack for uneven leg CTR signals to take the even counterpart
+					else
+						cl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames((i_legs + CL0_m)));
+					if(i_legs==1)
+						fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(FR1_m));
+					else
+						fl_output.at(i_legs) = nlc.at(i_cpg)->getMotorNeuronOutput(AmosIIMotorNames(FR2_m));
 				}
 			}
 		}
@@ -456,11 +468,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		}
 		//
 		for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
-
 			postcr.at(i) = cr_output.at(i%cr_output.size());//read(delay)
 		}
 		for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
-
 			postcl.at(i) = cl_output.at(i%cl_output.size());
 		}
 
@@ -480,7 +490,6 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 			m_pre.at(i) = postcl.at(i);
 			if (tl_outputOld.at(i%tl_outputOld.size()) >= tl_output.at(i%tl_output.size()))
 			{
-
 				m_pre.at(i) = -1; //postprocessing
 			}
 		}
@@ -498,7 +507,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		//postprocessing
 
 		m_pre.at(FR1_m) = -1.2 *fr_output.at(1);
-		m_pre.at(FL1_m) = -1.2 *fr_output.at(1);
+		m_pre.at(FL1_m) = -1.2 *fl_output.at(1);
 
 		m_pre.at(FR0_m) *= -1.5 * -input.at(4);
 		m_pre.at(FL0_m) *= -1.5 * -input.at(3);
