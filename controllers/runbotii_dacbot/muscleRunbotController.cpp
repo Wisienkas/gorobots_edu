@@ -39,7 +39,7 @@ hipPlot.open("/home/giuliano/Documents/thesis/plots/hips.dat");
 cpgPlot.open("/home/giuliano/Documents/thesis/plots/cpg.dat");
 train.open("/home/giuliano/Documents/thesis/plots/train.data");
 
-sth->create_from_file("/home/giuliano/Documents/thesis/plots/trainResult");
+
 
 motor0DerivativeVector.push_back(0);
 motor0DerivativeVector.push_back(0);
@@ -71,7 +71,6 @@ rightHipDelayed= new shift_register(0);
 leftKneeDelayed=new shift_register(6);
 rightKneeDelayed=new shift_register(6);
 
-fann_print_parameters(ann);
 
 //Giuliano
 

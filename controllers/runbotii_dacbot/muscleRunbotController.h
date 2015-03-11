@@ -20,8 +20,6 @@
 
 //#include "doublefann.h"
 //#include "floatfann.h"
-#include "doublefann.h"
-#include "fann_cpp.h"
 
 
 #include <iostream> //for plotting
@@ -146,12 +144,11 @@ class MuscleRunbotController : public AbstractController {
        std::vector<double> generateCPGknee(double signal, double derivative, double oscillation, double value);
        double generateLeftKnee(double signal, double derivative, double oscillation, double value);
        double getAbsol(double a, double b);
-       struct fann *ann = fann_create_from_file("/home/giuliano/Documents/thesis/plots/trainResult.net");
        bool cpgControl=false;
        int count=0;
        int goodCounter=0;
        int common_points=0;
-       FANN::neural_net* sth = new FANN::neural_net();
+
        double getDelay(double value,std::vector<double> &shift_register);
        std::vector<double> shift;
        shift_register *leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
