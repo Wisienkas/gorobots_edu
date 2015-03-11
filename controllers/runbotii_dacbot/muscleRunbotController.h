@@ -13,11 +13,16 @@
 #include "plastic.h"
 #include "lowPassfilter.h"
 #include <vector>
+#include <cmath>
+#include <controllers/runbotii_dacbot/shiftregister.h>
+#include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
 //CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
 
 //#include "doublefann.h"
 //#include "floatfann.h"
-#include "fann.h"
+#include "doublefann.h"
+#include "fann_cpp.h"
+
 
 #include <iostream> //for plotting
 #include <fstream> //plotting
@@ -118,10 +123,15 @@ class MuscleRunbotController : public AbstractController {
 
        std::ofstream hipPlot;//plot
        std::ofstream cpgPlot;
-       plastic* cpg;
-       double normalized_right;
+       std::ofstream train;
+       plastic *cpg;
+       plastic *feet_cpg;
+       plastic *knee_cpg;
+       double sensorFeedback;
+       double feetFeedback;
        lowPass_filter* filter;
-       std::vector<double> der_vector;
+       lowPass_filter* knee_filter;
+       std::vector<double> leftDerivativeVector, rightDerivativeVector, motor0DerivativeVector, leftHipDerivativeVector;
        double cpg_right_hip=0;
        double cpg_left_hip=0;
 
@@ -132,9 +142,22 @@ class MuscleRunbotController : public AbstractController {
        double cpg_signal_left;
        double perturbation;
        //giuliano
-
-      struct fann *ann = fann_create_standard(4, 2, 8, 9, 1);
-
+       std::vector<double> generateCPGhips(double signal, double derivative, double oscillation);
+       std::vector<double> generateCPGknee(double signal, double derivative, double oscillation, double value);
+       double generateLeftKnee(double signal, double derivative, double oscillation, double value);
+       double getAbsol(double a, double b);
+       struct fann *ann = fann_create_from_file("/home/giuliano/Documents/thesis/plots/trainResult.net");
+       bool cpgControl=false;
+       int count=0;
+       int goodCounter=0;
+       int common_points=0;
+       FANN::neural_net* sth = new FANN::neural_net();
+       double getDelay(double value,std::vector<double> &shift_register);
+       std::vector<double> shift;
+       shift_register *leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
+       derivativeTransitionRegister *checkWave;
+       double createPerturbation(int start, int end, double perturbation, int step, bool CpgControl);
+       double changeRange(double oldMin, double oldMax, double newMin, double newMarx, double value);
 };
 
 #endif /* MUSCLERUNBOTCONTROLLER_H_ */
