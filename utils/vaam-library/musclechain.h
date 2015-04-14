@@ -63,7 +63,9 @@ public:
 	 * @return the motor muscle model modified motor signal (or more general: output value)
 	 */
 	double getSignal(int index);
-private:
+protected:
+	AbstractMuscleModel **muscles;	//pointers to the muscle models
+	int chainSize;	//size of the muscle chain
 	/**
 	 * this structure is only used to hold the current input parameters for a muscle model
 	 */
@@ -78,8 +80,6 @@ private:
 	}MuscleInput;
 
 	MuscleInput *params;	//array of input values, current state of them muscle chain
-	AbstractMuscleModel **muscles;	//pointers to the muscle models
-	int chainSize;	//size of the muscle chain
 	bool isValid;	//model is invalid as soon as something changed, and needs to be validated to return a signal of any
 					//muscle model
 
