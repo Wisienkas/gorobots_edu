@@ -1,12 +1,12 @@
 /*
- * PositionControllingVMM.h
+ * positioncontrollingvamms.h
  *
  *  Created on: 13.11.2014
  *      Author: Johannes Widenka
  */
 
-#ifndef POSITIONCONTROLLINGVMM_H_
-#define POSITIONCONTROLLINGVMM_H_
+#ifndef POSITIONCONTROLLINGVAAMS_H_
+#define POSITIONCONTROLLINGVAAMS_H_
 
 #include "abstractmusclemodel.h"
 /**
@@ -14,14 +14,14 @@
  * It uses the Runge-Kutta method, to integrate the muscle models torque calculation to
  * output a target position for the joint at call of getSignal( .. )
  */
-class PositionControllingVMM: public AbstractMuscleModel {
+class PositionControllingVAAMs: public AbstractMuscleModel {
 public:
 	/**
 	 * standart constructor generating default values for the pre*** variables, holding the state of the
 	 * muscle model of the last step.
 	 * @param config the muscle models configuration, described in abstractMuscleModel.h
 	 */
-	PositionControllingVMM(MuscleModelConfiguration &config):AbstractMuscleModel(config){
+	PositionControllingVAAMs(MuscleModelConfiguration &config):AbstractMuscleModel(config){
 		preAngle = 0;
 		preSpeed = 0;
 		preExforce = 0;
@@ -52,4 +52,4 @@ private:
 	double preMusclAct;
 };
 
-#endif /* POSITIONCONTROLLINGVMM_H_ */
+#endif /* POSITIONCONTROLLINGVAAMS_H_ */

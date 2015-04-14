@@ -48,7 +48,7 @@ double AbstractMuscleModel::getSignal(double muscleAct, double load,
 
 	double exForce = load*mass;
 	curK = K*(unloadKFactor+(1-unloadKFactor)*fK->getValue(load > 0.1?true:false,timeSteps));
-	curD = D*(unloadDFactor+(1-unloadDFactor)*fD->getValue(load < 0.1?true:false,timeSteps));
+	curD = D*(unloadDFactor+(1-unloadDFactor)*fD->getValue(load > 0.1?true:false,timeSteps));
 	//printf("K: %f,D: %f, exforce:%f \n",curK, curD,exForce);
 
 	return getOutput(muscleAct,exForce,angle-zeroAngle, getGroundAngle(angle),aSpeed,curK,curD,disVec);

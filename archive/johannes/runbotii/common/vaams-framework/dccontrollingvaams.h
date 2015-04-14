@@ -1,12 +1,12 @@
 /*
- * DCControlingVMM.h
+ * dccontrollingvaams.h
  *
  *  Created on: 06.11.2014
  *      Author: Johannes Widenka
  */
 
-#ifndef DCCONTROLINGVMM_H_
-#define DCCONTROLINGVMM_H_
+#ifndef DCCONTROLINGVAAMS_H_
+#define DCCONTROLINGVAAMS_H_
 
 #include "abstractmusclemodel.h"
 
@@ -16,14 +16,14 @@
  * similar values, just modified the by muscle models properties (spring/ damper and simulated external force). It is not guaranteed
  * to have output values of the same scale, so this may have to be scaled to the motors expectation after call on getSignal( .. )
  */
-class DCControllingVMM: public AbstractMuscleModel {
+class DCControllingVAAMs: public AbstractMuscleModel {
 public:
 	/**
 	 * Standard constructor for the DC controlling VMM (virtual muscle model). It generates a muscle model, with the
 	 * pre angle value, needed for speed calculation set to zero.
 	 * @param config the configuration of the muscles mode. If not given, default parameters are used
 	 */
-	DCControllingVMM(MuscleModelConfiguration &config):AbstractMuscleModel(config){preAngle = 0;}
+	DCControllingVAAMs(MuscleModelConfiguration &config):AbstractMuscleModel(config){preAngle = 0;}
 protected:
 	/**
 	 * This function calculates a target torque out of the current motor and muscle parameters, which may be used to controll
@@ -44,4 +44,4 @@ private:
 	double preAngle;
 };
 
-#endif /* DCCONTROLINGVMM_H_ */
+#endif /* DCCONTROLINGVAAMS_H_ */
