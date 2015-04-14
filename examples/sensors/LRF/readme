@@ -1,3 +1,11 @@
+
+Make sure that you have already installed "libconfig++-dev"
+if not do:
+
+open synaptic and search "libconfig++-dev" and then install it!
+
+--------------------------------------------------------------------------------------------------------------------------
+
 This is a simple example to test the range finder class provided by utils/real_robots/sensors/LRF/laserScanner.h.
 
 ===Install====
@@ -13,6 +21,20 @@ Compile the program with the following options:
 	-Ipath_to_laserScanner.h/
 
 or use the included Makefile.
+
+===Modifying the Makefile===
+
+Please change the path in the makefile of this directory:
+
+from 
+
+#Global path to gorobots directory
+GOROBOTS = /home/poma/workspace/pmanoonpong-gorobots-fork/
+
+to 
+
+#Global path to gorobots directory
+GOROBOTS = /home/xx your username xx /workspace/xxx-gorobots-fork/
 
 ===Run the example===
 First connect the LRF via USB to the PC. Then run the example program with
@@ -31,3 +53,15 @@ You can run the following python program to visualize the measurement:
 NOTE: While acquiring data, the underlying URG driver pauses/blocks the execution of its thread. This means, that calling urg.update() will
       hold the program until the measurement is finished (about 100 ms), if not moved to its own thread. This may or may not be an issue
       depending on the concrete application.
+      
+      
+===You may need to install python for plotting===
+1) go to this website to download correct package: http://sourceforge.net/projects/numpy/files/
+2) unzip the package
+3) go to the document
+4) use this command to install numpy: python setup.py install
+
+===You may need to install also python-matplotlib for plotting===
+
+sudo apt-get install python-matplotlib
+

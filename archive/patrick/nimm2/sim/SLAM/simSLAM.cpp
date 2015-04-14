@@ -1,12 +1,12 @@
-#include "utils/slam-library/grid.h"
-#include "utils/slam-library/SLAMSolver.h"
-#include "utils/slam-library/tools.h"
-#include "utils/slam-library/rangeFinder.h"
-#include "utils/slam-library/Models/occupancyGridMap.h"
-#include "utils/slam-library/Models/occupancyGridBresenham.h"
-#include "utils/slam-library/Models/odometryModel.h"
-#include "utils/slam-library/Models/velocityModel.h"
-#include "utils/slam-library/Models/likelihoodField.h"
+#include "grid.h"
+#include "SLAMSolver.h"
+#include "tools.h"
+#include "rangeFinder.h"
+#include "occupancyGridMap.h"
+#include "occupancyGridBresenham.h"
+#include "odometryModel.h"
+#include "velocityModel.h"
+#include "likelihoodField.h"
 
 #include <iostream>
 #include <fstream>

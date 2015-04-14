@@ -1,3 +1,9 @@
+Make sure that you have already installed "libconfig++-dev"
+if not do:
+
+open synaptic and search "libconfig++-dev" and then install it!
+
+
 ===Installation===
 Access to the xIMU is provided by FTDI (http://www.ftdichip.com/Drivers/D2XX.htm). To install these drivers run:
 
@@ -7,10 +13,20 @@ Access to the xIMU is provided by FTDI (http://www.ftdichip.com/Drivers/D2XX.htm
 
 Now choose the drivers corresponding to your cpu architecture, copy them to usr/local/lib and create symbolic links
 
+Check your PC by:
+
+uname –m
+
+This displays only the machine hardware name and indicates, as above, whether your system is 32-bit (“i686” or “i386”) or 64-bit (“x86_64”).
+
+If you have 
 	//64 Bit
-	sudo cp ftdi/release/build/x86_64/lib* /usr/local/lib 2>&1 
+	sudo cp -r ftdi/release/build/x86_64/lib* /usr/local/lib 2>&1 
+	
+If you have 
 	//32 Bit
-	sudo cp ftdi/release/build/i386/lib* /usr/local/lib 2>&1
+	sudo cp -r ftdi/release/build/i386/lib* /usr/local/lib 2>&1
+	
 	sudo chmod 0755 /usr/local/lib/libftd2xx.so.1.1.12
 	sudo ln -sf /usr/local/lib/libftd2xx.so.1.1.12 /usr/local/lib/libftd2xx.so
 
@@ -40,6 +56,20 @@ Compile the programs with the IMU with the following options
 
 and make sure to include the path to the source directory (utils/real_robots/sensors/IMU). It is recommanded to use the Makefile in this folder as a template
 
+===Modifying the Makefile===
+
+Please change the path in the makefile of this directory:
+
+from 
+
+#Global path to gorobots directory
+GOROBOTS = /home/poma/workspace/pmanoonpong-gorobots-fork/
+
+to 
+
+#Global path to gorobots directory
+GOROBOTS = /home/xx your username xx /workspace/xxx-gorobots-fork/
+
 
 ===Run the example===
 Compile the example by using make and run via
@@ -48,6 +78,22 @@ Compile the example by using make and run via
 
 The sudo command is necessary to be able to access the USB port.
 If the xIMU is connected successfully, it will calibrate itself to compensate for possible offsets, then take 1000 measurements and write them to "testXIMU.dat"
+
+
+===Modifying the Makefile===
+
+Please change the path in the makefile of this directory:
+
+from 
+
+#Global path to gorobots directory
+GOROBOTS = /home/poma/workspace/pmanoonpong-gorobots-fork/
+
+to 
+
+#Global path to gorobots directory
+GOROBOTS = /home/xx your username xx /workspace/xxx-gorobots-fork/
+
 
 
 ===Some Background===

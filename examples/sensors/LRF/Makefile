@@ -1,5 +1,8 @@
 #Global path to gorobots directory
-GOROBOTS = /home/pkesper/git/patrickkesper-gorobots-fork/
+#GOROBOTS = /home/pkesper/git/patrickkesper-gorobots-fork/
+
+#Global path to gorobots directory
+GOROBOTS = /home/poma/workspace/pmanoonpong-gorobots-fork/
 
 #Source directories
 SOURCE = $(GOROBOTS)utils/real_robots/sensors/LRF/ 

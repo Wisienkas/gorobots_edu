@@ -1,8 +1,10 @@
 #Global path to gorobots directory
-GOROBOTS = /home/pkesper/git/patrickkesper-gorobots-fork/
+#GOROBOTS = /home/pkesper/git/patrickkesper-gorobots-fork/
+
+GOROBOTS = /home/poma/workspace/pmanoonpong-gorobots-fork/
 
 #Source directories
-SOURCE = $(GOROBOTS)utils/SLAM/ $(GOROBOTS)utils/SLAM/Models/
+SOURCE = $(GOROBOTS)utils/slam-library/ $(GOROBOTS)utils/slam-library/Models/
 #Data directory
 DATA = data/
 #Include files
