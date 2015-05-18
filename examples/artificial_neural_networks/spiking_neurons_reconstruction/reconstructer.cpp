@@ -328,13 +328,14 @@ void reconstruction() {
 
 				gaussElimination(MAX_NEURONS); //solve equation system
 
-//				fprintf(weightMatrixFile, "param a = %f  param b = %f\n", aa,
-//					bb);
+				fprintf(weightMatrixFile, "param a = %f  param b = %f\n", aa,
+					bb);
 				//write real and calculated weight in txt file
 				for (n1 = 0; n1 < MAX_NEURONS; n1++) {
-					//fprintf(weightMatrixFile,
-//						"realWeight = %f  calcWeight = %f\n",
-//						weight[n0][n1], calculatedWeightSolution[n1]);
+					fprintf(weightMatrixFile,
+						"realWeight = %f  calcWeight = %f\n",
+						weight[n0][n1], calculatedWeightSolution[n1]);
+
 					Wguess[n0][n1] = calculatedWeightSolution[n1];
 				}
 
@@ -415,6 +416,6 @@ int main() {
 			<< ((double) (finish - start)) / CLOCKS_PER_SEC << "\n";
 	cout << "!!!End   Reconstruction!!!" << endl;
 
-	//printInputAndOutputFile();
+	printInputAndOutputFile();
 	return 0;
 }
