@@ -21,6 +21,9 @@
 
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
+  //Save files
+  outFilemlc.open("ModularNeuralControl.dat");
+
 	 /*******************************************************************************
 	 *  MODULE 0 IO'S for modularneuralcontrol
 	 *******************************************************************************/
@@ -473,6 +476,9 @@ void ModularNeuralControl::calculate(const std::vector<double> x,AmosIISensorNam
    ContactForceEffect0=0;
    ContactForceEffect1=0;
  }
+
+ outFilemlc <<' '<<currentActivity.at(1)<<' '<<-(0.03)*(x.at(R0_fs))*sin(currentActivity.at(1))<<' '<<x.at(R0_fs)<<' '<<-sin(currentActivity.at(1))<<' '<<currentActivity.at(0)<<' '<<-(0.04)*(x.at(R0_fs))*cos(currentActivity.at(0))<<' '<<x.at(R0_fs)<<' '<<-cos(currentActivity.at(0))<<endl;
+
 /*********/
 
 }
