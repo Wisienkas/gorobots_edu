@@ -23,6 +23,11 @@
 
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
+
+  //Save files
+  outFilemlc.open("ModularNeuralControl.dat");
+
+
 	//touchF=false;
 	//phaseResetInhibitionIsEnabled=false;
 	contactForceIsEnabled=false;
@@ -461,6 +466,8 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
 		ContactForceEffect1=0;
 	}
 
+	outFilemlc <<activity1<<' '<<currentActivity.at(1)<<' '<<-(0.03)*(x.at(R0_fs))*sin(currentActivity.at(1))<<' '<<x.at(R0_fs)<<' '<<-sin(currentActivity.at(1))<<' '<<activity0<<' '<<currentActivity.at(0)<<' '<<-(0.04)*(x.at(R0_fs))*cos(currentActivity.at(0))<<' '<<x.at(R0_fs)<<' '<<-cos(currentActivity.at(0))<<endl;
+
 	cpg->setActivity(0, activity0+ContactForceEffect0);
 	cpg->setActivity(1, activity1+ContactForceEffect1);
 
@@ -470,6 +477,9 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
 	updateWeights();
 	updateOutputs();
 	postProcessing();
+
+
+
 }
 
 
