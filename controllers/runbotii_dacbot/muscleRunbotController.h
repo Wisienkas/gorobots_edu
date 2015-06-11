@@ -10,10 +10,27 @@
 
 #include "cgaittransition.h"
 #include "cnnet.h"
+#include "plastic.h"
+#include "lowPassfilter.h"
+#include <vector>
+#include <cmath>
+#include <controllers/runbotii_dacbot/shiftregister.h>
+#include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
+//CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
+
+//#include "doublefann.h"
+//#include "floatfann.h"
+
+
+#include <iostream> //for plotting
+#include <fstream> //plotting
 
 #include <selforg/abstractcontroller.h>
-#include "vaam-library/dccontrollingvmm.h"
-#include "vaam-library/musclechain.h"
+//#include "VAAMlib/dccontrollingvmm.h"
+//#include "VAAMlib/musclechain.h"
+
+#include "utils/vaam-library/musclechain.h"
+#include "utils/vaam-library/dccontrollingvmm.h"
 
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
@@ -88,10 +105,10 @@ class MuscleRunbotController : public AbstractController {
        runbot::cNNet* nnet;		// ANN controlling the movement of the robot
        runbot::cGaitTransition* gait;	// gait parameter for the ANN
 
-       DCControllingVAAMs *RHmuscles;		//modelled muscles for each joint..
-       DCControllingVAAMs *LHmuscles;
-       DCControllingVAAMs *RKmuscles;
-       DCControllingVAAMs *LKmuscles;
+       DCControllingVMM *RHmuscles;		//modelled muscles for each joint..
+       DCControllingVMM *LHmuscles;
+       DCControllingVMM *RKmuscles;
+       DCControllingVMM *LKmuscles;
 
        	   	   	   	   	   	   	   	   //muscle chains that handle the communication for muscles depending on each other
        MuscleChain *leftMuscles;
@@ -100,7 +117,44 @@ class MuscleRunbotController : public AbstractController {
        valarray<double> actualAD;		//array, used for mapping the sensor array to the right order
 
        bool initialized = false;
+       //giuliano
 
+       std::ofstream hipPlot;//plot
+       std::ofstream cpgPlot;
+       std::ofstream train;
+       plastic *cpg;
+       plastic *feet_cpg;
+       plastic *knee_cpg;
+       double sensorFeedback;
+       double feetFeedback;
+       lowPass_filter* filter;
+       lowPass_filter* knee_filter;
+       std::vector<double> leftDerivativeVector, rightDerivativeVector, motor0DerivativeVector, leftHipDerivativeVector;
+       double cpg_right_hip=0;
+       double cpg_left_hip=0;
+
+       double cpg_left_knee=0;
+       double cpg_right_knee=0;
+
+       double cpg_signal_right;
+       double cpg_signal_left;
+       double perturbation;
+       //giuliano
+       std::vector<double> generateCPGhips(double signal, double derivative, double oscillation);
+       std::vector<double> generateCPGknee(double signal, double derivative, double oscillation, double value);
+       double generateLeftKnee(double signal, double derivative, double oscillation, double value);
+       double getAbsol(double a, double b);
+       bool cpgControl=false;
+       int count=0;
+       int goodCounter=0;
+       int common_points=0;
+
+       double getDelay(double value,std::vector<double> &shift_register);
+       std::vector<double> shift;
+       shift_register *leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
+       derivativeTransitionRegister *checkWave;
+       double createPerturbation(int start, int end, double perturbation, int step, bool CpgControl);
+       double changeRange(double oldMin, double oldMax, double newMin, double newMarx, double value);
 };
 
 #endif /* MUSCLERUNBOTCONTROLLER_H_ */
