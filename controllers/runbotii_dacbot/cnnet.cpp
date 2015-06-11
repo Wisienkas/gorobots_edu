@@ -165,7 +165,7 @@ void cNNet::update_thresholds() {
     // Swing phase neurons
     threshold_al = gait->maxhip_left()
         - (double)(gait->maxhip_left() - gait->minhip_left())*3./100;
-    threshold_ar = gait->maxhip_right()
+    threshold_ar =gait->maxhip_right()
         - (double)(gait->maxhip_right() - gait->minhip_right())*3./100;
 
     // Motor neurons

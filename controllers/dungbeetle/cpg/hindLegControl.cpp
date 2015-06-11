@@ -14,8 +14,9 @@ using namespace std;
 hindLegControl::hindLegControl():
 	AbstractController("hindLegControl", "$Id: hindLegControl.cpp,v 0.1 $"){
 	initialize();
-	osc= new neuroOscillator(0.1,0.1,1.01,0.01*2*3.14);
-	plot.open("/home/giuliano/Documents/plots/dungBeetle.dat");
+	osc= new neuroOscillator(0.1,0.1,1.01,1*2*3.14);
+	//Change to your own path!!
+	plot.open("/home/poma/Documents/plots/dungBeetle.dat");
 	// TODO Auto-generated constructor stub
 
 }
@@ -80,7 +81,7 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 
 	y_[0]=signal;//28
 	y_[1]=ct;//31
-	y_[2]=0;
+	y_[2]=ct;//0
 
 	plot << t << " " << signal << " " << ct << " " << x.at(1) <<" " << x.at(2) << endl;
 	/*

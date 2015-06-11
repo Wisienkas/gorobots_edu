@@ -5,8 +5,8 @@
  *      Author: giuliano
  */
 
-#ifndef CONTROLLERS_RUNBOTII_DACBOT_SHIFTREGISTER_H_
-#define CONTROLLERS_RUNBOTII_DACBOT_SHIFTREGISTER_H_
+#ifndef SHIFTREGISTER_H_
+#define SHIFTREGISTER_H_
 
 #include <vector>
 

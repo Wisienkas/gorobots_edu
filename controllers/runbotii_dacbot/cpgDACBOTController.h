@@ -5,15 +5,32 @@
  *      Author: Johannes Widenka
  */
 
-#ifndef MUSCLERUNBOTCONTROLLER_H_
-#define MUSCLERUNBOTCONTROLLER_H_
+#ifndef CPGDACBOTCONTROLLER_H_
+#define CPGDACBOTCONTROLLER_H_
 
 #include "cgaittransition.h"
 #include "cnnet.h"
+#include "plastic.h"
+#include "DynamicCpg.h"
+#include "lowPassfilter.h"
+#include <vector>
+#include <cmath>
+#include <controllers/runbotii_dacbot/shiftregister.h>
+#include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
+//CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
+
+
+
+
+#include <iostream> //for plotting
+#include <fstream> //plotting
 
 #include <selforg/abstractcontroller.h>
-#include "vaam-library/dccontrollingvmm.h"
-#include "vaam-library/musclechain.h"
+//#include "VAAMlib/dccontrollingvmm.h"
+//#include "VAAMlib/musclechain.h"
+
+#include "utils/vaam-library/musclechain.h"
+#include "utils/vaam-library/dccontrollingvmm.h"
 
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
@@ -86,12 +103,16 @@ class MuscleRunbotController : public AbstractController {
        	   	   	   	   	   	   	//wabbling from ubc-ubc_wabl to ubc+ubc_wabl
        int ubc_time = 100; 		// sec/100   -   defines the time where the ubc changes its movement direction
        runbot::cNNet* nnet;		// ANN controlling the movement of the robot
+       runbot::cNNet* nnetTwo;
        runbot::cGaitTransition* gait;	// gait parameter for the ANN
-
-       DCControllingVAAMs *RHmuscles;		//modelled muscles for each joint..
-       DCControllingVAAMs *LHmuscles;
-       DCControllingVAAMs *RKmuscles;
-       DCControllingVAAMs *LKmuscles;
+       runbot::cGaitTransition* gait_two;
+       runbot::cGaitProfile *newGait;
+       runbot::cGaitProfile *gait3;
+       runbot::cNNet* nnet3;
+       DCControllingVMM *RHmuscles;		//modelled muscles for each joint..
+       DCControllingVMM *LHmuscles;
+       DCControllingVMM *RKmuscles;
+       DCControllingVMM *LKmuscles;
 
        	   	   	   	   	   	   	   	   //muscle chains that handle the communication for muscles depending on each other
        MuscleChain *leftMuscles;
@@ -100,6 +121,50 @@ class MuscleRunbotController : public AbstractController {
        valarray<double> actualAD;		//array, used for mapping the sensor array to the right order
 
        bool initialized = false;
+       //giuliano
+
+       std::ofstream hipPlot;//plot
+       std::ofstream cpgLeft;
+       std::ofstream cpgPlot;
+       std::ofstream cpgRight;
+
+       double sensorFeedback;
+       double feetFeedback;
+       lowPass_filter* filter;
+       std::vector<double> leftDerivativeVector, rightDerivativeVector, motor0DerivativeVector, leftHipDerivativeVector, freqDeriv;
+       double cpg_right_hip=0;
+       double cpg_left_hip=0;
+       std::vector<double> stepFreq;
+       double frequencySystem;
+       double cpg_left_knee=0;
+       double cpg_right_knee=0;
+       int getShiftDelay(double out1, double out2, int step);
+       int countDelay=0;
+       std::vector<double> shiftVector, derOut1, derOut2;
+       double cpgcounter=0;
+
+       std::vector<double> systemFrequencyVector;
+       //signal parameters//
+       double amplitudeHips;
+       double amplitudeKnee;
+       double max;
+       double min=1000;
+       double controllerEnable=0;
+       std::vector<double> freq;
+       //signal parameters
+       double cpg_signal_right;
+       double cpg_signal_left;
+       double perturbation;
+       bool cpgNoPerturbation;
+
+       double errorVal=0 , errorCount=0;
+
+       bool oneCPG=true;
+       DynamicCpg *DinLeft, *DinRight;
+
+       std::vector<double> shift;
+       shift_register *phase,*leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
+       derivativeTransitionRegister *checkWave;
 
 };
 

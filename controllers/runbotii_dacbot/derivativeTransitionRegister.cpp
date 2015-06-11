@@ -7,103 +7,89 @@
 
 #include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
 
-derivativeTransitionRegister::derivativeTransitionRegister() {
+derivativeTransitionRegister::derivativeTransitionRegister(double theresholdValueNegToZero, double theresholdValue0ToPos) {
 	// TODO Auto-generated constructor stub
-    for(int i = 0; i<4; i++)
-    {
-    	motorValues.push_back(0);
-    	hipValues.push_back(0);
-    }
-	motorCount = 0;
-	hipCount =0;
+    motorValue=0;
+    hipValue=0;
+	counter=0;
+	motorValue0ToPos=0;
+	hipValue0ToPos=0;
+	thereshold0=theresholdValueNegToZero;
+	theresholdPos=theresholdValue0ToPos;
 }
 
 derivativeTransitionRegister::~derivativeTransitionRegister() {
 	// TODO Auto-generated destructor stub
 }
 
-void derivativeTransitionRegister::registerDerivative(double derivativeHip, double signalHip,  double derivativeMotor, double signalMotor,int step)
+void derivativeTransitionRegister::registerDerivative(double derivativeHip, double signalHip,  double derivativeMotor, double signalMotor,int step, double amplitude)
 {
-	//updating hipsValues
-	if (derivativeHip > 0.5)
+
+
+    double size=amplitude/10;
+
+	if((signalHip < 0 && derivativeHip < -2*size) )//reset the counter when hips goes from 0 to neg
+		counter=0;
+
+
+	if(signalMotor > 2*size && signalMotor < 8*size && derivativeMotor >0)
 	{
-		if(signalHip > 0.5 )
-		{
-			hipCount=0;
-			hipValues[0]=step;
-			hipCount++;
-		}
-		if(signalHip > -0.5 && signalHip < 0.5)
-		{
-			hipValues[3]=step;
-			hipCount++;
-		}
+		counter++;
+		motorValue0ToPos=step;
 	}
 
-	if (derivativeHip < -0.5)
+	if(signalHip > 0 && derivativeHip > 2*size)
 	{
-		if(signalHip < -0.5)
-		{
-			hipValues[2]=step;
-			hipCount++;
-		}
-		if(signalHip > -0.5 && signalHip < 0.5)
-		{
-			hipValues[1]=step;
-			hipCount++;
-		}
+		counter++;
+		hipValue0ToPos=step;
 	}
 
-	//updating motorValues
-
-	if (derivativeMotor > 0.5)
+	if (signalMotor < -1.5*size && signalMotor > -7.5*size && derivativeMotor >0)//signalMotor > -0.5 motor from neg to zero
 	{
-		if(signalMotor > 0.5 )
-		{
-			motorCount=0;
-			motorValues[0]=step;
-			motorCount++;
-		}
-		if(signalMotor > -0.5 && signalMotor < 0.5)
-		{
-			motorValues[3]=step;
-			motorCount++;
-
-		}
-	}
-
-	if (derivativeMotor < -0.5)
-	{
-		if(signalMotor < -0.5)
-		{
-			motorValues[2]=step;
-			motorCount++;
-		}
-		if(signalMotor > -0.5 && signalMotor < 0.5)
-		{
-			motorValues[1]=step;
-			motorCount++;
-		}
+		counter++;
+		motorValue=step;
 
 	}
 
+	if (signalHip > -2*size && signalHip < 2*size && derivativeHip > 2*size)//hip from neg to zero
+	{
+
+		counter++;
+		hipValue=step;
+	}
 
 
 }
-
-std::vector<double> derivativeTransitionRegister::getHipValues()
+bool derivativeTransitionRegister::goodPhase()
 {
-	return hipValues;
+	if (counter > 3 &&  motorValue-hipValue < thereshold0 && motorValue-hipValue > -thereshold0 &&
+			  motorValue0ToPos- hipValue0ToPos > theresholdPos &&   motorValue0ToPos- hipValue0ToPos < 3+theresholdPos )//counter ==2
+		return true;
+	else return false;
+}
+int derivativeTransitionRegister::getCounter()
+{
+	return counter;
 }
 
-std::vector<double> derivativeTransitionRegister::getMotorValues()
+double derivativeTransitionRegister::getActualError()
 {
-	return motorValues;
+	return motorValue-hipValue;
+}
+
+double derivativeTransitionRegister::getHipValues()
+{
+	return hipValue;
+}
+
+double derivativeTransitionRegister::getMotorValues()
+{
+	return motorValue;
 }
 
 bool  derivativeTransitionRegister::checked()
 {
-	if (motorCount  == 4)
+	if (counter  == 2)
 		return true;
 	else return false;
 }

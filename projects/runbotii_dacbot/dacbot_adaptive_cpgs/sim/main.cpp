@@ -38,7 +38,7 @@
 #include <ode_robots/runbotii.h>
 
 
-#include "controllers/runbotii_dacbot/muscleRunbotController.h"
+#include "controllers/runbotii_dacbot/cpgDACBOTController.h"
 #include "controllers/runbotii_dacbot/runbotANNController.h"
 
 

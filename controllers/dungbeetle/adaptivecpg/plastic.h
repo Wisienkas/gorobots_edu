@@ -2,7 +2,8 @@
   * plastic.h
  *
  *  Created on: Feb 5, 2015
- *      Author: giuliano
+ *      Author: Giuliano Di Canio
+ *      Comments: This class implements an Adaptive CPG with synaptic plasticity
  */
 
 #ifndef PLASTIC_H_
@@ -12,6 +13,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 
 class plastic {
@@ -35,9 +37,7 @@ public:
 	double getW20();
 	double getW02();
 	double getW2p();
-	double getw01();
 	virtual ~plastic();
-	void setPhi(double newPhi);
 };
 
 #endif /* PLASTIC_H_ */

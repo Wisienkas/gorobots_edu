@@ -28,7 +28,7 @@ class cGaitTransition : public cGaitProfile {
 
         cGaitTransition(cGaitProfile _profile)
             : cGaitProfile(_profile), old_gait(_profile),
-              num_steps(1000), transition_in_progress(false) {};
+              num_steps(1000), transition_in_progress(false) {};//num_steps 1000
 
         cGaitTransition(cGaitProfile _profile, int _num_steps)
             : cGaitProfile(_profile), old_gait(_profile),

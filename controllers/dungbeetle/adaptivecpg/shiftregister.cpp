@@ -5,7 +5,7 @@
  *      Author: giuliano
  */
 
-#include <controllers/runbotii_dacbot/shiftregister.h>
+#include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
 
 shift_register::shift_register(int delay) {
 	delay_=delay;
