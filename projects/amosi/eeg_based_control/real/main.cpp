@@ -207,7 +207,8 @@ int main(int argc, char** argv) {
 
 	while(!stop) {
 		agent->step(noise,t);
-		position = 10;//robot->legpos;
+		position = ((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->cpg_output.at(0);
+		//position = 10;//robot->legpos;
 		position = (position-500)*10;
 		message.data = position-2000;
 		chatter_pub.publish(message);
