@@ -43,6 +43,17 @@
 #include <sys/ioctl.h>
 #include <stdlib.h>
 #include <curses.h>
+
+//ROS Stuff
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+#include "std_msgs/Int32.h"
+#include "std_msgs/Float32.h"
+#include <sstream>
+
+
+
+
 using namespace lpzrobots;
 
 using namespace std;
@@ -51,6 +62,26 @@ bool stop = 0;
 double noise = .0;
 double realtimefactor = 1;
 bool singleline = true; // whether to display the state in a single line
+double cpg = 0.05;
+
+int rosInput_old;
+float rosInput;
+int threshold = 0;
+bool newInput = false;
+float position;
+
+float rosInputScaled =0;
+float activity = 0;
+float w_pfs_rfs = 1.0;
+float w_pfs_pfs = 3.5;
+float neuron_output = 0;
+
+ros::Publisher chatter_pub;
+ros::Publisher chatter_pub2;
+
+std_msgs::Float32 message;
+std_msgs::Float32 message2;
+
 
 
 // Helper
@@ -63,7 +94,34 @@ int contains(char **list, int len, const char *str) {
 }
 ;
 
+//ROS Callback
+void RosCallback(const std_msgs::Float32::ConstPtr& msg) {
+	//ROS_INFO_STREAM(msg->data);
+	//chatter_pub.publish(msg);
+	rosInput=msg->data;
+	newInput = true;
+
+
+
+}
+
+
+
 int main(int argc, char** argv) {
+
+
+	//Init ROS
+		ros::init(argc, argv, "amosI_real_listener");
+		//Init the Node
+		ros::NodeHandle n;
+		//Init Subscriber
+		ros::Subscriber sub = n.subscribe("extractor", 1000, RosCallback);
+		chatter_pub = n.advertise<std_msgs::Float32>("amos_real_pub", 1000);
+		chatter_pub2 = n.advertise<std_msgs::Float32>("amos_real_pub2", 1000);
+		//End of ROS stuff
+
+
+
 	list<PlotOption> plotoptions;
 	int port = 1;
 
@@ -97,6 +155,8 @@ int main(int argc, char** argv) {
 	// Different controllers
 
 	AbstractController* controller = new AmosIIControl();
+	((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+
 	// one2onewiring gives full range of robot actuators
 	AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
 
@@ -124,6 +184,7 @@ int main(int argc, char** argv) {
 	globaldata.configs.push_back(robot);
 	globaldata.configs.push_back(controller);
 
+
 	showParams(globaldata.configs);
 	printf("\nPress c to invoke parameter input shell\n");
 	printf("The output of the program is more fun then useful ;-).\n");
@@ -146,9 +207,83 @@ int main(int argc, char** argv) {
 
 	while(!stop) {
 		agent->step(noise,t);
+		position = 10;//robot->legpos;
+		position = (position-500)*10;
+		message.data = position-2000;
+		chatter_pub.publish(message);
+
+		if (newInput)
+		{
+			//Scale input from +-2048 to +-1
+			//std::cout << rosInput << endl;
+			rosInputScaled = rosInput;
+			//rosInputScaled = rosInputScaled/2048;
+			//std::cout << rosInputScaled << endl;
+			//Low Pass filter with single recurrent neuron
+			//activity = rosInputScaled * w_pfs_rfs + neuron_output * w_pfs_pfs;
+			//neuron_output = tanh(activity);
+			//std::cout << neuron_output << endl;
+			//message.data = neuron_output;
+			//message2.data = rosInputScaled;
+			//chatter_pub.publish(message);
+			//chatter_pub2.publish(message2);
+
+			if (rosInputScaled == -3000)
+			{
+				std::cout << "CPG Changed" << endl;
+
+				cpg = 0.08;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+
+				std::cout << cpg << endl;
+			}
+			else if (rosInputScaled == -3500)
+			{
+				std::cout << "CPG Changed" << endl;
+
+				cpg = 0.18;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+
+				std::cout << cpg << endl;
+			}
+
+			else
+			{
+				std::cout << "CPG Changed" << endl;
+
+				cpg = 0.02;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+
+				std::cout << cpg << endl;
+			}
+
+
+			/*//Check if there is an active threshold and change cpg
+			if (rosInputScaled >=-2500)
+			{
+				std::cout << "CPG Changed" << endl;
+
+				cpg = 0.25;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+
+				std::cout << cpg << endl;
+
+			}
+			else
+			{
+				cpg = 0.05;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+				std::cout << cpg << endl;
+			}*/
+
+
+		}
+
 
 		int key=0;
 		key = wgetch (stdscr);
+
+
 
 		//KEYBOARD BJC OPTION
 		if (key==98){ //B
@@ -163,7 +298,23 @@ int main(int argc, char** argv) {
 		}
 
 		if (key==97){ //A
-			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle) {
+			std::cout << "CPG Changed" << endl;
+			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->Control_input == 0.03)
+			{
+				cpg = 0.14;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+				std::cout << "0.14" << endl;
+			}
+			else
+			{
+				cpg = 0.03;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->nlc->changeControlInput(cpg);
+				std::cout << "0.14" << endl;
+			}
+
+
+
+			/*if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle = false;
 				std::cout << "OA is OFF" << endl;
 			} else {
@@ -172,7 +323,7 @@ int main(int argc, char** argv) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
 				std::cout << "OA is ON" << endl;
-			}
+			}*/
 		}
 
 
@@ -189,6 +340,8 @@ int main(int argc, char** argv) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes= true;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=true;
 				std::cout << "Reflex is ON" << endl;
+
+
 			}
 		}
 
@@ -203,6 +356,8 @@ int main(int argc, char** argv) {
 
 
 		t++;
+
+		ros::spinOnce();
 	};
 	delete robot;
 	delete agent;
