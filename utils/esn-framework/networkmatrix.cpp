@@ -909,7 +909,7 @@ void ESNetwork::readInnerweightsFromFile(int num)
 	             break;
 	         }
 
-	         if (str ==" ") break;
+	         if (strncmp(str, " ", 10) == 0) break;
 
 	       	 temp->val(i,j) = atof(str);
 	   }
@@ -959,7 +959,7 @@ void ESNetwork::readStartweightsFromFile(int num)
 	             break;
 	         }
 
-	         if (str ==" ") break;
+	         if (strncmp(str, " ", 10) == 0) break;
 
 	         temp->val(i,j) = atof(str);
 	   }
@@ -1007,7 +1007,7 @@ void ESNetwork::readNoiseFromFile(int num)
 	             break;
 	         }
 
-	         if (str ==" ") break;
+	         if (strncmp(str, " ", 10) == 0) break;
 
 	         temp->val(i,j) = atof(str);
 	   }
@@ -1055,7 +1055,7 @@ void ESNetwork::readEndweightsFromFile(int num)
 		             break;
 		         }
 
-		         if (str ==" ") break;
+		         if (strncmp(str, " ", 10) == 0) break;
 
 		         temp->val(i,j) = atof(str);
 		   }
