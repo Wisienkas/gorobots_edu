@@ -119,28 +119,19 @@ double* CamPosiSensor::CaptureFrame() {
 
   char cTagsInfo[255];
 
-  double tagsInfo[tagsNum][8]; //save all tag data to this array
   for (int i = 0; i < tagsNum; i++) {
     fflush(NULL);
     mylink->RecvString(cTagsInfo, 255, '\n');
-
-    sscanf(cTagsInfo, "%lf %lf %lf %lf %lf %lf %lf %lf", &tagsInfo[i][0], &tagsInfo[i][1], &tagsInfo[i][2],
-        &tagsInfo[i][3], &tagsInfo[i][4], &tagsInfo[i][5], &tagsInfo[i][6], &tagsInfo[i][7]);
-
-    //		printf("Time = %f\n ID = %f\n XYZ = %.3f %.3f %.3f \n RPY = %.3f %.3f %.3f \n", tagsInfo[i][0], tagsInfo[i][1], tagsInfo[i][2], tagsInfo[i][3],
-    //			    tagsInfo[i][4], tagsInfo[i][5], tagsInfo[i][6], tagsInfo[i][7]);
-
-    for (int j = 0; j < 8; j++) {
-      tagInfo_old[j] = tagsInfo[i][j];
-    }
   }
 
-  //only return one tag value
-  if (0 == tagsNum) {
-    return tagInfo_old;
-  } else {
-    return tagsInfo[tagsNum - 1];
+  if (tagsNum > 0 ) {
+      sscanf(cTagsInfo, "%lf %lf %lf %lf %lf %lf %lf %lf",
+             &tagInfo_old[0], &tagInfo_old[1], &tagInfo_old[2],
+             &tagInfo_old[3], &tagInfo_old[4], &tagInfo_old[5],
+             &tagInfo_old[6], &tagInfo_old[7]);
   }
+
+  return tagInfo_old;
 }
 
 // ---------- Show the image to screen by Ren --------------
