@@ -10,7 +10,7 @@
 using namespace std;
 
 //To open the camera and initialize camera, default -1 means opening random camera
-CamPosiSensor::CamPosiSensor(int CamNum = -1) {
+CamPosiSensor::CamPosiSensor(int CamNum) {
   bResult = false;
   tagsNum = 0;
   for (int i = 0; i < 8; i++) {
