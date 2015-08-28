@@ -40,7 +40,7 @@ CamPosiSensor::CamPosiSensor(int CamNum) {
       }
 
       // connect to sever
-      fflush(NULL);
+      fflush(nullptr);
       //Client mylink(5010, -1, "localhost", false, &bResult);
       mylink = new Client(5010, -1, "localhost", false, &bResult);
 
@@ -49,15 +49,15 @@ CamPosiSensor::CamPosiSensor(int CamNum) {
         getchar();
       } else {
         printf("Client, made connection...\n");
-        fflush(NULL);
+        fflush(nullptr);
 
         //transfer image info
         sprintf(cImgH, "%d\n", img->height); //The string must end with "\n"!
         sprintf(cImgW, "%d\n", img->width);
         printf("Client, Sending image info");
-        fflush(NULL);
+        fflush(nullptr);
         mylink->SendString(cImgH);
-        fflush(NULL);
+        fflush(nullptr);
         mylink->SendString(cImgW);
         //img=cvLoadImage("./Imgs/Image-1.jpg",CV_LOAD_IMAGE_GRAYSCALE);
         cvNamedWindow("Client Image", 0);
@@ -71,14 +71,14 @@ CamPosiSensor::CamPosiSensor(int CamNum) {
 CamPosiSensor::~CamPosiSensor() {
   //close the port
   printf("Client, closing connection...\n");
-  fflush(NULL);
+  fflush(nullptr);
   if (bResult) {
     mylink->Close();
     delete mylink;
   }
 
   printf("Client, done...\n");
-  fflush(NULL);
+  fflush(nullptr);
 
   //close the window and release the image
   cvDestroyWindow("Client Image");
@@ -91,7 +91,7 @@ double* CamPosiSensor::CaptureFrame() {
   //capture frames
   if (!cvGrabFrame(capture)) {
     cout << "can not get image\n";
-    return NULL;
+    return nullptr;
   }
   frame = cvRetrieveFrame(capture);
 
@@ -107,11 +107,11 @@ double* CamPosiSensor::CaptureFrame() {
 
   //transfer image
   //	printf("Client, Sending image data \n");
-  fflush(NULL);
+  fflush(nullptr);
   mylink->SendString(imgData);
 
   //Receive info of tags: number of tags
-  fflush(NULL);
+  fflush(nullptr);
   mylink->RecvString(cTagsNum, 255, '\n');
   tagsNum = atoi(cTagsNum);
 
@@ -120,7 +120,7 @@ double* CamPosiSensor::CaptureFrame() {
   char cTagsInfo[255];
 
   for (int i = 0; i < tagsNum; i++) {
-    fflush(NULL);
+    fflush(nullptr);
     mylink->RecvString(cTagsInfo, 255, '\n');
   }
 
