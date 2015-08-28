@@ -183,7 +183,6 @@ ESNetwork::~ESNetwork()
 	delete oldOutputs;
 	delete oldIntermediates;
 	delete history;
-	delete outputsCollection;
 	out.close();
 }
 
