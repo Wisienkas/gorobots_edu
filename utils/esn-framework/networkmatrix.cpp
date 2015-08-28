@@ -25,12 +25,12 @@ std::ofstream out5;
 ESNetwork::ESNetwork(int a, int b, int c , bool param1, bool param2, double param3, bool param4)
 {
 	RCneuronNoise = false;
-	Loadweight == false;
+	Loadweight = false;
 	enable_IP = param4;
 
 	autocorr = 1; //.0;
 
-	LearnMode == 1 ;// RLS Learning default, choose '2' for LMS learning
+	LearnMode = 1 ;// RLS Learning default, choose '2' for LMS learning
 
 	nonlinearity = 2;        // RC neuron nonlinearity- ('0'- linear, '1'-sigmoid, '2'-tanh(default))
 	outnonlinearity = 2;     // output neuron nonlinearity- ('0'- linear, '1'-sigmoid, '2'-tanh(default))
