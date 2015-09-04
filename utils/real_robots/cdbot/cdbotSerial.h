@@ -1,8 +1,8 @@
 /*
  * Giuliano Di Canio 3 November 2014
  */
-#ifndef DUNGBEETLESERIAL_H_
-#define DUNGBEETLESERIAL_H_
+#ifndef CDBOTSERIAL_H_
+#define CDBOTSERIAL_H_
 
 #include <signal.h>
 #include <unistd.h>
@@ -34,7 +34,7 @@
 #include<sys/time.h>
 
 //#include "sensor_motor_definition.h"
-#include <utils/real_robots/dungbeetle/dungBeetle_hindlegSensMotDef.h>
+#include <utils/real_robots/cdbot/cdbotSensMotDef.h>
 
 using namespace std;
 
@@ -50,12 +50,12 @@ namespace lpzrobots {
 
 /** This class communicates with amosII robot
  */
-class dungBeetleSerial : public AbstractRobot {
+class cdbotSerial : public AbstractRobot {
 public:
-	dungBeetleSerial(const char *port = "/dev/ttyS0");
+	cdbotSerial(const char *port = "/dev/ttyS0");
 
 
-	~dungBeetleSerial();
+	~cdbotSerial();
 
 	// robot interface
 	/** returns actual sensorvalues
@@ -90,20 +90,18 @@ public:
 
 	/*Default sensors processing*/
 	virtual void processSensors(sensor* pSensor);
-	/*Your own sensors processing*/
-	virtual void processSensorsGiuliano(sensor* pSensor);
 
 
 
 private:
 
 	int fd1;// Return char after opening COM0
-	double  Sensor[DUNGBEETLE_SENSOR_MAX]; //but only 18 sensors used now, others are set to zero
-	double motorCom[DUNGBEETLE_MOTOR_MAX];
+	double  Sensor[CDBOT_SENSOR_MAX]; //but only 18 sensors used now, others are set to zero
+	double motorCom[CDBOT_MOTOR_MAX];
 	char chBuff;
 
-	int servoPosMin[DUNGBEETLE_MOTOR_MAX];
-	int servoPosMax[DUNGBEETLE_MOTOR_MAX];
+	int servoPosMin[CDBOT_MOTOR_MAX];
+	int servoPosMax[CDBOT_MOTOR_MAX];
 
 	int nSensorType;
 	double potValue[SENSOR_BUFFER_NUM];
@@ -132,19 +130,21 @@ private:
 	int t;
 
 
-	enum RealDungBeetleSensorNames{
+	enum cdbotSensorNames{
 
-	 /*Add more sensors here according to the port of the MBoard*/
+		/*Add more sensors here according to the port of the MBoard*/
 
-	  // Foot contact sensors
-	  TC0_RIGHT_REAL= 10,
-	  CT0_RIGHT_REAL= 11,
-	  FT0_RIGHT_REAL= 12,
-
-
-	 };
+		IR_RIGHT1_REAL =1,
+		IR_RIGHT2_REAL =2,
+		IR_LEFT1_REAL =3,
+		IR_LEFT2_REAL =4,
+		LIGHT_RIGHT_REAL = 5,
+		LIGHT_LEFT_REAL = 10,
+		SOUND_RIGHT_REAL = 7,
+		SOUND_LEFT_REAL = 8,
+	};
 
 };
 
 }
-#endif /* dungBeetleSerial_H_ */
+#endif /* cdbotSerial_H_ */

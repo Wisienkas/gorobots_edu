@@ -34,6 +34,7 @@ enum cdbotMotorName
 {
 	MOTOR_RIGHT = 0,
 	MOTOR_LEFT = 1,
+	CDBOT_MOTOR_MAX = 2
 
 };
 

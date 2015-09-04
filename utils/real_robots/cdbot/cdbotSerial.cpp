@@ -131,28 +131,22 @@ int cdbotSerial::getSensors(sensor* sensors, int sensornumber){
 	}while((unsigned char)(chBuff)!=0);// "0" is sync byte
 
 
-	//--------------------------------------HERE
 	// LpzRobot <-- AMOS
 	//Foot sensors (FS,Group 1)
-	sensors[IR_RIGHT1]=potValue[TC0_RIGHT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
-	sensors[IR_RIGHT2]=potValue[CT0_RIGHT_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
-	sensors[IR_LEFT1]=potValue[FT0_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
-	sensors[IR_LEFT2]=potValue[FT0_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
-	sensors[LIGHT_RIGHT]=potValue[TC0_RIGHT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
-	sensors[LIGHT_LEFT]=potValue[CT0_RIGHT_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
-	sensors[SOUND_RIGHT]=potValue[FT0_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
-	sensors[SOUND_LEFT]=potValue[FT0_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
-
-
-
-
-	//--------------------------------------HERE
+	sensors[IR_RIGHT1]=potValue[IR_RIGHT1_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
+	sensors[IR_RIGHT2]=potValue[IR_RIGHT2_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
+	sensors[IR_LEFT1]=potValue[IR_LEFT1_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[IR_LEFT2]=potValue[IR_LEFT2_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[LIGHT_RIGHT]=potValue[LIGHT_RIGHT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
+	sensors[LIGHT_LEFT]=potValue[LIGHT_LEFT_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
+	sensors[SOUND_RIGHT]=potValue[SOUND_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[SOUND_LEFT]=potValue[SOUND_LEFT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
 
 
 
 
 	//Conversion to positive range [0,..,255]
-	for(int i=0; i<=DUNGBEETLE_SENSOR_MAX;i++){
+	for(int i=0; i<=CDBOT_SENSOR_MAX;i++){
 		if (sensors[i] < 0){
 			sensors[i]+=256;
 		}
@@ -164,27 +158,26 @@ int cdbotSerial::getSensors(sensor* sensors, int sensornumber){
 		processSensors(sensors);
 	}
 
-	//Your own,e.g.,
-	bool giuliano_preprocessing = false;
-	if (giuliano_preprocessing){
-		processSensorsGiuliano(sensors);
-	}
-
-
 	return this->sensornumber;
 
 }
 
 /*Different sensors processing*/////// THIS ONE HAS TO BE SET UP BY SKRETCH
-void dungBeetleSerial::processSensors(sensor* psensors){
-
-	//Need to ADJUST again 12.04.2012 max min range
-	//Foot sensor (FS, Group 1): Scaling to 0 (off ground),..,1 (on ground)
-	psensors[TC0_RIGHT]= ((psensors[TC0_RIGHT]-7)/(207-7));   //[min = 7 (off ground), max =  207 (on ground)]
-	psensors[CT0_RIGHT]= ((psensors[TC0_RIGHT]-15)/(196-15)); //[min = 15 (off ground), max = 196 (on ground)]
-	psensors[FT0_RIGHT]= ((psensors[FT0_RIGHT]-20)/(200-20)); //[min = 20 (off ground), max = 200 (on ground)]
+void cdbotSerial::processSensors(sensor* psensors){
 
 
+
+	psensors[IR_RIGHT1]= ((psensors[IR_RIGHT1]-7)/(207-7));
+	psensors[IR_RIGHT2]=((psensors[IR_RIGHT2]-7)/(207-7));
+	psensors[IR_LEFT1]=((psensors[IR_LEFT1]-7)/(207-7));
+	psensors[IR_LEFT2]=((psensors[IR_LEFT2]-7)/(207-7));
+	psensors[LIGHT_RIGHT]=((psensors[LIGHT_RIGHT]-7)/(207-7));
+	psensors[LIGHT_LEFT]=((psensors[LIGHT_LEFT]-7)/(207-7));
+	psensors[SOUND_RIGHT]=((psensors[SOUND_RIGHT]-7)/(207-7));
+	psensors[SOUND_LEFT]=((psensors[SOUND_LEFT]-7)/(207-7));
+
+
+/*
 	if(psensors[TC0_RIGHT]>1)
 		psensors[TC0_RIGHT] = 1;
 	if(psensors[TC0_RIGHT]<0)
@@ -200,7 +193,7 @@ void dungBeetleSerial::processSensors(sensor* psensors){
 	if(psensors[FT0_RIGHT]<0)
 		psensors[FT0_RIGHT] = 0;
 
-
+*/
 
 
 }
@@ -212,7 +205,7 @@ void dungBeetleSerial::processSensors(sensor* psensors){
   @param motors motors scaled to [-1,1]
   @param motornumber length of the motor array
  */
-void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
+void cdbotSerial::setMotors(const motor* motors, int motornumber){
 
 	assert(motornumber >= this->motornumber);
 
@@ -236,7 +229,7 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 
 
 	// ##################### move motors ################
-	for(int i=0;i<DUNGBEETLE_MOTOR_MAX;i++)
+	for(int i=0;i<CDBOT_MOTOR_MAX;i++)
 	{
 		motorCom[i] = motors[i];// set LpzMotor value before processing and sending ??????????what is this?
 
@@ -282,15 +275,6 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 
 
 }
-
-/*Process your sensor signals here to match to your need*/
-void dungBeetleSerial::processSensorsGiuliano(sensor* sensors){
-
-}
-
-
-}
-
 
 
 
