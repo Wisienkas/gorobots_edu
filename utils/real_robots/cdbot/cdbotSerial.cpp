@@ -102,7 +102,7 @@ int cdbotSerial::getSensors(sensor* sensors, int sensornumber){
 	assert(sensornumber >= this->sensornumber);
 
 	for(int i=0; i<=CDBOT_SENSOR_MAX;i++){
-			sensors[i]=0;
+		sensors[i]=0;
 	}
 
 	comByte=2;
@@ -177,7 +177,7 @@ void cdbotSerial::processSensors(sensor* psensors){
 	psensors[SOUND_LEFT]=((psensors[SOUND_LEFT]-7)/(207-7));
 
 
-/*
+	/*
 	if(psensors[TC0_RIGHT]>1)
 		psensors[TC0_RIGHT] = 1;
 	if(psensors[TC0_RIGHT]<0)
@@ -193,7 +193,7 @@ void cdbotSerial::processSensors(sensor* psensors){
 	if(psensors[FT0_RIGHT]<0)
 		psensors[FT0_RIGHT] = 0;
 
-*/
+	 */
 
 
 }
@@ -216,16 +216,6 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 
 	// -------------------- initializing the Motor range ------------------------
 
-	//[-45,.., 45 deg]
-	//TR0_m
-	servoPosMin[0] = 145;//120;
-	servoPosMax[0] = 5;//25;
-	//TR1_m
-	servoPosMin[1] = 195;//160;
-	servoPosMax[1] = 45;//80;
-	//TR2_m
-	servoPosMin[2] = 200;//170;
-	servoPosMax[2] = 40;//80;
 
 
 	// ##################### move motors ################
@@ -237,30 +227,34 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 		if (motorCom[i]<-1) motorCom[i]=-1;
 	}
 
+	motorCom[0] = 1;
+	         motorCom[1]=1;
 
+	servoPosMax[22] = 250;
+	servoPosMin[22] = 130;
 
-	//TC0
-	serialPos[28] = (int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
-	//CT0
-	serialPos[31] = (int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[1]-servoPosMin[1])+servoPosMin[1]) ;
-	//FT0
-	serialPos[32] = (int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]) ;
+	servoPosMax[21] = 250;
+	servoPosMin[21] = 130;
 
+	serialPos[22] = 10;//(int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
+	serialPos[21] = 10;//(int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right
 
+//	serialPos[20] =250;//(int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
+//	serialPos[23] =250;//(int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right
 
 
 
 	//usleep(1000);
-	usleep (10000);//10000);
+	//usleep (10000);//10000);
 	// do some processing for motor commands before sending AMOS sensors
 
 	sprintf(serial_motor, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
-				,comByte,serialPos[1],serialPos[2],
-				serialPos[3],serialPos[4],serialPos[5],serialPos[6],serialPos[7],serialPos[8],
-				serialPos[9],serialPos[10],serialPos[11],serialPos[12],serialPos[13],serialPos[14],
-				serialPos[15],serialPos[16],serialPos[17],serialPos[18],serialPos[19],serialPos[20],
-				serialPos[21],serialPos[22],serialPos[23],serialPos[24],serialPos[25],serialPos[26],
-				serialPos[27],serialPos[28],serialPos[29],serialPos[30],serialPos[31],serialPos[32],end);
+			,comByte,serialPos[1],serialPos[2],
+			serialPos[3],serialPos[4],serialPos[5],serialPos[6],serialPos[7],serialPos[8],
+			serialPos[9],serialPos[10],serialPos[11],serialPos[12],serialPos[13],serialPos[14],
+			serialPos[15],serialPos[16],serialPos[17],serialPos[18],serialPos[19],serialPos[20],
+			serialPos[21],serialPos[22],serialPos[23],serialPos[24],serialPos[25],serialPos[26],
+			serialPos[27],serialPos[28],serialPos[29],serialPos[30],serialPos[31],serialPos[32],end);
 
 	//Sendding command to serial port
 	write(fd1, serial_motor, 34);//sizeof(serial_msg));
@@ -268,12 +262,12 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 	// to slow down process a bit
 	//usleep(10000);
 
-	usleep (10000);//10000);
+	//usleep (10000);//10000);
 
 	// increase time counter
 	t++;
 
-
+}
 }
 
 
