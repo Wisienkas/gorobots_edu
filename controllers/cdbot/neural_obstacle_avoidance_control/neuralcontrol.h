@@ -55,15 +55,23 @@ protected:
 	int t;
 	paramkey name;
 
-
-	//Begin ADD YOUR VARIABLE HERE//
-
-	//0) Sensor inputs/scaling  ----------------
-
 public:
-	//Angle sensors
+
 	std::vector<sensor> x;
 	std::vector<sensor> y;
+
+	//MRC parameters -begin//
+	std::vector<double> mrc_input;    //MRC inputs
+	std::vector<double> mrc_avg_input;    //MRC average inputs
+	std::vector<double> mrc_activity; //MRC neural activities
+	std::vector<double> mrc_output;   //MRC neural outputs
+	std::vector<double> mrc_input_w;   //MRC neural weight from inputs to MRC neurons
+	std::vector< std::vector<double> > mrc_w;       //MRC neural weights
+	double mrc_bias;                  //MRC bias
+
+
+	//sound
+	std::vector<double> sound_output;   //MRC neural outputs
 
 };
 #endif /* CONTROLLERS_CDBOT_H_ */

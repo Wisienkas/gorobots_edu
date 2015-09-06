@@ -106,8 +106,8 @@ int main(int argc, char** argv) {
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 
-	robot = new cdbotSerial("/dev/ttyS0");     // using serial port
-	//robot = new cdbotSerial("/dev/ttyUSB1"); // using USB-to-serial adapter
+	//robot = new cdbotSerial("/dev/ttyS0");     // using serial port
+	robot = new cdbotSerial("/dev/ttyUSB0"); // using USB-to-serial adapter
 
 
 	agent = new Agent(plotoptions);
@@ -136,11 +136,13 @@ int main(int argc, char** argv) {
 	keypad(stdscr,TRUE);
 	nodelay(stdscr,TRUE);
 
+	cout << "hi brf"<< endl;
+
 	/*cout<<"Options: Press a= Obstacle Avoidance ON/OFF"<<endl;
 	cout<<"Options: Press b= BJC ON/OFF"<<endl;
 	cout<<"Options: Press e= Reflex ON/OFF"<<endl;
 
-	cout << "hi brf"<< endl;
+
 	*/while(!stop) {//!stop
 
 		agent->step(noise,t);
@@ -149,7 +151,7 @@ int main(int argc, char** argv) {
 
 		int key=0;
 		key = wgetch (stdscr);
-		if(key==98)
+		if(key==98)//B
 		{
 			//((neuralcontrol*) controller)->y.at(1) = -1;
 			for(int i=0;i<CDBOT_MOTOR_MAX;i++)
@@ -162,20 +164,7 @@ int main(int argc, char** argv) {
 			}
 
 		}
-		/*
-		//KEYBOARD BJC OPTION
-		if (key==98){ //B
-			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
-				std::cout << "BJC is OFF" << endl;
-			} else {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = true;
-				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
-				std::cout << "BJC is ON" << endl;
-			}
-		}
-
-		 */if (key==97){ //A
+		if (key==97){ //A
 			 //((neuralcontrol*) controller)->y.at(1) = -1;
 			 for(int i=0;i<CDBOT_MOTOR_MAX;i++)
 			 {

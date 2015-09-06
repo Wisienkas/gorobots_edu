@@ -133,10 +133,10 @@ int cdbotSerial::getSensors(sensor* sensors, int sensornumber){
 
 	// LpzRobot <-- AMOS
 	//Foot sensors (FS,Group 1)
-	sensors[IR_RIGHT1]=potValue[IR_RIGHT1_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
-	sensors[IR_RIGHT2]=potValue[IR_RIGHT2_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
-	sensors[IR_LEFT1]=potValue[IR_LEFT1_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
-	sensors[IR_LEFT2]=potValue[IR_LEFT2_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[IR_RIGHTOUT]=potValue[IR_RIGHTOUT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
+	sensors[IR_RIGHTIN]=potValue[IR_RIGHTIN_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
+	sensors[IR_LEFTOUT]=potValue[IR_LEFTOUT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[IR_LEFTIN]=potValue[IR_LEFTIN_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
 	sensors[LIGHT_RIGHT]=potValue[LIGHT_RIGHT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
 	sensors[LIGHT_LEFT]=potValue[LIGHT_LEFT_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
 	sensors[SOUND_RIGHT]=potValue[SOUND_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
@@ -166,35 +166,115 @@ int cdbotSerial::getSensors(sensor* sensors, int sensornumber){
 void cdbotSerial::processSensors(sensor* psensors){
 
 
-
-	psensors[IR_RIGHT1]= ((psensors[IR_RIGHT1]-7)/(207-7));
-	psensors[IR_RIGHT2]=((psensors[IR_RIGHT2]-7)/(207-7));
-	psensors[IR_LEFT1]=((psensors[IR_LEFT1]-7)/(207-7));
-	psensors[IR_LEFT2]=((psensors[IR_LEFT2]-7)/(207-7));
-	psensors[LIGHT_RIGHT]=((psensors[LIGHT_RIGHT]-7)/(207-7));
-	psensors[LIGHT_LEFT]=((psensors[LIGHT_LEFT]-7)/(207-7));
-	psensors[SOUND_RIGHT]=((psensors[SOUND_RIGHT]-7)/(207-7));
-	psensors[SOUND_LEFT]=((psensors[SOUND_LEFT]-7)/(207-7));
-
-
 	/*
-	if(psensors[TC0_RIGHT]>1)
-		psensors[TC0_RIGHT] = 1;
-	if(psensors[TC0_RIGHT]<0)
-		psensors[TC0_RIGHT] = 0;
+	Sensor[0] = potValue[12] = Right detection IR
+	Sensor[1] = potValue[21] = Left detection IR
+	Sensor[2] = potValue[22] = Photo right
+	Sensor[3] = potValue[11] = Photo left
+	*/
 
-	if(psensors[CT0_RIGHT]>1)
-		psensors[CT0_RIGHT] = 1;
-	if(psensors[CT0_RIGHT]<0)
-		psensors[CT0_RIGHT] = 0;
 
-	if(psensors[FT0_RIGHT]>1)
-		psensors[FT0_RIGHT] = 1;
-	if(psensors[FT0_RIGHT]<0)
-		psensors[FT0_RIGHT] = 0;
+	double AvergRightIRIN_Min = 40;
+	double AvergRightIRIN_Max = 160;
 
-	 */
+	double AvergLeftIRIN_Min = 40;
+	double AvergLeftIRIN_Max = 160;
 
+	double AvergRightIROUT_Min = 80;
+	double AvergRightIROUT_Max = 200;
+
+
+	double AvergLeftIROUT_Min = 80;
+	double AvergLeftIROUT_Max = 140;
+
+	//Photo sensors/////////////////////////////////////////////////////
+	int	 PhotomaxL = 130;
+	int	 PhotominL = 5;
+
+	int	 PhotomaxR = 150;
+	int	 PhotominR = 5;
+
+
+	//X_R0 = Gnuplot
+	psensors[IR_RIGHTOUT]= (((psensors[IR_RIGHTOUT]- AvergRightIROUT_Min)/(AvergRightIROUT_Max- AvergRightIROUT_Min))*2.0-1.0);
+
+	if (psensors[IR_RIGHTOUT]>1.0)
+	{
+		psensors[IR_RIGHTOUT]=1;
+	}
+	if (psensors[IR_RIGHTOUT]<-1.0)
+	{
+		psensors[IR_RIGHTOUT]=-1;
+	}
+
+	//X_R1 = Gnuplot
+	psensors[IR_RIGHTIN] = (((psensors[IR_RIGHTIN]- AvergRightIRIN_Min)/(AvergRightIRIN_Max- AvergRightIRIN_Min))*2.0-1.0);
+
+
+	if (psensors[IR_RIGHTIN]>1.0)
+	{
+		psensors[IR_RIGHTIN]=1;
+	}
+	if (psensors[IR_RIGHTIN]<-1.0)
+	{
+		psensors[IR_RIGHTIN]=-1;
+	}
+
+	//X_R2 = Gnuplot
+	psensors[IR_LEFTOUT]= (((psensors[IR_LEFTOUT]- AvergLeftIROUT_Min)/(AvergLeftIROUT_Max- AvergLeftIROUT_Min))*2.0-1.0);
+
+	if (psensors[IR_LEFTOUT]>1.0)
+	{
+		psensors[IR_LEFTOUT]=1;
+	}
+	if (psensors[IR_LEFTOUT]<-1.0)
+	{
+		psensors[IR_LEFTOUT]=-1;
+	}
+
+
+
+	//X_R3 = Gnuplot
+	psensors[IR_LEFTIN]= (((psensors[IR_LEFTIN]- AvergLeftIRIN_Min)/(AvergLeftIRIN_Max- AvergLeftIRIN_Min))*2.0-1.0);
+
+
+	if (psensors[IR_LEFTIN]>1.0)
+	{
+		psensors[IR_LEFTIN]=1;
+	}
+	if (psensors[IR_LEFTIN]<-1.0)
+	{
+		psensors[IR_LEFTIN]=-1;
+	}
+
+
+	//X_R4 = Gnuplot
+	psensors[LIGHT_RIGHT]= (((psensors[LIGHT_RIGHT]-PhotominR)/(PhotomaxR-PhotominR))*2.0-1.0);
+
+	if (psensors[LIGHT_RIGHT]>1.0)
+	{
+		psensors[LIGHT_RIGHT]=1;
+	}
+	if (psensors[LIGHT_RIGHT]<-1.0)
+	{
+		psensors[LIGHT_RIGHT]=-1;
+	}
+
+	//X_R5 = Gnuplot
+	psensors[LIGHT_LEFT]= (((psensors[LIGHT_LEFT]-PhotominL)/(PhotomaxL-PhotominL))*2.0-1.0);
+
+	if (psensors[LIGHT_LEFT]>1.0)
+	{
+		psensors[LIGHT_LEFT]=1;
+	}
+	if (psensors[LIGHT_LEFT]<-1.0)
+	{
+		psensors[LIGHT_LEFT]=-1;
+	}
+
+	// not use for now
+	psensors[SOUND_RIGHT]= 1 * psensors[SOUND_RIGHT];
+	psensors[SOUND_LEFT]= 1 * psensors[SOUND_LEFT];
 
 }
 
@@ -221,14 +301,14 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 	// ##################### move motors ################
 	for(int i=0;i<CDBOT_MOTOR_MAX;i++)
 	{
-		motorCom[i] = motors[i];// set LpzMotor value before processing and sending ??????????what is this?
+		motorCom[i] = motors[i];// Receiving output from neural control
 
 		if (motorCom[i]>1) motorCom[i]=1;
 		if (motorCom[i]<-1) motorCom[i]=-1;
 	}
 
-	motorCom[0] = 1;
-	         motorCom[1]=1;
+	//motorCom[0] = -1;
+	//motorCom[1] = -1;
 
 	servoPosMax[22] = 250;
 	servoPosMin[22] = 130;
@@ -236,13 +316,8 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 	servoPosMax[21] = 250;
 	servoPosMin[21] = 130;
 
-	serialPos[22] = 10;//(int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
-	serialPos[21] = 10;//(int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right
-
-//	serialPos[20] =250;//(int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
-//	serialPos[23] =250;//(int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right
-
-
+	serialPos[22] = (int) (double)(((motorCom[0]))*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
+   	serialPos[21] = (int) (double)(((motorCom[1]))*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right
 
 	//usleep(1000);
 	//usleep (10000);//10000);

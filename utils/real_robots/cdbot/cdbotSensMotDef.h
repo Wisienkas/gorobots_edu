@@ -18,14 +18,14 @@ enum cdbotSensorName
 	//													       //
 
 
-	IR_RIGHT1 = 0,
-	IR_RIGHT2 = 1,
-	IR_LEFT1 = 2,
-	IR_LEFT2 = 3,
+	IR_RIGHTOUT = 0,
+	IR_RIGHTIN = 1,
+	IR_LEFTOUT = 2,
+	IR_LEFTIN = 3,
 	LIGHT_RIGHT = 4,
 	LIGHT_LEFT = 5,
-	SOUND_RIGHT = 6,
-	SOUND_LEFT = 7,
+	SOUND_RIGHT = 6, // Not use
+	SOUND_LEFT = 7, // Not use
 	CDBOT_SENSOR_MAX=8
 
 };

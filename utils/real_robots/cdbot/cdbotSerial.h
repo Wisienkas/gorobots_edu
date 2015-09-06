@@ -134,12 +134,14 @@ private:
 
 		/*Add more sensors here according to the port of the MBoard*/
 
-		IR_RIGHT1_REAL =12,
-		IR_RIGHT2_REAL =2,////need to check
-		IR_LEFT1_REAL =21,
-		IR_LEFT2_REAL =4,// need to check
+		IR_RIGHTOUT_REAL =18,
+		IR_RIGHTIN_REAL = 21,
+		IR_LEFTOUT_REAL = 15,
+		IR_LEFTIN_REAL = 12,
 		LIGHT_RIGHT_REAL = 22,
 		LIGHT_LEFT_REAL = 11,
+
+		//NOT use
 		SOUND_RIGHT_REAL = 7,
 		SOUND_LEFT_REAL = 8,
 	};
