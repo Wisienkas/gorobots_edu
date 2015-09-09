@@ -30,7 +30,7 @@ dungBeetleSerial::dungBeetleSerial(const char *port)
 : AbstractRobot("dungBeetleSerial", "$Id: main.cpp,v 0.1 2011/14/07 18:00:00 fhesse $"),
   port(port) {
 
-	fd1=open(port, O_RDWR | O_NOCTTY | O_NDELAY);//make sure your account in PC can have access to serial port
+	fd1=open("/dev/ttyUSB1", O_RDWR | O_NOCTTY | O_NDELAY);//make sure your account in PC can have access to serial port
 
 
 	if(fd1 == -1)
@@ -133,10 +133,12 @@ int dungBeetleSerial::getSensors(sensor* sensors, int sensornumber){
 
 	// LpzRobot <-- AMOS
 	//Foot sensors (FS,Group 1)
-	sensors[TC0_RIGHT]=potValue[1]; //[min = 7 (off ground), max =  207 (touch ground)]
-	sensors[CT0_RIGHT]=potValue[2]; //[min = 15 (off ground), max = 196 (touch ground)]
-	sensors[FT0_RIGHT]=potValue[3]; //[min = 20 (off ground), max = 200 (touch ground)]
+	sensors[TC0_RIGHT]=potValue[TC0_RIGHT_REAL]; //[min = 7 (off ground), max =  207 (touch ground)]
+	sensors[CT0_RIGHT]=potValue[CT0_RIGHT_REAL]; //[min = 15 (off ground), max = 196 (touch ground)]
+	sensors[FT0_RIGHT]=potValue[FT0_RIGHT_REAL]; //[min = 20 (off ground), max = 200 (touch ground)]
 
+
+	  
 
 	//Conversion to positive range [0,..,255]
 	for(int i=0; i<=DUNGBEETLE_SENSOR_MAX;i++){
@@ -164,13 +166,16 @@ int dungBeetleSerial::getSensors(sensor* sensors, int sensornumber){
 
 /*Different sensors processing*/////// THIS ONE HAS TO BE SET UP BY SKRETCH
 void dungBeetleSerial::processSensors(sensor* psensors){
-
+	//int MIN_TC0 = 30;
+	//int MAX_TC0 = 70;
 	//Need to ADJUST again 12.04.2012 max min range
 	//Foot sensor (FS, Group 1): Scaling to 0 (off ground),..,1 (on ground)
 
 	//psensors[TC0_RIGHT]= ((psensors[TC0_RIGHT]-38)/(70-38));   //[min = 7 (off ground), max =  207 (on ground)]
-	psensors[TC0_RIGHT]= ((psensors[TC0_RIGHT]-33)/(39))*90-45;   //[min = 7 (off ground), max =  207 (on ground)]
+	psensors[TC0_RIGHT]= (((psensors[TC0_RIGHT]-32)/(47))*90-45)*-1;   //[min = 7 (off ground), max =  207 (on ground)]
 	//((value-oldMin)/(oldMax-oldMin)) * (newMax-newMin) + newMin;
+
+	//psensors[TC0_RIGHT]= ((psensors[TC0_RIGHT]-MIN_TC0)/(MAX_TC0-MIN_TC0))*2-1; 
 	psensors[CT0_RIGHT]= ((psensors[TC0_RIGHT]-15)/(196-15)); //[min = 15 (off ground), max = 196 (on ground)]
 	psensors[FT0_RIGHT]= ((psensors[FT0_RIGHT]-20)/(200-20)); //[min = 20 (off ground), max = 200 (on ground)]
 
@@ -216,14 +221,14 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 
 	//[-45,.., 45 deg]
 	//TR0_m
-	servoPosMin[0] = 200;//120;
-	servoPosMax[0] = 20;//25;
+	servoPosMin[0] = 20;//200;
+	servoPosMax[0] = 245;//20;
 	//TR1_m
-	servoPosMin[1] = 150;//160;
-	servoPosMax[1] = 70;//80;
+	servoPosMin[1] = 240;//160;
+	servoPosMax[1] = 100;//80;
 	//TR2_m
-	servoPosMin[2] = 200;//170;
-	servoPosMax[2] = 1;//80;
+	servoPosMin[2] = 170;//170;
+	servoPosMax[2] = 10;//80;
 
 
 	// ##################### move motors ################
@@ -238,18 +243,18 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 
 
 	//TC
-	serialPos[28] =(int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
+	serialPos[28] = (int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
 	//CT0
-	serialPos[31] =(int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[1]-servoPosMin[1])+servoPosMin[1]) ;
+	serialPos[31] = (int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[1]-servoPosMin[1])+servoPosMin[1]) ;
 	//FT0
-	serialPos[32] =150;//(int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]) ;
+	serialPos[32] = (int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]) ;
 
 
 
 
 
 	//usleep(1000);
-	usleep (10000);//10000);
+	usleep (100000);//10000);
 	// do some processing for motor commands before sending AMOS sensors
 
 	sprintf(serial_motor, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
@@ -266,7 +271,7 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 	// to slow down process a bit
 	//usleep(10000);
 
-	usleep (10000);//10000);
+	usleep (100000);//10000);
 
 	// increase time counter
 	t++;

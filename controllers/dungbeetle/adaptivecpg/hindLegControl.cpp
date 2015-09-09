@@ -19,8 +19,8 @@ using namespace std;
 hindLegControl::hindLegControl():
 	AbstractController("hindLegControl", "$Id: hindLegControl.cpp,v 0.1 $"){
 	initialize();
-	osc=new plastic(0.2,0.2,0.2,0.03*2*3.14,1.01,0.01);//CPG
-	plot.open("/home/poma/Documents/plots/dungBeetle.dat");//writing data to file.. change this to your directory
+	osc=new plastic(0.2,0.2,0.2,0.05*2*3.14,1.01,0.01);//CPG
+	plot.open("/home/hp/Documents/dungBeetle.dat");//writing data to file.. change this to your directory
 	// TODO Auto-generated constructor stub
 	filterJoint1= new lowPass_filter(0.5);//low pass filters
 	filterJoint2= new lowPass_filter(0.2);
@@ -29,7 +29,9 @@ hindLegControl::hindLegControl():
 	inputDerivative.push_back(0);//vector to compute derivative
 	inputDerivative.push_back(0);
 
-	reg=new shift_register(3);// STATIC shift register, bigger is its dimension, lower will be the final reached frequency
+	reg=new shift_register(0);// STATIC shift register, bigger is its dimension, lower will be the final reached frequency
+
+	//reg2=new shift_register(20);
 }
 
 hindLegControl::~hindLegControl() {
@@ -94,7 +96,7 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 
 
 	// generating singal SO, where deltaPhi=0.2*pi
-	 double input = 6*cos(0.2*3.14)*osc->getOut0()+6*sin(0.2*3.14)*osc->getOut1();
+	 double input = 6*cos(0.02*3.14)*osc->getOut0()+6*sin(0.02*3.14)*osc->getOut1();
 
 
 	 //from +-45 (feedback range) to +- 0.2 (CPG) range
@@ -109,27 +111,31 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 	std:cout << t << std::endl;
 
 	input=reg->update(input);//shift register
+	
 
 	//Generating CT signals
 
-	if(derivative > 0 && input > 0)
+	//if(derivative > 0 && input > 0)
+	if(derivative > 0)
 		input_secJ=input;
 	else
 		input_secJ=-1.4;
 	//
+	
+	//input_secJ=reg2->update(input_secJ);
 
 	osc->update(per);//updating CPG  with external perturbation
 
 
 	//writing to file
-	plot << t << " " << osc->getFrequency()*0.7/0.02<<  " "<<input<< " "<<x.at(0)<< " "<<per<<" "<<osc->getOut0()
-			<<" "<<osc->getOut1()<<" " <<osc->getOut2()<< " " <<osc->getOut0()
+	plot << t << " " << osc->getFrequency()*0.7/0.02<<  " "<<x.at(0)<< " "<<x.at(1)<< " "<<x.at(2)<<" "<<input
+			<<" "<<input_secJ<<" " <<osc->getOut2()<< " " <<osc->getOut0()
 			<<" " << osc->getW02() << " "<<osc->getW20() <<" "<< osc->getW2p() <<" "<<std::endl;
 
 	// writing commands to the motors
-	y_[0]=input;
-	y_[1]=-input_secJ;
-	y_[2]=0;
+	y_[0]= input;
+	y_[1]= input_secJ;
+	y_[2]= 0;//-input_secJ;
 
 
 	t++;

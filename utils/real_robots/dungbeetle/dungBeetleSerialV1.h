@@ -52,7 +52,7 @@ namespace lpzrobots {
  */
 class dungBeetleSerial : public AbstractRobot {
 public:
-	dungBeetleSerial(const char *port = "/dev/ttyS0");
+	dungBeetleSerial(const char *port = "/dev/ttyUSB1");
 
 
 	~dungBeetleSerial();
@@ -137,9 +137,9 @@ private:
 	 /*Add more sensors here according to the port of the MBoard*/
 
 	  // Foot contact sensors
-	  TC0_RIGHT_REAL= 10,
-	  CT0_RIGHT_REAL= 11,
-	  FT0_RIGHT_REAL= 12,
+	  TC0_RIGHT_REAL= 2,
+	  CT0_RIGHT_REAL= 0,
+	  FT0_RIGHT_REAL= 3,
 
 
 	 };

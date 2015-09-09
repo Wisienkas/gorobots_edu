@@ -57,6 +57,8 @@ public:
 	double max, min;
 	std::vector<double> getMaxMinFeedback(double feedback, double max, double min);
 	shift_register *reg;
+	shift_register *reg2;
+
 	lowPass_filter *filterJoint1, *filterJoint2, *filterJoint3;
 	double feedbackFiltered_1, feedbackFiltered_2, feedbackFiltered_3;
 	std::vector<sensor> x;
