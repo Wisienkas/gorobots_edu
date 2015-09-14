@@ -48,7 +48,8 @@
 #include <signal.h>
 #include <pigpio.h>
 
-#include "defs.h"
+//#include "defs.h"
+#include "utils/real_robots/sensors/lizard_ear/defs.h"
 #include "utils/real_robots/sensors/lizard_ear/lizard_ear.h"
 
 
