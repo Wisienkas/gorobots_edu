@@ -268,11 +268,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		//without obstacle avoidance, deactivate the lines below
 
 		input.at(0) = 0;
-		input.at(1) = 0;
+		input.at(1) = 1;
 		input.at(2) = 1; // 0, or 1
 		input.at(3) = -1;
 		input.at(4) = -1;
-		nlc->setInputNeuronInput(i, input.at(i));
+		//nlc->setInputNeuronInput(i, input.at(i));
 	}
 
 	if( switchon_obstacle){
