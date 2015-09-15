@@ -34,7 +34,7 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 
-#include "emptycontroller_icolearning.h"
+#include "examplecontroller_icolearning.h"
 
 //#include "emptycontroller.h"
 
