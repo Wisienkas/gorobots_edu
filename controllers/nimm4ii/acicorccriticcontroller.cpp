@@ -811,7 +811,7 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 
 	bool manual_control = false;
 	bool actor_critic_control = true; //true; // true;
-	bool ico_control = false; //true ;//true; // false; //true;
+	bool ico_control = true; //true ;//true; // false; //true;
 
 	//  position_robot = getPosition();
 
