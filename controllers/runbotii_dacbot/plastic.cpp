@@ -131,17 +131,12 @@ double plastic::getw01()
 }
 
 
-//To modify to make couple of two CPGs
-// Add void plastic::update(double perturbation, double output0, double output1)
 void plastic::update(double perturbation)
 {
 	double w20_init=0;
 	double w02_init=1;//1
 	double w2p_init=0.03;//0.05//must check on this!!!!!
 
-	//To modify to make couple of two CPGs
-	// For example,
-	//  out0_t1=tanh(w00*out0_t+w01*out1_t+w02_t*out2_t+ coupling term!!!);
 	out0_t1=tanh(w00*out0_t+w01*out1_t+w02_t*out2_t);
 	out1_t1=tanh(w10*out0_t+w11*out1_t);
 	out2_t1=tanh(w20_t*out0_t+w2p_t*perturbation);
