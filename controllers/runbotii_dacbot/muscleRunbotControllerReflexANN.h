@@ -11,7 +11,6 @@
 #include "cgaittransition.h"
 #include "cnnet.h"
 #include "plastic.h"
-#include "DynamicCpg.h"
 #include "lowPassfilter.h"
 #include <vector>
 #include <cmath>
@@ -19,7 +18,8 @@
 #include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
 //CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
 
-
+//#include "doublefann.h"
+//#include "floatfann.h"
 
 
 #include <iostream> //for plotting
@@ -103,12 +103,8 @@ class MuscleRunbotController : public AbstractController {
        	   	   	   	   	   	   	//wabbling from ubc-ubc_wabl to ubc+ubc_wabl
        int ubc_time = 100; 		// sec/100   -   defines the time where the ubc changes its movement direction
        runbot::cNNet* nnet;		// ANN controlling the movement of the robot
-       runbot::cNNet* nnetTwo;
        runbot::cGaitTransition* gait;	// gait parameter for the ANN
-       runbot::cGaitTransition* gait_two;
-       runbot::cGaitProfile *newGait;
-       runbot::cGaitProfile *gait3;
-       runbot::cNNet* nnet3;
+
        DCControllingVMM *RHmuscles;		//modelled muscles for each joint..
        DCControllingVMM *LHmuscles;
        DCControllingVMM *RKmuscles;
@@ -124,48 +120,41 @@ class MuscleRunbotController : public AbstractController {
        //giuliano
 
        std::ofstream hipPlot;//plot
-       std::ofstream cpgLeft;
        std::ofstream cpgPlot;
-       std::ofstream cpgRight;
-
+       std::ofstream train;
+       plastic *cpg;
+       plastic *feet_cpg;
+       plastic *knee_cpg;
        double sensorFeedback;
        double feetFeedback;
        lowPass_filter* filter;
-       std::vector<double> leftDerivativeVector, rightDerivativeVector, motor0DerivativeVector, leftHipDerivativeVector, freqDeriv;
+       lowPass_filter* knee_filter;
+       std::vector<double> leftDerivativeVector, rightDerivativeVector, motor0DerivativeVector, leftHipDerivativeVector;
        double cpg_right_hip=0;
        double cpg_left_hip=0;
-       std::vector<double> stepFreq;
-       double frequencySystem;
+
        double cpg_left_knee=0;
        double cpg_right_knee=0;
-       int getShiftDelay(double out1, double out2, int step);
-       int countDelay=0;
-       std::vector<double> shiftVector, derOut1, derOut2;
-       double cpgcounter=0;
 
-       std::vector<double> systemFrequencyVector;
-       //signal parameters//
-       double amplitudeHips;
-       double amplitudeKnee;
-       double max;
-       double min=1000;
-       double controllerEnable=0;
-       std::vector<double> freq;
-       //signal parameters
        double cpg_signal_right;
        double cpg_signal_left;
        double perturbation;
-       bool cpgNoPerturbation;
+       //giuliano
+       std::vector<double> generateCPGhips(double signal, double derivative, double oscillation);
+       std::vector<double> generateCPGknee(double signal, double derivative, double oscillation, double value);
+       double generateLeftKnee(double signal, double derivative, double oscillation, double value);
+       double getAbsol(double a, double b);
+       bool cpgControl=false;
+       int count=0;
+       int goodCounter=0;
+       int common_points=0;
 
-       double errorVal=0 , errorCount=0;
-
-       bool oneCPG=true;
-       DynamicCpg *DinLeft, *DinRight;
-
+       double getDelay(double value,std::vector<double> &shift_register);
        std::vector<double> shift;
-       shift_register *phase,*leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
+       shift_register *leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
        derivativeTransitionRegister *checkWave;
-
+       double createPerturbation(int start, int end, double perturbation, int step, bool CpgControl);
+       double changeRange(double oldMin, double oldMax, double newMin, double newMarx, double value);
 };
 
 #endif /* MUSCLERUNBOTCONTROLLER_H_ */

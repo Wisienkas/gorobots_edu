@@ -6,7 +6,7 @@
  */
 
 #include "runbotANNController.h"
-#include "muscleRunbotController.h"
+#include "muscleRunbotControllerReflexANN.h"
 
 #define STEPSIZE = 0.01
 #define RADIUS = 1;
