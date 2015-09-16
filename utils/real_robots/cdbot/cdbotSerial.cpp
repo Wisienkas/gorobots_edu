@@ -307,14 +307,14 @@ void cdbotSerial::setMotors(const motor* motors, int motornumber){
 		if (motorCom[i]<-1) motorCom[i]=-1;
 	}
 
-	//motorCom[0] = -1;
-	//motorCom[1] = -1;
+	//motorCom[0] = 0;
+	//motorCom[1] = 0;
 
 	servoPosMax[22] = 250;
-	servoPosMin[22] = 130;
+	servoPosMin[22] = 125;
 
 	servoPosMax[21] = 250;
-	servoPosMin[21] = 130;
+	servoPosMin[21] = 125;
 
 	serialPos[22] = (int) (double)(((motorCom[0]))*(servoPosMax[22]-servoPosMin[22])+servoPosMin[22]) ; //Left
    	serialPos[21] = (int) (double)(((motorCom[1]))*(servoPosMax[21]-servoPosMin[21])+servoPosMin[21]) ; //Right

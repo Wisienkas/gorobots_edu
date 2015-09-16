@@ -209,6 +209,8 @@ int main(int argc, char** argv) {
 	cout << "0" << endl;
 	//Added lisart ear
 
+        ((neuralcontrol*) controller)->y.at(0) = 0;
+        ((neuralcontrol*) controller)->y.at(1) = 0;
 
 	while(!stop) {//!stop
 

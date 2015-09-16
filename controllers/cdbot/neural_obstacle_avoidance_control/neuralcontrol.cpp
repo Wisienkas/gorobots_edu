@@ -11,8 +11,8 @@
 using namespace matrix;
 using namespace std;
 
-bool sound_control = false;//false; // set this for using pure sound control
-bool mrc_control = true;//false; // set this for using pure neural MRC for motor control
+bool sound_control = true;//false; // set this for using pure sound control
+bool mrc_control = false;//false; // set this for using pure neural MRC for motor control
 bool braitenberg_control = false;//false; // set this for using Braitenberg control
 bool avg_input = true; // true = use three IR signals on each side, false = use only at front
 
