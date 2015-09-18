@@ -15,7 +15,7 @@
 
 class CamPosiSensor {
   public:
-    CamPosiSensor(int CamNum);
+    CamPosiSensor(int CamNum = -1);
     ~CamPosiSensor();
     double* CaptureFrame();
     void ShowImage();

@@ -10,7 +10,7 @@
 using namespace std;
 
 //To open the camera and initialize camera, default -1 means opening random camera
-CamPosiSensor::CamPosiSensor(int CamNum = -1) {
+CamPosiSensor::CamPosiSensor(int CamNum) {
   bResult = false;
   tagsNum = 0;
   for (int i = 0; i < 8; i++) {
@@ -40,7 +40,7 @@ CamPosiSensor::CamPosiSensor(int CamNum = -1) {
       }
 
       // connect to sever
-      fflush(NULL);
+      fflush(nullptr);
       //Client mylink(5010, -1, "localhost", false, &bResult);
       mylink = new Client(5010, -1, "localhost", false, &bResult);
 
@@ -49,15 +49,15 @@ CamPosiSensor::CamPosiSensor(int CamNum = -1) {
         getchar();
       } else {
         printf("Client, made connection...\n");
-        fflush(NULL);
+        fflush(nullptr);
 
         //transfer image info
         sprintf(cImgH, "%d\n", img->height); //The string must end with "\n"!
         sprintf(cImgW, "%d\n", img->width);
         printf("Client, Sending image info");
-        fflush(NULL);
+        fflush(nullptr);
         mylink->SendString(cImgH);
-        fflush(NULL);
+        fflush(nullptr);
         mylink->SendString(cImgW);
         //img=cvLoadImage("./Imgs/Image-1.jpg",CV_LOAD_IMAGE_GRAYSCALE);
         cvNamedWindow("Client Image", 0);
@@ -71,14 +71,14 @@ CamPosiSensor::CamPosiSensor(int CamNum = -1) {
 CamPosiSensor::~CamPosiSensor() {
   //close the port
   printf("Client, closing connection...\n");
-  fflush(NULL);
+  fflush(nullptr);
   if (bResult) {
     mylink->Close();
     delete mylink;
   }
 
   printf("Client, done...\n");
-  fflush(NULL);
+  fflush(nullptr);
 
   //close the window and release the image
   cvDestroyWindow("Client Image");
@@ -91,7 +91,7 @@ double* CamPosiSensor::CaptureFrame() {
   //capture frames
   if (!cvGrabFrame(capture)) {
     cout << "can not get image\n";
-    return NULL;
+    return nullptr;
   }
   frame = cvRetrieveFrame(capture);
 
@@ -107,11 +107,11 @@ double* CamPosiSensor::CaptureFrame() {
 
   //transfer image
   //	printf("Client, Sending image data \n");
-  fflush(NULL);
+  fflush(nullptr);
   mylink->SendString(imgData);
 
   //Receive info of tags: number of tags
-  fflush(NULL);
+  fflush(nullptr);
   mylink->RecvString(cTagsNum, 255, '\n');
   tagsNum = atoi(cTagsNum);
 
@@ -119,28 +119,19 @@ double* CamPosiSensor::CaptureFrame() {
 
   char cTagsInfo[255];
 
-  double tagsInfo[tagsNum][8]; //save all tag data to this array
   for (int i = 0; i < tagsNum; i++) {
-    fflush(NULL);
+    fflush(nullptr);
     mylink->RecvString(cTagsInfo, 255, '\n');
-
-    sscanf(cTagsInfo, "%lf %lf %lf %lf %lf %lf %lf %lf", &tagsInfo[i][0], &tagsInfo[i][1], &tagsInfo[i][2],
-        &tagsInfo[i][3], &tagsInfo[i][4], &tagsInfo[i][5], &tagsInfo[i][6], &tagsInfo[i][7]);
-
-    //		printf("Time = %f\n ID = %f\n XYZ = %.3f %.3f %.3f \n RPY = %.3f %.3f %.3f \n", tagsInfo[i][0], tagsInfo[i][1], tagsInfo[i][2], tagsInfo[i][3],
-    //			    tagsInfo[i][4], tagsInfo[i][5], tagsInfo[i][6], tagsInfo[i][7]);
-
-    for (int j = 0; j < 8; j++) {
-      tagInfo_old[j] = tagsInfo[i][j];
-    }
   }
 
-  //only return one tag value
-  if (0 == tagsNum) {
-    return tagInfo_old;
-  } else {
-    return tagsInfo[tagsNum - 1];
+  if (tagsNum > 0 ) {
+      sscanf(cTagsInfo, "%lf %lf %lf %lf %lf %lf %lf %lf",
+             &tagInfo_old[0], &tagInfo_old[1], &tagInfo_old[2],
+             &tagInfo_old[3], &tagInfo_old[4], &tagInfo_old[5],
+             &tagInfo_old[6], &tagInfo_old[7]);
   }
+
+  return tagInfo_old;
 }
 
 // ---------- Show the image to screen by Ren --------------
