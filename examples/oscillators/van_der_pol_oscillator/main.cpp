@@ -114,6 +114,8 @@ So now we change the driving strength to a=0.5
 
 	X_dot  = Y/TAU2;
 	Y_dot = (b*(1 - X*X)*Y - X)/TAU2;// + a*cos(Z);
+
+
 //	Z_dot = c; 
 
 
