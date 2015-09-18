@@ -14,6 +14,13 @@
 #include <map>
 #include <queue>
 
+//Save files
+#include <iostream>
+#include <fstream>
+#include <string.h>
+using namespace std;
+//Save files
+
 
 // forward declarations
 class NeuralLocomotionControlAdaptiveClimbing;
@@ -32,6 +39,13 @@ class CPGPhaseresetInhibition;
 class ModularNeuralControl: public ANN {
 
 public:
+
+
+    //Save files
+     ofstream outFilemlc;
+     //Save files
+
+
     typedef double sensor;
     int T;
     double phase_phi;
@@ -105,7 +119,6 @@ public:
     double cnctCoeffMat[6][6];
     double oscillatorcouple1;
     double oscillatorcouple0;
-
 
 
 

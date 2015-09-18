@@ -1415,7 +1415,7 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 		 }
 
 		//Check state
-		failure_flag_ico = 0;
+		failure_flag = 0;
 		if(xt_ico[_ias1] < 0.03 || xt_ico2[_ias1] < 0.03 || xt_ico3[_ias1] < 0.03 || xt_ico4[_ias1] < 0.03 || irl_lowpass*1.5 > 0.2 || irr_lowpass*1.5 > 0.2)
 		{
 			failure_flag_ico = 1;
@@ -1437,6 +1437,8 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 			u_ico_in[1] = k_ico[1]*/*xt_ico_lowpass2*/xt[_ias0]+xt_reflex_angle2;//*5;//+exp_output[0]; // Green
 			u_ico_in[2] = k_ico[2]*/*xt_ico_lowpass3*/xt[_ias1]+xt_reflex_angle3;//*5;//+exp_output[0]; // Blue
 			//u_ico_in[3] = k_ico[3]*xt_ico_lowpass4+xt_reflex_angle4*5;//+exp_output[0];
+
+
 
 		}
 
@@ -1491,14 +1493,14 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 
 		////std::cout<<"AF derireflex2:" <<deri_xt_reflex_angle2<<"\n"<< "derireflex3:" <<deri_xt_reflex_angle3 <<"\n"<<std::endl;
 
-		//printf("k_ico[0]_red = %f \n k_ico[1]_green = %f \n [2]_blue=%f \n deri_xt_reflex_angle2: %f \n deri_xt_reflex_angle3: %f\n", k_ico[0], k_ico[1], k_ico[2], deri_xt_reflex_angle2, deri_xt_reflex_angle3);
-
+	//	printf("k_ico[0]_red = %f \n k_ico[1]_green = %f \n [2]_blue=%f \n deri_xt_reflex_angle2: %f \n deri_xt_reflex_angle3: %f\n", k_ico[0], k_ico[1], k_ico[2], deri_xt_reflex_angle2, deri_xt_reflex_angle3);
+        printf("xt_ico_lowpass = %f \n xt_ico_lowpass2 = %f \n xt_ico_lowpass3 = %f  \n xt_ico_lowpass4 =%f \n xt_reflex_angle2 = %f \n xt_reflex_angle3 = %f",xt_ico_lowpass, xt_ico_lowpass2, xt_ico_lowpass3, xt_ico_lowpass4, xt_reflex_angle2, xt_reflex_angle3);
 
 		if(!combinecontrol)
 		{
 			//k_ico[0] += rate_ico*deri_xt_reflex_angle*xt_ico_lowpass;
-			k_ico[1] += rate_ico*abs(deri_xt_reflex_angle2)*abs(/*xt_ico_lowpass2*/xt[_ias0]);
-			k_ico[2] += rate_ico*abs(deri_xt_reflex_angle3)*abs(/*xt_ico_lowpass3*/xt[_ias1]);
+			k_ico[1] += rate_ico*abs(deri_xt_reflex_angle2)*abs(xt[_ias0]);
+			k_ico[2] += rate_ico*abs(deri_xt_reflex_angle3)*abs(xt[_ias1]);
 			//k_ico[3] += rate_ico*deri_xt_reflex_angle4*xt_ico_lowpass4;
 		}
 
@@ -1522,7 +1524,7 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 
 			//k_ico[0] += rate_ico*deri_xt_reflex_angle*xt_ico_lowpass;
 			k_ico[1] += rate_ico*abs(deri_xt_reflex_angle2)*abs(/*xt_ico_lowpass2*/xt[_ias0]);
-			k_ico[2] += rate_ico*abs(deri_xt_reflex_angle3)*abs(/*xt_ico_lowpass3*/xt[_ias0]);
+			k_ico[2] += rate_ico*abs(deri_xt_reflex_angle3)*abs(/*xt_ico_lowpass3*/xt[_ias1]);
 			//k_ico[3] += rate_ico*deri_xt_reflex_angle4*xt_ico_lowpass4;
 
 
@@ -1531,14 +1533,14 @@ void AcIcoRcCriticController::step(const sensor* x_, int number_sensors, motor* 
 		if(!combinecontrol)
 		{
 			//IF REACH GOAL
-			if(/*xt_ico[_ias1] < 0.03 ||*/ xt_ico2[_ias1] < 0.03 || xt_ico3[_ias1] < 0.03 || xt_ico4[_ias1] < 0.03)
+			if(xt_ico2[_ias1] < 0.05)
 				reduce_noise_ICO++;
 
-			exp_output[0] = exp_output[0]*exp(-reduce_noise_ICO/500); // 50 decay if reduce_noise > 350 noise gone
+			exp_output[0] = exp(-reduce_noise_ICO/800); // 50 decay if reduce_noise > 350 noise gone
 			if(abs(exp_output[0])< 0.0001)
 				exp_output[0] = 0.0;
 
-			printf("exp_output[0] in !combine = %f : reduce_noise_ICO = %d\n", exp_output[0], reduce_noise_ICO);
+			printf("xt_ico2[_ias1] = %f , exp_output[0] in !combine = %f : reduce_noise_ICO = %d\n",xt_ico2[_ias1], exp_output[0], reduce_noise_ICO);
 
 
 		}

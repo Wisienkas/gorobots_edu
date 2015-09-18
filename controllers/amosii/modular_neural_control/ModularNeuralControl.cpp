@@ -23,20 +23,31 @@
 
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
-	 /*******************************************************************************
+
+  //Save files
+  outFilemlc.open("ModularNeuralControl.dat");
+
+
+	//touchF=false;
+	//phaseResetInhibitionIsEnabled=false;
+	contactForceIsEnabled=false;
+	//oscillatorsRingCouplingIsEnabled=false;
+	//oscillatorsCouplingIsEnabled=false;
+
+	/*******************************************************************************
 	 *  MODULE 0 IO'S for modularneuralcontrol
 	 *******************************************************************************/
 	/*MCPGs*/
-		  currentActivity.resize(2);
-		  for(int i=0;i<6;i++)
-		  {
-		    for(int j=0;j<6;j++)
-		    {
-		         delta[i][j]=0;
-		         cnctCoeffMat[i][j]=0.0;
-		    }
-		  }
-		  /*End of MCPGs*/
+	currentActivity.resize(2);
+	for(int i=0;i<6;i++)
+	{
+		for(int j=0;j<6;j++)
+		{
+			delta[i][j]=0;
+			cnctCoeffMat[i][j]=0.0;
+		}
+	}
+	/*End of MCPGs*/
 
 	//IO'S for modularneuralcontrol
 	////create 5 input neurons for modularneuralcontrol
@@ -53,66 +64,66 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 		outputNeurons[AmosIIMotorNames(i)]=addNeuron();
 	}
 	//end
-	 /*******************************************************************************
+	/*******************************************************************************
 	 *  MODULE 1 CPG
 	 *******************************************************************************/
 
 	switch(cpg_option) {
-    case 1: //Kohs CPG
+	case 1: //Kohs CPG
 
-      cpg = new SO2CPG();
-      cpg_bias = 0.0;
-      //From 0.02-1.5
-      //Control_input = 0.02;// slow Wave
-      Control_input = 0.03;// slow Wave OK USED
-      //Control_input = 0.05;//slow stable Tetrapod OK USED
-      //Control_input = 0.14; //terapod OK USED
-      //Control_input = 0.18; //Tripod fast OK USED
-      //Control_input = 0.34; //Faster than tripod
+		cpg = new SO2CPG();
+		cpg_bias = 0.0;
+		//From 0.02-1.5
+		//Control_input = 0.02;// slow Wave
+		Control_input = 0.03;// slow Wave OK USED
+		//Control_input = 0.05;//slow stable Tetrapod OK USED
+		//Control_input = 0.14; //terapod OK USED
+		//Control_input = 0.18; //Tripod fast OK USED
+		//Control_input = 0.34; //Faster than tripod
 
-      //destabilize cpg to oscillate
-      cpg->setOutput(0, 0.1);
-      cpg->setOutput(1, 0.1);
-      cpg->setActivity(0, 0.1);
-      cpg->setActivity(1, 0.1);
+		//destabilize cpg to oscillate
+		cpg->setOutput(0, 0.1);
+		cpg->setOutput(1, 0.1);
+		cpg->setActivity(0, 0.1);
+		cpg->setActivity(1, 0.1);
 
-      //set cpg weights to override timos phi weight matrix
-      cpg->setWeight(0, 0, 1.4);
-      cpg->setWeight(0, 1, 0.18 + Control_input);
-      cpg->setWeight(1, 0, -0.18 - Control_input);
-      cpg->setWeight(1, 1, 1.4);
+		//set cpg weights to override timos phi weight matrix
+		cpg->setWeight(0, 0, 1.4);
+		cpg->setWeight(0, 1, 0.18 + Control_input);
+		cpg->setWeight(1, 0, -0.18 - Control_input);
+		cpg->setWeight(1, 1, 1.4);
 
-      //set bias
-      cpg->setBias(0, cpg_bias);
-      cpg->setBias(1, cpg_bias);
+		//set bias
+		cpg->setBias(0, cpg_bias);
+		cpg->setBias(1, cpg_bias);
 
-      break;
+		break;
 
-    case 2: //Timos CPG
+	case 2: //Timos CPG
 
-      cpg_s = new AdaptiveSO2CPGSynPlas(addNeuron());
-      cpg_s->setPhi(0.1);
-      cpg_s->setEpsilon ( 0.01 );
-      //cpg->setEpsilon(0.01/5.0);
-      //cpg->setEpsilon(0.01/3.0);
-      cpg_s->setGamma   ( 1.0 );
-      cpg_s->setBeta    ( 0.0 );
-      cpg_s->setMu      ( 1.0 );
-      cpg_s->setBetaDynamics   ( -1.0, 0.010, 0.00);
-      cpg_s->setGammaDynamics  ( -1.0, 0.010, 1.00);
-      cpg_s->setEpsilonDynamics(  1.0, 0.010, 0.01);
-      //cpg->setEpsilonDynamics( 1.0/25.0, 0.010, 0.01/5.0);
-      cpg_s->setOutput(0,0.2);
+		cpg_s = new AdaptiveSO2CPGSynPlas(addNeuron());
+		cpg_s->setPhi(0.1);
+		cpg_s->setEpsilon ( 0.01 );
+		//cpg->setEpsilon(0.01/5.0);
+		//cpg->setEpsilon(0.01/3.0);
+		cpg_s->setGamma   ( 1.0 );
+		cpg_s->setBeta    ( 0.0 );
+		cpg_s->setMu      ( 1.0 );
+		cpg_s->setBetaDynamics   ( -1.0, 0.010, 0.00);
+		cpg_s->setGammaDynamics  ( -1.0, 0.010, 1.00);
+		cpg_s->setEpsilonDynamics(  1.0, 0.010, 0.01);
+		//cpg->setEpsilonDynamics( 1.0/25.0, 0.010, 0.01/5.0);
+		cpg_s->setOutput(0,0.2);
 
-      cpg = cpg_s;
+		cpg = cpg_s;
 
-      break;
+		break;
 
-  };
+	};
 
 	//for updating the subnets (to do the time step)
 	addSubnet(cpg);
-	 /*******************************************************************************
+	/*******************************************************************************
 	 *  MODULE 2 PCPG
 	 *******************************************************************************/
 	pcpg     = new PCPG();
@@ -123,7 +134,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
 	addSubnet(pcpg);
 
-	 /*******************************************************************************
+	/*******************************************************************************
 	 *  MODULE 3 PSN
 	 *******************************************************************************/
 	psn		 = new PSN();
@@ -143,7 +154,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
 	addSubnet(psn);
 
-	 /*******************************************************************************
+	/*******************************************************************************
 	 *  MODULE 4 VRN
 	 *******************************************************************************/
 	vrnLeft  = new VRN();
@@ -163,84 +174,84 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
 	/*******************************************************************************
 	 *  MODULE 5 Pre Motor Neurons PMN
-	*******************************************************************************/
+	 *******************************************************************************/
 
 	pmn     = new PMN();
 
 
 	//vrn to pmn
 
-  //TL TR
+	//TL TR
 
-  w(pmn->getNeuron(TL0_m), vrnLeft->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TL0_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TL0_m), vrnLeft->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TL0_m), inputNeurons[0], -10);
 
-  w(pmn->getNeuron(TL1_m), vrnLeft->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TL1_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TL1_m), vrnLeft->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TL1_m), inputNeurons[0], -10);
 
-  w(pmn->getNeuron(TL2_m), vrnLeft->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TL2_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TL2_m), vrnLeft->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TL2_m), inputNeurons[0], -10);
 
-  w(pmn->getNeuron(TR0_m), vrnRight->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TR0_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TR0_m), vrnRight->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TR0_m), inputNeurons[0], -10);
 
-  w(pmn->getNeuron(TR1_m), vrnRight->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TR1_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TR1_m), vrnRight->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TR1_m), inputNeurons[0], -10);
 
-  w(pmn->getNeuron(TR2_m), vrnRight->getNeuron(6), -2.5);
-  w(pmn->getNeuron(TR2_m), inputNeurons[0], -10);
+	w(pmn->getNeuron(TR2_m), vrnRight->getNeuron(6), -2.5);
+	w(pmn->getNeuron(TR2_m), inputNeurons[0], -10);
 
-  //CL CR
-  w(pmn->getNeuron(CL0_m), psn->getNeuron(11), -5.0);
-  w(pmn->getNeuron(CL0_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CL0_m), -0.5);
+	//CL CR
+	w(pmn->getNeuron(CL0_m), psn->getNeuron(11), -5.0);
+	w(pmn->getNeuron(CL0_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CL0_m), -0.5);
 
-  w(pmn->getNeuron(CL1_m), psn->getNeuron(11), 5.0);
-  w(pmn->getNeuron(CL1_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CL1_m), -0.5);
+	w(pmn->getNeuron(CL1_m), psn->getNeuron(11), 5.0);
+	w(pmn->getNeuron(CL1_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CL1_m), -0.5);
 
-  w(pmn->getNeuron(CL2_m), psn->getNeuron(11), -5.0);
-  w(pmn->getNeuron(CL2_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CL2_m), -0.5);
+	w(pmn->getNeuron(CL2_m), psn->getNeuron(11), -5.0);
+	w(pmn->getNeuron(CL2_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CL2_m), -0.5);
 
-  w(pmn->getNeuron(CR0_m), psn->getNeuron(11), 5.0);
-  w(pmn->getNeuron(CR0_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CR0_m), -0.5);
+	w(pmn->getNeuron(CR0_m), psn->getNeuron(11), 5.0);
+	w(pmn->getNeuron(CR0_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CR0_m), -0.5);
 
-  w(pmn->getNeuron(CR1_m), psn->getNeuron(11), -5.0);
-  w(pmn->getNeuron(CR1_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CR1_m), -0.5);
+	w(pmn->getNeuron(CR1_m), psn->getNeuron(11), -5.0);
+	w(pmn->getNeuron(CR1_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CR1_m), -0.5);
 
-  w(pmn->getNeuron(CR2_m), psn->getNeuron(11), 5.0);
-  w(pmn->getNeuron(CR2_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(CR2_m), -0.5);
+	w(pmn->getNeuron(CR2_m), psn->getNeuron(11), 5.0);
+	w(pmn->getNeuron(CR2_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(CR2_m), -0.5);
 
-  //FR FL
-  w(pmn->getNeuron(FL0_m), psn->getNeuron(10), -2.2);
-  w(pmn->getNeuron(FL0_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FL0_m), -0.5);
+	//FR FL
+	w(pmn->getNeuron(FL0_m), psn->getNeuron(10), -2.2);
+	w(pmn->getNeuron(FL0_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FL0_m), -0.5);
 
-  w(pmn->getNeuron(FL1_m), psn->getNeuron(10), 2.2);
-  w(pmn->getNeuron(FL1_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FL1_m), -0.5);
+	w(pmn->getNeuron(FL1_m), psn->getNeuron(10), 2.2);
+	w(pmn->getNeuron(FL1_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FL1_m), -0.5);
 
-  w(pmn->getNeuron(FL2_m), psn->getNeuron(10), -2.2);
-  w(pmn->getNeuron(FL2_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FL2_m), -0.5);
+	w(pmn->getNeuron(FL2_m), psn->getNeuron(10), -2.2);
+	w(pmn->getNeuron(FL2_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FL2_m), -0.5);
 
-  w(pmn->getNeuron(FR0_m), psn->getNeuron(11), -2.2);
-  w(pmn->getNeuron(FR0_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FR0_m), -0.5);
+	w(pmn->getNeuron(FR0_m), psn->getNeuron(11), -2.2);
+	w(pmn->getNeuron(FR0_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FR0_m), -0.5);
 
-  w(pmn->getNeuron(FR1_m), psn->getNeuron(10), 5);
-  w(pmn->getNeuron(FR1_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FR1_m), -0.5);
+	w(pmn->getNeuron(FR1_m), psn->getNeuron(10), 5);
+	w(pmn->getNeuron(FR1_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FR1_m), -0.5);
 
-  w(pmn->getNeuron(FR2_m), psn->getNeuron(11), -5.0);
-  w(pmn->getNeuron(FR2_m), inputNeurons[0], 10);
-  b(pmn->getNeuron(FR2_m), -0.5);
+	w(pmn->getNeuron(FR2_m), psn->getNeuron(11), -5.0);
+	w(pmn->getNeuron(FR2_m), inputNeurons[0], 10);
+	b(pmn->getNeuron(FR2_m), -0.5);
 
-  addSubnet(pmn);
+	addSubnet(pmn);
 
 	/*******************************************************************************
 	 *  MODULE 6 OUTPUTS
@@ -262,13 +273,13 @@ void ModularNeuralControl::setInputNeuronInput(int input, double value)
 
 void ModularNeuralControl::setInputMotorNeuronInput(int input, double  value)
 {
-  pmn->setInput(input,value);
+	pmn->setInput(input,value);
 }
 
 //with preprocessing probably depratched
 double ModularNeuralControl::getMotorNeuronActivity(AmosIIMotorNames motor)
 {
-  return getActivity(outputNeurons[motor]);
+	return getActivity(outputNeurons[motor]);
 }
 
 
@@ -287,17 +298,17 @@ double ModularNeuralControl::getCpgOutput(int output)
 
 double ModularNeuralControl::getCpgActivity(int output)
 {
-  return cpg->getActivity(output);
+	return cpg->getActivity(output);
 }
 
 double ModularNeuralControl::getCpgWeight(int neuron1, int neuron2)
 {
-  return cpg->getWeight(neuron1, neuron2);
+	return cpg->getWeight(neuron1, neuron2);
 }
 
 double ModularNeuralControl::getCpgBias(int neuron)
 {
-  return cpg->getBias(neuron);
+	return cpg->getBias(neuron);
 }
 
 //with preprocessing probably depratched
@@ -325,7 +336,7 @@ void ModularNeuralControl::setInputVrnRight(int input, double  value)
 }
 void  ModularNeuralControl::setCpgOutput(int neuron,double value)
 {
-   cpg->setOutput(neuron,value);
+	cpg->setOutput(neuron,value);
 }
 
 
@@ -349,37 +360,37 @@ double ModularNeuralControl::getVrnRightOutput(int output)
 void ModularNeuralControl::changeControlInput(double new_ControlInput)
 {
 	Control_input=new_ControlInput;
-  cpg->setWeight(0, 1, 0.18 + new_ControlInput);
-  cpg->setWeight(1, 0, -0.18 - new_ControlInput);
+	cpg->setWeight(0, 1, 0.18 + new_ControlInput);
+	cpg->setWeight(1, 0, -0.18 - new_ControlInput);
 }
 void ModularNeuralControl::enableoscillatorsCoupling(bool mMCPGs)
 {
- if(mMCPGs)
-	 oscillatorsCouplingIsEnabled=true;
+	if(mMCPGs)
+		oscillatorsCouplingIsEnabled=true;
 
 }
 void ModularNeuralControl::disableoscillatorsCoupling()
 {
-	 oscillatorsCouplingIsEnabled=false;
+	oscillatorsCouplingIsEnabled=false;
 
 }
 void ModularNeuralControl::enableContactForce(bool mMCPGs)
 {
-	 if(mMCPGs)
-		 contactForceIsEnabled=true;
+	if(mMCPGs)
+		contactForceIsEnabled=true;
 }
 void ModularNeuralControl::disableContactForce()
 {
 
-		 contactForceIsEnabled=false;
+	contactForceIsEnabled=false;
 }
 
 void ModularNeuralControl::step()
 {
-	  updateActivities();
-	    updateWeights();
-	    updateOutputs();
-	    postProcessing();
+	updateActivities();
+	updateWeights();
+	updateOutputs();
+	postProcessing();
 }
 
 /**
@@ -388,84 +399,87 @@ void ModularNeuralControl::step()
  * author: subhi shaker barikhan
  * date:26.05.2014
  */
-void ModularNeuralControl::step(int CPGID,std::vector<NeuralLocomotionControlAdaptiveClimbing *> NLCAC,const std::vector<double> x)
+void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const vector<double> x)
 {
-	  currentActivity.at(0)=cpg->getActivity(cpg->getNeuron(0));
-	  currentActivity.at(1)=cpg->getActivity(cpg->getNeuron(1));
-	  updateActivities();
-	  double activity0=cpg->getActivity(cpg->getNeuron(0))+cpg->getBias(0);
-	  double activity1=cpg->getActivity(cpg->getNeuron(1))+cpg->getBias(1);
+	currentActivity.at(0)=cpg->getActivity(cpg->getNeuron(0));
+	currentActivity.at(1)=cpg->getActivity(cpg->getNeuron(1));
+	updateActivities();
+	double activity0=cpg->getActivity(cpg->getNeuron(0))+cpg->getBias(0);
+	double activity1=cpg->getActivity(cpg->getNeuron(1))+cpg->getBias(1);
 
-	  int sensorname=AmosIISensorNames(CPGID+R0_fs);
+	int sensorname=AmosIISensorNames(CPGID+R0_fs);
 	if ( oscillatorsCouplingIsEnabled==true)
-	  {
+	{
 
-		 for(int i=0;i<6;i++) // 6 is the number of CPGs
-		      {
-              if (CPGID!=i)
-              {
-                oscillatorcouple0= 0.1*(1-cos(currentActivity.at(0)-NLCAC.at(i)->nlc->getCpgActivity(0)-delta[CPGID][i]))
-                                         +sin(currentActivity.at(0)-NLCAC.at(i)->nlc->getCpgActivity(0)-delta[CPGID][i]);
+		for(int i=0;i<6;i++) // 6 is the number of CPGs
+		{
+			if (CPGID!=i)
+			{
+				oscillatorcouple0= 0.1*(1-cos(currentActivity.at(0)-cCPGs.at(i).at(0)-delta[CPGID][i]))
+                                        		 +sin(currentActivity.at(0)-cCPGs.at(i).at(0)-delta[CPGID][i]);
 
-                oscillatorcouple1= 0.1*(1-cos(currentActivity.at(1)-NLCAC.at(i)->nlc->getCpgActivity(1)-delta[CPGID][i]))
-                                         +sin(currentActivity.at(1)-NLCAC.at(i)->nlc->getCpgActivity(1)-delta[CPGID][i]);
+				oscillatorcouple1= 0.1*(1-cos(currentActivity.at(1)-cCPGs.at(i).at(1)-delta[CPGID][i]))
+                                        		 +sin(currentActivity.at(1)-cCPGs.at(i).at(1)-delta[CPGID][i]);
 
-                activity0-=cnctCoeffMat[CPGID][i]*(oscillatorcouple0);
+				activity0-=cnctCoeffMat[CPGID][i]*(oscillatorcouple0);
 
-                activity1-=cnctCoeffMat[CPGID][i]*(oscillatorcouple1);
-              }
+				activity1-=cnctCoeffMat[CPGID][i]*(oscillatorcouple1);
+			}
 
-              cpg->setActivity(0, activity0);
-              cpg->setActivity(1, activity1);
-		      }
+			cpg->setActivity(0, activity0);
+			cpg->setActivity(1, activity1);
+		}
 
-	  }
-		 if (contactForceIsEnabled && !oscillatorsCouplingIsEnabled)
-		  {
+	}
+	if (contactForceIsEnabled && !oscillatorsCouplingIsEnabled)
+	{
+		if (sensorname==R1_fs || sensorname==L1_fs )
+		{
+			ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));//predictActivity
+			ContactForceEffect0=-(0.03)*(x.at(sensorname))*cos(currentActivity.at(0));
+		}
+		else if(sensorname==R0_fs || sensorname==L0_fs  )
+		{
+			ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));//0.03
+			ContactForceEffect0=-(0.04)*(x.at(sensorname))*cos(currentActivity.at(0)); //0.04
+		}
+		else
+		{
+			ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));
+			ContactForceEffect0=-(0.035)*(x.at(sensorname))*cos(currentActivity.at(0));//0.035
+		}
+	}
+	/* *
+	 * when contactForceEnable is true but oscillatorsCouplingIsEnabled is false,
+	 *                         continuous local sensory feedback mechanism will be deployed.
+	 */
+	else if(contactForceIsEnabled && oscillatorsCouplingIsEnabled)
+	{
+		ContactForceEffect0=-(0.035)*(x.at(sensorname))*cos(currentActivity.at(0));
+		ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));
 
-		   if (sensorname==R1_fs || sensorname==L1_fs )
-		   {
-		 	 ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));//predictActivity
-		    ContactForceEffect0=-(0.03)*(x.at(sensorname))*cos(currentActivity.at(0));
-		   }
-		   else if(sensorname==R0_fs || sensorname==L0_fs  )
-		   {
-		 	  ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));//0.03
-		 	    ContactForceEffect0=-(0.04)*(x.at(sensorname))*cos(currentActivity.at(0)); //0.04
-		   }
-		   else
-		   {
-		 	  ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));
-		 	    ContactForceEffect0=-(0.035)*(x.at(sensorname))*cos(currentActivity.at(0));//0.035
-		   }
-		  }
-		  /* *
-		  * when contactForceEnable is true but oscillatorsCouplingIsEnabled is false,
-		  *                         continuous local sensory feedback mechanism will be deployed.
-		  */
-		  else if(contactForceIsEnabled && oscillatorsCouplingIsEnabled)
-		  {
+	}
 
-		 	   ContactForceEffect0=-(0.035)*(x.at(sensorname))*cos(currentActivity.at(0));
-		 	   ContactForceEffect1=-(0.03)*(x.at(sensorname))*sin(currentActivity.at(1));
+	else
+	{
+		ContactForceEffect0=0;
+		ContactForceEffect1=0;
+	}
 
-		  }
+	outFilemlc <<activity1<<' '<<currentActivity.at(1)<<' '<<-(0.03)*(x.at(R0_fs))*sin(currentActivity.at(1))<<' '<<x.at(R0_fs)<<' '<<-sin(currentActivity.at(1))<<' '<<activity0<<' '<<currentActivity.at(0)<<' '<<-(0.04)*(x.at(R0_fs))*cos(currentActivity.at(0))<<' '<<x.at(R0_fs)<<' '<<-cos(currentActivity.at(0))<<endl;
 
-		  else
-		  {
-		    ContactForceEffect0=0;
-		    ContactForceEffect1=0;
-		  }
-
-		  cpg->setActivity(0, activity0+ContactForceEffect0);
-		  cpg->setActivity(1, activity1+ContactForceEffect1);
+	cpg->setActivity(0, activity0+ContactForceEffect0);
+	cpg->setActivity(1, activity1+ContactForceEffect1);
 
 
 
-   // updateActivities();
-    updateWeights();
-    updateOutputs();
-    postProcessing();
+	// updateActivities();
+	updateWeights();
+	updateOutputs();
+	postProcessing();
+
+
+
 }
 
 
@@ -484,96 +498,96 @@ void ModularNeuralControl::step(int CPGID,std::vector<NeuralLocomotionControlAda
 void ModularNeuralControl::changeGaitpattern(int gaitPattern)
 {
 	if (oscillatorsCouplingIsEnabled)
-	  {
-		  for(int i=0;i<6;i++)
-		  {
-		    for(int j=0;j<6;j++)
-		    {
-		         delta[i][j]=0;
-		         cnctCoeffMat[i][j]=0.0;
-		    }
-		  }
-	  double k_ij=0.006;//0.01 0.0035 0.004 0.005
+	{
+		for(int i=0;i<6;i++)
+		{
+			for(int j=0;j<6;j++)
+			{
+				delta[i][j]=0;
+				cnctCoeffMat[i][j]=0.0;
+			}
+		}
+		double k_ij=0.006;//0.01 0.0035 0.004 0.005
 
-	  switch  (gaitPattern)
-	  {
-	  case 0:
-	  	  ////************************ TRIPOD-fullyConnected****************************/////////
-	  	//double k_ij=0.01;
-	  	// it is possible to use either 0 or 2*Pi to mention phase difference between oscillators
-	  	delta[1][0]=M_PI;
-	  	delta[2][0]=0;delta[2][1]=M_PI;
-	  	delta[3][0]=M_PI;delta[3][1]=0;delta[3][2]=M_PI;
-	  	delta[4][0]=0;delta[4][1]=M_PI;delta[4][2]=0;delta[4][3]= M_PI;
-	  	delta[5][0]=M_PI; delta[5][1]=0; delta[5][2]=M_PI;delta[5][3]=0; delta[5][4]=M_PI;
+		switch  (gaitPattern)
+		{
+		case 0:
+			////************************ TRIPOD-fullyConnected****************************/////////
+			//double k_ij=0.01;
+			// it is possible to use either 0 or 2*Pi to mention phase difference between oscillators
+			delta[1][0]=M_PI;
+			delta[2][0]=0;delta[2][1]=M_PI;
+			delta[3][0]=M_PI;delta[3][1]=0;delta[3][2]=M_PI;
+			delta[4][0]=0;delta[4][1]=M_PI;delta[4][2]=0;delta[4][3]= M_PI;
+			delta[5][0]=M_PI; delta[5][1]=0; delta[5][2]=M_PI;delta[5][3]=0; delta[5][4]=M_PI;
 
-	  	cnctCoeffMat[1][0]=k_ij;
-	  	cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
-	  	cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
-	  	cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
-	  	cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
+			cnctCoeffMat[1][0]=k_ij;
+			cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
+			cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
+			cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
+			cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
 
-	  	break;
-	  	case 1:
-	  	  ////************************ TETRAPOD-fullyConnected****************************/////////
-	  	//double k_ij=0.01;
-	  	delta[1][0]=2*M_PI/3;
-	  	delta[2][0]=4*M_PI/3;delta[2][1]=2*M_PI/3;
-	  	delta[3][0]=2*M_PI/3;delta[3][1]=0;delta[3][2]=-2*M_PI/3;
-	  	delta[4][0]=4*M_PI/3;delta[4][1]=2*M_PI/3;delta[4][2]=0;delta[4][3]= 2*M_PI/3;//-2*M_PI/3
-	  	delta[5][0]=0; delta[5][1]=4*M_PI/3; delta[5][2]=2*M_PI/3;delta[5][3]=4*M_PI/3; delta[5][4]=2*M_PI/3;
+			break;
+		case 1:
+			////************************ TETRAPOD-fullyConnected****************************/////////
+			//double k_ij=0.01;
+			delta[1][0]=2*M_PI/3;
+			delta[2][0]=4*M_PI/3;delta[2][1]=2*M_PI/3;
+			delta[3][0]=2*M_PI/3;delta[3][1]=0;delta[3][2]=-2*M_PI/3;
+			delta[4][0]=4*M_PI/3;delta[4][1]=2*M_PI/3;delta[4][2]=0;delta[4][3]= 2*M_PI/3;//-2*M_PI/3
+			delta[5][0]=0; delta[5][1]=4*M_PI/3; delta[5][2]=2*M_PI/3;delta[5][3]=4*M_PI/3; delta[5][4]=2*M_PI/3;
 
-	  	cnctCoeffMat[1][0]=k_ij;
-	  	cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
-	  	cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
-	  	cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
-	  	cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
-	  	break;
+			cnctCoeffMat[1][0]=k_ij;
+			cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
+			cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
+			cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
+			cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
+			break;
 
-	case 2:
-	////************************ Wave-fullyConnected****************************/////////
-	//	 double k_ij=0.01;
-	  delta[1][0]=2*M_PI/6;
-	  delta[2][0]=4*M_PI/6;delta[2][1]=2*M_PI/6;
-	  delta[3][0]=6*M_PI/6;delta[3][1]=4*M_PI/6;delta[3][2]=2*M_PI/6;
-	  delta[4][0]=8*M_PI/6;delta[4][1]=6*M_PI/6;delta[4][2]=4*M_PI/6;delta[4][3]= 2*M_PI/6;
-	  delta[5][0]=10*M_PI/6; delta[5][1]=8*M_PI/6; delta[5][2]=6*M_PI/6;delta[5][3]=4*M_PI/6; delta[5][4]=2*M_PI/6;
+		case 2:
+			////************************ Wave-fullyConnected****************************/////////
+			//	 double k_ij=0.01;
+			delta[1][0]=2*M_PI/6;
+			delta[2][0]=4*M_PI/6;delta[2][1]=2*M_PI/6;
+			delta[3][0]=6*M_PI/6;delta[3][1]=4*M_PI/6;delta[3][2]=2*M_PI/6;
+			delta[4][0]=8*M_PI/6;delta[4][1]=6*M_PI/6;delta[4][2]=4*M_PI/6;delta[4][3]= 2*M_PI/6;
+			delta[5][0]=10*M_PI/6; delta[5][1]=8*M_PI/6; delta[5][2]=6*M_PI/6;delta[5][3]=4*M_PI/6; delta[5][4]=2*M_PI/6;
 
-	  cnctCoeffMat[1][0]=k_ij;
-	  cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
-	  cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
-	  cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
-	  cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
+			cnctCoeffMat[1][0]=k_ij;
+			cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
+			cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
+			cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
+			cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
 
-	  break;
+			break;
 
-	case 3:
-		////************************ irregular gait-fullyConnected****************************/////////
-		//	 double k_ij=0.01;
-		  delta[1][0]=0;
-		  delta[2][0]=0;delta[2][1]=0;
-		  delta[3][0]=M_PI;delta[3][1]=M_PI;delta[3][2]=M_PI;
-		  delta[4][0]=M_PI;delta[4][1]=M_PI;delta[4][2]=M_PI;delta[4][3]= 0;
-		  delta[5][0]=M_PI; delta[5][1]=M_PI; delta[5][2]=M_PI;delta[5][3]=0; delta[5][4]=0;
+		case 3:
+			////************************ irregular gait-fullyConnected****************************/////////
+			//	 double k_ij=0.01;
+			delta[1][0]=0;
+			delta[2][0]=0;delta[2][1]=0;
+			delta[3][0]=M_PI;delta[3][1]=M_PI;delta[3][2]=M_PI;
+			delta[4][0]=M_PI;delta[4][1]=M_PI;delta[4][2]=M_PI;delta[4][3]= 0;
+			delta[5][0]=M_PI; delta[5][1]=M_PI; delta[5][2]=M_PI;delta[5][3]=0; delta[5][4]=0;
 
-		  cnctCoeffMat[1][0]=k_ij;
-		  cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
-		  cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
-		  cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
-		  cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
+			cnctCoeffMat[1][0]=k_ij;
+			cnctCoeffMat[2][0]=k_ij;cnctCoeffMat[2][1]=k_ij;
+			cnctCoeffMat[3][0]=k_ij;cnctCoeffMat[3][1]=k_ij;cnctCoeffMat[3][2]=k_ij;
+			cnctCoeffMat[4][0]=k_ij;cnctCoeffMat[4][1]=k_ij;cnctCoeffMat[4][2]=k_ij;cnctCoeffMat[4][3]= k_ij;
+			cnctCoeffMat[5][0]=k_ij;cnctCoeffMat[5][1]=k_ij; cnctCoeffMat[5][2]=k_ij;cnctCoeffMat[5][3]=k_ij; cnctCoeffMat[5][4]=k_ij;
 
-		  break;
+			break;
 
-	  }
-	for(int i=0;i<6;i++)
-	  {
-	    for(int j=i+1;j<6;j++)
-	    {
-	         delta[i][j]=-delta[j][i];
-	        cnctCoeffMat[i][j]=cnctCoeffMat[j][i];
-	    }
-	  }
-	  }
+		}
+		for(int i=0;i<6;i++)
+		{
+			for(int j=i+1;j<6;j++)
+			{
+				delta[i][j]=-delta[j][i];
+				cnctCoeffMat[i][j]=cnctCoeffMat[j][i];
+			}
+		}
+	}
 
 }
 

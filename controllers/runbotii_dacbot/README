@@ -1,0 +1,45 @@
+ DACBOT  NEURAL ADAPTIVE CONTROLLER
+ 
+ giuliano.dicanio@gmail.com
+
+
+plastic.cpp
+
+implementation of adaptive CPG with synaptic plasticity
+
+plastic::plastic(double o0,double o1,double o2, double initial_phi,double _alpha, double _bi)
+
+o0/o1/o2 initial amplitude neuron 0/1/2 
+initial_phi CPG initial frequency 
+ _alpha set alpha = 1.01 for phi/frequency linear relation
+_bi = set to 0.01 for sine-like perturbation, 0.02,0.03 for square perturbation
+
+plastic::plastic(double o0,double o1,double o2, double initial_phi,double _alpha)
+
+_bi set to 0.01
+
+Use update(perturbation) to apply the external perturbation to the CPG. If the external 
+perturbation is disconnected, use update(0).
+
+
+ Shiftregister.cpp
+
+Dynamic register, if size is set to zero then just returns the input value. 
+Can dynamically change its size, this is implemented in DynamicCpg.cpp.
+
+DynamicCpg.cpp
+
+Filtering, computing delay and generating motor inputs.  
+Initialize it with the initial CPG frequency. Can generate inputs for two legs or only one. 
+
+MuscleRunbotController.cpp
+
+Here you simulate external perturbation and enable controller. 
+In .h file, there is a boolean oneCPG
+ 
+oneCPG = true,  in the simulation DACBOT is controller by 1 CPG
+oneCPG = false,  in the simulation DACBOT is controller by 2 CPGs.
+
+LowPassfilter.cpp
+
+neural IIR-like filter. Set w depending on cutting frequency

@@ -35,11 +35,15 @@
 
 // include the controller
 //#include "emptycontroller.h"
-#include "samplecontroller_obstacle_avoidance.h"
+//#include "samplecontroller_obstacle_avoidance.h"
 // OR an examplecontroller of previous students
 //#include "examplecontroller_d_buchwald.h"
 //#include "examplecontroller_m_schoeler.h"
 //#include "examplecontroller_t_ayala.h"
+
+
+#include "FTPcontroller_ai3_2014_ditlev_lasse.h"
+//#include "WALKNETcontroller_ai3_2014_ditlev_lasse.h"
 
 
 // joint needed for fixation of the robot in the beginning
@@ -102,8 +106,8 @@ class ThisSim : public lpzrobots::Simulation {
     PassiveBox* b1;
     double length = 3;
     double width = 0.2;
-    double height = 1.0;
-    bool obstacle_active = false;
+    double height = 0.4;//0.45;
+    bool obstacle_active = true;
     if(obstacle_active)
     {
       b1 = new PassiveBox(odeHandle, osgHandle, osg::Vec3(length, width, height /*size*/));

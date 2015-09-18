@@ -13,6 +13,13 @@
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <map>
 
+//Save files
+#include <iostream>
+#include <fstream>
+#include <string.h>
+//Save files
+
+using namespace std;
 
 // forward declarations
 class SO2CPG;
@@ -31,59 +38,66 @@ class ModularNeuralControl: public ANN {
 public:
 
 	ModularNeuralControl(int cpg_option);
-    double getCpgOutput(int output);
-    double getCpgActivity(int output);
-    double getpcpgOutput(int output);
-    double getPsnOutput(int output);
-    double getVrnLeftOutput(int output);
-    double getVrnRightOutput(int output);
+	double getCpgOutput(int output);
+	double getCpgActivity(int output);
+	double getpcpgOutput(int output);
+	double getPsnOutput(int output);
+	double getVrnLeftOutput(int output);
+	double getVrnRightOutput(int output);
 
-    void setInputVrnLeft(int input, double value);
-    void setInputVrnRight(int input, double value);
-    void setInputPsn(int input, double value);
-    void setCpgOutput(int neuron,double value);
-    void setInputNeuronInput(int input, double value);
-    void setInputMotorNeuronInput(int input, double value);
-    double getMotorNeuronActivity(AmosIIMotorNames motor);
-    double getMotorNeuronOutput(AmosIIMotorNames motor);
-    double Control_input;
-    double cpg_bias;
-    double getCpgWeight(int neuron1, int neuron2);
-    double getCpgBias(int neuron);
-    void enableoscillatorsCoupling(bool mMCPGs);
-    void disableoscillatorsCoupling();
+	void setInputVrnLeft(int input, double value);
+	void setInputVrnRight(int input, double value);
+	void setInputPsn(int input, double value);
+	void setCpgOutput(int neuron,double value);
+	void setInputNeuronInput(int input, double value);
+	void setInputMotorNeuronInput(int input, double value);
+	double getMotorNeuronActivity(AmosIIMotorNames motor);
+	double getMotorNeuronOutput(AmosIIMotorNames motor);
+	double Control_input;
+	double cpg_bias;
+	double getCpgWeight(int neuron1, int neuron2);
+	double getCpgBias(int neuron);
+	void enableoscillatorsCoupling(bool mMCPGs);
+	void disableoscillatorsCoupling();
 
-    void enableContactForce(bool MCPGs);
-    void disableContactForce();
-/**********************************/
+	void enableContactForce(bool MCPGs);
+	void disableContactForce();
+	/**********************************/
 
-    bool oscillatorsCouplingIsEnabled;
-       std::vector<double> currentActivity;
-       double delta[6][6];
-       double cnctCoeffMat[6][6];
-     void  changeControlInput(double new_ControlInput);
-    void changeGaitpattern(int gaitPattern);
-    virtual void step();
-    virtual void step(int CPGID, std::vector<NeuralLocomotionControlAdaptiveClimbing*> NLCAC,const std::vector<double> x);
-    bool contactForceIsEnabled;
-    double oscillatorcouple1;
-    double oscillatorcouple0;
-    double ContactForceEffect1;
-    double ContactForceEffect0;
+	bool oscillatorsCouplingIsEnabled;
+	vector<double> currentActivity;
+	double delta[6][6];
+	double cnctCoeffMat[6][6];
+	void  changeControlInput(double new_ControlInput);
+	void changeGaitpattern(int gaitPattern);
+	virtual void step();
+	virtual void step(int CPGID, vector< vector <double> > cCPGs,const vector<double> x);
+	bool contactForceIsEnabled;
+	double oscillatorcouple1;
+	double oscillatorcouple0;
+	double ContactForceEffect1;
+	double ContactForceEffect0;
 
-/*************************************/
+
+
+  //Save files
+  ofstream outFilemlc;
+  //Save files
+
+
+	/*************************************/
 
 private:
-    SO2CPG * cpg;
-    AdaptiveSO2CPGSynPlas * cpg_s;
-    PCPG * pcpg;
-    PSN * psn;
-    VRN * vrnLeft;
-    VRN * vrnRight;
-    PMN* pmn;
+	SO2CPG * cpg;
+	AdaptiveSO2CPGSynPlas * cpg_s;
+	PCPG * pcpg;
+	PSN * psn;
+	VRN * vrnLeft;
+	VRN * vrnRight;
+	PMN* pmn;
 
-    std::vector<Neuron*> inputNeurons;
-    std::map<AmosIIMotorNames,Neuron*> outputNeurons;
+	vector<Neuron*> inputNeurons;
+	map<AmosIIMotorNames,Neuron*> outputNeurons;
 
 };
 
