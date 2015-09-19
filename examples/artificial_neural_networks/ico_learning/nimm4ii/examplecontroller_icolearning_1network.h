@@ -408,10 +408,6 @@ public:
 		ico_controller->setReflexiveNeuronInput(reflexive_signal_green);
 		ico_controller->setPredictiveNeuronInput(0, predictive_signal_green);
 
-		//ICO module2
-//		ico_controller->setReflexiveNeuronInput(reflexive_signal_blue);
-//		ico_controller->setPredictiveNeuronInput(1, predictive_signal_blue);
-
 		ico_controller->step();
 
 		std::cout << ico_controller->dumpWeights() << std::endl;
@@ -419,9 +415,6 @@ public:
 		//OUTPUT
 		// Output to steer the robot at the moment, the robot is controlled by noise (as exploration or searching for an object)
 		u_ico_out = ico_controller->getOutputNeuronOutput();
-
-		// Combination of several ICO modules
-		// u_ico_out = 1.0*u_ico_in[0]+1.0*u_ico_in[1]+exp_output;
 
 
 	      // ico learning --------------------------------------------------------------------//
