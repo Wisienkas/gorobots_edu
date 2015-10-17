@@ -16,7 +16,7 @@ int main( int argc, char** argv )
 
 
     Mat image;
-    image = imread("/home/poma/workspace/pmanoonpong-gorobots-fork/examples/opencv/loadimage/faceDetection.png", CV_LOAD_IMAGE_COLOR);   // Read the file
+    image = imread("faceDetection.png", CV_LOAD_IMAGE_COLOR);   // Read the file
 
     if(! image.data )                              // Check for invalid input
     {
