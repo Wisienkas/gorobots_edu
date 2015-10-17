@@ -1,0 +1,20 @@
+Adding   color points into a video for tracking
+
+1) Extract images from a video
+
+Using e.g., VLC player
+https://www.youtube.com/watch?v=s4CMYf8iYKc
+https://www.youtube.com/watch?v=geF_i71I-ZM
+
+Tools --> Preferences --> All -->  select *Scene video filter* --> set recording ratio to e.g., 5
+
+OR
+
+Using GIMP
+
+https://www.youtube.com/watch?v=chmuaoHAzDM 
+
+
+2) Add color point into each image using GIMP
+
+3) Combine all images with color points to a video using 
