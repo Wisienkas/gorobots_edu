@@ -1,154 +1,168 @@
-
-//Giuliano Di Canio
-//giuliano.dicanio@gmail.com
-
-#include "opencv2/highgui/highgui.hpp"
-#include <iostream>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <iostream>
-#include <fstream>
-
-
-
-using namespace cv;
-using namespace std;
-
-vector<Point2f> trajectory;
+/*
+ * main.cpp
+ *
+ *  Created on: Oct 18, 2015
+ *      Author: giuliano
+ */
+#include "getColorTrajectory.h"
 
 int main(int argc, char* argv[])
 {
 
-  ofstream myfilex,myfiley;
+  vector<int> line1, line2, line3;
+  string path1,path2,path3;
+  VideoCapture cap("ExampleVideo.mp4"); // open the video file for reading
+  //VideoCapture cap("videoBeetle2.mp4"); // open the video file for reading
+  ofstream color1Trajectory,color2Trajectory,color3Trajectory;
+  getColorTrajectory color1, color2,color3;
 
-  myfilex.open("trajectoryx.txt");
-  myfiley.open("trajectoryy.txt");
+  //SETTINGS//
 
-  VideoCapture cap("videoBeetle.mp4"); // open the video file for reading
+  Size outputFrameSize(750,450);
+  //output frame size
+  //choose the size of your image. This is very important.
+  //if you set a small size, the contours detected will be too small
+  //and therefore the centroids can't be computed.
 
-  if ( !cap.isOpened() )  // if not success, exit program
+  bool showVideo = false;
+  //show video
+  //the video that you updated will be shown
+  //even if nothing is detected the video will still be shown
+
+
+  bool trajectoriesInOneFrame = true;
+  //trajectories in one frame
+  //false: each trajectory will be in one individual window
+  //true:  each trajectory will be in one individual window, one additional window will
+  //show all the trajectories together
+
+  bool printTrajectoriesToFiles=false;
+  // print trajectories to file
+  // false: trajectories will not be saved
+  // true: trajectories will be saved in a file, you can set the path
+
+  //choose the path where you want your trajectories to be saved
+  path1="";
+  path2="";
+  path3="";
+
+  //which colors you want to detect???
+  //here you need to add minimum and maximum HSV values.
+  //In order to get these values do the following:
+  //Donwload gimp for Ubuntu, and open the toolbox
+  //Select a color in the color box
+  //The color will have an H value=x
+  //then your minimum and max value for H will be (x/2)-10 and (x/2)+10 respectively
+  //the other values are not VERY important, is ok to tune them manually..
+  //EXAMPLE..H value RED in Gimp: 360
+  //minH=(360/2)-10=170 maxH=(360/2)+10=190
+  color1.setColor(170,100,160,190,255,255);//red
+  color2.setColor(15,100,100,40,255,255);//yellow
+  color3.setColor(110,100,100,130,255,255);//blue
+  //color3.setColor(110,100,100,130,255,255);//green
+
+
+
+  //Which color you want to use for the trajectory?
+  //Of course the best would be to use the same color as the detected one
+  //but you can change it if you want. Here you have to useRGB values
+  //you can use Gimp agin to detecg RGB values.
+  //PLEASE NOTE..in OpenCV a color is defined as Scalar(a,b,c)
+  //where a=Blue b=Green c=Red
+  //Example Red in Gimp = 255 0 0
+  //Red in Opencv Scalar(0,0,255).. use this definition to set your color line
+  color1.setLineColor(0,0,255);//red
+  color2.setLineColor(0,255,255);//yellow
+  color3.setLineColor(255,0,0);//blue
+  //color3.setLineColor(0,255,0);//green
+
+  //SETTINGS
+
+  if(printTrajectoriesToFiles==true)
+  {
+    color1Trajectory.open(path1.c_str());
+    color2Trajectory.open(path2.c_str());
+    color3Trajectory.open(path3.c_str());
+  }
+
+  if ( !cap.isOpened() )
   {
     cout << "Cannot open the video file" << endl;
     return -1;
   }
 
-
-  //cap.set(CV_CAP_PROP_POS_MSEC, 300); //start the video at 300ms
-
   double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
-
-  //   cout << "Frame per seconds : " << fps << endl;
-
 
   while(1)
   {
 
-    Mat frame, resized;
-
+    Mat frameColor1,frameColor2,frameColor3, frame, totalFrame, showVideoFrame;
 
     bool bSuccess = cap.read(frame); // read a new frame from video
-
 
     if (!bSuccess) //if not success, break loop
     {
       cout << "Cannot read the frame from video file" << endl;
       break;
     }
-    resize(frame, resized, Size(), 0.5, 0.5);//reduce image size
-    //imshow("MyVideo", resized); //show the frame in "MyVideo" window
 
-    cv::Mat hsv_image, red;
-    cv::medianBlur(resized, resized, 3);//blur the image before changing to HSV
-    cv::cvtColor(resized, hsv_image, cv::COLOR_BGR2HSV);//change from BGR to HSV, easier to detect colors
+    resize(frame, frame, outputFrameSize, 0, 0);//set image size
 
+    frameColor1=frame.clone();
+    frameColor2=frame.clone();
+    frameColor3=frame.clone();
+    totalFrame=frame.clone();
+    showVideoFrame=frame.clone();
 
+    //Drawing trajectories in individual frames
+    color1.detectTrajectory(frameColor1);
+    color1.drawTrajectory(color1.getLineColor().at(0),color1.getLineColor().at(1),color1.getLineColor().at(2));
 
-    //You can change the color point here !!
-    //detect red..change here to detect another color
-    cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), red);
+    color2.detectTrajectory(frameColor2);
+    color2.drawTrajectory(color2.getLineColor().at(0),color2.getLineColor().at(1),color2.getLineColor().at(2));
 
-    cv::medianBlur(red, red,3);//blur again
-
-    //Canny
-
-    Mat canny_output;
-    vector<vector<Point> > contours;
-    vector<Vec4i> hierarchy;
-    RNG rng(12345);
-
-    /// Detect edges using canny
-    Canny( red, canny_output, 100, 100*2, 3 );
-    /// Find contours
-    findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+    color3.detectTrajectory(frameColor3);
+    color3.drawTrajectory(color3.getLineColor().at(0),color3.getLineColor().at(1),color3.getLineColor().at(2));
 
 
-    /// Draw contours
-    Mat drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
-    for( int i = 0; i< contours.size(); i++ )
+    //Drawing trajectories in one frame
+    if(color1.getTrajectory().size()>=2)
     {
-      Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-      drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, Point() );
+      for(int i=1;i<color1.getTrajectory().size();i++)
+        line(totalFrame, color1.getTrajectory().at(i-1),color1.getTrajectory().at(i), Scalar(color1.getLineColor().at(0),color1.getLineColor().at(1),color1.getLineColor().at(2)), 3, 8, 0);
     }
 
-    /// Show in a window
-    namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
-    imshow( "Contours", drawing );
-
-    //Canny
-
-
-
-    //centroid
-
-    findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-
-
-    /// Get the moments
-    vector<Moments> mu(contours.size() );
-    if(contours.empty()==false)
+    if(color2.getTrajectory().size()>=2)
     {
-      for( int i = 0; i < contours.size(); i++ )
-      { mu[i] = moments( contours[i], false ); }
+      for(int i=1;i<color2.getTrajectory().size();i++)
+        line(totalFrame, color2.getTrajectory().at(i-1),color2.getTrajectory().at(i), Scalar(color2.getLineColor().at(0),color2.getLineColor().at(1),color2.getLineColor().at(2)), 3, 8, 0);
+    }
+
+    if(color3.getTrajectory().size()>=2)
+    {
+      for(int i=1;i<color3.getTrajectory().size();i++)
+        line(totalFrame, color3.getTrajectory().at(i-1),color3.getTrajectory().at(i), Scalar(color3.getLineColor().at(0),color3.getLineColor().at(1),color3.getLineColor().at(2)), 3, 8, 0);
     }
 
 
-    ///  Get the mass centers:
-    vector<Point2f> mc( contours.size() );
 
 
-    for( int i = 0; i < contours.size(); i++ )
-    { mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 ); }
+    //
 
-    // cout << "X1XXCannot read the frame from video file" << endl;
+    if(trajectoriesInOneFrame==true)
+      imshow("Trajectories", totalFrame);
 
+    if(color1.getTrajectory().size()> 0)
+      imshow("Color1", color1.getFrame());
 
-    //Problem
-    if((mc[0].x != mc[0].x) == false)//VERY IMPORTANT!!! THIS line delete all the NaN value from the trajectory
+    if(color2.getTrajectory().size()> 0)
+      imshow("Color2", color2.getFrame());
 
-      //  cout << "X1.5XXCannot read the frame from video file" << endl;
+    if(color3.getTrajectory().size()> 0)
+      imshow("Color3", color3.getFrame());
 
-      //Problem
-      trajectory.push_back(mc[0]); // Put X & Y into trajectory for drawing later!
-
-    //cout << "X2XXCannot read the frame from video file" << endl;
-
-    // Save  X  & Y points into files
-    myfilex<<mc[0].x<<endl;
-    myfiley<<mc[0].y<<endl;
-
-
-    //here we only return the first contour....this might change with different applications
-    //take the points of the trajectory and draw a line..
-    if(trajectory.size()>=2)
-    {
-      for(int i=1;i<trajectory.size();i++)
-        // Draw a red line of each frame
-        line(resized, trajectory.at(i-1)/*x & y values*/,trajectory.at(i) /*x & y values*/, Scalar(100,100,255) /*Color*/, 3 /*Thickness*/, 8, 0);
-    }
-
-
-    imshow("Tarsus", red); //show the frame in "MyVideo" window
-    imshow("Video", resized);
-
+    if(showVideo==true)
+      imshow("Video", showVideoFrame);
 
     if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
     {
@@ -156,9 +170,26 @@ int main(int argc, char* argv[])
       break;
     }
   }
-  myfilex.close();
-  myfiley.close();
+
+  if(printTrajectoriesToFiles=true)
+  {
+    for(int i=0;i<color1.getTrajectory().size();i++)
+      color1Trajectory << color1.getTrajectory().at(i).x << " "<< color1.getTrajectory().at(i).y << endl;
+    color1Trajectory.close();
+
+    for(int i=0;i<color2.getTrajectory().size();i++)
+      color2Trajectory << color2.getTrajectory().at(i).x << " "<<color2.getTrajectory().at(i).y << endl;
+    color2Trajectory.close();
+    for(int i=0;i<color3.getTrajectory().size();i++)
+      color3Trajectory << color3.getTrajectory().at(i).x << " "<< color3.getTrajectory().at(i).y << endl;
+    color3Trajectory.close();
+  }
+
+
   return 0;
 
 }
+
+
+
 
