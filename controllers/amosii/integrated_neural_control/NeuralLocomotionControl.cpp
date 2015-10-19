@@ -1,5 +1,5 @@
 /*
- * NeuralLocomotionControlAdaptiveClimbing.cpp
+ * NeuralLocomotionControl.cpp
  *
  *  Created on: May 2, 2011
  *      Author: poramate
@@ -14,15 +14,15 @@
  *      May 25, 2014
  */
 
-#include "NeuralLocomotionControlAdaptiveClimbing.h"
+#include "NeuralLocomotionControl.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 
 //3) Step function of Neural locomotion control------
-NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing() {
+NeuralLocomotionControl::NeuralLocomotionControl() {
 	init(2,false,false);
 };
 
-NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel)
+NeuralLocomotionControl::NeuralLocomotionControl(int aamosVersion,bool mMCPGs,bool mMuscleModel)
 {
 	init(aamosVersion,mMCPGs,mMuscleModel);
 }
@@ -35,7 +35,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
  * author: subhi shaker barikhan
  * date:27.05.2014
  */
-void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
+void NeuralLocomotionControl::init(int aamosVersion,bool mMCPGs,bool mMuscleModelIsEnabled)
 {
 	printf("Initialize: Neural Locomotion Control\nAMOS version=%u\nMultiple CPGs=%s\nMuscle model=%s\n", aamosVersion,  mMCPGs ? "ON" : "OFF", mMuscleModelIsEnabled ? "ON" : "OFF");
 	//Save files
@@ -106,7 +106,7 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	psn_output.resize(num_cpgs);
 	vrn_output.resize(num_cpgs);
 	for(unsigned int i = 0; i < num_cpgs; i++){
-		nlc.at(i) = new ModularNeuralControl(option_cpg);
+		nlc.at(i) = new ModularNeuralNetwork(option_cpg);
 		if(MCPGs){
 			if(i<3)
 				nlc.at(i)->setCpgOutput(0, -1.);
@@ -259,7 +259,7 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 }
 
 
-NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbing() {
+NeuralLocomotionControl::~NeuralLocomotionControl() {
 
 	//Save files
 	outFilenlc1.close();
@@ -267,7 +267,7 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
 }
 
 
-std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> inreflex,
+std::vector<double> NeuralLocomotionControl::step_nlc(const std::vector<double> inreflex,
 		const std::vector< vector<double> > in0, bool Footinhibition) {
 
 	/*******************************************************************************

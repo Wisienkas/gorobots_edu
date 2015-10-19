@@ -40,7 +40,8 @@
 
 //Include your control classes
 #include "NeuralPreprocessingLearning.h"
-#include "NeuralLocomotionControlAdaptiveClimbing.h"
+#include "NeuralNavigationControl.h"
+#include "NeuralLocomotionControl.h"
 
 
 /**
@@ -128,7 +129,7 @@ class AmosIIControl : public AbstractController {
 
     //2) Neural locomotion control------
 
-    NeuralLocomotionControlAdaptiveClimbing* control_adaptiveclimbing;
+    NeuralLocomotionControl* locomotion_control;
 
     /**********End ****************/
 

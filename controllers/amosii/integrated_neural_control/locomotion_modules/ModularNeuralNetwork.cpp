@@ -8,23 +8,13 @@
  *  Date 26.05.2014
  */
 
-#include "ModularNeuralControl.h"
-#include "NeuralLocomotionControlAdaptiveClimbing.h"
-#include "utils/ann-library/so2cpg.h"
-#include "utils/ann-library/pcpg.h"
-#include "utils/ann-library/psn.h"
-#include "utils/ann-library/vrn.h"
-#include "utils/ann-library/pmn.h"
-#include "utils/ann-framework/neuron.h"
-#include "utils/ann-library/adaptiveso2cpgsynplas.h"
+#include "ModularNeuralNetwork.h"
+//#include "NeuralLocomotionControlAdaptiveClimbing.h"
 
-
-
-
-ModularNeuralControl::ModularNeuralControl(int cpg_option){
+ModularNeuralNetwork::ModularNeuralNetwork(int cpg_option){
 
 	//Save files
-	//outFilemlc.open("ModularNeuralControl.dat");
+	//outFilemlc.open("ModularNeuralNetwork.dat");
 	contactForceIsEnabled=true;
 
 	/*******************************************************************************
@@ -261,126 +251,126 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
 };
 
-void ModularNeuralControl::setInputNeuronInput(int input, double value)
+void ModularNeuralNetwork::setInputNeuronInput(int input, double value)
 {
 	setInput(inputNeurons[input],value);
 }
 
-void ModularNeuralControl::setInputMotorNeuronInput(int input, double  value)
+void ModularNeuralNetwork::setInputMotorNeuronInput(int input, double  value)
 {
 	pmn->setInput(input,value);
 }
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getMotorNeuronActivity(AmosIIMotorNames motor)
+double ModularNeuralNetwork::getMotorNeuronActivity(AmosIIMotorNames motor)
 {
 	return getActivity(outputNeurons[motor]);
 }
 
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getMotorNeuronOutput(AmosIIMotorNames motor)
+double ModularNeuralNetwork::getMotorNeuronOutput(AmosIIMotorNames motor)
 {
 	return getOutput(outputNeurons[motor]);
 }
 
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getCpgOutput(int output)
+double ModularNeuralNetwork::getCpgOutput(int output)
 {
 	return cpg->getOutput(output);
 }
 
-double ModularNeuralControl::getCpgActivity(int output)
+double ModularNeuralNetwork::getCpgActivity(int output)
 {
 	return cpg->getActivity(output);
 }
 
-double ModularNeuralControl::getCpgWeight(int neuron1, int neuron2)
+double ModularNeuralNetwork::getCpgWeight(int neuron1, int neuron2)
 {
 	return cpg->getWeight(neuron1, neuron2);
 }
 
-double ModularNeuralControl::getCpgBias(int neuron)
+double ModularNeuralNetwork::getCpgBias(int neuron)
 {
 	return cpg->getBias(neuron);
 }
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getpcpgOutput(int output)
+double ModularNeuralNetwork::getpcpgOutput(int output)
 {
 	return pcpg->getOutput(output);
 }
 
 //with preprocessing probably depratched
-void ModularNeuralControl::setInputPsn(int input, double value)
+void ModularNeuralNetwork::setInputPsn(int input, double value)
 {
 	psn->setInput(input,value);
 }
 
 //with preprocessing probably depratched
-void ModularNeuralControl::setInputVrnLeft(int input, double value)
+void ModularNeuralNetwork::setInputVrnLeft(int input, double value)
 {
 	vrnLeft->setInput(input,value);
 }
 
 //with preprocessing probably depratched
-void ModularNeuralControl::setInputVrnRight(int input, double  value)
+void ModularNeuralNetwork::setInputVrnRight(int input, double  value)
 {
 	vrnRight->setInput(input,value);
 }
-void  ModularNeuralControl::setCpgOutput(int neuron,double value)
+void  ModularNeuralNetwork::setCpgOutput(int neuron,double value)
 {
 	cpg->setOutput(neuron,value);
 }
 
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getPsnOutput(int output)
+double ModularNeuralNetwork::getPsnOutput(int output)
 {
 	return psn->getOutput(output);
 }
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getVrnLeftOutput(int output)
+double ModularNeuralNetwork::getVrnLeftOutput(int output)
 {
 	return vrnLeft->getOutput(output);
 }
 
 //with preprocessing probably depratched
-double ModularNeuralControl::getVrnRightOutput(int output)
+double ModularNeuralNetwork::getVrnRightOutput(int output)
 {
 	return vrnRight->getOutput(output);
 }
-void ModularNeuralControl::changeControlInput(double new_ControlInput)
+void ModularNeuralNetwork::changeControlInput(double new_ControlInput)
 {
 	Control_input=new_ControlInput;
 	cpg->setWeight(0, 1, 0.18 + new_ControlInput);
 	cpg->setWeight(1, 0, -0.18 - new_ControlInput);
 }
-void ModularNeuralControl::enableoscillatorsCoupling(bool mMCPGs)
+void ModularNeuralNetwork::enableoscillatorsCoupling(bool mMCPGs)
 {
 	if(mMCPGs)
 		oscillatorsCouplingIsEnabled=true;
 
 }
-void ModularNeuralControl::disableoscillatorsCoupling()
+void ModularNeuralNetwork::disableoscillatorsCoupling()
 {
 	oscillatorsCouplingIsEnabled=false;
 
 }
-void ModularNeuralControl::enableContactForce(bool mMCPGs)
+void ModularNeuralNetwork::enableContactForce(bool mMCPGs)
 {
 	if(mMCPGs)
 		contactForceIsEnabled=true;
 }
-void ModularNeuralControl::disableContactForce()
+void ModularNeuralNetwork::disableContactForce()
 {
 
 	contactForceIsEnabled=false;
 }
 
-void ModularNeuralControl::step()
+void ModularNeuralNetwork::step()
 {
 	updateActivities();
 	updateWeights();
@@ -394,7 +384,7 @@ void ModularNeuralControl::step()
  * author: subhi shaker barikhan
  * date:26.05.2014
  */
-void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const vector<double> x)
+void ModularNeuralNetwork::step(int CPGID, vector< vector<double> > cCPGs, const vector<double> x)
 {
 	currentActivity.at(0)=cpg->getActivity(cpg->getNeuron(0));
 	currentActivity.at(1)=cpg->getActivity(cpg->getNeuron(1));
@@ -487,7 +477,7 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
  * author subhi Shaker Barikhan
  * Date: 12.05.2014
  * */
-void ModularNeuralControl::changeGaitpattern(int gaitPattern)
+void ModularNeuralNetwork::changeGaitpattern(int gaitPattern)
 {
 	if (oscillatorsCouplingIsEnabled)
 	{

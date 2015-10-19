@@ -6,10 +6,17 @@
  *      Apr 27, 2012
  */
 
-#ifndef MODULARNEURALCONTROL_H_
-#define MODULARNEURALCONTROL_H_
+#ifndef MODULARNEURALNETWORK_H_
+#define MODULARNEURALNETWORK_H_
 
 #include "utils/ann-framework/ann.h"
+#include "utils/ann-library/so2cpg.h"
+#include "utils/ann-library/pcpg.h"
+#include "utils/ann-library/psn.h"
+#include "utils/ann-library/vrn.h"
+#include "utils/ann-library/pmn.h"
+#include "utils/ann-framework/neuron.h"
+#include "utils/ann-library/adaptiveso2cpgsynplas.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <map>
 #include <fstream>
@@ -23,15 +30,15 @@ class VRN;
 class PMN;
 class AdaptiveSO2CPGSynPlas;
 class NeuralLocomotionControlAdaptiveClimbing;
-//class ModularNeuralControl;
+//class ModularNeuralNetwork;
 
 enum gaits{tripod, tetrapod, wave, irregular};
 
-class ModularNeuralControl: public ANN {
+class ModularNeuralNetwork: public ANN {
 
 public:
 
-	ModularNeuralControl(int cpg_option);
+	ModularNeuralNetwork(int cpg_option);
 	double getCpgOutput(int output);
 	double getCpgActivity(int output);
 	double getpcpgOutput(int output);
@@ -92,4 +99,4 @@ private:
 };
 
 
-#endif /* MODULARNEURALCONTROL_H_ */
+#endif /* MODULARNEURALNETWORK_H_ */

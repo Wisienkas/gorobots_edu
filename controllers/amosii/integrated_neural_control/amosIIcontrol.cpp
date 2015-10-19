@@ -44,7 +44,7 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 	else
 		num_cpgs = 1;
 
-	control_adaptiveclimbing = new NeuralLocomotionControlAdaptiveClimbing(aAMOSversion, mMCPGs, mMuscleModelisEnabled/*, mNNC*/);
+	locomotion_control = new NeuralLocomotionControl(aAMOSversion, mMCPGs, mMuscleModelisEnabled/*, mNNC*/);
 
 	if(MCPGs==true)
 	{
@@ -55,15 +55,15 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 			string numstr_lr; // enough to hold all numbers up to 64-bits
 			sprintf(numstr_lr, "%u", i_cpg%3);*/
 			string lr = (i_cpg<3) ? "R" : "L";
-			addInspectableValue("CPG" + to_string(i_cpg),&control_adaptiveclimbing->cpg_output.at(i_cpg).at(0), lr + to_string(i_cpg%3) + "_0");	//to_string() is C++11
-			addInspectableValue("CPG" + to_string(i_cpg),&control_adaptiveclimbing->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
+			addInspectableValue("CPG" + to_string(i_cpg),&locomotion_control->cpg_output.at(i_cpg).at(0), lr + to_string(i_cpg%3) + "_0");	//to_string() is C++11
+			addInspectableValue("CPG" + to_string(i_cpg),&locomotion_control->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
 		}
 	}
 
 	//Add edit parameter on terminal
-	Configurable::addParameter("cin", &control_adaptiveclimbing->Control_input,  /*minBound*/ -10,  /*maxBound*/ 10, "test description" );
-	Configurable::addParameter("input3", &control_adaptiveclimbing->input.at(3),  /*minBound*/ -1,  /*maxBound*/ 1, "test description" );
-	Configurable::addParameter("input4", &control_adaptiveclimbing->input.at(4),  /*minBound*/ -1,  /*maxBound*/ 1, "test description" );
+	Configurable::addParameter("cin", &locomotion_control->Control_input,  /*minBound*/ -10,  /*maxBound*/ 10, "test description" );
+	Configurable::addParameter("input3", &locomotion_control->input.at(3),  /*minBound*/ -1,  /*maxBound*/ 1, "test description" );
+	Configurable::addParameter("input4", &locomotion_control->input.at(4),  /*minBound*/ -1,  /*maxBound*/ 1, "test description" );
 }
 
 AmosIIControl::~AmosIIControl() {
@@ -72,16 +72,16 @@ AmosIIControl::~AmosIIControl() {
 void AmosIIControl::enableContactForceMech() //enable sensory feedback mechanism
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++){
-		control_adaptiveclimbing->nlc.at(i)->enableContactForce(MCPGs);
-		std::cout << "[" << i << "] " << "contactForce is enabled -> " << control_adaptiveclimbing->nlc.at(i)->contactForceIsEnabled<< "\n";
+		locomotion_control->nlc.at(i)->enableContactForce(MCPGs);
+		std::cout << "[" << i << "] " << "contactForce is enabled -> " << locomotion_control->nlc.at(i)->contactForceIsEnabled<< "\n";
 	}
 }
 
 void AmosIIControl::disableContactForceMech() //disable sensory feedback mechanism
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++){
-		control_adaptiveclimbing->nlc.at(i)->disableContactForce();
-		std::cout << "[" << i << "] " << "contactForce is disabled -> " << control_adaptiveclimbing->nlc.at(i)->contactForceIsEnabled<< "\n";
+		locomotion_control->nlc.at(i)->disableContactForce();
+		std::cout << "[" << i << "] " << "contactForce is disabled -> " << locomotion_control->nlc.at(i)->contactForceIsEnabled<< "\n";
 	}
 }
 
@@ -89,28 +89,28 @@ void AmosIIControl::disableContactForceMech() //disable sensory feedback mechani
 void AmosIIControl::increaseFrequency()
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
-		control_adaptiveclimbing->nlc.at(i)->changeControlInput(control_adaptiveclimbing->nlc.at(i)->Control_input+0.01);
+		locomotion_control->nlc.at(i)->changeControlInput(locomotion_control->nlc.at(i)->Control_input+0.01);
 	std::cout << "Frequency increases"<<endl;
-	std::cout << "Modulatory input:" << control_adaptiveclimbing->nlc.at(0)->Control_input<<endl;
+	std::cout << "Modulatory input:" << locomotion_control->nlc.at(0)->Control_input<<endl;
 }
 // Frequency decreases by decreasing modulatory input.
 void AmosIIControl::decreaseFrequency()
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
-		control_adaptiveclimbing->nlc.at(i)->changeControlInput(control_adaptiveclimbing->nlc.at(i)->Control_input-0.01);
+		locomotion_control->nlc.at(i)->changeControlInput(locomotion_control->nlc.at(i)->Control_input-0.01);
 	std::cout << "Frequency decreases"<<endl;
-	std::cout << "Modulatory input:" << control_adaptiveclimbing->nlc.at(0)->Control_input<<endl;
+	std::cout << "Modulatory input:" << locomotion_control->nlc.at(0)->Control_input<<endl;
 }
 void AmosIIControl::enableOscillatorCoupling() //enable oscillator coupling (fully connected network)
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
-		control_adaptiveclimbing->nlc.at(i)->enableoscillatorsCoupling(MCPGs);
+		locomotion_control->nlc.at(i)->enableoscillatorsCoupling(MCPGs);
 	std::cout << "Oscillator Coupling is enabled \n";
 }
 void AmosIIControl::disableOscillatorCoupling() //disable oscillator coupling (fully connected network)
 {
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
-		control_adaptiveclimbing->nlc.at(i)->disableoscillatorsCoupling();
+		locomotion_control->nlc.at(i)->disableoscillatorsCoupling();
 	std::cout << "Oscillator Coupling is disabled \n";
 }
 
@@ -119,7 +119,7 @@ void AmosIIControl::enableTripodGait()
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
 	{
 		int gaitPattern=0;//Tripod
-		control_adaptiveclimbing->nlc.at(i)->changeGaitpattern(gaitPattern);
+		locomotion_control->nlc.at(i)->changeGaitpattern(gaitPattern);
 	}
 	std::cout << "Tripod \n";
 }
@@ -128,7 +128,7 @@ void AmosIIControl::enableTetrapodGait()
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
 	{
 		int gaitPattern=1;  //Tetrapod
-		control_adaptiveclimbing->nlc.at(i)->changeGaitpattern(gaitPattern);
+		locomotion_control->nlc.at(i)->changeGaitpattern(gaitPattern);
 	}
 	std::cout << "Tetrapod \n";
 }
@@ -138,7 +138,7 @@ void AmosIIControl::enableWaveGait()
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
 	{
 		int gaitPattern=2;//wave
-		control_adaptiveclimbing->nlc.at(i)->changeGaitpattern(gaitPattern);
+		locomotion_control->nlc.at(i)->changeGaitpattern(gaitPattern);
 	}
 	std::cout << "wave \n";
 }
@@ -147,7 +147,7 @@ void AmosIIControl::enableIrregularGait()
 	for (unsigned int i=0 && MCPGs; i<num_cpgs;i++)
 	{
 		int gaitPattern=3;//irregular gait.
-		control_adaptiveclimbing->nlc.at(i)->changeGaitpattern(gaitPattern);
+		locomotion_control->nlc.at(i)->changeGaitpattern(gaitPattern);
 	}
 	std::cout << "irregularEnable \n";
 }
@@ -180,7 +180,7 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
 
 	/**********   3) Neural locomotion control   **********/
 
-	y = control_adaptiveclimbing->step_nlc(x, x_prep,false);
+	y = locomotion_control->step_nlc(x, x_prep,false);
 
 
 	 /****************   4) Motor outputs   ****************/

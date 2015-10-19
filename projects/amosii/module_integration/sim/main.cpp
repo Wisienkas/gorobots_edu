@@ -414,10 +414,10 @@ public:
 				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(26)->Reset();
 
 				//TODO Reset function BJC
-				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->m.at(BJ_m) = 0.0;
-				//((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint = false;
+				((AmosIIControl*) controller)->locomotion_control->bj_output.at(0) = 0.0;
+				((AmosIIControl*) controller)->locomotion_control->bj_output.at(5) = 0.0;
+				((AmosIIControl*) controller)->locomotion_control->m.at(BJ_m) = 0.0;
+				//((AmosIIControl*) controller)->locomotion_control->switchon_backbonejoint = false;
 
 				simulation_time_reached = true;
 			}
@@ -435,10 +435,10 @@ public:
 				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(26)->Reset();
 
 				//TODO Reset function BJC
-				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->m.at(BJ_m) = 0.0;
-				//((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint = false;
+				((AmosIIControl*) controller)->locomotion_control->bj_output.at(0) = 0.0;
+				((AmosIIControl*) controller)->locomotion_control->bj_output.at(5) = 0.0;
+				((AmosIIControl*) controller)->locomotion_control->m.at(BJ_m) = 0.0;
+				//((AmosIIControl*) controller)->locomotion_control->switchon_backbonejoint = false;
 
 				simulation_time_reached = true;
 			}

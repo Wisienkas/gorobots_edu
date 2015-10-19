@@ -1,23 +1,24 @@
 /*
- * NeuralLocomotionControlAdaptiveClimbing.h
+ * NeuralLocomotionControl.h
  *
  *  Created on: May 2, 2011
  *      Author: poramate
+ *
  */
 
-#ifndef NEURALLOCOMOTIONCONTROLADAPTIVECLIMBING_H_
-#define NEURALLOCOMOTIONCONTROLADAPTIVECLIMBING_H_
+#ifndef NEURALLOCOMOTIONCONTROL_H_
+#define NEURALLOCOMOTIONCONTROL_H_
 
 #include <vector>
 #include <cmath>
 #include <cstdlib>
 #include <ode_robots/amosiisensormotordefinition.h>
 #include "MuscleModel.h"
-#include "ModularNeuralControl.h"
-#include "BackboneJointControl.h"
-#include "delayline.h"
-#include "forwardmodel.h"
-#include "motormapping.h"
+#include "locomotion_modules/ModularNeuralNetwork.h"
+#include "locomotion_modules/BackboneJointControl.h"
+#include "locomotion_modules/forwardmodel.h"
+#include "locomotion_modules/motormapping.h"
+#include "utils/delayline.h"
 
 
 //Save files
@@ -29,14 +30,14 @@ using namespace std;
 
 //3) Class for Neural locomotion control------
 
-class NeuralLocomotionControlAdaptiveClimbing{
+class NeuralLocomotionControl{
 
 public:
 
 	//---Start Define functions---//
-	NeuralLocomotionControlAdaptiveClimbing();
-	NeuralLocomotionControlAdaptiveClimbing(int aamosVersion,bool mMCPGs,bool mMuscleModel);
-	~NeuralLocomotionControlAdaptiveClimbing();
+	NeuralLocomotionControl();
+	NeuralLocomotionControl(int aamosVersion,bool mMCPGs,bool mMuscleModel);
+	~NeuralLocomotionControl();
 
 	double sigmoid(double num)
 	{
@@ -297,7 +298,7 @@ public:
 
 
 	//Neural Locomotion Control
-	vector< ModularNeuralControl* > nlc;
+	vector< ModularNeuralNetwork* > nlc;
 
 	//Backbone Joint Control
 	BackboneJointControl* bjc;
@@ -396,4 +397,4 @@ private:
 
 };
 
-#endif /* NEURALLOCOMOTIONCONTROLADAPTIVECLIMBING_H_ */
+#endif /* NEURALLOCOMOTIONCONTROL_H_ */
