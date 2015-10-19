@@ -12,6 +12,7 @@
 #include "utils/ann-framework/ann.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <map>
+#include <fstream>
 using namespace std;
 
 // forward declarations
@@ -24,7 +25,7 @@ class AdaptiveSO2CPGSynPlas;
 class NeuralLocomotionControlAdaptiveClimbing;
 //class ModularNeuralControl;
 
-
+enum gaits{tripod, tetrapod, wave, irregular};
 
 class ModularNeuralControl: public ANN {
 
@@ -70,6 +71,9 @@ public:
 	double oscillatorcouple0;
 	double ContactForceEffect1;
 	double ContactForceEffect0;
+
+	//Save files
+	//ofstream outFilemlc;
 
 	/*************************************/
 

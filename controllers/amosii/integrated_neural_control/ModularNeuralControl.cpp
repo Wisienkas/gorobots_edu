@@ -23,10 +23,15 @@
 
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
+	//Save files
+	//outFilemlc.open("ModularNeuralControl.dat");
+	contactForceIsEnabled=true;
+
 	/*******************************************************************************
 	 *  MODULE 0 IO'S for modularneuralcontrol
 	 *******************************************************************************/
 	/*MCPGs*/
+	//oscillatorsCouplingIsEnabled = true;
 	currentActivity.resize(2);
 	for(int i=0;i<6;i++)
 	{
@@ -36,6 +41,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 			cnctCoeffMat[i][j]=0.0;
 		}
 	}
+	//changeGaitpattern(wave);   // THIS SHOULD BE DEFAULT!!!
 	/*End of MCPGs*/
 
 	//IO'S for modularneuralcontrol

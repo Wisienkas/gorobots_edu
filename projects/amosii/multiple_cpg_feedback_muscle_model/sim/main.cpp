@@ -258,10 +258,10 @@ public:
 			case  '#':// select tetrapod gait
 				((AmosIIControl*) controller)->enableTetrapodGait();
 				break;
-			case  '@': // select wave
+			case  'w': // select wave
 				((AmosIIControl*) controller)->enableWaveGait();
 				break;
-			case  '!': // select tripod gait
+			case  't': // select tripod gait
 				((AmosIIControl*) controller)->enableTripodGait();
 				break;
 			case  '$': //// select irregular gait

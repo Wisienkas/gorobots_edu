@@ -30,10 +30,10 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
 
-	strftime (buffer,80,"OAValues_%F_%H-%M-%S.txt",timeinfo);
-	puts (buffer);
+	//strftime (buffer,80,"OAValues_%F_%H-%M-%S.txt",timeinfo);
+	//puts (buffer);
 
-	outOAValues.open(buffer);
+	//outOAValues.open(buffer);
 	outTezinhib.open("outTezinhib.txt"); //Just to write a File which is always overwritten for fast evaluation of the OA values
 	//end logfiles
 
@@ -97,8 +97,8 @@ US_Obstacleavoidance::US_Obstacleavoidance(){
 
 	//Write 2 data streams
 	//This creates a date file with date and so on as file name...
-	outOAValues<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
-	outOAValues<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
+	//outOAValues<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
+	//outOAValues<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
 	//this data file is overwritten everytime you run the programm, but it is easier to use my python files to visualize my adaptive mrc with this one
 	outTezinhib<<"#OA preset values: mode:"<<mode<<" gain:"<<gain<<"  vt:"<<vt<<"  vt2:"<<vt2<<"  mu:"<<mu<<"  gamma:"<<gamma<<"  mu2:"<<mu2<<"  gamma2:"<<gamma2<<"  weight_neuron1:"<<weight_neuron1<<"  weight_neuron2:"<<weight_neuron2<<"  weight_neuron3:"<<weight_neuron3<<"  weight_neuron4:"<<weight_neuron4<<" e:"<<e<<" reflex_cut:"<<reflex_cut<<endl;
 	outTezinhib<<"#runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<u3<<" " << v3 <<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<u4<<" " << v4 <<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl"<<endl;
@@ -242,7 +242,7 @@ void US_Obstacleavoidance::step_oa(){
 		cout<<"steps"<<steps<<endl;
 	}
 
-	outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
+	//outOAValues<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
 	outTezinhib<<runsteps<<" "<<u1<<" "<< v1 <<" "<<weight_neuron1<<" "<< ANN::getWeight(2,2)<<" "<<u2<<" " << v2 <<" "<<weight_neuron2<<" "<< ANN::getWeight(3,3)<<" "<<weight_neuron3<<" "<<ANN::getWeight(3,2)<<" "<<weight_neuron4<<" "<<ANN::getWeight(2,3)<<" "<<i1<<" "<<i2<<" "<<i1_refl<<" "<<i2_refl<<endl;
 
 	//Count steps for running simulation and abort if specified a maximum number for abort
@@ -253,7 +253,7 @@ void US_Obstacleavoidance::step_oa(){
 
 US_Obstacleavoidance::~US_Obstacleavoidance(){
 	outTezinhib.close();
-	outOAValues.close();
+	//outOAValues.close();
 }
 ;
 

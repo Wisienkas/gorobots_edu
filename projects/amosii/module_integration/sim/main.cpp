@@ -61,7 +61,7 @@
 // the robot
 #include <ode_robots/amosII.h>
 // the controller
-#include "controllers/amosii/modular_neural_control/amosIIcontrol.h"
+#include "controllers/amosii/integrated_neural_control/amosIIcontrol.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
@@ -77,25 +77,36 @@ using namespace std;
 using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
 ofstream amos_pos;
+
+/// Simulation parameters
 int total_tstep=0;
 int max_time=6000.;			//maximum simulation time (in secs)
 double max_distance=0.85;		//maximum distance until reset (in m)
 int success_counter=0;
-//************Bool variables of different functions
-//Environment options
-bool single_obstacle = true;
-bool stairs = false;
-//eduard avoiding obstacles, add different box terrain, to activate change false to true
-bool use_koh = 0; //kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
-bool use_box = 0; //sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.
-bool use_box_difficult = 1; //to use this you have to set also use_box=1
-//ren's goal sensor
-bool add_goals=0;
 
-//for avoiding obstacles
-bool use_broadusangle=false;
-//write tracking file
-bool track = true;
+/// Camera  parameters
+double cam_pos[3] = {0.9, 2., 0.25};           // Camera position (x, y, z)
+double cam_angle[3] = {178.866, -7.43884, 0}; // Camera look-to position (angle) (x, y, z)
+//int cam_mode = 0;                             // Camera mode (0: Static, 1: Follow, 2: TV, 3: Race)
+
+/// Environment options
+bool single_obstacle = true;
+double obstacle_height = 0.12;  // in [m]
+bool stairs = false;
+bool use_koh = false;           // kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
+bool use_box = false;           // sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.
+bool use_box_difficult = true;  // to use this you have to set also use_box=1
+bool add_goals = false;         // ren's goal sensor
+
+/// Robot options
+bool use_broadusangle=false;    // for avoiding obstacles
+bool track = true;              // write tracking file
+
+/// Controller options
+int use_amosii_v = 2;
+bool use_mCPG = true;
+bool use_navi = false;
+bool use_muscles = false;
 ///////////////////////End of bool variables of different functions
 
 
@@ -131,21 +142,24 @@ public:
 	 */
 	virtual void start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgHandle& osgHandle,
 			lpzrobots::GlobalData& global) {
-		// set initial camera position
-		setCameraHomePos(lpzrobots::Pos(-0.0114359, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
 
-		// set simulation parameters
+		/// set initial camera position
+		setCameraHomePos(lpzrobots::Pos(cam_pos), lpzrobots::Pos(cam_angle));
+		setCameraMode(Static);
+
+		/// set simulation parameters
 		global.odeConfig.setParam("controlinterval", 10);
 		global.odeConfig.setParam("simstepsize", 0.01);
 		global.odeConfig.setParam("noise", 0.02); // 0.02
 
-		// add playgrounds for three different experiments
+		/// add playgrounds for three different experiments
 		lpzrobots::OdeHandle playgroundHandle = odeHandle;
 		playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!)
 		//double steplength = 0.43; //AMOS II body length
 
+		/// Single obstacle setup
 		if(single_obstacle){
-			add_obstacle(global, 0., 0., 0.1);
+			add_obstacle(global, 0., 0., obstacle_height);
 		}
 
 
@@ -163,7 +177,7 @@ public:
 		bool use_amosii_version1 = false;
 		bool use_amosii_version2 = true;
 
-		if (use_amosii_version1 && !use_amosii_version2){
+		if (use_amosii_v == 1){
 			std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 1 SELECTED!"<<std::endl<<std::endl;
 			// using amosII version 1
 			// Add amosIIv1 robot
@@ -174,14 +188,9 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv1");
-			controller = new AmosIIControl(/*AMOSv1*/1,/*MCPGs=true*/true,/*Muscle Model =true*/false/*, false*/);
+			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles/*, false*/);
 		}
-		else {
-			std::cout<<"select only one version of AMOSII !"<<std::endl;
-			assert(use_amosii_version1 != use_amosii_version2);
-		}
-
-		if (use_amosii_version2 && !use_amosii_version1){
+		else if (use_amosii_v == 2){
 			std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 2 SELECTED!"<<std::endl<<std::endl;
 			myAmosIIConf = lpzrobots::AmosII::getAmosIIv2Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/,true /*for using foot feedback mechanism*/);                    myAmosIIConf.rubberFeet = true;
 			myAmosIIConf.legContactSensorIsBinary=false;
@@ -190,16 +199,15 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv2");
-			controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/false,/*Muscle Model =true*/false/*, false*/);
+			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles/*, false*/);
+		}
+		else {
+			std::cout<<"select only one version of AMOSII !"<<std::endl;
+			assert(use_amosii_version1 != use_amosii_version2);
 		}
 
-
-
 		if (use_broadusangle){
-			//**************Eduard
-			//set Angle of the US sensors, they should cover the robots width
-			myAmosIIConf.usAngleX=0.7;
-			////////////////Eduard End
+			myAmosIIConf.usAngleX=0.7; //set Angle of the US sensors, they should cover the robots width
 		}
 
 		//amos= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
@@ -212,12 +220,10 @@ public:
 		amos->setLegPosUsage(amos->R1, amos->LEG);
 		amos->setLegPosUsage(amos->R2, amos->LEG);
 
-		amos->place(osg::Matrix::rotate(0.0,0,0,1) * osg::Matrix::translate(0.0,0.0,0.1));
+		amos->place(osg::Matrix::rotate(0.0,0,0,1) * osg::Matrix::translate(0.2,0.0,0.1));
 		if (use_box){amos->place(osg::Matrix::rotate(-0.38,0,0,1) * osg::Matrix::translate(3,-1,0.3));}
 		if (use_koh){amos->place(osg::Matrix::rotate(-0.75,0,0,1) * osg::Matrix::translate(0.5,1.5,0.3));}
 
-
-		//controller = new AmosIIControl(1,false,false,false);//TripodGait18DOF();
 		// create wiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
@@ -226,10 +232,7 @@ public:
 		agent->init(controller, amos, wiring);
 
 		// Possibility to add tracking for robot
-
 		if (track) agent->setTrackOptions(TrackRobot(false, false, false, true, "", 60)); // Display trace
-
-
 
 		// inform global variable over everything that happened:
 		global.configs.push_back(amos);
@@ -341,6 +344,10 @@ public:
 			case 'q':  //increase modulatory input (frequency)
 				((AmosIIControl*) controller)->increaseFrequency();
 				break;
+			case 'r':
+				simulation_time_reached=true;
+				std::cout << "RESET" << endl;
+				break;
 			case 'p':  //print current position
 				printf("(x,y) = (%2.3f,%2.3f)\n",amos->getPosition().x,amos->getPosition().y);
 				break;
@@ -360,7 +367,7 @@ public:
 			case  '#':// select tetrapod gait
 				((AmosIIControl*) controller)->enableTetrapodGait();
 				break;
-			case  '@': // select wave
+			case  'w': // select wave
 				((AmosIIControl*) controller)->enableWaveGait();
 				break;
 			case  '!': // select tripod gait

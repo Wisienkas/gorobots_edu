@@ -19,14 +19,10 @@
 #include "utils/ann-library/adaptiveso2cpgsynplas.h"
 
 
-
-
 ModularNeuralControl::ModularNeuralControl(int cpg_option){
 
-
-  //Save files
-  outFilemlc.open("ModularNeuralControl.dat");
-
+	//Save files
+	outFilemlc.open("ModularNeuralControl.dat");
 
 	//touchF=false;
 	//phaseResetInhibitionIsEnabled=false;
@@ -262,9 +258,11 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 		outputNeurons[AmosIIMotorNames(i)]=pmn->getNeuron(AmosIIMotorNames(i));
 	}
 
+}
 
-
-};
+ModularNeuralControl::~ModularNeuralControl(){
+	outFilemlc.close();
+}
 
 void ModularNeuralControl::setInputNeuronInput(int input, double value)
 {
@@ -416,10 +414,10 @@ void ModularNeuralControl::step(int CPGID, vector< vector<double> > cCPGs, const
 			if (CPGID!=i)
 			{
 				oscillatorcouple0= 0.1*(1-cos(currentActivity.at(0)-cCPGs.at(i).at(0)-delta[CPGID][i]))
-                                        		 +sin(currentActivity.at(0)-cCPGs.at(i).at(0)-delta[CPGID][i]);
+                                        				 +sin(currentActivity.at(0)-cCPGs.at(i).at(0)-delta[CPGID][i]);
 
 				oscillatorcouple1= 0.1*(1-cos(currentActivity.at(1)-cCPGs.at(i).at(1)-delta[CPGID][i]))
-                                        		 +sin(currentActivity.at(1)-cCPGs.at(i).at(1)-delta[CPGID][i]);
+                                        				 +sin(currentActivity.at(1)-cCPGs.at(i).at(1)-delta[CPGID][i]);
 
 				activity0-=cnctCoeffMat[CPGID][i]*(oscillatorcouple0);
 

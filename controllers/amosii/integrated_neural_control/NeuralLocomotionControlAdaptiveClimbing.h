@@ -334,6 +334,7 @@ public:
 
 	int amosVersion;
 	unsigned int num_cpgs;
+	const int num_legpairs = 3;
 	bool MCPGs;
 	bool muscleModelIsEnabled;
 	int CPGID;

@@ -12,13 +12,7 @@
 #include "utils/ann-framework/ann.h"
 #include <ode_robots/amosiisensormotordefinition.h>
 #include <map>
-
-//Save files
-#include <iostream>
 #include <fstream>
-#include <string.h>
-//Save files
-
 using namespace std;
 
 // forward declarations
@@ -38,6 +32,7 @@ class ModularNeuralControl: public ANN {
 public:
 
 	ModularNeuralControl(int cpg_option);
+	~ModularNeuralControl();
 	double getCpgOutput(int output);
 	double getCpgActivity(int output);
 	double getpcpgOutput(int output);
@@ -78,12 +73,8 @@ public:
 	double ContactForceEffect1;
 	double ContactForceEffect0;
 
-
-
-  //Save files
-  ofstream outFilemlc;
-  //Save files
-
+	//Save files
+	ofstream outFilemlc;
 
 	/*************************************/
 

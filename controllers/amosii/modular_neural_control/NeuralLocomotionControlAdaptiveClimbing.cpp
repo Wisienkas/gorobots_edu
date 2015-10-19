@@ -275,11 +275,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		input.at(4) = in0[FR_us][1];
 	}
 
-
 	for(unsigned int i_cpg = 0; i_cpg < num_cpgs; i_cpg++){
 		for(unsigned int i_in = 0; i_in < input.size(); i_in++)
 			nlc.at(i_cpg)->setInputNeuronInput(i_in, input.at(i_in));
-
 
 		if(!MCPGs) // Single CPG is utilized
 			nlc.at(i_cpg)->step();
@@ -468,6 +466,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 		}
 		//
 		for (unsigned int i = CR0_m; i < (CR2_m + 1); i++) {
+
 			postcr.at(i) = cr_output.at(i%cr_output.size());//read(delay)
 		}
 		for (unsigned int i = CL0_m; i < (CL2_m + 1); i++) {
