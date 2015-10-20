@@ -5,17 +5,22 @@
  *      Author: giuliano
  */
 #include "getColorTrajectory.h"
+#include<sstream>
 
 int main(int argc, char* argv[])
 {
 
+  bool endVideo=false;
   vector<int> line1, line2, line3;
-  string path1,path2,path3;
+  string path1_x,path2_x,path3_x,path1_y,path2_y,path3_y;
+  string finalFrameColor1, finalFrameColor2, finalFrameColor3, finalFrameAllColors;
   VideoCapture cap("ExampleVideo.mp4"); // open the video file for reading
-  //VideoCapture cap("videoBeetle2.mp4"); // open the video file for reading
-  ofstream color1Trajectory,color2Trajectory,color3Trajectory;
-  getColorTrajectory color1, color2,color3;
 
+  ofstream color1Trajectory_x,color2Trajectory_x,color3Trajectory_x,color1Trajectory_y,color2Trajectory_y,color3Trajectory_y;
+  getColorTrajectory color1, color2,color3;
+  int countFrames=0;;
+  stringstream streamColor1, streamColor2, streamColor3, streamAllColors;
+  string filenameCol1, filenameCol2, filenameCol3, filenameAllColors;
   //SETTINGS//
 
   Size outputFrameSize(750,450);
@@ -24,27 +29,50 @@ int main(int argc, char* argv[])
   //if you set a small size, the contours detected will be too small
   //and therefore the centroids can't be computed.
 
+  bool saveLastFrame = true;
+  //true:youwill save the last frame as picture, you will have the
+  //picture with the final trajectory
+  //if trajectoriesInOneFrame is false, you will only have 3 pictures
+  //with individual trajectories
+  //if trajectoriesInOneFrame is true, you will have 3 pictures
+  //with individual trajectories and one picture with all the trajectories
+
+  //false: dont's save the final frame
+  finalFrameColor1="Color1Trajectory";
+  finalFrameColor2="Color2Trajectory";
+  finalFrameColor3="Color3TRajectory";
+  finalFrameAllColors="Trajectories";
+
+
+
   bool showVideo = false;
   //show video
   //the video that you updated will be shown
   //even if nothing is detected the video will still be shown
 
 
-  bool trajectoriesInOneFrame = true;
+  bool trajectoriesInOneFrame = false;
   //trajectories in one frame
   //false: each trajectory will be in one individual window
   //true:  each trajectory will be in one individual window, one additional window will
   //show all the trajectories together
 
-  bool printTrajectoriesToFiles=false;
+  bool printTrajectoriesToFiles=true;
   // print trajectories to file
   // false: trajectories will not be saved
   // true: trajectories will be saved in a file, you can set the path
 
   //choose the path where you want your trajectories to be saved
-  path1="";
-  path2="";
-  path3="";
+  //will be printed one file per each coordinate per trajectory
+  //the standard path will save the trajectories in the project folder
+  //remember to reload the folder(f5 on the folder name) to see the files
+  path1_x="color1_x.txt";
+  path2_x="color2_x.txt";
+  path3_x="color3_x.txt";
+  path1_y="color1_y.txt";
+  path2_y="color2_y.txt";
+  path3_y="color3_y.txt";
+
 
   //which colors you want to detect???
   //here you need to add minimum and maximum HSV values.
@@ -59,9 +87,7 @@ int main(int argc, char* argv[])
   color1.setColor(170,100,160,190,255,255);//red
   color2.setColor(15,100,100,40,255,255);//yellow
   color3.setColor(110,100,100,130,255,255);//blue
-  //color3.setColor(110,100,100,130,255,255);//green
-
-
+  //color3.setColor(50,100,100,70,255,255);//green
 
   //Which color you want to use for the trajectory?
   //Of course the best would be to use the same color as the detected one
@@ -76,14 +102,48 @@ int main(int argc, char* argv[])
   color3.setLineColor(255,0,0);//blue
   //color3.setLineColor(0,255,0);//green
 
+
   //SETTINGS
 
-  if(printTrajectoriesToFiles==true)
+  if(saveLastFrame==true)
   {
-    color1Trajectory.open(path1.c_str());
-    color2Trajectory.open(path2.c_str());
-    color3Trajectory.open(path3.c_str());
+
+    string type = ".jpg";
+
+    streamColor1<<finalFrameColor1<<type;
+    filenameCol1 = streamColor1.str();
+    streamColor1.str("");
+
+
+
+
+    streamColor2<<finalFrameColor2<<type;
+    filenameCol2 = streamColor2.str();
+    streamColor2.str("");
+
+
+
+
+    streamColor3<<finalFrameColor3<<type;
+    filenameCol3 = streamColor3.str();
+    streamColor3.str("");
+
+    if(trajectoriesInOneFrame==true)
+    {
+
+
+      streamAllColors<<finalFrameAllColors<<type;
+      filenameAllColors = streamAllColors.str();
+      streamAllColors.str("");
+
+    }
+
+
   }
+
+
+
+
 
   if ( !cap.isOpened() )
   {
@@ -98,13 +158,24 @@ int main(int argc, char* argv[])
 
     Mat frameColor1,frameColor2,frameColor3, frame, totalFrame, showVideoFrame;
 
+
+
     bool bSuccess = cap.read(frame); // read a new frame from video
+
+
+    if(frame.empty())
+    {
+
+      cout<< "endddddd";
+      break;
+    }
 
     if (!bSuccess) //if not success, break loop
     {
       cout << "Cannot read the frame from video file" << endl;
       break;
     }
+
 
     resize(frame, frame, outputFrameSize, 0, 0);//set image size
 
@@ -113,6 +184,9 @@ int main(int argc, char* argv[])
     frameColor3=frame.clone();
     totalFrame=frame.clone();
     showVideoFrame=frame.clone();
+
+
+
 
     //Drawing trajectories in individual frames
     color1.detectTrajectory(frameColor1);
@@ -145,9 +219,26 @@ int main(int argc, char* argv[])
     }
 
 
+    if(saveLastFrame==true)
+    {
+      if(color1.getTrajectory().size()>0)
+        imwrite(filenameCol1,frameColor1);
+
+      if(color2.getTrajectory().size()>0)
+        imwrite(filenameCol2,frameColor2);
+
+      if(color3.getTrajectory().size()>0)
+        imwrite(filenameCol3,frameColor3);
+
+      if(trajectoriesInOneFrame==true)
+      {
+        imwrite(filenameAllColors,totalFrame);
+
+      }
 
 
-    //
+    }
+
 
     if(trajectoriesInOneFrame==true)
       imshow("Trajectories", totalFrame);
@@ -171,19 +262,60 @@ int main(int argc, char* argv[])
     }
   }
 
-  if(printTrajectoriesToFiles=true)
-  {
-    for(int i=0;i<color1.getTrajectory().size();i++)
-      color1Trajectory << color1.getTrajectory().at(i).x << " "<< color1.getTrajectory().at(i).y << endl;
-    color1Trajectory.close();
 
-    for(int i=0;i<color2.getTrajectory().size();i++)
-      color2Trajectory << color2.getTrajectory().at(i).x << " "<<color2.getTrajectory().at(i).y << endl;
-    color2Trajectory.close();
-    for(int i=0;i<color3.getTrajectory().size();i++)
-      color3Trajectory << color3.getTrajectory().at(i).x << " "<< color3.getTrajectory().at(i).y << endl;
-    color3Trajectory.close();
+  if(printTrajectoriesToFiles==true)
+  {
+
+    if(color1.getTrajectory().size()>0)
+    {
+      color1Trajectory_x.open(path1_x.c_str());
+      color1Trajectory_y.open(path1_y.c_str());
+      for(int i=0;i<color1.getTrajectory().size();i++)
+      {
+        color1Trajectory_x << color1.getTrajectory().at(i).x << endl;
+        color1Trajectory_y << color1.getTrajectory().at(i).y << endl;
+      }
+
+      color1Trajectory_x.close();
+      color1Trajectory_y.close();
+    }
+
+
+
+
+    if(color2.getTrajectory().size()>0)
+    {
+      color2Trajectory_x.open(path2_x.c_str());
+      color2Trajectory_y.open(path2_y.c_str());
+      for(int i=0;i<color2.getTrajectory().size();i++)
+      {
+        color2Trajectory_x << color2.getTrajectory().at(i).x << endl;
+        color2Trajectory_y << color2.getTrajectory().at(i).y << endl;
+      }
+
+      color2Trajectory_x.close();
+      color2Trajectory_y.close();
+    }
+
+
+    if(color3.getTrajectory().size()>0)
+    {
+      color3Trajectory_x.open(path3_x.c_str());
+      color3Trajectory_y.open(path3_y.c_str());
+      for(int i=0;i<color3.getTrajectory().size();i++)
+      {
+        color3Trajectory_x << color3.getTrajectory().at(i).x << endl;
+        color3Trajectory_y << color3.getTrajectory().at(i).y << endl;
+      }
+
+      color3Trajectory_x.close();
+      color3Trajectory_y.close();
+    }
+
+
   }
+
+
 
 
   return 0;
