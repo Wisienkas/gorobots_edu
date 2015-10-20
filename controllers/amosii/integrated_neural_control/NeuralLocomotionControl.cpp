@@ -237,6 +237,7 @@ void NeuralLocomotionControl::init(int aamosVersion,bool mMCPGs,bool mMuscleMode
 	//Switch on soft landing  = reset to normal walking as  soon as acc error = 0
 	softlanding = false;
 
+	//Switch on or off obstacle avoidance
 	switchon_obstacle = false;
 
 	// lift_value determines how much the lift of AMOS is.
@@ -279,7 +280,7 @@ std::vector<double> NeuralLocomotionControl::step_nlc(const std::vector<double> 
 		input.at(4) = in0[FR_us][1];
 	}
 
-	if(turning){ 						   // keep it straight for obstacle negotiation
+	if(turning && switchon_backbonejoint){ 						   // keep it straight for obstacle negotiation
 		input.at(3)=-1.0 + 3.0*(inreflex.at(119));
 		input.at(4)=-1.0 - 3.0*(inreflex.at(119));
 		if(input.at(3)> 1.0)

@@ -1,5 +1,5 @@
 /*****************************************************************************
- *  Copyright (C) 2012 by Timo Nachstedt                                     *
+ *  Copyright (C) 2015 by Dennis Goldschmidt                                 *
  *                                                                           *
  *  This program is free software: you can redistribute it and/or modify     *
  *  it under the terms of the GNU General Public License as published by     *
@@ -17,61 +17,25 @@
  ****************************************************************************/
 
 
-#include "synapse.h"
+#ifndef FSM_H_
+#define FSM_H_
 
-#include "neuron.h"
-#include "ann.h"
+#include "utils/ann-framework/ann.h"
 
-Synapse::Synapse(Neuron * const apost, Neuron * const apre,
-    const bool& connect)
-: pre(apre), post(apost)
-{
-    if (connect)
-    {
-      pre->addSynapseOut(this);
-      post->addSynapseIn(this);
-    }
-    weight = 0;
-    delta_weight = 0;
-}
+/**
+ * Foot Contact Sensor Mapping Class
+ *
+ *
+ */
+class FSM : public ANN {
+public:
+    /**
+     * The constructor
+     *
+     * Sets synaptic weights and biases
+     */
+    FSM();
+};
 
-Synapse::~Synapse()
-{
-    if (pre) pre->removeSynapseOut(this);
-    if (post) post->removeSynapseIn(this);
-}
 
-const double& Synapse::getDeltaWeight() const
-{
-    return delta_weight;
-}
-
-Neuron* Synapse::getPost() const
-{
-    return post;
-}
-
-Neuron* Synapse::getPre() const
-{
-    return pre;
-}
-
-const double& Synapse::getWeight() const
-{
-    return weight;
-}
-
-void Synapse::setDeltaWeight(const double & aweight)
-{
-    delta_weight = aweight;
-}
-
-void Synapse::updateWeight()
-{
-    weight += delta_weight;
-}
-
-void Synapse::setWeight(const double & aweight)
-{
-    weight = aweight;
-}
+#endif /* FSM_H_ */

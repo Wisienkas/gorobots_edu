@@ -114,6 +114,16 @@ public:
     const double& getInput() const;
 
     /**
+     * Returns input scaling
+     *
+     * This method returns the input value of the neuron. The returned
+     * reference stays valid for the whole lifetime of the neuron.
+     *
+     * @return input value
+     */
+    const double& getInputScaling() const;
+
+    /**
      * Returns output
      *
      * This method returns the output value of the neuron. The returned
@@ -212,6 +222,15 @@ public:
     void setInput(const double& ainput);
 
     /**
+     * Sets the input scaling factor
+     *
+     * This method sets the input scaling factor of the neuron.
+     *
+     * @param ascale new scaling factor
+     */
+    void setInputScaling(const double& ascale);
+
+    /**
      * Sets the output
      *
      * This method sets the output value of the neuron.
@@ -269,6 +288,8 @@ private:
     double bias;
     /** input value of the neuron */
     double input;
+    /** input scaling of the neuron */
+    double input_scaling;
     /** back propagated error of the neuron */
     double error;
     /** external set error */

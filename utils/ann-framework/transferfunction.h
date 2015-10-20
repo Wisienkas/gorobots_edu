@@ -26,7 +26,7 @@
 #include <cmath>
 
 /**
- * Transer Function Class
+ * Transfer Function Class
  *
  * This class represents the general transfer function interface that can be
  * used by a neuron to update its output value. Every type of transfer function
@@ -123,6 +123,64 @@ class LinearFunction : public TransferFunction {
     double b;
 };
 
+/**
+ * Linear rectifier transfer function
+ *
+ * o(a) = m*a+b (if m*a+b > 0) 0 (else)
+ */
+class LinearThresholdFunction : public TransferFunction {
+public:
+    LinearThresholdFunction(const double& m=1, const double& b=0):m(m),b(b) {}
+    inline double operator()(const double& x) const {
+        if(m*x+b > 0)
+            return m*x+b;
+        else
+            return 0.;
+    }
+    inline double derivative(const double& x) const {
+      return m;
+    }
+    inline void setM(const double &am) {m=am;}
+    inline void setB(const double &ab) {b=ab;}
+    inline const double& getM() const{return m;}
+    inline const double& getB() const{return b;}
+  private:
+    double m;
+    double b;
+};
+
+/**
+ * Sign transfer function
+ *
+ */
+class SignFunction : public TransferFunction {
+  public:
+    SignFunction(const double& theta=1):theta(theta) {}
+    inline double operator()(const double& x) const {
+        if(x > theta)
+            return 1.0;
+        else if (x == theta)
+            return 0.0;
+        else
+            return -1.0;
+    }
+    inline double derivative(const double& x) const {
+      if (x==theta)
+        return INFINITY;
+      else
+        return 0.0;
+    }
+    inline void setTheta(const double &atheta) {theta=atheta;}
+    inline const double& getTheta() const{return theta;}
+  private:
+    double theta;
+
+};
+
+/**
+ * Heaviside transfer function
+ *
+ */
 class ThresholdFunction : public TransferFunction {
   public:
     ThresholdFunction(const double& theta=1):theta(theta) {}

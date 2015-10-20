@@ -60,6 +60,16 @@ public:
     ~Synapse();
 
     /**
+     * Returns synaptic weight change
+     *
+     * This method returns the weight change of this synapse. The reference stays
+     * valid for the whole lifetime of the synapse.
+     *
+     * @return synaptic weight change
+     */
+    const double& getDeltaWeight() const;
+
+    /**
      * Returns postsynaptic neuron
      *
      * @return pointer to the postsynaptic neuron
@@ -84,6 +94,15 @@ public:
     const double& getWeight() const;
 
     /**
+     * Sets synaptic weight change
+     *
+     * This method can be used to alter the change in weight of this synapse.
+     *
+     * @param aweight new synaptic weight change
+     */
+    void setDeltaWeight(const double& aweight);
+
+    /**
      * Sets synaptic weight
      *
      * This method can be used to alter the weight of this synapse.
@@ -91,6 +110,15 @@ public:
      * @param aweight new synaptic weight
      */
     void setWeight(const double& aweight);
+
+    /**
+     * Updates synaptic weight
+     *
+     * This method can be used to update the weight of this synapse due to plasticity.
+     *
+     */
+    void updateWeight();
+
 private:
     /** pointer to presynaptic neuron */
     Neuron * const pre;
@@ -98,6 +126,8 @@ private:
     Neuron * const post;
     /** synapse weight */
     double weight;
+    /** synaptic weight change */
+    double delta_weight;
 };
 
 #endif /* SYNAPSE_H_ */

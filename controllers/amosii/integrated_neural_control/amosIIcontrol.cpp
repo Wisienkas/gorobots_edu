@@ -59,6 +59,10 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 			addInspectableValue("CPG" + to_string(i_cpg),&locomotion_control->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
 		}
 	}
+	for(unsigned int i_leg = 0; i_leg < 6; i_leg++){
+		string lr = (i_leg<3) ? "R" : "L";
+		addInspectableValue("FCprepro" + to_string(i_leg),&preprocessing_learning.preprosensor.at(R0_fs+i_leg).at(0), lr + to_string(i_leg%3));
+	}
 
 	//Add edit parameter on terminal
 	Configurable::addParameter("cin", &locomotion_control->Control_input,  /*minBound*/ -10,  /*maxBound*/ 10, "test description" );
@@ -150,6 +154,29 @@ void AmosIIControl::enableIrregularGait()
 		locomotion_control->nlc.at(i)->changeGaitpattern(gaitPattern);
 	}
 	std::cout << "irregularEnable \n";
+}
+
+void AmosIIControl::flipBJCbool(){
+	locomotion_control->switchon_backbonejoint = !(locomotion_control->switchon_backbonejoint);
+	printf("BJC: %s\n", locomotion_control->switchon_backbonejoint ? "ON" : "OFF");
+	if(locomotion_control->switchon_backbonejoint && locomotion_control->switchon_obstacle){
+		printf("Obstacle avoidance cannot run simultaneously.\n");
+		flipOAbool();
+	}
+}
+
+void AmosIIControl::flipOAbool(){
+	locomotion_control->switchon_obstacle = !(locomotion_control->switchon_obstacle);
+	printf("Obstacle avoidance: %s\n", locomotion_control->switchon_obstacle ? "ON" : "OFF");
+	if(locomotion_control->switchon_backbonejoint && locomotion_control->switchon_obstacle){
+		printf("BJC cannot run simultaneously.\n");
+		flipBJCbool();
+	}
+}
+
+void AmosIIControl::flipReflexesbool(){
+	locomotion_control->switchon_reflexes = !(locomotion_control->switchon_reflexes);
+	printf("Reflexes: %s\n", locomotion_control->switchon_reflexes ? "ON" : "OFF");
 }
 
 void AmosIIControl::init(int sensornumber, int motornumber, RandGen* randGen) {

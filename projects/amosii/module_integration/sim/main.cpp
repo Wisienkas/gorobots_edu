@@ -90,7 +90,7 @@ double cam_angle[3] = {178.866, -7.43884, 0}; // Camera look-to position (angle)
 //int cam_mode = 0;                             // Camera mode (0: Static, 1: Follow, 2: TV, 3: Race)
 
 /// Environment options
-bool single_obstacle = true;
+bool single_obstacle = false;
 double obstacle_height = 0.12;  // in [m]
 bool stairs = false;
 bool use_koh = false;           // kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
@@ -103,10 +103,13 @@ bool use_broadusangle=false;    // for avoiding obstacles
 bool track = true;              // write tracking file
 
 /// Controller options
-int use_amosii_v = 2;
-bool use_mCPG = true;
-bool use_navi = false;
-bool use_muscles = false;
+int use_amosii_v           = 2;
+bool use_mCPG              = true;
+bool use_navi              = false;
+bool use_muscles           = false;
+bool use_bjc               = true;
+bool use_reflexes          = true;
+bool use_obstacleavoidance = false;
 ///////////////////////End of bool variables of different functions
 
 
@@ -210,6 +213,11 @@ public:
 			myAmosIIConf.usAngleX=0.7; //set Angle of the US sensors, they should cover the robots width
 		}
 
+		if(!use_bjc)
+			((AmosIIControl*) controller)->flipBJCbool();
+		if(!use_reflexes)
+			((AmosIIControl*) controller)->flipReflexesbool();
+
 		//amos= new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), myAmosIIConf, "AmosII");
 
 		// define the usage of the individual legs
@@ -244,15 +252,6 @@ public:
 	/**************************Reset Function***************************************************************/
 	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
 	{
-		if(((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9)
-			printf("BUMP\tRho1 [R] = %2.6f\tRho1 [L] = %2.6f\n", ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25), ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26));
-		if(distance() > max_distance){
-			printf("SUCCESS\tRho1 [R] = %2.6f\tRho1 [L] = %2.6f\n", ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25), ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26));
-			success_counter++;
-		}
-		if(globalData.sim_step > 60000)
-			printf("TIME\tRho1 [R] = %2.6f\tRho1 [L] = %2.6f\n", ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25), ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26));
-
 		// ADD:: Unit test
 		//if (step_limit >0 and globalData.sim_step > step_limit)
 		printf("N(success) = %u\n",success_counter);
@@ -335,11 +334,17 @@ public:
 			int key, bool down) {
 		if (down) { // only when key is pressed, not when released
 			switch (char(key)) {
+			case 'b': //switch on/off backbone joint control
+				((AmosIIControl*) controller)->flipBJCbool();
+				break;
 			case 'C': //enable sensory feedback mechanism
 				((AmosIIControl*) controller)->enableContactForceMech();
 				break;
 			case  'c':  //disable sensory feedback mechanism
 				((AmosIIControl*) controller)->disableContactForceMech();
+				break;
+			case 'o':  //switch on/off obstacle avoidance
+				((AmosIIControl*) controller)->flipOAbool();
 				break;
 			case 'q':  //increase modulatory input (frequency)
 				((AmosIIControl*) controller)->increaseFrequency();
@@ -401,47 +406,7 @@ public:
 		if (globalData.sim_step >= 0 && globalData.sim_step%10==0) //a small delay to make sure the robot will not restart at beginning!
 		{
 			if(globalData.sim_step%100==0)
-				amos_pos << currentCycle << "\t" << 0.01*total_tstep << "\t" << amos->getPosition().x << "\t" << amos->getPosition().y << "\t" << ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) << "\t" << ((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) << endl;
-			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
-					&& ((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9) {
-				((AmosIIControl*) controller)->preprocessing_learning.ir_predic_output.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_predic_output.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_reflex_output.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_reflex_output.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.irlearn_output_prolong.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.irlearn_output_prolong.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(25)->Reset();
-				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(26)->Reset();
-
-				//TODO Reset function BJC
-				((AmosIIControl*) controller)->locomotion_control->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->locomotion_control->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->locomotion_control->m.at(BJ_m) = 0.0;
-				//((AmosIIControl*) controller)->locomotion_control->switchon_backbonejoint = false;
-
-				simulation_time_reached = true;
-			}
-
-			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
-					&& (distance() > max_distance || globalData.sim_step > 60000)) {
-
-				((AmosIIControl*) controller)->preprocessing_learning.ir_predic_output.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_predic_output.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_reflex_output.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.ir_reflex_output.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.irlearn_output_prolong.at(25) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.irlearn_output_prolong.at(26) = 0.0;
-				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(25)->Reset();
-				((AmosIIControl*) controller)->preprocessing_learning.us_delayline.at(26)->Reset();
-
-				//TODO Reset function BJC
-				((AmosIIControl*) controller)->locomotion_control->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->locomotion_control->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->locomotion_control->m.at(BJ_m) = 0.0;
-				//((AmosIIControl*) controller)->locomotion_control->switchon_backbonejoint = false;
-
-				simulation_time_reached = true;
-			}
+				amos_pos << currentCycle << "\t" << 0.01*total_tstep << "\t" << amos->getPosition().x << "\t" << amos->getPosition().y  << endl;
 		}
 		total_tstep++;
 		//-----------------------------------------------------------------------------------

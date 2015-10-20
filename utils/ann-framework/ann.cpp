@@ -33,12 +33,22 @@ LogisticFunction const * const ANN::logisticFunctionPointer =
         new LogisticFunction();
 LinearFunction const * const ANN::identityFunctionPointer =
     new LinearFunction(1,0);
+LinearThresholdFunction const * const ANN::linthresFunctionPointer =
+    new LinearThresholdFunction(1.,0.);
+SignFunction const * const ANN::signFunctionPointer =
+    new SignFunction(0.9);
 ThresholdFunction const * const ANN::thresholdFunctionPointer =
     new ThresholdFunction(0.9);
 
 
 ANN::ANN()
 {
+    setDefaultTransferFunction(tanhFunctionPointer);
+}
+
+ANN::ANN(int numneurons)
+{
+    setNeuronNumber(numneurons);
     setDefaultTransferFunction(tanhFunctionPointer);
 }
 
@@ -118,6 +128,21 @@ std::string ANN::dumpWeights()
   return str.str();
 }
 
+void ANN::dw(const int& post, const int& pre, const double& aweight)
+{
+    setDeltaWeight(post, pre, aweight);
+}
+
+void ANN::dw(Neuron* post, Neuron* pre, const double& aweight)
+{
+    setDeltaWeight(post, pre, aweight);
+}
+
+
+const double ANN::dw(const int& post, const int& pre)
+{
+    return getDeltaWeight(post, pre);
+}
 
 void ANN::feedForwardStep()
 {
@@ -181,6 +206,35 @@ TransferFunction const* ANN::getDefaultTransferFunction() const
     return defaultTransferFunction;
 }
 
+const double ANN::getDeltaWeight(const int& post, const int& pre) const
+{
+    return getDeltaWeight(neurons[post], neurons[pre]);
+}
+
+const double ANN::getDeltaWeight(Neuron const * post, Neuron const * pre) const
+{
+    Synapse * synapse = post->getSynapseFrom(pre);
+    return synapse->getDeltaWeight();
+}
+
+const double& ANN::getInput(const int neuron) const
+{
+    return getInput(neurons[neuron]);
+}
+const double& ANN::getInput(Neuron const * neuron)
+{
+    return neuron->getInput();
+}
+
+const double& ANN::getInputScaling(const int neuron) const
+{
+    return getInputScaling(neurons[neuron]);
+}
+const double& ANN::getInputScaling(Neuron const * neuron)
+{
+    return neuron->getInputScaling();
+}
+
 Neuron* ANN::getNeuron(unsigned int const index)
 {
     return neurons[index];
@@ -199,6 +253,11 @@ const double& ANN::getOutput(const int neuron) const
 const double& ANN::getOutput(Neuron const * neuron)
 {
     return neuron->getOutput();
+}
+
+ANN* ANN::getSubnet(unsigned int const index)
+{
+    return subnets[index];
 }
 
 Synapse* ANN::getSynapse(const unsigned int& post, const unsigned int& pre)
@@ -249,8 +308,8 @@ LinearFunction const * const ANN::identityFunction() {
     return identityFunctionPointer;
 }
 
-ThresholdFunction const * const ANN::thresholdFunction() {
-    return thresholdFunctionPointer;
+LinearThresholdFunction const * const ANN::linthresholdFunction() {
+    return linthresFunctionPointer;
 }
 
 LogisticFunction const * const ANN::logisticFunction() {
@@ -313,6 +372,18 @@ void ANN::setDefaultTransferFunction(TransferFunction const * const func)
     defaultTransferFunction = func;
 }
 
+void ANN::setDeltaWeight(Neuron* post, Neuron* pre, const double dweight)
+{
+    Synapse * synapse = post->getSynapseFrom(pre);
+    if (synapse == NULL) synapse = addSynapse(post, pre);
+    synapse->setDeltaWeight(dweight);
+}
+
+void ANN::setDeltaWeight(const int post, const int pre, const double dweight)
+{
+    setDeltaWeight(neurons[post], neurons[pre], dweight);
+}
+
 void ANN::setInput(const int& neuron, const double& ainput)
 {
     setInput(neurons[neuron], ainput);
@@ -321,6 +392,16 @@ void ANN::setInput(const int& neuron, const double& ainput)
 void ANN::setInput(Neuron* neuron, const double ainput)
 {
     neuron->setInput(ainput);
+}
+
+void ANN::setInputScaling(const int& neuron, const double& ascale)
+{
+    setInputScaling(neurons[neuron], ascale);
+}
+
+void ANN::setInputScaling(Neuron* neuron, const double ascale)
+{
+    neuron->setInputScaling(ascale);
 }
 
 void ANN::setOutput(const int& neuron, const double& aoutput)
@@ -343,10 +424,6 @@ void ANN::setNeuronNumber(const unsigned int& anumber)
     {
         addNeuron();
     }
-}
-
-TanhFunction const * const ANN::tanhFunction() {
-    return tanhFunctionPointer;
 }
 
 void ANN::setTransferFunction(const int neuron,
@@ -374,12 +451,24 @@ void ANN::setWeight(const int post, const int pre, const double weight)
     setWeight(neurons[post], neurons[pre], weight);
 }
 
+SignFunction const * const ANN::signFunction() {
+    return signFunctionPointer;
+}
+
 void ANN::step()
 {
     updateActivities();
-    updateWeights();
     updateOutputs();
+    updateWeights();
     postProcessing();
+}
+
+TanhFunction const * const ANN::tanhFunction() {
+    return tanhFunctionPointer;
+}
+
+ThresholdFunction const * const ANN::thresholdFunction() {
+    return thresholdFunctionPointer;
 }
 
 void ANN::updateActivities()
@@ -455,6 +544,8 @@ bool ANN::updateTopologicalSort()
 
 void ANN::updateWeights()
 {
+    for (unsigned int syn_ind = 0; syn_ind < getAllSynapses().size(); syn_ind++)
+        getAllSynapses().at(syn_ind)->updateWeight();
     for (AnnList::iterator it=subnets.begin(); it!=subnets.end(); it++)
     {
         (*it)->updateWeights();

@@ -47,6 +47,13 @@ public:
     ANN();
 
     /**
+     * The constructor.
+     *
+     * \param numneurons Number of neurons
+     */
+    ANN(int numneurons);
+
+    /**
      * The destructor.
      */
     virtual ~ANN();
@@ -56,6 +63,40 @@ public:
     std::string dumpBiases();
 
     std::string dumpWeights();
+
+    /**
+     * Sets the synaptic weight change between two neurons of this network
+     *
+     * This method is an abbreviation of ANN::setDeltaWeight(int,int,double).
+     *
+     * @param post    index of the postsynaptic neuron
+     * @param pre     index of the presynaptic neuron
+     * @param aweight new weight change of the synapse
+     */
+    void dw(const int& post, const int& pre, const double& aweight);
+
+    /**
+     * Sets the synaptic weight change between any two neurons
+     *
+     * This method is an abbreviation of
+     * ANN::setDeltaWeight(Neuron*,Neuron*,double).
+     *
+     * @param post    pointer to the postsynaptic neuron
+     * @param pre     pointer to the presynaptic neuron
+     * @param aweight new weight change of the synapse
+     */
+    void dw(Neuron* post, Neuron* pre, const double& aweight);
+
+    /**
+     * Returns the weight change of a synapse between two neurons of this network
+     *
+     * This method is an abbreviation of ANN::getDeltaWeight(int,int).
+     *
+     * @param post index of the postsynaptic neuron
+     * @param pre  index of the presynaptic neuron
+     * @return synaptic weight change or 0 if weight constant
+     */
+    const double dw(const int& post, const int& pre);
 
     void feedForwardStep();
 
@@ -133,6 +174,88 @@ public:
     TransferFunction const* getDefaultTransferFunction() const;
 
     /**
+     * Returns the weight change of the synapse between two neurons of this network
+     *
+     * This method returns the weight change of the synapse between two neurons defined
+     * by their indexes or 0 if the synapse is constant. This only works for
+     * neurons directly belonging to this network. If you want to retrieve
+     * synaptic weight changes between neurons of different or sub networks you have to
+     * use ANN::getDeltaWeight(Neuron*, Neuron*).
+     *
+     * @param post index of the postsynaptic neuron
+     * @param pre  index of the presynaptic neuron
+     * @post weight change of the synapse (or 0 if constant)
+     */
+    const double getDeltaWeight(const int& post, const int& pre) const;
+
+    /**
+     * Returns the weight of the synapse between any two neurons
+     *
+     * This method returns the weight change of the synapse between the two given
+     * neurons or 0 if the synapse is constant. For neurons directly belonging
+     * to the same network you can as well use ANN::getDeltaWeight(int, int).
+     *
+     * @param post pointer to the postsynaptic neuron
+     * @param pre  pointer to the presynaptic neuron
+     * @return weight change of the synapse (or 0 if constant)
+     */
+    const double getDeltaWeight(Neuron const * post, Neuron const * pre) const;
+
+    /**
+     * Returns the input of the neuron with the given number
+     *
+     * This method can be used to get the input value of the neuron with
+     * the given number directly belonging to this network. You cannot access
+     * the input values of neurons of other networks or subnetworks with this
+     * method. If this is necessary use the method of the specific network
+     * or ANN::getInput(Neuron*) with a pointer to the desired neuron
+     * instead.
+     *
+     * @param neuron index of the neuron
+     * @return input value
+     */
+    const double& getInput(const int neuron) const;
+
+    /**
+     * Returns the input of the given neuron
+     *
+     * You can use this function to retrieve the input of any neuron without
+     * having to include the neuron.h header file. If you don't mind including
+     * the additional header you can as well use Neuron::getInput().
+     *
+     * @param neuron pointer to the neuron
+     * @return input value
+     */
+    static const double& getInput(Neuron const * neuron);
+
+    /**
+     * Returns the input scaling of the neuron with the given number
+     *
+     * This method can be used to get the input value of the neuron with
+     * the given number directly belonging to this network. You cannot access
+     * the input values of neurons of other networks or subnetworks with this
+     * method. If this is necessary use the method of the specific network
+     * or ANN::getInput(Neuron*) with a pointer to the desired neuron
+     * instead.
+     *
+     * @param neuron index of the neuron
+     * @return input value
+     */
+    const double& getInputScaling(const int neuron) const;
+
+    /**
+     * Returns the input scaling of the given neuron
+     *
+     * You can use this function to retrieve the input of any neuron without
+     * having to include the neuron.h header file. If you don't mind including
+     * the additional header you can as well use Neuron::getInput().
+     *
+     * @param neuron pointer to the neuron
+     * @return input value
+     */
+    static const double& getInputScaling(Neuron const * neuron);
+
+    /**
      * Returns a pointer to the neuron with the given number
      *
      * This method can be used to get direct access to a neuron belonging to
@@ -182,6 +305,17 @@ public:
      * @return output value
      */
     static const double& getOutput(Neuron const * neuron);
+
+    /**
+     * Returns a pointer to the subnet with the given number
+     *
+     * This method can be used to get direct access to a subnet belonging to
+     * this network.
+     *
+     * @param index index of the subnet
+     * @return pointer to the subnet
+     */
+    ANN* getSubnet(unsigned int const index);
 
     /**
      * Returns synapse between two neurons of this network
@@ -270,11 +404,11 @@ public:
     static LinearFunction const * const identityFunction();
 
     /**
-     * Return pointer to a threshold function object
+     * Return pointer to a linear threshold function object
      *
-     * @return pointer to threshold function object
+     * @return pointer to linear threshold function object
      */
-    static ThresholdFunction const * const thresholdFunction();
+    static LinearThresholdFunction const * const linthresholdFunction();
 
     /**
      * Return pointer to a LogisticFunction object
@@ -395,6 +529,33 @@ public:
     void setDefaultTransferFunction(TransferFunction const * const func);
 
     /**
+     * Sets the weight change of the synapse between any two neurons
+     *
+     * Use this method to set the weight change of the synapse between any two given
+     * neurons. The neurons do not have to belong to the same network.
+     * For neurons directly belonging to the same network you can as
+     * well use ANN::setDeltaWeight(int, int, double).
+     *
+     * @param post   pointer to the postsynaptic neuron
+     * @param pre    pointer to the presynaptic neuron
+     * @param weight new weight change of the synapse
+     */
+    static void setDeltaWeight(Neuron* post, Neuron* pre, const double dweight);
+
+    /**
+     * Sets the weight change of the synapse between two neurons of this network
+     *
+     * Use this method to set the weight change of the synapse between the neurons
+     * with the defined indexes of this network. For belonging to different
+     * networks use ANN::setDeltaWeight(Neuron*, Neuron*, double).
+     *
+     * @param post   index of the postsynaptic neuron
+     * @param pre    index of the presynaptic neuron
+     * @param weight new weight change of the synapse
+     */
+    void setDeltaWeight(const int post, const int pre, const double dweight);
+
+    /**
      * Sets the input of the neuron with the given index
      *
      * This method can be used to set the external input to the neuron with the
@@ -420,6 +581,33 @@ public:
      * @param ainput new input value
      */
     static void setInput(Neuron * neuron, const double ainput);
+
+    /**
+     * Sets the input scaling factor of the neuron with the given index
+     *
+     * This method can be used to set the input scaling to the neuron with the
+     * given index directly belonging to this network. You cannot set the input
+     * values of neurons of other networks or subnetworks with this method. If
+     * this is necessary use the method of the specific network or
+     * ANN::setInput(Neuron*,double) with a pointer to the desired neuron
+     * instead.
+     *
+     * @param neuron index of the neuron
+     * @param ascale new scaling factor
+     */
+    void setInputScaling(const int& neuron, const double& ascale);
+
+    /**
+     * Sets the input scaling factor of the given neuron
+     *
+     * You can use this function to set the input scaling of any neuron without
+     * having to include the neuron.h header file. If you don't mind including
+     * the additional header you can as well use Neuron::setInput(double).
+     *
+     * @param neuron pointer to the neuron
+     * @param ascale new scaling factor
+     */
+    static void setInputScaling(Neuron * neuron, const double ascale);
 
     /**
      * Sets the output of the neuron with the given index
@@ -510,6 +698,13 @@ public:
     void setWeight(const int post, const int pre, const double weight);
 
     /**
+     * Returns pointer to a SignFunction object
+     *
+     * @return pointer to SignFunction object
+     */
+    static SignFunction const * const signFunction();
+
+    /**
      * Does one simulation step
      *
      * This a convenience function which calls the following functions in the
@@ -526,6 +721,13 @@ public:
      * @return pointer to TanhFunction object
      */
     static TanhFunction const * const tanhFunction();
+
+    /**
+     * Return pointer to a threshold function object
+     *
+     * @return pointer to threshold function object
+     */
+    static ThresholdFunction const * const thresholdFunction();
 
     /**
      * Updates neuron activities
@@ -685,11 +887,17 @@ private:
     // f(x) = x
     static LinearFunction const * const identityFunctionPointer;
 
+    // f(x) = x (x > threshold) else 0
+    static LinearThresholdFunction const * const linthresFunctionPointer;
+
+    // f(x) = 1 (x > threshold) else -1
+    static SignFunction const * const signFunctionPointer;
+
     // f(x) = 1 (x > threshold) else 0
     static ThresholdFunction const * const thresholdFunctionPointer;
 
     typedef std::vector <Neuron*>   NeuronList;
-    typedef std::list <ANN*>        AnnList;
+    typedef std::vector <ANN*>        AnnList;
     NeuronList              neurons;
     AnnList                 subnets;
     TransferFunction const* defaultTransferFunction;

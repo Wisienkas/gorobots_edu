@@ -72,6 +72,9 @@ class AmosIIControl : public AbstractController {
     void enableWaveGait();
     void enableIrregularGait();
 
+    void flipBJCbool();
+    void flipOAbool();
+    void flipReflexesbool();
 
     double sigmoid(double num) {
       return 1.0 / (1.0 + exp(-num));

@@ -30,13 +30,14 @@ TanhFunction const * const Neuron::tanhFunction = new TanhFunction();
 
 Neuron::Neuron()
 {
-    activity   = 0;
-    output     = 0;
-    bias       = 0;
-    input      = 0;
-    error      = 0;
-    errorInput = 0;
-    func       = tanhFunction;
+    activity      = 0;
+    output        = 0;
+    bias          = 0;
+    input         = 0;
+    input_scaling = 1;
+    error         = 0;
+    errorInput    = 0;
+    func          = tanhFunction;
 }
 
 Neuron::~Neuron()
@@ -73,6 +74,11 @@ const double& Neuron::getError() const
 const double& Neuron::getInput() const
 {
     return input;
+}
+
+const double& Neuron::getInputScaling() const
+{
+    return input_scaling;
 }
 
 const double& Neuron::getOutput() const
@@ -146,6 +152,11 @@ void Neuron::setInput(double const & ainput)
     input = ainput;
 }
 
+void Neuron::setInputScaling(double const & ascale)
+{
+    input_scaling = ascale;
+}
+
 void Neuron::setOutput(const double& aoutput)
 {
     output = aoutput;
@@ -156,10 +167,9 @@ void Neuron::setTransferFunction(TransferFunction const * const afunction)
     func = afunction;
 }
 
-
 void Neuron::updateActivity()
 {
-    double newActivity = bias + input;
+    double newActivity = bias + input_scaling * input;
     for (SynapseList::iterator it = synapsesIn.begin(); it != synapsesIn.end(); it++)
     {
         newActivity += it->second->getWeight() * it->first->getOutput();
