@@ -90,8 +90,8 @@ double cam_angle[3] = {178.866, -7.43884, 0}; // Camera look-to position (angle)
 //int cam_mode = 0;                             // Camera mode (0: Static, 1: Follow, 2: TV, 3: Race)
 
 /// Environment options
-bool single_obstacle = false;
-double obstacle_height = 0.12;  // in [m]
+bool single_obstacle = true;
+double obstacle_height = 0.10;  // in [m]
 bool stairs = false;
 bool use_koh = false;           // kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
 bool use_box = false;           // sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.

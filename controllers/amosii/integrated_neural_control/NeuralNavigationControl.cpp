@@ -10,7 +10,7 @@ using namespace std;
 
 
 NeuralNavigationControl::NeuralNavigationControl(bool navi_opt){
-	navi_output.resize(1);
+	steering_command = 0;
 	navi_on = navi_opt;
 	pi_only = false;
 	global_count = 0;
@@ -26,15 +26,15 @@ double NeuralNavigationControl::getNormalRandom(double mean, double std){
 	return d(e);
 }
 
-vector<double> NeuralNavigationControl::step(){
+double NeuralNavigationControl::step_nnc(const vector<double> in_sensors, const vector< vector<double> > in_prepro){
 	if(!navi_on)
-		return navi_output;
+		return steering_command;
 
 	if(global_count%turn_interval == 0)
 		rand_dir = getNormalRandom(0.0, 1.0);
 
-	navi_output.at(0) = rand_dir;
+	steering_command = rand_dir;
 
 	global_count++;
-	return navi_output;
+	return steering_command;
 }

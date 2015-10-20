@@ -21,11 +21,12 @@ class NeuralNavigationControl {
 public:
 	NeuralNavigationControl(bool navi_opt);
 	~NeuralNavigationControl();
-	vector<double> step();
 	double getNormalRandom(double mean, double std);
+	double step_nnc(const vector<double> in_sensors, const vector< vector<double> > in_prepro);
+	double steering_command; // output signal of controller
+
 
 private:
-	vector<double> navi_output;
 	bool navi_on;
 	bool pi_only;
 	double rand_dir;

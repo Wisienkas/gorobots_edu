@@ -42,6 +42,7 @@
 #include "NeuralPreprocessingLearning.h"
 #include "NeuralNavigationControl.h"
 #include "NeuralLocomotionControl.h"
+#include "MuscleModel.h"
 
 
 /**
@@ -56,9 +57,9 @@ class AmosIIControl : public AbstractController {
     *1) selection between AMOSv1 (aAMOStype=1) and AMOSv2 (aAMOStype=2). [DEFAULT = 2]
     *2) selection between single CPG-based controller (mMCPGs=false) and Multiple CPGs-based control (mMCPGs=true). [DEFAULT = false]
     *3) possibility to utilize muscle model (mMuscleModelisEnabled=true). [DEFAULT = false]
-    *4) selection between integrated navigation controller (mNNC=true) and pure locomotion controller (mNNC=false). [DEFAULT = false]
+    *4) selection between navigation controller (mNNC=true) and locomotion controller (mNNC=false). [DEFAULT = false]
     * */
-    AmosIIControl(int aAMOStype=2, bool mMCPGs=false, bool mMuscleModelisEnabled=false/*, bool mNNC=false*/);
+    AmosIIControl(int aAMOStype=2, bool mMCPGs=false, bool mMuscleModelisEnabled=false, bool mNNC=false);
     virtual ~AmosIIControl();
     virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
     void enableContactForceMech();
@@ -126,23 +127,21 @@ class AmosIIControl : public AbstractController {
     //Adding more sensory inputs here
 
 
-    //1) Neural preprocessing and learning------------
+    /// (1) Neural preprocessing and learning------------
 
     NeuralPreprocessingLearning preprocessing_learning;
 
-    //2) Neural locomotion control------
+    /// (2) Neural navigation control------
+
+    NeuralNavigationControl* navigation_control;
+
+    /// (3) Neural locomotion control------
 
     NeuralLocomotionControl* locomotion_control;
 
-    /**********End ****************/
+    /// (4) Muscle model   ----------------
 
-    //3) Motor postprocessing/scaling   ----------------
-
-    //4) Any other parameters   ----------------
-
-    //End ADD YOUR VARIABLE HERE//
-
-
+    MuscleModel* virtual_muscle_model;
 
   private:
     bool MCPGs; //indicates whether the controller is based on Multiple CPGs or a single CPG.

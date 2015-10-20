@@ -34,7 +34,7 @@
 using namespace matrix;
 using namespace std;
 
-AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEnabled) : AbstractController("AmosIIControl", "$Id: amosIIcontrol.cpp,v 0.1 $") {
+AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEnabled, bool mNNC) : AbstractController("AmosIIControl", "$Id: amosIIcontrol.cpp,v 0.1 $") {
 
 	//---ADD YOUR initialization here---//
 	t = 0; // step counter
@@ -45,23 +45,26 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 		num_cpgs = 1;
 
 	locomotion_control = new NeuralLocomotionControl(aAMOSversion, mMCPGs, mMuscleModelisEnabled/*, mNNC*/);
+	navigation_control = new NeuralNavigationControl(mNNC);
 
+	/// Plot preprocessing & learning signals
+	for(unsigned int i_leg = 0; i_leg < 6; i_leg++){
+		string lr = (i_leg<3) ? "R" : "L";
+		addInspectableValue("FCprepro" + to_string(i_leg),&preprocessing_learning.preprosensor.at(R0_fs+i_leg).at(0), lr + to_string(i_leg%3));
+	}
+
+	/// Plot navigation signals
+	addInspectableValue("NavigationOutput",&navigation_control->steering_command, "NavigationOutput");
+
+	/// Plot locomotion signals
 	if(MCPGs==true)
 	{
 		// press Ctrl M to display matrix
 		for(unsigned int i_cpg = 0; i_cpg < num_cpgs; i_cpg++){
-/*			string numstr; // enough to hold all numbers up to 64-bits
-			sprintf(numstr, " [%u]", i_cpg);
-			string numstr_lr; // enough to hold all numbers up to 64-bits
-			sprintf(numstr_lr, "%u", i_cpg%3);*/
 			string lr = (i_cpg<3) ? "R" : "L";
 			addInspectableValue("CPG" + to_string(i_cpg),&locomotion_control->cpg_output.at(i_cpg).at(0), lr + to_string(i_cpg%3) + "_0");	//to_string() is C++11
 			addInspectableValue("CPG" + to_string(i_cpg),&locomotion_control->cpg_output.at(i_cpg).at(1), lr + to_string(i_cpg%3) + "_1");
 		}
-	}
-	for(unsigned int i_leg = 0; i_leg < 6; i_leg++){
-		string lr = (i_leg<3) ? "R" : "L";
-		addInspectableValue("FCprepro" + to_string(i_leg),&preprocessing_learning.preprosensor.at(R0_fs+i_leg).at(0), lr + to_string(i_leg%3));
 	}
 
 	//Add edit parameter on terminal
@@ -204,10 +207,14 @@ void AmosIIControl::step(const sensor* x_, int number_sensors, motor* y_, int nu
 
 	std::vector <vector<double> > x_prep = preprocessing_learning.step_npp(x);
 
+	/**********   2) Neural locomotion control   **********/
+
+	double steering_signal = navigation_control->step_nnc(x, x_prep);
+
 
 	/**********   3) Neural locomotion control   **********/
 
-	y = locomotion_control->step_nlc(x, x_prep,false);
+	y = locomotion_control->step_nlc(x, x_prep, steering_signal, false);
 
 
 	 /****************   4) Motor outputs   ****************/

@@ -99,7 +99,7 @@ public:
 	}
 
 
-	vector<double> step_nlc(const vector<double> inreflex, const vector< vector<double> > in0, bool Footinhibition=false);
+	vector<double> step_nlc(const vector<double> inreflex, const vector< vector<double> > in0, double in_navi, bool Footinhibition=false);
 	// if several sensor values (like preprocessed or output of memory and learning are used, extend parameters)
 	// vector<double> step_nlc(const vector<double> in0, const vector<double> in1, const vector<double> in2);
 

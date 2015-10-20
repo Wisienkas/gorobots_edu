@@ -269,7 +269,7 @@ NeuralLocomotionControl::~NeuralLocomotionControl() {
 
 
 std::vector<double> NeuralLocomotionControl::step_nlc(const std::vector<double> inreflex,
-		const std::vector< vector<double> > in0, bool Footinhibition) {
+		const std::vector< vector<double> > in0, double in_navi, bool Footinhibition) {
 
 	/*******************************************************************************
 	 *  MODULE 1 NEURAL LOCOMOTION CONTROL (ANN framework)
