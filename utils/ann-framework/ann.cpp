@@ -299,6 +299,11 @@ const double ANN::getWeight(Neuron const * post, Neuron const * pre) const
 
 }
 
+unsigned int ANN::N() const
+{
+    return getTotalNeuronNumber();
+}
+
 Neuron* ANN::n(unsigned int const index)
 {
     return getNeuron(index);

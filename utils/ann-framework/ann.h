@@ -49,7 +49,7 @@ public:
     /**
      * The constructor.
      *
-     * \param numneurons Number of neurons
+     * @param numneurons Number of neurons
      */
     ANN(int numneurons);
 
@@ -184,7 +184,7 @@ public:
      *
      * @param post index of the postsynaptic neuron
      * @param pre  index of the presynaptic neuron
-     * @post weight change of the synapse (or 0 if constant)
+     * @return weight change of the synapse (or 0 if constant)
      */
     const double getDeltaWeight(const int& post, const int& pre) const;
 
@@ -416,6 +416,19 @@ public:
      * @return pointer to LogisticFunction object
      */
     static LogisticFunction const * const logisticFunction();
+
+    /**
+     * Returns the number of neurons of this network including sub networks
+     *
+     * This method returns the number of neurons belonging to this
+     * network and all of its sub networks (and their sub networks and so
+     * on...). Use ANN::getNeuronNumber() instead if you only want to know the
+     * number of neurons belonging directly to this network (without considering
+     * sub networks).
+     *
+     * @return number of neurons
+     */
+    unsigned int N() const;
 
     /**
      * Returns a pointer to the neuron with the given number

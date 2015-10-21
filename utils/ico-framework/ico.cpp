@@ -108,7 +108,7 @@ void ICO::setPredictiveNeuronInput(const int& index, const double& value){
 
 void ICO::setPredictiveNeuronInput(std::vector<double>& values){
   if(values.size()==getNeuronNumber()-2){
-    for(int i=0; i<values.size(); i++){
+    for(unsigned int i=0; i<values.size(); i++){
       setInputNeuronInput(i+1, values[i]);
     }
     return ;
