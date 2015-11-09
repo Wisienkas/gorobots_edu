@@ -55,6 +55,7 @@ public:
 	double derivative;
 	int count;
 	double max, min;
+	bool rangeLimit;
 	std::vector<double> getMaxMinFeedback(double feedback, double max, double min);
 	shift_register *reg;
 	shift_register *reg2;
