@@ -11,17 +11,10 @@
 //#include <ode_robots/dungBeetle.h>
 
 
-
-
-//#include "dungBeetle.h"
-
-
 #include <ode_robots/dungbeetle.h>
 
 
 // the controller
-//#include "controllers/dungBeetlecontrol.h"
-
 #include "controllers/dungbeetle/modular_neural_control/dung_beetle/dungBeetlecontrol.h"
 
 #include <ode_robots/joint.h>
@@ -31,6 +24,7 @@
 #include <selforg/abstractcontroller.h>
 #include <ode_robots/color.h>
 #include <iostream>
+
 using namespace std;
 using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
@@ -103,8 +97,15 @@ public:
 		dungBeetleRobot->setLegPosUsage(dungBeetleRobot->R1, dungBeetleRobot->LEG);
 		dungBeetleRobot->setLegPosUsage(dungBeetleRobot->R2, dungBeetleRobot->LEG);
 
+
+
+		//
+
 		// put dungBeetle a little bit in the air
-		dungBeetleRobot->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
+		dungBeetleRobot->place(osg::Matrix::translate(.0, .0, 0.25) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
+		//dungBeetleRobot->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI, 1, 0, 0));
+
+
 
 
 		controller = new dungBeetlecontrol(/*dungBeetle*/1,/*MCPGs=true*/false,/*Muscle Model =true*/false);
@@ -116,7 +117,24 @@ public:
 		lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
 		agent->init(controller, dungBeetleRobot, wiring);
 
-		// Possibility to add tracking for robot
+		//put dung beetl ein the air
+
+		 robotfixator = new lpzrobots::FixedJoint(
+		        dungBeetleRobot->getMainPrimitive(),
+		        global.environment);
+		    robotfixator->init(odeHandle, osgHandle, false);
+
+
+
+		    std::cout << "\n\n"
+		        << "################################\n"
+		        << "#   Press x to free dungBeetle!    #\n"
+		        << "################################\n"
+		       << "\n\n" << std::endl;
+
+		    //
+
+       // Possibility to add tracking for robot
 		if (track)
 			agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 
@@ -125,13 +143,37 @@ public:
 		global.agents.push_back(agent);
 		global.configs.push_back(controller);
 
-		std::cout << "\n\n" << "################################\n" << "#   Press x to free dungBeetle!    #\n"
-				<< "################################\n" << "\n\n" << std::endl;
+
+
 	}
 
 
+	 virtual bool command(const lpzrobots::OdeHandle&,
+	      const lpzrobots::OsgHandle&,
+	      lpzrobots::GlobalData& globalData,
+	      int key,
+	      bool down)
+	  {
+	    if (down) { // only when key is pressed, not when released
+	      switch (char(key)) {
+	        case 'x':
+	          if (robotfixator) {
+	            std::cout << "dropping robot" << std::endl;
+	            delete robotfixator;
+	            robotfixator = NULL;
+	          }
+	          break;
+	        default:
+	          return false;
+	          break;
+	      }
+	    }
+	    return false;
+	  }
+
+
 /**************************Reset Function***************************************************************/
-    	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
+    	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, lpzrobots::GlobalData& global)
    	{
        	 	// inform global variable over everything that happened:
         	global.configs.erase(global.configs.begin());
@@ -176,7 +218,7 @@ public:
         	agent->init(controller, dungBeetleRobot, wiring);
 
         	// Possibility to add tracking for robot
-        	if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
+        	if (track) agent->setTrackOptions(TrackRobot(false, false, false, true, "", 60)); // Display trace
 
         	// inform global variable over everything that happened:
        	 	global.configs.push_back(dungBeetleRobot);

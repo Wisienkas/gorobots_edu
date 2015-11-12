@@ -34,7 +34,7 @@ void dungBeetlecontrol::initialize(int aAMOSversion,bool mMCPGs,bool mMuscleMode
 
  inputDerivative2.push_back(0);
  inputDerivative2.push_back(0);
- plot.open("/home/giuliano/Documents/plots/dungBeetle6legs.dat");//writing data to file.. change this to your directory
+ plot.open("dungBeetle6legs.dat");//writing data to file.. change this to your directory
  };
 
 dungBeetlecontrol::~dungBeetlecontrol() {
@@ -118,34 +118,35 @@ void dungBeetlecontrol::step(const sensor* x_, int number_sensors, motor* y_, in
 
 
 	  //left back
-	  y_[5]=1;
-	  y_[11]=1;
-	  y_[17]=1;
-	  //left middle
-	  y_[4]=1;
-	  y_[10]=1;
-	  y_[16]=1;
-
+	  y_[5]=-1;
+	  y_[11]=-val;
+	  y_[17]=-val;
 
 	  //right back
-	  y_[2]=1;
-	  y_[8]=1;
-	  y_[14]=1;
+	  y_[2]=-1;
+	  y_[8]=val;
+	  y_[14]=val;
+
+	  //left middle
+	  y_[4]=0;
+	  y_[10]=val;
+	  y_[16]=val;
 
 	  //right middle
-	  y_[1]=1;
-	  y_[7]=1;
-	  y_[13]=1;
+	  y_[1]=0;
+	  y_[7]=-val;
+	  y_[13]=-val;
+
 
 	  //top left
-	  y_[3]=1;
+	  y_[3]=0;
 	  y_[9]=0;
-	  y_[15]=val;
+	  y_[15]=0;
 
 	  //top right
-	  y_[0]=1;
+	  y_[0]=0;
 	  y_[6]=0;
-	  y_[12]=val;
+	  y_[12]=0;
 
 
 	  plot << t << " " << pattern1TC << " " << pattern1CT << " "<< pattern2TC << " " << pattern2CT << endl;
