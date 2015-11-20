@@ -2,7 +2,7 @@
  * hindLegControl.cpp
  *
  *  Created on: Nov 3, 2014
- *      Author: Giuliano Di Canio
+ *      Author: Giuliano Di Canio 
  *      Comments: please note that the TC feedback range is here set to -45 to 45.
  *      If you change the feedback range in the serial communication class, you have to change it in here as well.
  *       double per=((feedbackFiltered_1+45)/(90))*0.4-0.2;
@@ -19,7 +19,7 @@ using namespace std;
 hindLegControl::hindLegControl():
 	AbstractController("hindLegControl", "$Id: hindLegControl.cpp,v 0.1 $"){
 	initialize();
-	osc=new plastic(0.2,0.2,0.2,0.05*2*3.14,1.01,0.01);//CPG
+	osc=new plastic(0.2,0.2,0.2,0.04*2*3.14,1.01,0.01);//CPG
 	plot.open("/home/hp/Documents/dungBeetle.dat");//writing data to file.. change this to your directory
 	// TODO Auto-generated constructor stub
 	filterJoint1= new lowPass_filter(0.5);//low pass filters
@@ -94,9 +94,14 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 	feedbackFiltered_2=filterJoint2->update(x.at(1));
 	feedbackFiltered_3=filterJoint3->update(x.at(2));
 
+	rangeLimit = true;
 
+	
+	
+	
 	// generating singal SO, where deltaPhi=0.2*pi
 	 double input = 6*cos(0.02*3.14)*osc->getOut0()+6*sin(0.02*3.14)*osc->getOut1();
+	
 
 
 	 //from +-45 (feedback range) to +- 0.2 (CPG) range
@@ -115,27 +120,37 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 
 	//Generating CT signals
 
-	//if(derivative > 0 && input > 0)
-	if(derivative > 0)
+	if(derivative > 0 && input > 0)
+	{	
+	//if(derivative > 0)
 		input_secJ=input;
+		if (rangeLimit)
+		{
+		//((value-oldMin)/(oldMax-oldMin)) * (newMax-newMin) + newMin;
+		input_secJ=((input_secJ+1.1)/(2.4))*(1.8)-1.1;
+		}
+	}
 	else
-		input_secJ=-1.4;
+	{
+		input_secJ=-1.1;
+	}
 	//
 	
 	//input_secJ=reg2->update(input_secJ);
 
-	osc->update(per);//updating CPG  with external perturbation
+	osc->update(0);//updating CPG  with external perturbation USE PER
 
 
 	//writing to file
-	plot << t << " " << osc->getFrequency()*0.7/0.02<<  " "<<x.at(0)<< " "<<x.at(1)<< " "<<x.at(2)<<" "<<input
-			<<" "<<input_secJ<<" " <<osc->getOut2()<< " " <<osc->getOut0()
+	plot << t << " " << osc->getFrequency()*0.7/0.02<<  " "<<x.at(0)<< " "<<input
+			<<" "<<input_secJ<<" " <<osc->getOut2()<< " " <<osc->getOut0() << " " <<osc->getOut1()
 			<<" " << osc->getW02() << " "<<osc->getW20() <<" "<< osc->getW2p() <<" "<<std::endl;
 
 	// writing commands to the motors
 	y_[0]= input;
 	y_[1]= input_secJ;
 	y_[2]= 0;//-input_secJ;
+
 
 
 	t++;
