@@ -9,8 +9,11 @@
 #define CIRCANN_H_
 
 #include <cmath>
+#include <osg/Vec3f>
 #include "ann.h"
 using namespace std;
+
+enum NoiseType{correlated, uncorrelated};
 
 class CircANN : public ANN {
 public:
@@ -55,6 +58,33 @@ public:
      * @return (double)
      */
 	double getVecAvgAngle();
+
+    /**
+     * Returns the vector representation of the activities in the circular array.
+     *
+     * @return (double)
+     */
+	osg::Vec3f getVector();
+
+    /**
+     * Returns the number of neurons of this network per layer
+     *
+     * @return number of neurons
+     */
+    unsigned int N() const;
+
+
+	/**
+	 * Overloading ANN step function with additional update of vector representation
+	 *
+	 *
+	 */
+	void step();
+
+private:
+	osg::Vec3f vector;
+	double angle;
+	const double scale_factor = 2.41456;
 };
 
 #endif /* CIRCANN_H_ */

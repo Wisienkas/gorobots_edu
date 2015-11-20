@@ -247,6 +247,10 @@ unsigned int ANN::getNeuronNumber() const
 
 const double& ANN::getOutput(const int neuron) const
 {
+	if(neuron >= N()){
+		cout << "Warning: neuron index " << neuron <<  " out of bounds (" << N() << "). Return 0.\n";
+		return 0;
+	}
     return neurons[neuron]->getOutput();
 }
 
@@ -257,6 +261,10 @@ const double& ANN::getOutput(Neuron const * neuron)
 
 ANN* ANN::getSubnet(unsigned int const index)
 {
+	if(index >= subnets.size()){
+		cout << "Warning: subnet index out of bounds. Return 0.\n";
+		return new ANN();
+	}
     return subnets[index];
 }
 

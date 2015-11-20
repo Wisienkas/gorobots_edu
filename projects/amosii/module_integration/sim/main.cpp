@@ -23,30 +23,6 @@
  *                                                                         *
  ***************************************************************************/
 
-/**
- * @author: subhi shaker Barikhan
- * Date:27.05.2014
- *
- *This file gives a tutorial how to use the new controller (AmosIIControl(int aAMOStype,bool mMCPGs,bool mMuscleModelisEnabled) ).
- *This controller has numerous privileges:
- *1) selection between AMOSv1 (aAMOStype=1) and AMOSv2 (aAMOStype=2).
- *2) selection between single CPG-based controller (mMCPGs=false) and Multiple CPGs-based control (mMCPGs=true).
- *3) possibility to utilize muscle model (mMuscleModelisEnabled=true).
- *
- *
- *
- * Provided Multiple CPGs control is selected, you should first of all enable the oscillator coupling (oscillatorsCouplingIsEnabled)by
- * entering 'M' then select the gait.
- * specifying the walking pattern can be as follows:
- * clicking  '!': tripod.
- * clicking  '@': tetrapod.
- * clicking  '#': wave.
- * clicking  '$': irregular gait.
- *
- * Note: Multiple CPGs-based control can be combined with sensory feedback to achieve  adaptive locomotion. This can be realized by
- * following previous instruction and enabling sensory feedback function by entering 'C'.
- * */
-
 
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
@@ -75,37 +51,42 @@
 using namespace std;
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-std::vector<lpzrobots::AbstractObstacle*> obst;
+vector<lpzrobots::AbstractObstacle*> obst;
+vector<lpzrobots::AbstractObstacle*> goals;
 ofstream amos_pos;
 
 /// Simulation parameters
-int total_tstep=0;
-int max_time=6000.;			//maximum simulation time (in secs)
-double max_distance=0.85;		//maximum distance until reset (in m)
-int success_counter=0;
+int total_tstep            = 0;
+int max_time               = 6000.;  //maximum simulation time (in secs)
+double max_distance        = 0.85;   //maximum distance until reset (in m)
+int success_counter        = 0;
+
+/// Experimental parameters
+double obstacle_height     = 0.10;   // in [m]
+bool single_obstacle       = true;   // single obstacle for obstacle negotiation
+bool stairs                = false;  // multiple steps with height = obstacle_height
+bool use_koh               = false;  // Koh's small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
+bool use_box               = false;  // sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.
+bool use_box_difficult     = false;  // to use this you have to set also use_box=1
+bool add_goals             = false;  // ren's goal sensor
+bool navigation_setup      = false;  // navigation experiments
 
 /// Camera  parameters
-double cam_pos[3] = {0.9, 2., 0.25};           // Camera position (x, y, z)
-double cam_angle[3] = {178.866, -7.43884, 0}; // Camera look-to position (angle) (x, y, z)
-//int cam_mode = 0;                             // Camera mode (0: Static, 1: Follow, 2: TV, 3: Race)
-
-/// Environment options
-bool single_obstacle = true;
-double obstacle_height = 0.10;  // in [m]
-bool stairs = false;
-bool use_koh = false;           // kohs small escape terrain, therefore both variables use_box & use_box_difficult have to be set to 0.
-bool use_box = false;           // sets up the normal difficult terrain. With "angle" below the boxes can be turned. if angle is set to 0 the boxes in both difficulties are aligned to the grid.
-bool use_box_difficult = true;  // to use this you have to set also use_box=1
-bool add_goals = false;         // ren's goal sensor
+//double cam_pos[3]        = {-2.5, -2.5, 15.};      // This is for navigation experiments (bird's eye)
+//double cam_angle[3]      = {0, -90, -90};
+double cam_pos[3]          = {0.9, 2., 0.25};        // Camera position (x, y, z)
+double cam_angle[3]        = {178.866, -7.43884, 0}; // Camera look-to position (angle) (x, y, z)
+//int cam_mode = 0;                                  // Camera mode (0: Static, 1: Follow, 2: TV, 3: Race)
 
 /// Robot options
-bool use_broadusangle=false;    // for avoiding obstacles
-bool track = true;              // write tracking file
+bool use_broadusangle      = false;  // for avoiding obstacles
+bool track                 = true;   // write tracking file
+double amos_init_angle     = 0;      // in degrees
 
 /// Controller options
-int use_amosii_v           = 2;
-bool use_mCPG              = true;
-bool use_navi              = false;
+int use_amosii_v           = 2;      // select AMOSII version
+bool use_mCPG              = true;   // use multiple CPGs
+bool use_navi              = false;  //
 bool use_muscles           = false;
 bool use_bjc               = true;
 bool use_reflexes          = true;
@@ -124,6 +105,30 @@ public:
 		amos_pos.open("amos_pos.dat");
 	}
 
+    virtual void add_home(GlobalData& global){
+        cout << "Added home" << endl;
+        PassiveSphere* Home;
+        Substance* substHome = new Substance();
+        substHome->setCollisionCallback(0,0);
+        substHome->toNoContact();
+        Home = new PassiveSphere(odeHandle, osgHandle, 0.2);	//TODO
+        Home->setSubstance(*substHome);
+        Home->setPosition(osg::Vec3(0., 0., -0.35));
+    }
+
+    virtual void add_goal(GlobalData& global, double posx, double posy){
+        cout << "Added goal at (" << posx << ", " << posy << ")" <<endl;
+        PassiveSphere* goal;
+        Substance* substGoal = new Substance();
+        substGoal->setCollisionCallback(0,0);
+        substGoal->toNoContact();
+        goal = new PassiveSphere(odeHandle, osgHandle, 0.2);	//TODO
+        goal->setSubstance(*substGoal);
+        goal->setPosition(osg::Vec3(posx, posy, -0.35));
+        goal->setColor(Color(0,255,0));
+        goals.push_back(goal);
+    }
+
 	virtual void add_obstacle(GlobalData& global, double x, double y, double height, double width=1.0){
 		lpzrobots::OdeHandle playgroundHandle = odeHandle;
 		playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!)
@@ -137,6 +142,18 @@ public:
 	double distance(){
 		double dx = pow(amos->getPosition().x,2);
 		double dy = pow(amos->getPosition().y,2);
+		return sqrt(dx+dy);
+	}
+
+	double distance(double x, double y){
+		double dx = pow(amos->getPosition().x - x,2);
+		double dy = pow(amos->getPosition().y - y,2);
+		return sqrt(dx+dy);
+	}
+
+	double distance(lpzrobots::AbstractObstacle* obj){
+		double dx = pow(amos->getPosition().x - obj->getPosition().x,2);
+		double dy = pow(amos->getPosition().y - obj->getPosition().y,2);
 		return sqrt(dx+dy);
 	}
 
@@ -163,6 +180,11 @@ public:
 		/// Single obstacle setup
 		if(single_obstacle){
 			add_obstacle(global, 0., 0., obstacle_height);
+		}
+		if(navigation_setup){
+			add_home(global);
+			add_goal(global, 0., -5.);
+			add_goal(global, -5., -5.);
 		}
 
 
@@ -191,7 +213,7 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv1");
-			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles/*, false*/);
+			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles, use_navi);
 		}
 		else if (use_amosii_v == 2){
 			std::cout<<std::endl<<std::endl<<"AMOSII  VERSION 2 SELECTED!"<<std::endl<<std::endl;
@@ -202,7 +224,8 @@ public:
 					rodeHandle,
 					osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
 					myAmosIIConf, "AmosIIv2");
-			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles/*, false*/);
+			controller = new AmosIIControl(use_amosii_v, use_mCPG, use_muscles, use_navi);
+			((AmosIIControl*) controller)->locomotion_control->desired_angle = amos_init_angle;
 		}
 		else {
 			std::cout<<"select only one version of AMOSII !"<<std::endl;
@@ -228,7 +251,7 @@ public:
 		amos->setLegPosUsage(amos->R1, amos->LEG);
 		amos->setLegPosUsage(amos->R2, amos->LEG);
 
-		amos->place(osg::Matrix::rotate(0.0,0,0,1) * osg::Matrix::translate(0.2,0.0,0.1));
+		amos->place(osg::Matrix::rotate(M_PI*amos_init_angle/180,0,0,1) * osg::Matrix::translate(0.0,0.0,0.1));
 		if (use_box){amos->place(osg::Matrix::rotate(-0.38,0,0,1) * osg::Matrix::translate(3,-1,0.3));}
 		if (use_koh){amos->place(osg::Matrix::rotate(-0.75,0,0,1) * osg::Matrix::translate(0.5,1.5,0.3));}
 
@@ -303,7 +326,8 @@ public:
 		amos->setLegPosUsage(amos->R2, amos->LEG);
 
 		//Place AMOSII accordingly
-		amos->place(osg::Matrix::rotate(0.0,0,0,1) * osg::Matrix::translate(0.0,0.0,0.0));
+		((AmosIIControl*) controller)->locomotion_control->desired_angle = amos_init_angle;
+		amos->place(osg::Matrix::rotate(M_PI*amos_init_angle/180,0,0,1) * osg::Matrix::translate(0.0,0.0,0.0));
 		if (use_box){amos->place(osg::Matrix::rotate(-0.38,0,0,1) * osg::Matrix::translate(3,-1,0.3));}
 		if (use_koh){amos->place(osg::Matrix::rotate(-0.75,0,0,1) * osg::Matrix::translate(0.5,1.5,0.3));}
 
@@ -353,8 +377,8 @@ public:
 				simulation_time_reached=true;
 				std::cout << "RESET" << endl;
 				break;
-			case 'p':  //print current position
-				printf("(x,y) = (%2.3f,%2.3f)\n",amos->getPosition().x,amos->getPosition().y);
+			case 'P':  //print current position
+				printf("(x,y) = (%2.3f,%2.3f), (vx, vy) = (%2.3f,%2.3f)\n",amos->getPosition().x,amos->getPosition().y, amos->getSpeed().x, amos->getSpeed().y);
 				break;
 			case 's': //decrease modulatory input (frequency)
 				((AmosIIControl*) controller)->decreaseFrequency();
@@ -367,6 +391,15 @@ public:
 				break;
 			case  'm': //disable oscillator coupling (fully connected network)
 				((AmosIIControl*) controller)->disableOscillatorCoupling();
+				break;
+			case  'i': //Turn by 45 and reset
+				amos_init_angle += 45;
+				simulation_time_reached=true;
+				std::cout << "RESET" << endl;
+				break;
+			case  'u': //turn desired angle by 45
+				((AmosIIControl*) controller)->locomotion_control->desired_angle += 45;
+				std::cout << "NEW DESIRED ANGLE = " << ((AmosIIControl*) controller)->locomotion_control->desired_angle << "°" << endl;
 				break;
 
 			case  '#':// select tetrapod gait

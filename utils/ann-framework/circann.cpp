@@ -7,9 +7,11 @@
 
 #include "circann.h"
 using namespace std;
+#include <osg/Vec3f>
 
 CircANN::CircANN(int numneurons) : ANN(numneurons) {
-
+	setAllTransferFunctions(linthresholdFunction());
+	angle = 0.0;
 }
 
 CircANN::~CircANN() {
@@ -38,11 +40,30 @@ double CircANN::getSumRate(){
 }
 
 double CircANN::getVecAvgAngle(){
+	return angle;
+}
+
+osg::Vec3f CircANN::getVector(){
+	return vector;
+}
+
+unsigned int CircANN::N() const
+{
+    return getNeuronNumber();
+}
+
+void CircANN::step(){
+	ANN::step();
 	double sumx = 0;
 	double sumy = 0;
+	double sum = 0;
 	for(unsigned int index = 0; index < N(); index++){
 		sumx += getOutput(index) * cos(getPrefAngle(index));
 		sumy += getOutput(index) * sin(getPrefAngle(index));
+		sum += getOutput(index);
 	}
-	return atan2(sumy, sumx);
+	vector.set(sumx, sumy, 0.);
+	angle = ( (atan2(vector.y(),vector.x())>0) ? (atan2(vector.y(),vector.x())) : (atan2(vector.y(),vector.x()) + 2 * M_PI) );
+	vector.normalize();
+	vector *= scale_factor * sum/double(N()*N());
 }

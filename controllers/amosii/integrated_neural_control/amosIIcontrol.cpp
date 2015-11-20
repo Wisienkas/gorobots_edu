@@ -55,8 +55,14 @@ AmosIIControl::AmosIIControl(int aAMOSversion,bool mMCPGs,bool mMuscleModelisEna
 
 	/// Plot navigation signals
 	addInspectableValue("NavigationOutput",&navigation_control->steering_command, "NavigationOutput");
+	addInspectableValue("Compass",&navigation_control->compass_input, "Compass");
+	addInspectableValue("Speed",&navigation_control->speed_input, "Speed");
+
+	addInspectableValue("DiffAngle",&locomotion_control->diff_angle, "DiffAngle");
 
 	/// Plot locomotion signals
+	addInspectableValue("L",&locomotion_control->input.at(3), "L");
+	addInspectableValue("R",&locomotion_control->input.at(4), "R");
 	if(MCPGs==true)
 	{
 		// press Ctrl M to display matrix

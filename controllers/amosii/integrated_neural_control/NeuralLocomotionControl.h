@@ -147,6 +147,8 @@ public:
 	//---turning
 	bool turning;
 	int counter_turn;
+	double desired_angle;
+	double diff_angle;
 
 	//---Input neurons
 	vector<double> input;

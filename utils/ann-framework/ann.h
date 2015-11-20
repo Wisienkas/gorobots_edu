@@ -20,11 +20,13 @@
 #ifndef ANN_H_
 #define ANN_H_
 
+#include <iostream>
 #include <list>
 #include <vector>
 #include <map>
 #include <string>
 #include "transferfunction.h"
+using namespace std;
 
 // forward declarations
 class Neuron;

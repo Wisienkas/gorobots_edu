@@ -123,6 +123,9 @@ void NeuralLocomotionControl::init(int aamosVersion,bool mMCPGs,bool mMuscleMode
 	//---MODULE 1 parameters
 	turning = true;
 	counter_turn = 0;
+	desired_angle = 0;
+	diff_angle = 0;
+
 	//Inputs
 	input.at(0) = 0;
 	input.at(1) = 0;
@@ -280,9 +283,14 @@ std::vector<double> NeuralLocomotionControl::step_nlc(const std::vector<double> 
 		input.at(4) = in0[FR_us][1];
 	}
 
+	double compass_input = -atan2(inreflex.at(BY_ori), inreflex.at(BX_ori));
+	if(compass_input < 0.)
+		compass_input += 2*M_PI;
+	diff_angle = M_PI*desired_angle/180 - compass_input;
+
 	if(turning && switchon_backbonejoint){ 						   // keep it straight for obstacle negotiation
-		input.at(3)=-1.0 + 3.0*(inreflex.at(119));
-		input.at(4)=-1.0 - 3.0*(inreflex.at(119));
+		input.at(3)=-1.0 + 4.0*sin(diff_angle);
+		input.at(4)=-1.0 - 4.0*sin(diff_angle);
 		if(input.at(3)> 1.0)
 			input.at(3)=1.0;
 		if(input.at(3)< -1.0)
