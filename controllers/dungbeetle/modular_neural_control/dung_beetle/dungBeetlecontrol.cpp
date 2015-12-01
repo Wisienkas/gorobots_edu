@@ -27,7 +27,7 @@ void dungBeetlecontrol::initialize(int aAMOSversion,bool mMCPGs,bool mMuscleMode
 {
 
   t = 0; // step counter
-  cpg=new plastic(0.2,0.2,0.2,0.04*2*3.14,1.01,0.01);//CPG
+  cpg=new plastic(0.2,0.2,0.2,0.1*2*3.14,1.01,0.01);//CPG
   MCPGs=mMCPGs;
   inputDerivative.push_back(0);
   inputDerivative.push_back(0);
