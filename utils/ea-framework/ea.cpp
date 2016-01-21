@@ -195,7 +195,7 @@ void Chromosome<T>::printChromosome()
 }
 
 template <class T>
-EA<T>::EA(int population, int size, encoding_type chromosome_encoding, T min, T max, crossover_type crossover, mutation_type mutation, double mutation_rate, selection_type selection, int selection_size, double crossover_rate, replacement_type replacement)
+EA<T>::EA(int population, int size, encoding_type chromosome_encoding, T min, T max, crossover_type crossover, double crossover_rate, mutation_type mutation, double mutation_rate, selection_type selection, int selection_size, replacement_type replacement)
 {
     population_size = population;
     Chromosome_size = size;
