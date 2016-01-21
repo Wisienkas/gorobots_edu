@@ -98,6 +98,16 @@ const double& ICO::getOutputNeuronOutput(){
   return getOutput(outputNeuron);
 }
 
+std::vector<double> ICO::getWeights(){
+  std::vector<double> weights;
+  weights.push_back(getWeight(outputNeuron, inputNeurons[0]));
+  for(int i=1; i<inputNeurons.size(); i++){
+    weights.push_back(getWeight(outputNeuron, inputNeurons[i]));
+  }
+
+  return weights;
+}
+
 void ICO::setReflexiveNeuronInput(const double& value){
   setInputNeuronInput(0, value);
 }
