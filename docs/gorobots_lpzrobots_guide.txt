@@ -21,35 +21,38 @@ for AI3:
 2. Create a new directory under your home directory:
 	$ mkdir workspace
 
-3. Install git:
+3. Create a new directory under your home directory:
+	$ cd workspace
+	
+4. Install git:
 	$ sudo apt-get install git
 
-4. Clone repositories
+5. Clone repositories
 	$ git clone https://github.com/pmanoonpong/gorobots_edu.git
 	$ git clone https://github.com/pmanoonpong/lpzrobots.git
 
-5. Install dependencies:
+6. Install dependencies:
 	$ sudo apt-get install g++  make  automake libtool xutils-dev m4  libreadline-dev  libgsl0-dev libglu-dev libgl1-mesa-dev freeglut3-dev  libopenscenegraph-dev libqt4-dev libqt4-opengl libqt4-opengl-dev qt4-qmake  libqt4-qt3support gnuplot gnuplot-x11 libncurses5-dev libgl1-mesa-dev
 
-6. Update path:
+7. Update path:
 	$ export PATH=/home/<user>/bin:$PATH
 	$ source ~/.bashrc)
 
-7. Build LPZ robots:
+8. Build LPZ robots:
 	$ cd lpzrobots
 	$ make all
 
-8. When asked where to install it, say: 
+9. When asked where to install it, say: 
 	/home/<user>
 
 
-9. When asked if you want developer mode (d), 
+10. When asked if you want developer mode (d), 
 	say 'd' and confirm with 'y'
 
-10. Make symbolic link to the library
+11. Make symbolic link to the library
 	$ sudo ln -sf /home/<user>/workspace/lpzrobots/opende/ode/src/.libs/libode_dbl.so.1 /lib/libode_dbl.so.1
 
-11. Compile gorobots
+12. Compile gorobots
 	$ cd ~/workspace
 	$ cp lpzrobots/ode_robots/simulations/template_amosii/Makefile gorobots_edu/practices/amosii
 	$ cd gorobots_edu/practices/amosii
