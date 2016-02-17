@@ -1534,7 +1534,7 @@ namespace lpzrobots {
     // volume
 
     //Change mass by KOH to 3.0
-    const double factor_weight = 0.001;
+    const double factor_weight = 0.0001;
     const double density = (3.0 / (0.43 * 0.07 * 0.065))*factor_weight; //2.2 / (0.43 * 0.07 * 0.065);
 
     c.trunkMass = density * c.size * c.width * c.height;
