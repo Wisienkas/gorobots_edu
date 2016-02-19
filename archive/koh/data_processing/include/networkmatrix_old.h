@@ -3,7 +3,7 @@
  *
  * Created on:          Mar 22, 2012
  * Last Modified on:    Feb 12, 2016
- * 
+ *
  * Authors: Andrej fillipow and Sakyasingha Dasgupta
  * Extended by Timon Tomas (2016)
  *
@@ -24,20 +24,20 @@
 
 class ESNetwork{
     public :
-        
+
         /**
          * The following functions have to be called manually, and are necessary for functioning
          */
-        
+
         /**
          * Main constructor
-         * 
+         *
          * Used for training
-         * 
+         *
          * Generate the ESN network with all internal parameters defined
          * Takes the number of input, output and hidden neurons, whether inputs should feed into outputs, whether outputs
          * should feed back, and how quickly neurons should leak, in that order. Remember to initialize the weights!
-         * 
+         *
          * @param a
          * @param b
          * @param c
@@ -50,26 +50,25 @@ class ESNetwork{
 
         /**
          * Main constructor
-         * 
+         *
          * Used for testing
-         * 
+         *
          * @param num
          * @param dir
-         * @param verboseLevel
          */
-        ESNetwork( unsigned int num, std::string dir, unsigned int _verboseLevel = 0 );
-        
+        ESNetwork( unsigned int num, std::string dir );
+
         /**
          * Default destructor - handle or dangling objects
          */
         ~ESNetwork();
-        
+
         /**
          * Generating function for the input, reservoir and output weights. Sparsity governs percentage of matrix sparseness.
          * Inputweights drawn randomnly from the uniform distribution [-0.5,0.5). Innerweights drawn randomnly from the uniform
          * distribution [-1.1). Output weights are all initialised to 0. Innerweights are subsequently scaled to the specific
          * spectral_radius
-         * 
+         *
          * @param sparsity
          * @param spectral_radius
          */
@@ -88,7 +87,7 @@ class ESNetwork{
         /**
          * Accepts an array of floats, of length size, and sets the inputs to these given values. can use resetInput()
          * or scrambleInput() instead
-         * 
+         *
          * @param Input
          * @param size
          */
@@ -97,7 +96,7 @@ class ESNetwork{
         /**
          * Offline training of the output weights. The net is trained over specific "time" steps, the first "discardedTimesteps" time steps are
          * not used to train. This serves as warm up for the ESN network.
-         * 
+         *
          * @param Inputs
          * @param Outputs
          * @param time
@@ -106,9 +105,9 @@ class ESNetwork{
         void trainOutputs( float * Inputs, float * Outputs, int time, int discardedTimesteps = 30 );
 
         /**
-         * Online training of the output weights using the Recursive least squares algorithm. For algorithm introduction 
+         * Online training of the output weights using the Recursive least squares algorithm. For algorithm introduction
          * check http://en.wikipedia.org/wiki/Recursive_least_squares_filter
-         * 
+         *
          * @param Outputs
          * @param forgettingFactor
          * @param td_error
@@ -117,7 +116,7 @@ class ESNetwork{
         void trainOnlineRecursive( float * Outputs, float forgettingFactor, float td_error, double param = 0.0 );
 
         /**
-         * 
+         *
          * Least Means squared learning of Endweights
          *
          * @param Outputs
@@ -129,18 +128,18 @@ class ESNetwork{
 
         /**
          * Backpropagation-Decorrelation learning function. This is intended for online learning purposes. Note that this is not fully functional yet.
-         * 
+         *
          * @param Outputs
          * @param learningRate
          */
         void trainBackpropagationDecorrelation( float * Outputs, float learningRate );
-        
+
         /**
          * Called at every discrete time step, calculating the inner neuron activations and outputs for the next discrete timestep.
          * If "learn_online" is true, the ESN learns the outputs specified in
          * "Outputs" via "trainOnlineRecursive()"
          * NOTE: the learningRate parameter acts as the forgetting factor for the trainOnlineRecursive() function.
-         * 
+         *
          * @param Outputs
          * @param learningRate
          * @param td_error
@@ -154,18 +153,18 @@ class ESNetwork{
          * The ESN takes a step without online learning, as above. this is called e.g. from "trainOutputs()"
          */
         void takeStep() {
-            
+
             float nothing[0];
             takeStep( nothing, 1, 0, false );
-            
+
         }
 
         /**
          * The following functions have to be called manually, and are optional
          */
-        
+
         /**
-         * 
+         *
          * @param start
          * @param end
          * @param desiredOutputs
@@ -177,30 +176,30 @@ class ESNetwork{
          * Writers
          */
         void writeParametersToFile( unsigned int num, std::string dir = "" );
-      
+
         void writeStartweightsToFile( unsigned int num, std::string dir = "" );
-        
+
         void writeInnerweightsToFile( unsigned int num, std::string dir = "" );
-        
+
         void writeInneractivityToFile( unsigned int num, std::string dir = "" );
 
         /**
          * Write the Endweights (RC to output neurons) values to a text file
-         * 
+         *
          * @param num
          */
         void writeEndweightsToFile( unsigned int num, std::string dir = "" );
-        
+
         void writeNoiseToFile( unsigned int num, std::string dir = "" );
-        
+
 
         /**
          * Readers
          */
         void readParametersFromFile( unsigned int num, std::string dir = "" );
-        
+
         void readStartweightsFromFile( unsigned int num, std::string dir = "" );
-        
+
         void readInnerweightsFromFile( unsigned int num, std::string dir = "" );
 
         void readEndweightsFromFile( unsigned int num, std::string dir = "" );
@@ -219,7 +218,7 @@ class ESNetwork{
 
         /**
          * Prints the passed matrix to the terminal
-         * 
+         *
          * @param printedMatrix
          */
         void printMatrix( matrix::Matrix *printedMatrix );
@@ -228,7 +227,7 @@ class ESNetwork{
          * Prints the outputs to the terminal
          */
         void printOutputToTerminal();
-        
+
         /**
          * Prints the activations of the inner neurons to the terminal
          */
@@ -236,10 +235,10 @@ class ESNetwork{
 
         /**
          * Generate numbers from the uniform distribution [a,b)
-         * 
+         *
          * @param a
          * @param b
-         * @return 
+         * @return
          */
         double uniform( double a, double b );
 
@@ -262,66 +261,66 @@ class ESNetwork{
         /**
          * The following functions are called from within other functions
          */
-        
+
         /**
          * Limits (thresholded) the hidden neuron activation range between steps using an appropriate transfer function
-         * 
+         *
          * @param threshold
          */
         void cullInnerVector( float threshold = 0.5 );
 
         /**
          * Limits (thresholded) the output neuron activation range between steps using an appropriate transfer function
-         * 
+         *
          * @param threshold
          */
         void cullOutput( float threshold = 0.5/*unused*/ );
 
         /**
          * Approximated logistic function (Fermi-Dirac)
-         * 
+         *
          * @param x
-         * @return 
+         * @return
          */
         float sigmoid( float x );
 
         /**
          * Derivative of the above function, used in backpropagation-decorrelation learning
-         * 
+         *
          * @param x
-         * @return 
+         * @return
          */
         float deriSigmoid( float x );
 
         /**
          * Tangens hyperbolicus function
-         * 
+         *
          * @param x
          * @param flag
-         * @return 
+         * @return
          */
         double tanh( double x, bool flag );
 
         /**
          * Calculates the change in parameter b (gain) of a neuron using Gaussian IP learning rule
-         * 
+         *
          * @param y
          * @param eta
-         * @return 
+         * @return
          */
         double updateGauss_gain( double y, double eta );
 
         /**
          * Scales the matrix of inner Weights, so that the highest eigenvalue is equal to "density".
          * Thus, the Echo-State-Property of the Network is ensured.
-         * 
+         *
          * @param density
          */
         void normalizeInnerWeights( float density );
 
         /**
          * Scales the matrix of start Weights (input to reservoir connections), so that the highest eigenvalue is equal to "density"
-         * 
+         *
          * @param density
          */
         void normalizeInputWeights( float density );
@@ -333,7 +332,7 @@ class ESNetwork{
 
 
         int stepsRun;
-        // networkNeurons should be about 20-100 times bigger than inputs or outputs
+        /// networkNeurons should be about 20-100 times bigger than inputs or outputs
         matrix::Matrix * inputs;        //the next three matrices hold neuron activations
         matrix::Matrix * outputs;
         matrix::Matrix * intermediates;
@@ -342,7 +341,7 @@ class ESNetwork{
         matrix::Matrix * leak_mat;
         matrix::Matrix * inverse_leak_mat;
 
-        //matrices needed for online learning. for details, please refer to sakyas paper
+        /// Matrices needed for online learning. for details, please refer to sakyas paper
         matrix::Matrix * onlineLearningAutocorrelation;
         matrix::Matrix * onlineError;                   //the error between input and desired output
         matrix::Matrix * transposedIntermediates;       // intermediate for a multiplication step

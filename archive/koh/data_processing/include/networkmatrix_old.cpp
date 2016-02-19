@@ -5,10 +5,10 @@
  *
  * Created on:          Mar 22, 2012
  * Last Modified on:    Feb 12, 2016
- * 
+ *
  * Author: Andrej Fillipow and Sakyasingha Dasgupta
  * Extended by Timon Tomas (2016)
- * 
+ *
  */
 #include <fstream>
 #include <string.h>
@@ -26,9 +26,8 @@ std::ofstream out6;
 
 //using namespace std;
 
-// XXX OK
 ESNetwork::ESNetwork( unsigned int a, unsigned int b, unsigned int c , bool param1, bool param2, double param3, bool param4 ) {
-    
+
     RCneuronNoise   = false;
     Loadweight      = false;
     enable_IP       = param4;
@@ -56,7 +55,7 @@ ESNetwork::ESNetwork( unsigned int a, unsigned int b, unsigned int c , bool para
         leak = false;
     else
         leak = true;
-    
+
     // numbers of neurons used in the net
     // networkNeurons should be about 20-100 times bigger than inputs or outputs
     inputNeurons    = a;
@@ -73,8 +72,6 @@ ESNetwork::ESNetwork( unsigned int a, unsigned int b, unsigned int c , bool para
     toChangeOutputWeights   = new matrix::Matrix( networkNeurons, 1 );
 
     //gainvector = new matrix::Matrix(networkNeurons, 1);
-
-
 
     //Initializing leak matrix
     for( unsigned int i = 0; i < networkNeurons; i++ ) {
@@ -167,7 +164,7 @@ ESNetwork::ESNetwork( unsigned int a, unsigned int b, unsigned int c , bool para
         outputsCollection[i] = 0.0;
 
     // All array initializations complete
-    if( verboseLevel >= 1 ) std::cout << "Initialising arrays...\t\t\t[OK]" << "\n"; // XXX ttimon7
+    if( verboseLevel >= 1 ) std::cout << "Initialising arrays...\t\t\t[OK]" << "\n";
     out.open( "output_matrix" );
 
     /*-------------------- Weight Parameters -------------------------------*/
@@ -188,13 +185,11 @@ ESNetwork::ESNetwork( unsigned int a, unsigned int b, unsigned int c , bool para
 
 }
 
-ESNetwork::ESNetwork( unsigned int num, std::string dir, unsigned int _verboseLevel ) {
-    
-    verboseLevel            = _verboseLevel;
-    
+ESNetwork::ESNetwork( unsigned int num, std::string dir ) {
+
     /// Reading parameters
     readParametersFromFile( num, dir );
-    
+
     //the actual matrices that hold the output of the neurons
     inputs                  = new matrix::Matrix( inputNeurons, 1 );
     outputs                 = new matrix::Matrix( outputNeurons, 1 );
@@ -242,14 +237,7 @@ ESNetwork::ESNetwork( unsigned int num, std::string dir, unsigned int _verboseLe
 
     //declare noise matrix
     noise           = new matrix::Matrix( networkNeurons, 1 );
-    
-    errors              = new float[outputNeurons];
-    oldErrors           = new float[outputNeurons];
-    oldOutputs          = new float[outputNeurons];
-    oldIntermediates    = new float[networkNeurons];
-    history             = new matrix::Matrix();
-    *history            = *endweights ;
-    
+
     // for evaluation purposes:
     EvaluationCollectionStep = 0;
     // outputsCollection = NULL;
@@ -259,7 +247,6 @@ ESNetwork::ESNetwork( unsigned int num, std::string dir, unsigned int _verboseLe
         oldIntermediates[i] =  0;
 
     }
-    
     for ( unsigned int i = 0; i < outputNeurons;i++ ) {
 
         errors[i]       = oldErrors[i] = 0;
@@ -278,19 +265,20 @@ ESNetwork::ESNetwork( unsigned int num, std::string dir, unsigned int _verboseLe
         outputsCollection[i] = 0.0;
 
     // All array initializations complete
-    if( verboseLevel >= 1 ) std::cout << "Initialising arrays...\t\t\t[OK]" << "\n"; // XXX ttimon7
+    if( verboseLevel >= 1 ) std::cout << "Initialising arrays...\t\t\t[OK]" << "\n";
     out.open( "output_matrix" );
-    
+
     readStartweightsFromFile( num, dir );
     readInnerweightsFromFile( num, dir );
     readEndweightsFromFile( num, dir );
     readNoiseFromFile( num, dir );
-    
+
+    verboseLevel = 0;
+
 }
 
-// XXX OK
 ESNetwork::~ESNetwork() {
-    
+
     delete inputs;
     delete outputs;
     delete intermediates;
@@ -305,71 +293,70 @@ ESNetwork::~ESNetwork() {
     delete oldIntermediates;
     delete history;
     out.close();
-    
+
 }
 
-// Sparsity from 1-100, density 0-1, all connections random 
-// XXX OK
-void ESNetwork::generate_random_weights( int sparsity, float spectral_radius ) { 
+// Sparsity from 1-100, density 0-1, all connections random
+void ESNetwork::generate_random_weights( int sparsity, float spectral_radius ) {
 
-    if( verboseLevel >= 1 ) std::cout << "Generating full-random weighting...\t";  // XXX ttimon7
-    
+    if( verboseLevel >= 1 ) std::cout << "Generating full-random weighting...\t";
+
     RCsparsity = sparsity;
     srand(time(NULL));
 
     unsigned int i, j = 0;
 
     if( InputSparsity == 0 ) {
-        
+
         for( i = 0; i < startweights->getM(); i++) {
-            
+
             for( j = 0; j < startweights->getN(); j++) {
 
                 startweights->val(i,j)= ESNetwork::uniform(-InputWeightRange,InputWeightRange);
 
             }
-            
+
         }
 
     } else {
 
         for( i = 0; i < startweights->getM(); i++ ) {
-        
+
             for ( j = 0; j < startweights->getN(); j++ ) {
-                
+
                 if ( ( rand() % 100 ) >= InputSparsity ) {
-                    
+
                     startweights->val( i, j ) = ESNetwork::uniform( -InputWeightRange, InputWeightRange );
-                    
+
                 } else {
-                 
+
                     startweights->val( i, j ) = 0.0;
 
                 }
 
             }
-        
+
         }
 
     }
 
-    //Feedback connections to all inner neurons
+    // Feedback connections to all inner neurons
     for( i = 0; i < feedweights->getM(); i++ ) {
-        
+
         for ( j = 0; j < feedweights->getN(); j++ ) {
-            
+
             feedweights->val( i, j ) = ESNetwork::uniform( -FeedbackWeightRange, FeedbackWeightRange );
 
         }
-        
+
     }
 
-    //Initialise the Reservoir weights
+    // Initialise the Reservoir weights
     for( i = 0; i < innerweights->getM(); i++ ) {
-            
+
         for( j = 0; j < innerweights->getN(); j++) {
-            
-            if ( ( rand() % 100 ) >= RCsparsity ) { 
+
+            if ( ( rand() % 100 ) >= RCsparsity ) {
 
                 innerweights->val( i, j ) = ESNetwork::uniform( -RCWeightRange, RCWeightRange );
 
@@ -378,61 +365,58 @@ void ESNetwork::generate_random_weights( int sparsity, float spectral_radius ) {
                 innerweights->val( i, j ) = 0.000;
 
             }
-        
+
         }
-            
+
     }
 
-    //Initialise the output weights
+    // Initialise the output weights
     for( i = 0; i < endweights->getM(); i++ ) {
-    
-        for( j = 0; j < endweights->getN(); j++ ) { 
-            
+
+        for( j = 0; j < endweights->getN(); j++ ) {
+
             endweights->val( i, j ) = 0.000;
-        
+
         }
-    
+
     }
 
-    //initialize noise matrix
+    // Initialize noise matrix
     for( i = 0; i < networkNeurons; i++ ) {
-        
+
         for( j = 0; j < 1; j++ ) {
-                    
+
             noise->val( i, j ) = ESNetwork::uniform( -NoiseRange, NoiseRange );
-            
+
         }
-        
+
     }
 
     ESNetwork::normalizeInnerWeights(spectral_radius);
     //ESNetwork::normalizeInputWeights(input_scaling);
 
-    if( verboseLevel >= 1 ) std::cout << "[OK]\n"; // XXX ttimon7
+    if( verboseLevel >= 1 ) std::cout << "[OK]\n";
 }
 
-// XXX OK
-void ESNetwork::generate_neighbour_weights( int sparsity, float spectral_radius, int nNextNeighbours ) { //like above, only connections to the nNextNeighbours neurons are made
+void ESNetwork::generate_neighbour_weights( int sparsity, float spectral_radius, int nNextNeighbours ) { // like above, only connections to the nNextNeighbours neurons are made
 
     // Unused;
 
 }
 
-// XXX OK
-void ESNetwork::setInput( float *Input, unsigned int size ) {// sets the input neurons, called by trainOutputs() or manually from main.cpp
+void ESNetwork::setInput( float *Input, unsigned int size ) { // sets the input neurons, called by trainOutputs() or manually from main.cpp
 
     for( unsigned int i = 0; i < size; i++) {
-        
+
         inputs->val( i, 0 ) = Input[i];
         // printMatrix(inputs);
-        
+
     }
-        
+
 }
 
-// XXX OK
 void ESNetwork::trainOutputs( float * Inputs, float * Outputs, int time, int discardedTimesteps ) {
-    
+
 //*********************************************************************************************************
 //	// Off-line batch mode learning not used.  USE RLS online learning instead (trainOnlineRecurssive function)
 // ********************************************************************************************************
@@ -560,9 +544,8 @@ void ESNetwork::trainOutputs( float * Inputs, float * Outputs, int time, int dis
 
 }
 
-// XXX Maybe faulty
 void ESNetwork::trainOnlineLMS( float * Outputs, float forgettingFactor, float td_error, double param ) {
-    
+
     matrix::Matrix *temp    = new matrix::Matrix( 1, networkNeurons );
     matrix::Matrix *temp2   = new matrix::Matrix( 1, networkNeurons );
 
@@ -571,7 +554,7 @@ void ESNetwork::trainOnlineLMS( float * Outputs, float forgettingFactor, float t
 
     transposedIntermediates = new matrix::Matrix( 1, networkNeurons );
     toChangeOutputWeights   = new matrix::Matrix( endweights->getM(), endweights->getN() );
-    
+
     /// STEP 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
     *transposedIntermediates = *intermediates;
     transposedIntermediates->toTranspose();
@@ -582,40 +565,40 @@ void ESNetwork::trainOnlineLMS( float * Outputs, float forgettingFactor, float t
 
     /// Set to td_error for actor-critic learning and otherwise to default
     switch( withRL ) {
-        
+
         case 1:
-            
+
             for( unsigned int i = 0; i < outputNeurons; i++ ) {
-                
+
                 onlineError->val( 0, i ) = td_error;//(atan(Outputs[i])-temp2->val(0,i));
 
             }
-            
+
             break;
 
         case 2:
 
             for( unsigned int i = 0; i < outputNeurons; i++) {
-                
+
                 if ( outnonlinearity == 2 ) {
-                    
+
                     //compute the Error between output and desired output
-                    onlineError->val( 0, i ) = ( atan( Outputs[i] ) - temp2->val( 0, i ) ); 
+                    onlineError->val( 0, i ) = ( atan( Outputs[i] ) - temp2->val( 0, i ) );
 
                 } else if(outnonlinearity == 0 || outnonlinearity == 1) {
-                    
+
                     onlineError->val( 0, i ) = ( ( Outputs[i] ) - temp2->val( 0, i ) );
-                    
+
                 }
 
             }
-            
+
             break;
 
     }
-    
+
     /// end of STEP 1
-    
+
 
     onlineError->toTranspose();
 
@@ -635,8 +618,6 @@ void ESNetwork::trainOnlineLMS( float * Outputs, float forgettingFactor, float t
 
 }
 
-
-// XXX Maybe faulty
 void ESNetwork::trainOnlineRecursive( float * Outputs, float forgettingFactor, float td_error, double param ) {
 
     matrix::Matrix *temp    = new matrix::Matrix(1, networkNeurons);
@@ -651,87 +632,86 @@ void ESNetwork::trainOnlineRecursive( float * Outputs, float forgettingFactor, f
     /// STEP 1: calculate the transpose of the matrix of inner neuron states and the error between Outputs and training outputs
     *transposedIntermediates    = *intermediates;
     transposedIntermediates->toTranspose();
-    
+
     *temp                       = *endweights;
     temp->toTranspose();
 
     temp2->mult( *transposedIntermediates, *temp );
 
     switch( withRL ) { // Set to td_error for actor-critic learning and otherwise to default
-        
+
         case 1:
-        
+
             for ( unsigned int i = 0; i < outputNeurons; i++ ) {
-                
+
                 onlineError->val( 0, i ) = td_error;//(atan(Outputs[i])-temp2->val(0,i));
 
 
             }
-            
+
             break;
-        
-        case 2: // XXX I am doing this now
-        
+
+        case 2:
+
             for ( unsigned int i = 0; i < outputNeurons; i++ ) {
-                
+
                 if ( outnonlinearity == 2 ) {
-                    
+
                     //compute the Error between output and desired output
-                    onlineError->val( 0, i ) = ( atan( Outputs[i] ) - temp2->val( 0, i ) ); 
+                    onlineError->val( 0, i ) = ( atan( Outputs[i] ) - temp2->val( 0, i ) );
 
                 } else if( outnonlinearity == 0 || outnonlinearity == 1 ) {
 
                     onlineError->val( 0, i ) = ( ( Outputs[i] ) - temp2->val( 0, i ) );
 
                 }
-                
-            }
-            
-            break;
-        
-    }
-    
-    /// end of STEP 1
-    
 
-    if( verboseLevel >= 2 ) { // TODO remove these lines, ttimon7
+            }
+
+            break;
+
+    }
+
+    /// end of STEP 1
+
+
+    if( verboseLevel >= 2 ) {
 
         std::cout << "Target: \t\t" << Outputs[0] << "\n";
-        std::cout << "temp2: \t\t\t" << temp2->val(0,0) << "\n"; // TODO temp2 still becomes inf
+        std::cout << "temp2: \t\t\t" << temp2->val(0,0) << "\n"; // TODO temp2 becomes inf after a certain point
         std::cout << "onlineError: \t\t" << onlineError->val(0,0) << "\n";
 
     }
-    // XXX Till this point everything seems to be fine
 
-    
+
     /// STEP 2: output weights change delta W_out is set to onlineLearningAutocorrelation * x(t) / (forgetting factor +  X(t)^t * onlineLearningAutocorrelation* x(t) )
-    
+
     toChangeOutputWeights->mult( *onlineLearningAutocorrelation, *intermediates );
     temp->mult( *transposedIntermediates, *onlineLearningAutocorrelation );
     temp2->mult( *temp, *intermediates );
 
-    double scale = 1 / ( forgettingFactor + temp2->val( 0, 0 ) ); // XXX Scale becomes infinite after some time
+    double scale = 1 / ( forgettingFactor + temp2->val( 0, 0 ) ); // TODO Scale becomes infinite after some time
     toChangeOutputWeights->mult( *toChangeOutputWeights, scale );
-    
-    /// end of STEP 2
-    
 
-    if( verboseLevel >= 2 ) { // TODO remove these lines, ttimon7
+    /// end of STEP 2
+
+
+    if( verboseLevel >= 2 ) {
 
             std::cout << "forgettingFactor: " << forgettingFactor << ", temp2: "
                               << temp2->val(0,0) << ", scale: " << scale << std::endl;
 
     }
 
-    
+
     /// STEP 3: the onlineLearningAutocorrelation is diminished by  delta_w * x(t)^T *itself and divided by the forgetting factor
 
     temp->mult( *toChangeOutputWeights, *transposedIntermediates );
     temp2->mult( *temp, *onlineLearningAutocorrelation );
 
     *temp = *onlineLearningAutocorrelation - *temp2;
-    onlineLearningAutocorrelation->mult( *temp, 1 / forgettingFactor ); 
-    
+    onlineLearningAutocorrelation->mult( *temp, 1 / forgettingFactor );
+
     /// end of STEP 3
 
 
@@ -754,17 +734,15 @@ void ESNetwork::trainOnlineRecursive( float * Outputs, float forgettingFactor, f
     delete onlineError;
     delete transposedIntermediates;
     // delete toChangeOutputWeights;
-    
+
 }
 
-// XXX OK
 void ESNetwork::trainBackpropagationDecorrelation( float * Outputs, float learningRate ) {
-    
+
 	// unused
-    
+
 }
 
-// XXX Maybe faulty
 // Computes the new state of all neurons except input
 void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , bool learn, int timestep, double param ) {
 
@@ -779,31 +757,31 @@ void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , 
     matrix::Matrix * transposeoutputs   = new matrix::Matrix( 1, networkNeurons );
 
     if( leak == false ) {
-        
+
         temp->mult( *startweights, *inputs );
 
         if( feedbackConnections ) {
-            
+
             //temp2->mult(*innerweights, intermediates->above(*outputs))  ;
             //temp2->removeRows(networkNeurons);
 
             feed->mult( *feedweights, *outputs );
             temp2->mult( *innerweights, *intermediates );
-            
+
         } else {
-            
+
             temp2->mult( *innerweights, *intermediates);
-        
+
         }
-        if( !feedbackConnections ) { 
-            
+        if( !feedbackConnections ) {
+
             intermediates->add( *temp, *temp2 );
 
         } else if( feedbackConnections ) {
-            
+
             intermediates->add( *temp, *temp2 );
             intermediates->add( *intermediates, *feed );
-            
+
         }
         //std::cout <<  "inner Neurons computed:\n";
 
@@ -811,33 +789,33 @@ void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , 
         if( RCneuronNoise == true ) {
 
             for( unsigned int i = 0; i < networkNeurons; i++ ) {
-                
+
                 for( unsigned int j = 0; j < 1; j++ ) {
-                       
+
                     noise->val( i, j ) = ESNetwork::uniform( -NoiseRange, NoiseRange );
-                    
+
                 }
-                
+
             }
 
         }
-        
+
         //Add noise to the inner reservoir
         intermediates->add( *intermediates, *noise );
 
         ESNetwork::cullInnerVector( 0.6 );
 
         if ( throughputConnections ) {
-            
+
             // *temp3 = *inputs;
             *temp3 = *intermediates;
             // *temp3 = temp3->beside(*intermediates);
             *temp3 = temp3->beside(*inputs);
 
         } else {
-            
+
             *temp3 = *intermediates;
-            
+
         }
 
     } else if ( leak == true ) {
@@ -850,34 +828,33 @@ void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , 
         // transposeoutputs->toTranspose();
 
         if( feedbackConnections ) {
-            
-            // XXX Why does this work? Dimensions does not match for matrix multiplication
-            temp2->mult( *innerweights, intermediates->above( *outputs ) ); 
+
+            // TODO Why does this work? Dimensions does not match for matrix multiplication
+            temp2->mult( *innerweights, intermediates->above( *outputs ) );
             temp2->removeRows( networkNeurons );
 
         } else {
-            
+
             temp2->mult( *innerweights, *intermediates /*old_intermediates*/ /**intermediates*/ );
-                
+
         }
 
         intermediates->add( *temp, *temp2 );
-        // std::cout << intermediates->val(0,0) << std::endl; // TODO remove this line
 
         if( RCneuronNoise == true ) {
-            
+
             for( unsigned int i = 0; i < networkNeurons; i++ ) {
-             
+
                 for( unsigned int j = 0; j < 1; j++ ) {
-                    
+
                     noise->val( i, j ) = ESNetwork::uniform( -NoiseRange, NoiseRange );
-                
+
                 }
-                         
+
             }
 
         }
-                        
+
         // adding bias to reservoir neurons
         intermediates->add( *intermediates, *noise );
 
@@ -888,58 +865,56 @@ void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , 
         intermediates->add( *old_intermediates, *temp5 );
         //std::cout <<  "inner Neurons computed:\n";
 
-        // std::cout << intermediates->val(0,0) << std::endl; // TODO remove this line
-
         if( throughputConnections ) {
-            
+
             *temp3 = *inputs;
             *temp3 = temp3->beside( *intermediates );
-                
+
         } else {
-            
+
             *temp3 = *intermediates;
-            
+
         }
 
     }
 
     if( learn ) {
-        
+
         if( td_error != 0 ) {
-            
+
             if ( LearnMode == 1 ) { //Chooses whether RLS or LMS learning, default is 1-RLS learning
-                
-                trainOnlineRecursive( Outputs, learningRate, ( td_error ), param ); // FIXME Suspicious...
+
+                trainOnlineRecursive( Outputs, learningRate, ( td_error ), param );
 
                 outputs->mult( *endweights, *temp3 );
 
             } else if ( LearnMode == 2 ) { //LMS
-           
+
                 trainOnlineLMS( Outputs, learningRate, ( td_error ), param );
                 outputs->mult( *endweights, *temp3 );
-                
+
             }
 
             // outputsCollection[timestep] = outputs->val(0,0);
             // printMatrix(endweights);
 
         }
-        
+
     } else {
-              
+
         if( Loadweight == false ) {
-            
+
             outputs->mult( *endweights, *temp3 );
-            
+
         } else if( Loadweight == true ) {
-            
+
             //   outputs->mult(*storedweights, *temp3);
-            
+
         }
 
     }
 
-    ESNetwork::cullOutput( 0.6 );  // FIXME Suspicious...
+    ESNetwork::cullOutput( 0.6 );
 
     delete feed;
     delete temp;
@@ -950,18 +925,18 @@ void ESNetwork::takeStep( float * Outputs, float learningRate, float td_error , 
     delete temp6;
     delete old_intermediates;
     delete transposeoutputs;
-    
+
 }
 
 float ESNetwork::evaluatePerformance( int start, int end, float * desiredOutputs ) {
-	
+
     std::cout << "Evaluating Performance" <<std::endl;
 
     out1.open( "output_error" );
     int i           = 0;
     double tot      = 0.0;
     double error    = 0;
-    
+
     for( i = start; i < end; i++ ) {
 
         tot = ( outputsCollection[i] - desiredOutputs[i] ) * ( outputsCollection[i] - desiredOutputs[i] );
@@ -969,51 +944,51 @@ float ESNetwork::evaluatePerformance( int start, int end, float * desiredOutputs
         out1 << tot << "\n";
 
         error += tot;
-            
+
     }
-    
+
     out1.close();
-    
+
     return error / ( end - start );
-        
+
 }
 
 void ESNetwork::writeParametersToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" ) ;
     fileNameStream << dir << "parameters_" << num << ".txt";
     std::string fileName = fileNameStream.str();
-    
+
     out2.open( fileName.c_str() );
-    
+
     out2 << inputNeurons << "\n";
     out2 << outputNeurons << "\n";
     out2 << networkNeurons << "\n";
-    
+
     out2 << throughputConnections << "\n";
     out2 << feedbackConnections << "\n";
     out2 << leak << "\n";
     out2 << RCneuronNoise << "\n";
-    
+
     out2 << withRL << "\n";
-    
+
     out2 << para_a << "\n";
     out2 << para_b << "\n";
     out2 << enable_IP << "\n";
-    
+
     out2 << leak_rate << "\n";
     out2 << nonlinearity << "\n";
     out2 << outnonlinearity << "\n";
-    
+
     out2 << InputWeightRange << "\n";
-         
+
     out2.close();
-    
+
 }
 
 void ESNetwork::writeStartweightsToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" ) ;
     fileNameStream << dir << "start_weights_" << num << ".txt";
@@ -1022,23 +997,20 @@ void ESNetwork::writeStartweightsToFile( unsigned int num, std::string dir ) {
     out3.open( fileName.c_str() );
 
     for( unsigned int i = 0; i < this->startweights->getM(); i++ ) {
-        
-        for( unsigned int j = 0; j < this->startweights->getN(); j++ ) {
-            
-             out3 << this->startweights->val( i, j ) << " ";
-             
-        }
+
+        for( unsigned int j = 0; j < this->startweights->getN(); j++ )
+            out3<<this->startweights->val(i,j)<<" ";
 
         out3 << "\n";
 
     }
-    
+
     out3.close();
-    
+
 }
 
 void ESNetwork::writeInnerweightsToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" );
     fileNameStream << dir << "inner_weights_" << num << ".txt";
@@ -1047,20 +1019,20 @@ void ESNetwork::writeInnerweightsToFile( unsigned int num, std::string dir ) {
     out4.open( fileName.c_str() );
 
     for( unsigned int i = 0; i < this->innerweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < this->innerweights->getN(); j++ )
             out4 << this->innerweights->val( i, j ) << " ";
-        
+
          out4 << "\n";
 
     }
-    
+
     out4.close();
-    
+
 }
 
 void ESNetwork::writeInneractivityToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" );
     fileNameStream << dir << "inner_activity_" << num << ".txt";
@@ -1082,7 +1054,7 @@ void ESNetwork::writeInneractivityToFile( unsigned int num, std::string dir ) {
 }
 
 void ESNetwork::writeEndweightsToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" );
     fileNameStream << dir << "output_weights_" << num <<".txt";
@@ -1098,13 +1070,13 @@ void ESNetwork::writeEndweightsToFile( unsigned int num, std::string dir ) {
         out6 << "\n";
 
     }
-    
+
     out6.close();
 
 }
 
 void ESNetwork::writeNoiseToFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for writing
     std::ostringstream fileNameStream( "" );
     fileNameStream << dir << "noise_" << num << ".txt";
@@ -1113,59 +1085,56 @@ void ESNetwork::writeNoiseToFile( unsigned int num, std::string dir ) {
     out5.open( fileName.c_str() );
 
     for( unsigned int i = 0; i < this->noise->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < this->noise->getN(); j++ )
             out5 << this->noise->val( i, j ) << " ";
-        
+
         out5 << "\n";
 
     }
-    
+
     out5.close();
-    
+
 }
 
 
 void ESNetwork::readParametersFromFile( unsigned int num, std::string dir ) {
-    
+
     // Opens file for reading
     std::ostringstream fileNameStream( "" );
     fileNameStream << dir << "parameters_" << num << ".txt";
     std::string fileName = fileNameStream.str();
-    
     std::ifstream file( fileName.c_str() );
-    
-    if( file.is_open() ) {
-        
-        file >> inputNeurons;
-        file >> outputNeurons;
-        file >> networkNeurons;
 
-        file >> throughputConnections;
-        file >> feedbackConnections;
-        file >> leak;
-        file >> RCneuronNoise;
+    file.open( fileName.c_str() );
 
-        file >> withRL;
+    file >> inputNeurons;
+    file >> outputNeurons;
+    file >> networkNeurons;
 
-        file >> para_a;
-        file >> para_b;
-        file >> enable_IP;
+    file >> throughputConnections;
+    file >> feedbackConnections;
+    file >> leak;
+    file >> RCneuronNoise;
 
-        file >> leak_rate;
-        file >> nonlinearity;
-        file >> outnonlinearity;
+    file >> withRL;
 
-        file >> InputWeightRange;
-        
-        file.close();
-        
-    }
+    file >> para_a;
+    file >> para_b;
+    file >> enable_IP;
+
+    file >> leak_rate;
+    file >> nonlinearity;
+    file >> outnonlinearity;
+
+    file >> InputWeightRange;
+
+    file.close();
 
 }
 
 void ESNetwork::readStartweightsFromFile( unsigned int num, std::string dir ) {
-    
+
     matrix::Matrix * temp = new matrix::Matrix( startweights->getM(), startweights->getN() );
 
     char str[10];
@@ -1177,42 +1146,42 @@ void ESNetwork::readStartweightsFromFile( unsigned int num, std::string dir ) {
     std::ifstream file( fileName.c_str() );
 
     for( unsigned int i = 0; i < startweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < startweights->getN(); j++) {
-           
+
             if( !( file >> str ) ) {
-                
+
                 std::cerr << "error while reading start weights file";
                 break;
-                
+
             }
 
             if( strncmp( str, " ", 10 ) == 0 ) break;
 
             temp->val( i, j ) = atof( str );
-            
+
         }
-        
+
         if ( !file ) break;
-        
+
     }
 
     //this->startweights = temp;
     for( unsigned int i = 0; i < startweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < startweights->getN(); j++ )
             this->startweights->val( i, j ) = ( temp->val( i, j ) );
-    
+
     }
-    
+
     file.close();
-    
+
     delete temp;
-    
+
 }
 
 void ESNetwork::readInnerweightsFromFile( unsigned int num, std::string dir ) {
-    
+
     matrix::Matrix * temp = new matrix::Matrix( innerweights->getM(), innerweights->getN() );
 
     char str[10];
@@ -1224,37 +1193,37 @@ void ESNetwork::readInnerweightsFromFile( unsigned int num, std::string dir ) {
     std::ifstream file( fileName.c_str() );
 
     for( unsigned int i = 0; i < innerweights->getM(); i++) {
-    
+
        for( unsigned int j = 0; j < innerweights->getN(); j++) {
-           
+
             if ( !( file >> str ) ) {
-                
+
                 std::cerr << "error while reading file";
                 break;
-                
+
             }
 
             if( strncmp( str, " ", 10 ) == 0 ) break;
 
             temp->val( i, j ) = atof( str );
-            
+
        }
-       
+
        if ( !file ) break;
-       
+
     }
 
     //this->innerweights = *temp;
 
     for( unsigned int i = 0; i < innerweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < innerweights->getN(); j++ ) {
 
             this->innerweights->val( i, j ) = ( temp->val( i, j ) );
-        
+
         }
     }
-    
+
     file.close();
 
     delete temp;
@@ -1262,7 +1231,7 @@ void ESNetwork::readInnerweightsFromFile( unsigned int num, std::string dir ) {
 }
 
 void ESNetwork::readEndweightsFromFile( unsigned int num, std::string dir ) {
-    
+
     matrix::Matrix * temp = new matrix::Matrix(endweights->getM(), endweights->getN());
 
     char str[10];
@@ -1275,35 +1244,35 @@ void ESNetwork::readEndweightsFromFile( unsigned int num, std::string dir ) {
 
 
     for( unsigned int i = 0; i < endweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < endweights->getN(); j++ ) {
-           
+
             if ( !( file >> str ) ) {
-                
+
                 std::cerr << "error while reading output weights file";
                 break;
-                
+
             }
 
             if( strncmp( str, " ", 10) == 0 ) break;
 
             temp->val( i, j ) = atof( str );
-            
+
         }
 
         if ( !file ) break;
-       
+
     }
 
     //this->*noise = *temp;
 
     for( unsigned int i = 0; i < endweights->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < endweights->getN(); j++ )
             this->endweights->val( i, j ) = ( temp->val( i, j ) );
-        
+
     }
-    
+
     file.close();
 
     delete temp;
@@ -1324,176 +1293,168 @@ void ESNetwork::readNoiseFromFile( unsigned int num, std::string dir ) {
 
 
     for( unsigned int i = 0; i < noise->getM(); i++ ) {
-        
+
        for( unsigned int j = 0; j < noise->getN(); j++ ) {
-           
+
              if( !( file >> str ) ) {
-                 
+
                  std::cerr << "error while reading start weights file";
                  break;
-                 
+
              }
 
              if( strncmp( str, " ", 10 ) == 0 ) break;
 
              temp->val( i, j ) = atof( str );
-             
+
        }
-       
+
        if ( !file ) break;
     }
 
     //this->*noise = *temp;
 
     for( unsigned int i = 0; i < noise->getM(); i++ ) {
-        
+
         for( unsigned int j = 0; j < noise->getN(); j++ )
             this->noise->val( i, j ) = ( temp->val( i, j ) );
-        
+
     }
-    
+
     file.close();
 
     delete temp;
 
 }
 
-// XXX OK
 void ESNetwork::resetInput() { // sets the input neurons to zero
 
-    std::cout << "Resetting inputs:" << "\n";    
+    std::cout << "Resetting inputs:" << "\n";
     for( unsigned int i = 0; i < inputNeurons; i++ ) {
-        
+
         inputs->val( i, 0 ) = 0;
-        
-    }    
+
+    }
     std::cout << " \n done" << "\n";
-        
+
 }
 
-// XXX OK
 void ESNetwork::scrambleInput() { //randomizes input, unused
 
     for( unsigned int i = 0; i < inputNeurons; i++ ) {
-        
+
         if( rand() % 100 > 50 ) {
-            
+
             inputs->val( i, 0 ) = 1;
-            
+
         } else {
-            
+
             inputs->val( i, 0 ) = 0;
-            
+
         }
-        
+
     }
-    
+
 }
 
-// XXX OK
-//functions to print matrices to terminal
+/// Functions to print matrices to terminal
 void ESNetwork::printMatrix( matrix::Matrix *printedMatrix ) {
-	
+
     unsigned int i = 0;
     unsigned int j = 0;
     std::cout << "matrix 1 : \n";
-    
+
     for( i = 0; i < printedMatrix->getM(); j++ ) {
-        
+
         if( j == printedMatrix->getN() ) {
-            
+
             j = 0;
             i++;
             std::cout << "\n";
             if( i == printedMatrix->getM() ) break;
-                
+
         }
-        
+
         std::cout << printedMatrix->val( i, j ) << " ";
-            
+
     }
 }
 
-// XXX OK
 void ESNetwork::printOutputToTerminal() {
-    
+
     std::cout <<  "Output : ";
     for( unsigned int i = 0; i < outputs->getM(); i++ ) {
-        
-        std::cout << outputs->val( i, 0 ) << " ";
-        
-    }    
-    std::cout << "\n ";
-    
-}
 
-// XXX OK
-void ESNetwork::printNeuronsToTerminal() {
-    
-    std::cout <<  "Neurons : \n";
-    for( unsigned  int i = 0; i < intermediates->getM(); i++ ) {
-    
-        std::cout << intermediates->val( i, 0 ) << " ";
-        
+        std::cout << outputs->val( i, 0 ) << " ";
+
     }
     std::cout << "\n ";
-        
+
 }
 
-// XXX Maybe faulty
-//restricts the range of neuron activation using sigmoid
+void ESNetwork::printNeuronsToTerminal() {
+
+    std::cout <<  "Neurons : \n";
+    for( unsigned  int i = 0; i < intermediates->getM(); i++ ) {
+
+        std::cout << intermediates->val( i, 0 ) << " ";
+
+    }
+    std::cout << "\n ";
+
+}
+
+/// Restricts the range of neuron activation using sigmoid
 void ESNetwork::cullInnerVector( float treshold /*unused*/ ) {
-    
+
     for( unsigned int i = 0; i < intermediates->getM(); i++ ) {
 
         if( nonlinearity == 0 ) {
-            
+
             intermediates->val( i, 0 ) = intermediates->val( i, 0 );
 
         } else if (nonlinearity == 1 ) {
-            
+
             intermediates->val( i, 0 ) = ESNetwork::sigmoid( intermediates->val( i, 0 ) );
 
         } else if( nonlinearity == 2 ) {
-        
+
             intermediates->val( i, 0 ) = ESNetwork::tanh( intermediates->val( i, 0 ), enable_IP );
-        
+
         }
-        
+
         //Keep flag set to true for intrinsic plasticity, otherwise False
         if( intermediates->val( i, 0 ) * intermediates->val( i, 0 ) <= 0.0001 ) intermediates->val( i, 0 ) = 0;
 
     }
-        
+
 }
 
-// XXX Maybe faulty
 void ESNetwork::cullOutput( float treshold /*unused*/ ) {
-    
+
     for( unsigned int i = 0; i < outputs->getM(); i++ ) {
 
     if( outnonlinearity == 0 ) {
-        
+
         outputs->val( i, 0 ) = outputs->val( i, 0 );
 
     } else if( outnonlinearity == 1 ) {
-        
+
         outputs->val(i,0) = ESNetwork::sigmoid(outputs->val(i,0));
-        
+
     } else if( outnonlinearity == 2 )
-        
+
         outputs->val(i,0) = ESNetwork::tanh(outputs->val(i,0), false);
 
         // if (outputs->val(i,0)*outputs->val(i,0)<=0.0001) outputs->val(i,0) = 0;
-    
+
     }
-        
+
 }
 
-// XXX OK
 float ESNetwork::sigmoid( float x )
 {
-    
+
     return ( 1 / ( 1 + exp( -x ) ) );
 
 }
@@ -1505,9 +1466,8 @@ float ESNetwork::deriSigmoid( float x )
 	return ( x * x - 9 ) * ( x * x - 9 ) / ( 9 * ( x * x + 3 ) * ( x * x + 3 ) );
 }
 
-// XXX Maybe faulty
 double ESNetwork::tanh( double x, bool flag ) {
-    
+
     // Gaussian Intrinsic plasticity rule
 
     //static int a=0;
@@ -1517,7 +1477,7 @@ double ESNetwork::tanh( double x, bool flag ) {
 
         double eta = 0.001; // learning rate for IP stochastic rule
 
-        para_a = 1.0; 
+        para_a = 1.0;
         para_b = 0.0;
 
         double y = 2. / ( 1. + exp( -2 * ( para_a * x + para_b ) ) ) -1.;
@@ -1547,9 +1507,8 @@ double ESNetwork::tanh( double x, bool flag ) {
 
 }
 
-// XXX Maybe faulty
 double ESNetwork::updateGauss_gain( double y, double eta ) {
-    
+
     double del_b    = 0.0;
     double mu       = 0.2;  // mean of Gaussian distribution (mean firing rate)
     double sigma    = 0.01; // standard deviation
@@ -1557,25 +1516,23 @@ double ESNetwork::updateGauss_gain( double y, double eta ) {
     del_b = -eta * ( -( mu / ( sigma * sigma ) ) + ( y / ( sigma * sigma ) ) * ( 2 * sigma * sigma + 1 - ( y * y ) + ( mu * y ) ) );
 
     return del_b;
-    
+
 }
 
-// XXX What's happening here???
 void ESNetwork::normalizeInnerWeights( float density ) {
-    
+
     matrix::Matrix * Eigens = new matrix::Matrix;
     *Eigens = eigenValuesRealSym( *innerweights );
 
     // Workaround for Eigen value decomposition NULL matrix issue from LPZrobot (stupid but works ;))
     while( Eigens->val( 0, 0 ) == 0 ) {
-        
+
         *Eigens = eigenValuesRealSym( *innerweights );
-    
+
     }
-    
+
     if( verboseLevel >= 2 )	{
 
-        // printMatrix(Eigens); // XXX ttimon7
         std::cout<<std::endl;
 
     }
@@ -1583,28 +1540,26 @@ void ESNetwork::normalizeInnerWeights( float density ) {
     innerweights->mult( *innerweights, ( 1 / Eigens->val( 0, 0 ) ) * density );
     *Eigens = eigenValuesRealSym( *innerweights );
 
-    if( verboseLevel >= 2 ) printMatrix( Eigens );  // XXX ttimon7
+    if( verboseLevel >= 2 ) printMatrix( Eigens );
 
     delete Eigens;
-    
+
 }
 
-// XXX What's happening here???
 void ESNetwork::normalizeInputWeights( float density ) {
-    
+
     matrix::Matrix * Eigens = new matrix::Matrix;
     *Eigens = eigenValuesRealSym( *startweights );
 
     // Workaround for Eigen value decomposition NULL matrix issue from LPZrobot (stupid but works ;))
     while( Eigens->val( 0, 0 ) == 0 ) {
-        
+
         *Eigens = eigenValuesRealSym( *startweights );
-        
+
     }
 
     if( verboseLevel >= 2 ) {
 
-        // printMatrix( Eigens ); // XXX ttimon7
         std::cout << std::endl;
 
     }
@@ -1612,15 +1567,14 @@ void ESNetwork::normalizeInputWeights( float density ) {
     startweights->mult( *startweights, ( 1 / Eigens->val( 0, 0 ) ) * density );
     *Eigens = eigenValuesRealSym( *startweights );
 
-    if( verboseLevel >= 2 ) printMatrix( Eigens ); // XXX ttimon7
+    if( verboseLevel >= 2 ) printMatrix( Eigens );
 
     delete Eigens;
-                
+
 }
 
-// XXX OK
 float * ESNetwork::readOutputs() {
-    
+
     float * outputvalues = new float[outputNeurons];
     for( unsigned int i = 0; i < outputNeurons; ) {
 
@@ -1629,14 +1583,13 @@ float * ESNetwork::readOutputs() {
     }
 
     return outputvalues;
-        
+
 }
 
-// XXX OK
 double ESNetwork::uniform( double a, double b ) {
-    
+
     return rand() / ( RAND_MAX + 1.0 ) * ( b - a ) + a;
-        
+
 }
 
 
