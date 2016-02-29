@@ -1,8 +1,8 @@
 /*
  * Giuliano Di Canio 3 November 2014
  */
-#ifndef DACBOTSERIAL_H_
-#define DACBOTSERIAL_H_
+#ifndef DACBOT_SERIAL_H_
+#define DACBOT_SERIAL_H_
 
 #include <signal.h>
 #include <unistd.h>
@@ -11,6 +11,11 @@
 #include <list>
 #include <string>
 #include <iterator>
+
+
+
+#include <fstream>
+
 
 
 #include <assert.h>
@@ -34,14 +39,14 @@
 #include<sys/time.h>
 
 //#include "sensor_motor_definition.h"
-#include <utils/real_robots/dacbot/dacbotSensMotDef.h>
+#include <utils/real_robots/dacbot/dacbot_SensMotDef.h>
 
 using namespace std;
 
 #define COM1 "/dev/ttyS0"
 
-#define SENSOR_BUFFER_NUM 34     //numbers for M-board 1
-#define MOTOR_BUFFER_NUM 33      //numbers for M-board 1
+#define SENSOR_BUFFER_NUM 7    //numbers for M-board 1
+#define MOTOR_BUFFER_NUM  33     //numbers for M-board 1
 #define COMMAND_BUFFER_NUM 100
 
 
@@ -50,12 +55,34 @@ namespace lpzrobots {
 
 /** This class communicates with amosII robot
  */
-class dacbotserial : public AbstractRobot {
+class dacbot_serial : public AbstractRobot {
 public:
-	dacbotserial(const char *port = "/dev/ttyS0");
+	dacbot_serial(const char *port = "/dev/ttyS0");
+
+	  double alph;
+	  double phi;
+	  double WeightH1_H1;
+	  double WeightH2_H2;
+	  double WeightH1_H2;
+	  double WeightH2_H1;
+
+	  double BiasH1;
+	  double BiasH2;
+
+	  double activityH1;
+	  double activityH2;
+
+	  double outputH1;
+	  double outputH2;
 
 
-	~dacbotserial();
+	ofstream serialPlot;
+
+
+	
+
+
+	~dacbot_serial();
 
 	// robot interface
 	/** returns actual sensorvalues
@@ -98,15 +125,18 @@ public:
 private:
 
 	int fd1;// Return char after opening COM0
-	double  Sensor[DACBOT_SENS_MAX]; //but only 18 sensors used now, others are set to zero
-	double motorCom[DACBOT_MOT_MAX];
-	char chBuff;
+	double  Sensor[DUNGBEETLE_SENSOR_MAX]; //but only 18 sensors used now, others are set to zero
+	double motorCom[DUNGBEETLE_MOTOR_MAX];
+	
+	
+	double potValue[SENSOR_BUFFER_NUM];
+	unsigned char chBuff;
+	bool received= false;
 
-	int servoPosMin[DACBOT_MOT_MAX];
-	int servoPosMax[DACBOT_MOT_MAX];
+	int servoPosMin[DUNGBEETLE_MOTOR_MAX];
+	int servoPosMax[DUNGBEETLE_MOTOR_MAX];
 
 	int nSensorType;
-	double potValue[SENSOR_BUFFER_NUM];
 
 	int index;//=0;
 	double sensor1;//=1;
@@ -119,11 +149,12 @@ private:
 	struct termios stdio;
 
 	char serial_motor[100];
+	char serial_motor2[34];
 	int serialPos[MOTOR_BUFFER_NUM];
 
 	int motornumber;
 	int sensornumber;
-
+	
 	const char * port;
 
 	paramval power;
@@ -132,18 +163,14 @@ private:
 	int t;
 
 
-	enum RealDacbotSensorNames{
+	enum RealDungBeetleSensorNames{
 
 	 /*Add more sensors here according to the port of the MBoard*/
 
 	  // Foot contact sensors
-	  LEFT_HIP_REAL= 10,
-	  RIGHT_HIP_REAL= 11,
-	  LEFT_KNEE_REAL= 12,
-	  RIGHT_KNEE_REAL=13,
-	  BODY_REAL=14,
-	  LEFT_FOOT=15,
-	  RIGHT_FOOT=16
+	  TC0_RIGHT_REAL= 10,
+	  CT0_RIGHT_REAL= 11,
+	  FT0_RIGHT_REAL= 12,
 
 
 	 };
@@ -151,4 +178,4 @@ private:
 };
 
 }
-#endif /* dungBeetleSerial_H_ */
+#endif /* DACBOT_SERIAL_H_ */
