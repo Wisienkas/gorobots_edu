@@ -25,9 +25,9 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "controllers/runbotii_dacbot/muscleRunbotController.h"
+#include "controllers/runbotii_dacbot/real_robot_controller/muscleRunbotController.h"
 
-#include <utils/real_robots/dacbot/dacbotserial.h>  //serial interface to AMOSII version 1
+#include <utils/real_robots/dacbot/dacbot_serial.h>  //serial interface to AMOSII version 1
 //serial interface to AMOSII version 2
 #include <cmath>
 
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 	}
 
 	GlobalData globaldata;
-	dacbotserial* robot;
+	dacbot_serial* robot;
 	Agent* agent;
 	initializeConsole();
 
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 
 	//robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
-	robot = new dacbotserial("/dev/ttyUSB0"); // using USB-to-serial adapter
+	robot = new dacbot_serial("/dev/ttyUSB0"); // using USB-to-serial adapter
 
 
 	agent = new Agent(plotoptions);

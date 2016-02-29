@@ -30,7 +30,7 @@ dungBeetleSerial::dungBeetleSerial(const char *port)
 : AbstractRobot("dungBeetleSerial", "$Id: main.cpp,v 0.1 2011/14/07 18:00:00 fhesse $"),
   port(port) {
 
-	fd1=open("/dev/ttyUSB1", O_RDWR | O_NOCTTY | O_NDELAY);//make sure your account in PC can have access to serial port
+	fd1=open("/dev/ttyUSB0", O_RDWR | O_NOCTTY | O_NDELAY);//make sure your account in PC can have access to serial port
 
 
 	if(fd1 == -1)
@@ -254,7 +254,7 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 
 
 	//usleep(1000);
-	usleep (100000);//10000);
+	usleep (10000);//10000);
 	// do some processing for motor commands before sending AMOS sensors
 
 	sprintf(serial_motor, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
