@@ -180,8 +180,8 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 	u_ar = 0;
 	w_ar_kr_ei = 10;
 	w_ar_kr_fi = -20;
-	elf_al = 10;//4
-	elf_ar = 10;//4
+	elf_al = 100;//4
+	elf_ar = 100;//4
 
 	u_gl = 1;
 	w_gl_hl_fi = 10;
@@ -200,6 +200,11 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 	angle_hr_pre=0;
 	angle_hr_now=0;
 
+
+    motorvolt_hl = 0;
+    motorvolt_hr = 0;
+    motorvolt_kl = 0;
+    motorvolt_kr = 0;
 
 
 }
@@ -268,6 +273,7 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	}
 
 	if (u_gl==1) {
+		//3) Enter here
 		u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl))); // Stretch receptor sensor left ??
 	} else {
 		if (int(20*u_al)>5) {
@@ -294,6 +300,31 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	}
 
 
+
+
+
+
+	std::cout << "u_gr>>>>" << u_gr << std::endl;
+	std::cout << "u_gl>>>>" << u_gl << std::endl;
+	std::cout << "u_al>>>>" << u_al << std::endl;
+	std::cout << "u_ar>>>>" << u_ar << std::endl;
+
+	std::cout << "u_kl_em>>>>" << u_kl_em << std::endl;
+	std::cout << "u_kl_fm>>>>" << u_kl_fm << std::endl;
+	std::cout << "u_kr_em>>>>" << u_kr_em << std::endl;
+	std::cout << "u_kr_fm>>>>" << u_kl_fm << std::endl;
+
+
+	std::cout << "u_hl_em>>>>" << u_hl_em << std::endl;
+	std::cout << "u_hl_fm>>>>" << u_hl_fm << std::endl;
+	std::cout << "u_hr_em>>>>" << u_hr_em << std::endl;
+	std::cout << "u_hr_fm>>>>" << u_hl_fm << std::endl;
+
+
+	std::cout << "motorvolt_kl>>>>" << motorvolt_kl << std::endl;
+	std::cout << "motorvolt_kr>>>>" << motorvolt_kl << std::endl;
+	std::cout << "motorvolt_hl>>>>" << motorvolt_hl << std::endl;
+	std::cout << "motorvolt_hr>>>>" << motorvolt_hr << std::endl;
 
 
 
@@ -394,34 +425,41 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 
 
-
-
-
-
-
-
-
+	//State machine control///
 
 	// piezos : 2048 = 0v (foot contact the ground) .... 4096 (off ground)
 
+	// Left leg at front
 	if (int(10*u_al)>5) {                               // Touch the ground of left leg
 		if (int(angle_kl)>170) {                        // knee left has to be Straigth
-			if (abs(leftpiezo-2048)<300) {              // Foot signal ~ ground contact
+			if (abs(leftpiezo-2048)<300) {              // Foot signal ~ ground contact if it touch the ground then enter here!
 				u_gl=1;
 				u_gr=0;
+
 			}
 		}
 	}
 
 
+	// Right leg at front
 	if (int(10*u_ar)>5) {                               // Touch the ground of right leg
+
+		//1)  Enter this loop
 		if (int(angle_kr)>170) {                        // knee right has to be Straigth
-			if (abs(rightpiezo-2048)<300) {             // Foot signal ~ ground contact
+
+			//2)  Enter this loop
+
+			if (abs(rightpiezo-2048)<300) {             // Foot signal ~ ground contact if it touch the ground then enter here!
 				u_gl=0;
 				u_gr=1;
+
 			}
 		}
 	}
+
+
+
+
 
 
 }
@@ -482,13 +520,84 @@ std::valarray< double > cNNet::update_motorvoltages() {
 
 
 
-	double motorvolt_hl = gait->gain_hl_ext()  * u_hl_em -
+	/********************Controller here!*************************/
+
+	//
+	//
+	//switch state
+	//   //Bodenkontakt rechts
+	//    case 1
+	//       //rechte Hüfte zurückziehen
+	//        if (phi(1)>HRext)
+	//            U(1)=-UHret;
+	//        else
+	//            U(1)=0;
+	//        end
+	//        //rechtes Knie gestreckt halten
+	//        U(3)=UKhold;
+	//        //linke Hüfte vorziehen
+	//         if (phi(2)>HLflex)
+	//            U(2)=-UHpro;
+	//            //linkes Knie beugen
+	//            if (phi(4)<KLflex)
+	//                U(4)=-UKflex;
+	//                KL=false;
+	//            else
+	//                U(4)=0;
+	//            end
+	//        else
+	//            U(2)=0;
+	//            %linkes Knie stecken
+	//            if (phi(4)>KLext) && ~KL
+	//                U(4)=UKext;
+	//            else
+	//                U(4)=UKhold;
+	//                KL=true;
+	//            end
+	//        end
+	//   %% Bodenkontakt links
+	//    case 2
+	//        %rechte Hüfte vorziehen
+	//         if (phi(1)<HRflex)
+	//            U(1)=UHpro;
+	//            %rechtes Knie beugen
+	//            if (phi(3)>KRflex)
+	//                U(3)=-UKflex;
+	//                KR=false;
+	//            else
+	//                U(3)=0;
+	//            end
+	//         else
+	//            U(1)=0;
+	//            %rechtes Knie stecken
+	//            if (phi(3)<KRext) && ~KR
+	//                U(3)=UKext;
+	//            else
+	//                U(3)=UKhold;
+	//                KR=true;
+	//            end
+	//        end
+	//        if (phi(2)<HLext)
+	//            U(2)=UHret;
+	//        else
+	//            U(2)=0;
+	//        end
+	//        U(4)=UKhold;
+	//end
+	//
+	//
+
+	/*************************************************************/
+
+
+
+	motorvolt_hl = gait->gain_hl_ext()  * u_hl_em -
 			gait->gain_hl_flex() * u_hl_fm;
-	double motorvolt_hr = gait->gain_hr_ext()  * u_hr_em -
+	motorvolt_hr = gait->gain_hr_ext()  * u_hr_em -
 			gait->gain_hr_flex() * u_hr_fm;
-	double motorvolt_kl = gait->gain_kl_ext()  * u_kl_em -
+	motorvolt_kl = gait->gain_kl_ext()  * u_kl_em -
 			gait->gain_kl_flex() * u_kl_fm;
-	double motorvolt_kr = gait->gain_kr_ext()  * u_kr_em -
+	motorvolt_kr = gait->gain_kr_ext()  * u_kr_em -
 			gait->gain_kr_flex() * u_kr_fm;
 
 
@@ -511,9 +620,6 @@ std::valarray< double > cNNet::update_motorvoltages() {
     double motorvolt_kr =   1* u_kr_em - 1* u_kr_fm;*/
 
 
-	/********************Controller here!*****************************************/
-
-	/*************************************************************/
 
 
 	valarray<double> result(4);

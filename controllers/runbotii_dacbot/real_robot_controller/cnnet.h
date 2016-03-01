@@ -251,6 +251,13 @@ class cNNet {
         double angle_hl_now;
         double angle_hr_now;
 
+
+    	double motorvolt_hl;
+    	double motorvolt_hr;
+    	double motorvolt_kl;
+    	double motorvolt_kr;
+
+
         static const double expp;   // 1 ms .. means xep(-1/tau) ,for knee neurons,
                                     // tau is bigger than that of hips, in order to
                                     // eliminate the noise of motor neuron output.

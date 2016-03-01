@@ -158,7 +158,7 @@ std::vector<double> DynamicCpg::generateOutputOneLeg(double feedback, double mot
 			countPerturbation++;//counting how many steps the perturbation is present
 		else countPerturbation=0;
 
-		std::cout << "Perturbation time " << countPerturbation << std::endl;
+		//std::cout << "Perturbation time " << countPerturbation << std::endl;
 
 		std::vector<double> output;
 		double temp;
@@ -263,7 +263,7 @@ std::vector<double> DynamicCpg::generateOutputOneLeg(double feedback, double mot
 
 
 
-	    std::cout << "step1 " << delay.at(1) << "step2 " << delay.at(0) << "Delay  " << delayValue << "   ShiftRegisterDimention  " << dynRegister->getSize() << std::endl;
+	    //std::cout << "step1 " << delay.at(1) << "step2 " << delay.at(0) << "Delay  " << delayValue << "   ShiftRegisterDimention  " << dynRegister->getSize() << std::endl;
 
         temp=generateHip(test, out1DerivativeCpg, 0, amplitudeMotor0);
 
@@ -278,7 +278,7 @@ std::vector<double> DynamicCpg::generateOutputOneLeg(double feedback, double mot
 	    amplitudeMotor0=getAmplitudeHips(motor0,amplitudeMotor0);
 	    amplitudeMotor2=getAmplitudeHips(motor1,amplitudeMotor2);
 
-	    std::cout << "ampl" << amplitudeMotor0 << " " << amplitudeMotor2 << std::endl;
+	    //std::cout << "ampl" << amplitudeMotor0 << " " << amplitudeMotor2 << std::endl;
 
 	    temp=generateKnee(test, out1DerivativeCpg,0, amplitudeMotor0, amplitudeMotor2);
 
@@ -370,7 +370,7 @@ double DynamicCpg::getShiftDelay(double out1, double out2, int step, double freq
 	}
 
 
-	std::cout << "CountDelay" << countDelay<<std::endl;;
+	//std::cout << "CountDelay" << countDelay<<std::endl;;
 	return phaseDelay;
 
 }
@@ -382,7 +382,7 @@ std::vector<double> DynamicCpg::generateOutputTwoLegThereshold(double feedback, 
 		countPerturbation++;
 	else countPerturbation=0;
 
-	std::cout << "Perturbation time " << countPerturbation << std::endl;
+	//std::cout << "Perturbation time " << countPerturbation << std::endl;
 
 	std::vector<double> output;
 	std::vector<double> temp;
@@ -482,7 +482,7 @@ std::vector<double> DynamicCpg::generateOutputTwoLegThereshold(double feedback, 
      double test= dynRegister->update(cpg->getOut1());//generate cpg1 output
 
     //double test=cpg->getOut1();
-    std::cout << "step1 " << delay.at(1) << "step2 " << delay.at(0) << "Delay  " << delayValue << "   ShiftRegisterDimention  " << dynRegister->getSize() << std::endl;
+    //std::cout << "step1 " << delay.at(1) << "step2 " << delay.at(0) << "Delay  " << delayValue << "   ShiftRegisterDimention  " << dynRegister->getSize() << std::endl;
 
 
     temp=generateCpgHipsMultiple(test, out1DerivativeCpg, 0, amplitudeMotor0);//CHANGE HERE TEST
@@ -543,7 +543,7 @@ std::vector<double> DynamicCpg::generateOutputTwoLegThereshold(double feedback, 
     cpgPlot << step << " " << perturbation <<" " <<  maxKnee<<" "<<motor1<< " "<< amplitudeMotor0<< std::endl;
 
 
-    std::cout << "ampl Hip" << amplitudeMotor0 << " " <<"ampl knee" << " "<< amplitudeMotor2 << std::endl;
+    //std::cout << "ampl Hip" << amplitudeMotor0 << " " <<"ampl knee" << " "<< amplitudeMotor2 << std::endl;
     temp=generateCpgKneeMultiple(test, out1DerivativeCpg, 0, amplitudeMotor0); //CHANGE HERE TEST
 
     output.push_back(temp.at(0));//leftknee  2
