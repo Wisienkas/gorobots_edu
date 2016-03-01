@@ -8,7 +8,7 @@
 #ifndef REALRUNBOTCONTROLLER_H_
 #define REALRUNBOTCONTROLLER_H_
 
-#include "cgaittransition.h"
+#include "../cgaittransition.h"
 #include "cnnet.h"
 
 #include <selforg/abstractcontroller.h>

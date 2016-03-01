@@ -51,7 +51,7 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 
 
 
-serialPlot2.open("/home/dacbot/Documents/cnnet.dat");
+serialPlot2.open("cnnet.dat");
 //std::cout<<"cnnet function "<<std::endl;
 
 	alph = 1.5;//1.5;

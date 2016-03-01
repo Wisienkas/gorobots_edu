@@ -59,28 +59,7 @@ class dacbot_serial : public AbstractRobot {
 public:
 	dacbot_serial(const char *port = "/dev/ttyS0");
 
-	  double alph;
-	  double phi;
-	  double WeightH1_H1;
-	  double WeightH2_H2;
-	  double WeightH1_H2;
-	  double WeightH2_H1;
-
-	  double BiasH1;
-	  double BiasH2;
-
-	  double activityH1;
-	  double activityH2;
-
-	  double outputH1;
-	  double outputH2;
-
-
 	ofstream serialPlot;
-
-
-	
-
 
 	~dacbot_serial();
 

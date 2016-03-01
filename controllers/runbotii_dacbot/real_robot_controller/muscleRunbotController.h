@@ -8,18 +8,17 @@
 #ifndef MUSCLERUNBOTCONTROLLER_H_
 #define MUSCLERUNBOTCONTROLLER_H_
 
-#include "cgaittransition.h"
+#include "../cgaittransition.h"
 #include "cnnet.h"
-#include "plastic.h"
-#include "DynamicCpg.h"
-#include "lowPassfilter.h"
+#include "../plastic.h"
+#include "../DynamicCpg.h"
+#include "../lowPassfilter.h"
+
 #include <vector>
 #include <cmath>
 #include <controllers/runbotii_dacbot/shiftregister.h>
 #include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
 //CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
-
-
 
 
 #include <iostream> //for plotting

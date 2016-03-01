@@ -7,8 +7,8 @@ using std::valarray;
 
 #include <string>
 
-#include "config.h"
-#include "cgaitprofile.h"
+#include "../config.h"
+#include "../cgaitprofile.h"
 
 //Save files /read file
 #include <iostream>
