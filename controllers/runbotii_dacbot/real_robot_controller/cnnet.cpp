@@ -1,12 +1,14 @@
 #include "cnnet.h"
-#include <iostream>
-#include <fstream>
-#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 //#include "console.h"
 #include <fcntl.h>
+
+////Save files /read file
+//#include <iostream>
+//#include <fstream>
+//#include <string.h>
 
 
 using namespace std;
@@ -49,9 +51,7 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 : gait(profile_),
   array_writer( "nnet_out", writer_columns, writer_column_names ) {
 
-
-
-	serialPlot2.open("cnnet.dat");
+	serialPlot2.open("savecnnet.dat");
 	//std::cout<<"cnnet function "<<std::endl;
 
 	alph = 1.5;//1.5;
@@ -201,10 +201,10 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 	angle_hr_now=0;
 
 
-    motorvolt_hl = 0;
-    motorvolt_hr = 0;
-    motorvolt_kl = 0;
-    motorvolt_kr = 0;
+	motorvolt_hl = 0;
+	motorvolt_hr = 0;
+	motorvolt_kl = 0;
+	motorvolt_kr = 0;
 
 
 }
@@ -259,8 +259,6 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	double angle_kl =       input_data[6];
 	double angle_kr =       input_data[7];
 
-	serialPlot2<<u_hl_fm<<' '<<u_hl_em<<' '<<u_al<<' '<<u_ar<<' '<<u_gl<<' '<<u_gr<<' '<<input_data[2]<<' '<<input_data[3]<<' '<<input_data[4]<<' '<<input_data[5]<<' '<<input_data[6]<<' '<<input_data[7]<<endl;
-
 
 	// angle_hl_pre will be used in deciding the rotation direction of joint.
 	++countpiezo;
@@ -274,11 +272,14 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 	if (u_gl==1) {
 		//3) Enter here
-		u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl))); // Stretch receptor sensor left ??
+		u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl))); // Stretch receptor sensor left
+		// u_al starts to decrease from 1 to zero if it below the threshold
+
 	} else {
 		if (int(20*u_al)>5) {
 			u_al=1;
 		} else {
+			// u_al = 1 during moving backward from the most forward to the threshold
 			if (((int(angle_hl_now*10))>(int(angle_hl_pre*10))) &&
 					((int(angle_hl*10))>(int(threshold_al*10)))) {
 				u_al=1;
@@ -298,34 +299,6 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 			}
 		}
 	}
-
-
-
-
-
-
-	std::cout << "u_gr>>>>" << u_gr << std::endl;
-	std::cout << "u_gl>>>>" << u_gl << std::endl;
-	std::cout << "u_al>>>>" << u_al << std::endl;
-	std::cout << "u_ar>>>>" << u_ar << std::endl;
-
-	std::cout << "u_kl_em>>>>" << u_kl_em << std::endl;
-	std::cout << "u_kl_fm>>>>" << u_kl_fm << std::endl;
-	std::cout << "u_kr_em>>>>" << u_kr_em << std::endl;
-	std::cout << "u_kr_fm>>>>" << u_kl_fm << std::endl;
-
-
-	std::cout << "u_hl_em>>>>" << u_hl_em << std::endl;
-	std::cout << "u_hl_fm>>>>" << u_hl_fm << std::endl;
-	std::cout << "u_hr_em>>>>" << u_hr_em << std::endl;
-	std::cout << "u_hr_fm>>>>" << u_hl_fm << std::endl;
-
-
-	std::cout << "motorvolt_kl>>>>" << motorvolt_kl << std::endl;
-	std::cout << "motorvolt_kr>>>>" << motorvolt_kl << std::endl;
-	std::cout << "motorvolt_hl>>>>" << motorvolt_hl << std::endl;
-	std::cout << "motorvolt_hr>>>>" << motorvolt_hr << std::endl;
-
 
 
 	////////////////////////Old Network not like in IJRR////////////////////////////////////////////
@@ -379,8 +352,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
 	y_kl_fm=y_pre_kl_fm*expp+(1-expp)*(w_kl_fs_fm*u_kl_fs+w_kl_fi_fm*u_kl_fi+w_kl_ei_fm*u_kl_ei);
 
-	u_kl_em=1/(1+exp(threshold_em-y_kl_em));
-	u_kl_fm=1/(1+exp(threshold_fm-y_kl_fm));
+	//u_kl_em=1/(1+exp(threshold_em-y_kl_em));
+	//u_kl_fm=1/(1+exp(threshold_fm-y_kl_fm));
 
 
 	// hip, right
@@ -418,10 +391,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
 	y_kr_fm=y_pre_kr_fm*expp+(1-expp)*(w_kr_fs_fm*u_kr_fs+w_kr_fi_fm*u_kr_fi+w_kr_ei_fm*u_kr_ei);
 
-	u_kr_em=1/(1+exp(threshold_em-y_kr_em));
-	u_kr_fm=1/(1+exp(threshold_fm-y_kr_fm));
-	//u_kr_em=0;
-	//u_kr_fm=0;
+	//u_kr_em=1/(1+exp(threshold_em-y_kr_em));
+	//u_kr_fm=1/(1+exp(threshold_fm-y_kr_fm));
 
 
 
@@ -459,7 +430,78 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 
 
+	std::cout << "u_gr>>>>" << u_gr << std::endl;
+	std::cout << "u_gl>>>>" << u_gl << std::endl;
+	std::cout << "u_al>>>>" << u_al << std::endl;
+	std::cout << "u_ar>>>>" << u_ar << std::endl;
 
+	std::cout << "u_kl_em>>>>" << u_kl_em << std::endl;
+	std::cout << "u_kl_fm>>>>" << u_kl_fm << std::endl;
+	std::cout << "u_kr_em>>>>" << u_kr_em << std::endl;
+	std::cout << "u_kr_fm>>>>" << u_kr_fm << std::endl;
+
+
+	std::cout << "u_hl_em>>>>" << u_hl_em << std::endl;
+	std::cout << "u_hl_fm>>>>" << u_hl_fm << std::endl;
+	std::cout << "u_hr_em>>>>" << u_hr_em << std::endl;
+	std::cout << "u_hr_fm>>>>" << u_hr_fm << std::endl;
+
+
+	std::cout << "motorvolt_kl>>>>" << motorvolt_kl << std::endl;
+	std::cout << "motorvolt_kr>>>>" << motorvolt_kr << std::endl;
+	std::cout << "motorvolt_hl>>>>" << motorvolt_hl << std::endl;
+	std::cout << "motorvolt_hr>>>>" << motorvolt_hr << std::endl;
+
+
+	// Hip Left move forward beyond the threshold then the knee left is extending
+	if (int(angle_hl*10)>int(threshold_al*10)) {
+		u_kl_em = 0.9;
+		u_kl_fm = 0.0;
+	}
+	// Hip Left move backward and below the threshold then the knee left is hold
+	if (int(angle_hl_now*10)<int(angle_hl_pre*10)&&int(angle_hl*10)<int(threshold_al*10)) {
+		u_kl_em = 0.5; // holding power
+		u_kl_fm = 0.0;
+	}
+
+	// Hip Left move forward and below the threshold then the knee left is flexing
+	if (int(angle_hl_now*10)>int(angle_hl_pre*10)&&int(angle_hl*10)<int(threshold_al*10)&&(u_gr==1)) {
+		u_kl_em = 0.0;
+		u_kl_fm = 0.9;
+	}
+
+
+	// Hip Right move forward beyond the threshold then Extend the knee left
+	if (int(angle_hr*10)>int(threshold_ar*10)) {
+		u_kr_em = 0.9;
+		u_kr_fm = 0.00;
+	}
+	// Hip Right move backward and below the threshold then the knee left is off
+	if (int(angle_hr_now*10)<int(angle_hr_pre*10)&&int(angle_hr*10)<int(threshold_ar*10)) {
+		u_kr_em = 0.5;
+		u_kr_fm = 0.00;
+	}
+	// Hip Right move forward and below the threshold then the knee right is flexing
+	if (int(angle_hr_now*10)>int(angle_hr_pre*10)&&int(angle_hr*10)<int(threshold_ar*10)&&(u_gl==1)) {
+		u_kr_em = 0.0;
+		u_kr_fm = 0.9;
+	}
+
+
+
+	//If the robot does not touch the ground at all switch off knee motor
+	if (abs(rightpiezo-2048)>300 && abs(leftpiezo-2048)>300)
+	{
+		u_kl_em = 0.007;
+		u_kl_fm = 0.00;
+		u_kr_em = 0.007;
+		u_kr_fm = 0.00;
+		std::cout << "off ground"<< std::endl;
+	}
+
+
+
+	serialPlot2<<u_hl_fm<<' '<<u_hl_em<<' '<<u_hr_fm<<' '<<u_hr_em<<' '<<u_kl_fm<<' '<<u_kl_em<<' '<<u_kr_fm<<' '<<u_kr_em<<' '<<u_al<<' '<<u_ar<<' '<<u_gl<<' '<<u_gr<<' '<<motorvolt_kl<<' '<<motorvolt_kr<<' '<<motorvolt_hl<<' '<<motorvolt_hr<<' '<<input_data[6]<<' '<<input_data[7]<<endl;
 
 
 }
