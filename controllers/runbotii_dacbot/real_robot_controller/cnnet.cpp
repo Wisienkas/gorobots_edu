@@ -211,6 +211,10 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 	angle_kl_low_pass = 180;
 	angle_kr_low_pass = 180;
 
+	u_kl_es_low_pass_pre = 0;
+	u_kl_es_low_pass = 0;
+	u_kr_es_low_pass_pre = 0;
+	u_kr_es_low_pass = 0;
 }
 
 
@@ -276,7 +280,7 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 	// Another low pass filter
 
-	double gain_low_pass = 0.8;
+	double gain_low_pass = 0.55;
 	angle_hl_low_pass_pre = angle_hl_low_pass;
 	angle_hl_low_pass = (1-gain_low_pass)*angle_hl+ angle_hl_low_pass_pre*gain_low_pass;
 
@@ -289,12 +293,13 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	angle_kr_low_pass_pre = angle_kr_low_pass;
 	angle_kr_low_pass = (1-gain_low_pass)*angle_kr+ angle_kr_low_pass_pre*gain_low_pass;
 
-
+	angle_kl_now = angle_kl;
+	angle_kr_now = angle_kr;
 
 	if (u_gl==1) {
 		//3) Enter here
 		//u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl))); // Stretch receptor sensor left
-		u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl))); // Stretch receptor sensor left
+		u_al = 1./(1+exp(elf_al*(threshold_al - angle_hl_low_pass))); // Stretch receptor sensor left
 		// u_al starts to decrease from 1 to zero if it below the threshold
 
 	} else {
@@ -302,21 +307,26 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 			u_al=1;
 		} else {
 			// u_al = 1 during moving backward from the most forward to the threshold
-			if (((int(angle_hl_now*10))>(int(angle_hl_pre*10))) &&
-					((int(angle_hl*10))>(int(threshold_al*10)))) {
+			//if (((int(angle_hl_now*10))>(int(angle_hl_pre*10))) &&
+				//	((int(angle_hl*10))>(int(threshold_al*10)))) {
+			if (((int(angle_hl_low_pass*10))>(int(angle_hl_low_pass_pre*10))) &&
+							((int(angle_hl_low_pass*10))>(int(threshold_al*10)))) {
 				u_al=1;
 			}
 		}
 	}
 
 	if (u_gr==1) {
-		u_ar = 1./(1+exp(elf_ar*(threshold_ar - angle_hr)));  // Stretch receptor sensor right ??
+		//u_ar = 1./(1+exp(elf_ar*(threshold_ar - angle_hr)));  // Stretch receptor sensor right ??
+		u_ar = 1./(1+exp(elf_ar*(threshold_ar - angle_hr_low_pass)));  // Stretch receptor sensor right ??
 	} else {
 		if (int(20*u_ar)>5) {
 			u_ar=1;
 		} else {
-			if (((int(angle_hr_now*10))>(int(angle_hr_pre*10))) &&
-					((int(angle_hr*10))>(int(threshold_ar*10)))) {
+			//if (((int(angle_hr_now*10))>(int(angle_hr_pre*10))) &&
+				//	((int(angle_hr*10))>(int(threshold_ar*10)))) {
+			if (((int(angle_hr_low_pass*10))>(int(angle_hr_low_pass_pre*10))) &&
+					((int(angle_hr_low_pass*10))>(int(threshold_ar*10)))) {
 				u_ar=1;
 			}
 		}
@@ -343,8 +353,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 
 	///Preprocessing of angle sensors==> convert to ES, FS sigmoid transfer function//
-	u_hl_es = 1/(1+exp(elf_hl_es*(angle_hl-threshold_hl_es)));   // Output of Sensor neuron  Hip left-Extensor********
-	u_hl_fs = 1/(1+exp(elf_hl_fs*(threshold_hl_fs-angle_hl)));   // Output of Sensor neuron  Hip left-Flexsor********
+	u_hl_es = 1/(1+exp(elf_hl_es*(angle_hl_low_pass-threshold_hl_es)));   // Output of Sensor neuron  Hip left-Extensor********
+	u_hl_fs = 1/(1+exp(elf_hl_fs*(threshold_hl_fs-angle_hl_low_pass)));   // Output of Sensor neuron  Hip left-Flexsor********
 	// Output between 0,1
 
 	//********** Motor neuron ********//
@@ -368,15 +378,20 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	u_kl_ei=1/(1+exp(threshold_ei-y_kl_ei));
 	u_kl_fi=1/(1+exp(threshold_fi-y_kl_fi));
 
-	u_kl_es=1/(1+exp(elf_kl_es*(angle_kl-threshold_kl_es)));
-	u_kl_fs=1/(1+exp(elf_kl_fs*(threshold_kl_fs-angle_kl)));
+	u_kl_es=1/(1+exp(elf_kl_es*(angle_kl_low_pass-threshold_kl_es)));
 
-	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
+	double gain_low_pass_es = 0.9;
+	u_kl_es_low_pass_pre = u_kl_es_low_pass;
+
+	u_kl_es_low_pass = (1-gain_low_pass_es)*u_kl_es+ u_kl_es_low_pass_pre*gain_low_pass_es;
+	u_kl_fs=1/(1+exp(elf_kl_fs*(threshold_kl_fs-angle_kl_low_pass)));
+
+	//y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
+	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es_low_pass+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
 	y_kl_fm=y_pre_kl_fm*expp+(1-expp)*(w_kl_fs_fm*u_kl_fs+w_kl_fi_fm*u_kl_fi+w_kl_ei_fm*u_kl_ei);
 
 	u_kl_em=1/(1+exp(threshold_em-y_kl_em));
 	u_kl_fm=1/(1+exp(threshold_fm-y_kl_fm));
-
 
 	// hip, right
 	y_pre_hr_ei=y_hr_ei;
@@ -387,8 +402,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	y_hr_fi=y_pre_hr_fi*exppp+(1-exppp)*(w_gr_hr_fi*u_gr);
 	u_hr_ei=1/(1+exp(threshold_ei-y_hr_ei));
 	u_hr_fi=1/(1+exp(threshold_fi-y_hr_fi));
-	u_hr_es=1/(1+exp(elf_hr_es*(angle_hr-threshold_hr_es)));
-	u_hr_fs=1/(1+exp(elf_hr_fs*(threshold_hr_fs-angle_hr)));
+	u_hr_es=1/(1+exp(elf_hr_es*(angle_hr_low_pass-threshold_hr_es)));
+	u_hr_fs=1/(1+exp(elf_hr_fs*(threshold_hr_fs-angle_hr_low_pass)));
 	y_hr_em=y_pre_hr_em*exppp+(1-exppp)*(w_hr_es_em*u_hr_es+w_hr_ei_em*u_hr_ei+w_hr_fi_em*u_hr_fi);
 	y_hr_fm=y_pre_hr_fm*exppp+(1-exppp)*(w_hr_fs_fm*u_hr_fs+w_hr_fi_fm*u_hr_fi+w_hr_ei_fm*u_hr_ei);
 
@@ -407,10 +422,15 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	u_kr_fi=1/(1+exp(threshold_fi-y_kr_fi));
 
 
-	u_kr_es=1/(1+exp(elf_kr_es*(angle_kr-threshold_kr_es)));
-	u_kr_fs=1/(1+exp(elf_kr_fs*(threshold_kr_fs-angle_kr)));
+	u_kr_es=1/(1+exp(elf_kr_es*(angle_kr_low_pass-threshold_kr_es)));
 
-	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
+	u_kr_es_low_pass_pre = u_kr_es_low_pass;
+	u_kr_es_low_pass = (1-gain_low_pass_es)*u_kr_es+ u_kr_es_low_pass_pre*gain_low_pass_es;
+
+	u_kr_fs=1/(1+exp(elf_kr_fs*(threshold_kr_fs-angle_kr_low_pass)));
+
+	//y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
+	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es_low_pass+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
 	y_kr_fm=y_pre_kr_fm*expp+(1-expp)*(w_kr_fs_fm*u_kr_fs+w_kr_fi_fm*u_kr_fi+w_kr_ei_fm*u_kr_ei);
 
 	u_kr_em=1/(1+exp(threshold_em-y_kr_em));
@@ -557,8 +577,6 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 std::valarray< double > cNNet::update_motorvoltages() {
 
-
-
 	motorvolt_hl = gait->gain_hl_ext()  * u_hl_em -
 			gait->gain_hl_flex() * u_hl_fm;
 	motorvolt_hr = gait->gain_hr_ext()  * u_hr_em -
@@ -568,8 +586,8 @@ std::valarray< double > cNNet::update_motorvoltages() {
 	motorvolt_kr = gait->gain_kr_ext()  * u_kr_em -
 			gait->gain_kr_flex() * u_kr_fm;
 
-	motorvolt_kl = state_motorvolt_kl;
-	motorvolt_kr = state_motorvolt_kr;
+	//motorvolt_kl = state_motorvolt_kl;
+	//motorvolt_kr = state_motorvolt_kr;
 
 
 	valarray<double> result(4);
