@@ -33,7 +33,10 @@ int feedback[4];
 int cntr=0;
 
 int motcom[4];
-
+int hip_right;
+int hip_left;
+int knee_right;
+int knee_left;
 
 namespace lpzrobots {
 
@@ -82,9 +85,9 @@ dacbot_serial::dacbot_serial(const char *port)
 
 	t=0;  // global step counter
 
-	//Variables in dungBeetle_hindlegSensMotDef.h
-	sensornumber = DUNGBEETLE_SENSOR_MAX;
-	motornumber = DUNGBEETLE_MOTOR_MAX;
+	//Variables in Ducbot_hindlegSensMotDef.h
+	sensornumber = DACBOT_SENSOR_MAX;
+	motornumber = DACBOT_MOTOR_MAX;
 
 	//Setting Motors
 	for (int t=0;t<33;t++)
@@ -118,7 +121,7 @@ int dacbot_serial::getSensors(sensor* sensors, int sensornumber){
 
 	assert(sensornumber >= this->sensornumber);
 
-	for(int i=0; i<=DUNGBEETLE_SENSOR_MAX;i++){
+	for(int i=0; i<=DACBOT_SENSOR_MAX;i++){
 		sensors[i]=0;
 	}
 
@@ -146,9 +149,7 @@ int dacbot_serial::getSensors(sensor* sensors, int sensornumber){
 	}while(!received);// "0" is sync byte
 
 	received=false;
-	//std::cout<<"Loop ended!!"<<std::endl;output
 
-	// LpzRobot <-- AMOS
 	//Foot sensors (FS,Group 1)
 	sensors[0]=potValue[0]; //HL
 	sensors[1]=potValue[1]; //HR
@@ -232,34 +233,41 @@ void dacbot_serial::setMotors(const motor* motors, int motornumber){
 
 	assert(motornumber >= this->motornumber);
 
-	//std::cout<<"Setting motors"<<std::endl;
-
-
 
 	// ##################### move motors ################
+ 	//motcom[0] = Left hip, 4 = + Voltage(move forward), 2 = - Voltage(move backward), 3 = 0 Voltage (not move) 
+ 	//motcom[1] = Right hip, 4 = + Voltage(move forward), 2 = - Voltage(move backward), 3 = 0 Voltage (not move) 
+ 	//motcom[2] = Right knee, 4 = + Voltage(move forward), 2 = - Voltage(move backward), 3 = 0 Voltage (not move)
+ 	//motcom[3] = Left knee, 4 = + Voltage(move forward), 2 = - Voltage(move backward), 3 = 0 Voltage (not move)
+
+	// This arduino controller is on/off control cannot regulate voltage! It always provides MAX voltage!
+	// Amplitude of the outputs of the DACbot controller does not effect the voltage, Only the duration is matter
+	// The duration defines how long should move a leg forward/backward!!! 
+
 	for(int i=0;i<4;i++)
 	{
 		motorCom[i] = motors[i];
 
 		if (motorCom[i]>=0.5) {
-			motcom[i]=4;
+			motcom[i]=4; // + Voltage
 		} else if (motorCom[i]<=-0.5) {
-			motcom[i]=2;
+			motcom[i]=2; // - Voltage
 		} else {
-			motcom[i]=3;
+			motcom[i]=3; // 0 Voltage
 		}
 	}
+
+	//Transmit to Arduino controller
+	hip_left = motcom[0];
+	hip_right = motcom[1];
+	knee_left = motcom[2];
+	knee_right = motcom[3];
+	
 
 
 
 	serialPlot<<motcom[0]<<' '<<endl;
-
-
-	/*std::cout<<"MC 1:"<< motcom[0]<<std::endl;
-std::cout<<"MC 2:"<< motcom[1]<<std::endl;
-std::cout<<"MC 3:"<< motcom[2]<<std::endl;
-std::cout<<"MC 4:"<< motcom[3]<<std::endl;
-	 */
+	/*std::cout<<"MC 1:"<< motcom[0]<<std::endl;*/
 
 	//*******************************
 	/*
@@ -298,38 +306,13 @@ if (feedback[0]<= 90 && feedback[1]<= 60 && feedback[2]>= 170 && feedback[3]<= 1
 	//*******************************
 
 
-	/*cntr++;
-if (cntr <= 10) {
-	motcom [0] = 2;
-} else if ( (cntr > 10) && (cntr < 20)){
-	motcom[0] = 4;
-} else {
-	cntr=0;
-}*/
-
-	//std::cout<<"cntr : "<< cntr<<std::endl;
-	//std::cout<<"motcom : "<< motcom[0]<<std::endl;
-
-	/*serialPos[0] = (int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
-	serialPos[1] = (int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[1]-servoPosMin[1])+servoPosMin[1]) ;
-	serialPos[2] = (int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]);
-	serialPos[3] = (int) (double)(((motorCom[3]+1.0)/2.0)*(servoPosMax[3]-servoPosMin[3])+servoPosMin[3]) ;
-	 */
-
 	// do some processing for motor commands before sending AMOS sensors
-	char serial_motor2[34] = {1,motcom[0],motcom[1],motcom[2],motcom[3],121,121,121,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,5,5,5,5,5,5,5,5,5,5,0};
-	/*sprintf(serial_motor, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
-				,comByte,serialPos[1],serialPos[2],
-				serialPos[3],serialPos[4],serialPos[5],serialPos[6],serialPos[7],serialPos[8],
-				serialPos[9],serialPos[10],serialPos[11],serialPos[12],serialPos[13],serialPos[14],
-				serialPos[15],serialPos[16],serialPos[17],serialPos[18],serialPos[19],serialPos[20],
-				serialPos[21],serialPos[22],serialPos[23],serialPos[24],serialPos[25],serialPos[26],
-				serialPos[27],serialPos[28],serialPos[29],serialPos[30],serialPos[31],serialPos[32],end);
-	 */
+	//char serial_motor2[34] = {1,motcom[0],motcom[1],motcom[2],motcom[3],121,121,121,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,5,5,5,5,5,5,5,5,5,5,0};
+	char serial_motor2[34] = {1,hip_left,hip_right,knee_right,knee_left,121,121,121,120,120,120,120,120,120,120,120,120,120,120,120,120,120,120,5,5,5,5,5,5,5,5,5,5,0};
+	
 	//Sendding command to serial port
 	int n = write(fd1, serial_motor2, sizeof(serial_motor2));
-	usleep (10000);//10000);
-
+	usleep (10000);
 	// increase time counter
 	t++;
 

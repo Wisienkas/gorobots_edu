@@ -120,6 +120,12 @@ namespace runbot {
       double angle_hr_low_pass;
       double angle_hr_low_pass_pre;
 
+      double angle_kl_low_pass;
+      double angle_kl_low_pass_pre;
+      double angle_kr_low_pass;
+      double angle_kr_low_pass_pre;
+
+
       //Knee Right
       double y_kr_ei;
       double y_kr_fi;

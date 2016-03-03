@@ -15,7 +15,7 @@ enum dungBeetle_hindLegSensorName
 	L_HIP_S  = 1,
 	R_KNEE_S =2,
 	L_KNEE_S = 3,
-	DUNGBEETLE_SENSOR_MAX=7//6
+	DACBOT_SENSOR_MAX=7//6
 
 };
 
@@ -25,7 +25,7 @@ enum dungBeetle_hindLegMotorName
 	L_HIP_M = 1,
 	R_KNEE_M = 2,
 	L_KNEE_M = 3,
-	DUNGBEETLE_MOTOR_MAX = 4
+	DACBOT_MOTOR_MAX = 4
 
 };
 

@@ -38,7 +38,6 @@
 
 #include<sys/time.h>
 
-//#include "sensor_motor_definition.h"
 #include <utils/real_robots/dacbot/dacbot_SensMotDef.h>
 
 using namespace std;
@@ -104,16 +103,16 @@ public:
 private:
 
 	int fd1;// Return char after opening COM0
-	double  Sensor[DUNGBEETLE_SENSOR_MAX]; //but only 18 sensors used now, others are set to zero
-	double motorCom[DUNGBEETLE_MOTOR_MAX];
+	double  Sensor[DACBOT_SENSOR_MAX]; //but only 18 sensors used now, others are set to zero
+	double motorCom[DACBOT_MOTOR_MAX];
 	
 	
 	double potValue[SENSOR_BUFFER_NUM];
 	unsigned char chBuff;
 	bool received= false;
 
-	int servoPosMin[DUNGBEETLE_MOTOR_MAX];
-	int servoPosMax[DUNGBEETLE_MOTOR_MAX];
+	int servoPosMin[DACBOT_MOTOR_MAX];
+	int servoPosMax[DACBOT_MOTOR_MAX];
 
 	int nSensorType;
 

@@ -211,7 +211,8 @@ void loop() {
     MotorSetSpeed(I2CMotorDriverAdd1, speedkl, speedkr);  //knees
     MotorSetSpeed(I2CMotorDriverAdd2, speedhl, speedhr);  //hips 
     //Set Directions
-    MotorSetDirection(I2CMotorDriverAdd1, setpointkr, setpointkl); //knees
+    //MotorSetDirection(I2CMotorDriverAdd1, setpointkr, setpointkl); //knees This was the main problem!!. KOH
+    MotorSetDirection(I2CMotorDriverAdd1, setpointkl, setpointkr); //knees
     MotorSetDirection(I2CMotorDriverAdd2, setpointhl, setpointhr); //hips
     
     motorsUpdated = false;
