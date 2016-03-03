@@ -206,6 +206,8 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 	motorvolt_kl = 0;
 	motorvolt_kr = 0;
 
+	angle_hl_low_pass = 90;
+	angle_hr_low_pass = 90;
 
 }
 
@@ -260,7 +262,7 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	double angle_kr =       input_data[7];
 
 
-	// angle_hl_pre will be used in deciding the rotation direction of joint.
+	// Simple low pass filter.
 	++countpiezo;
 	if (countpiezo == 6) {
 		countpiezo=0;
@@ -269,6 +271,17 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 		angle_hr_pre=angle_hr_now;
 		angle_hr_now=angle_hr;
 	}
+
+	// Another low pass filter
+
+	double gain_low_pass = 0.8;
+	angle_hl_low_pass_pre = angle_hl_low_pass;
+	angle_hl_low_pass = (1-gain_low_pass)*angle_hl+ angle_hl_low_pass_pre*gain_low_pass;
+
+  angle_hr_low_pass_pre = angle_hr_low_pass;
+  angle_hr_low_pass = (1-gain_low_pass)*angle_hr+ angle_hr_low_pass_pre*gain_low_pass;
+
+
 
 	if (u_gl==1) {
 		//3) Enter here
@@ -352,8 +365,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
 	y_kl_fm=y_pre_kl_fm*expp+(1-expp)*(w_kl_fs_fm*u_kl_fs+w_kl_fi_fm*u_kl_fi+w_kl_ei_fm*u_kl_ei);
 
-	//u_kl_em=1/(1+exp(threshold_em-y_kl_em));
-	//u_kl_fm=1/(1+exp(threshold_fm-y_kl_fm));
+	u_kl_em=1/(1+exp(threshold_em-y_kl_em));
+	u_kl_fm=1/(1+exp(threshold_fm-y_kl_fm));
 
 
 	// hip, right
@@ -391,8 +404,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
 	y_kr_fm=y_pre_kr_fm*expp+(1-expp)*(w_kr_fs_fm*u_kr_fs+w_kr_fi_fm*u_kr_fi+w_kr_ei_fm*u_kr_ei);
 
-	//u_kr_em=1/(1+exp(threshold_em-y_kr_em));
-	//u_kr_fm=1/(1+exp(threshold_fm-y_kr_fm));
+	u_kr_em=1/(1+exp(threshold_em-y_kr_em));
+	u_kr_fm=1/(1+exp(threshold_fm-y_kr_fm));
 
 
 
@@ -429,6 +442,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	}
 
 
+	d_u_gr = u_gr;
+  d_u_gl = u_gl;
 
 	std::cout << "u_gr>>>>" << u_gr << std::endl;
 	std::cout << "u_gl>>>>" << u_gl << std::endl;
@@ -453,40 +468,47 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	std::cout << "motorvolt_hr>>>>" << motorvolt_hr << std::endl;
 
 
+
 	// Hip Left move forward beyond the threshold then the knee left is extending
-	if (int(angle_hl*10)>int(threshold_al*10)) {
-		u_kl_em = 0.9;
-		u_kl_fm = 0.0;
+	//if (int(angle_hl*10)>int(threshold_al*10)) {
+	if (u_al>0.5) {
+	  state_u_kl_em = 1.0;
+	  state_u_kl_fm = 0.0;
 	}
+
 	// Hip Left move backward and below the threshold then the knee left is hold
-	if (int(angle_hl_now*10)<int(angle_hl_pre*10)&&int(angle_hl*10)<int(threshold_al*10)) {
-		u_kl_em = 0.5; // holding power
-		u_kl_fm = 0.0;
+	//if (int(angle_hl_now*10)<int(angle_hl_pre*10)){//&&int(angle_hl*10)<int(threshold_al*10)) {
+  if (angle_hl_low_pass<angle_hl_low_pass_pre){//&&int(angle_hl*10)<int(threshold_al*10)) {
+	  state_u_kl_em = 0.1; // holding power
+	  state_u_kl_fm = 0.0;
 	}
 
 	// Hip Left move forward and below the threshold then the knee left is flexing
-	if (int(angle_hl_now*10)>int(angle_hl_pre*10)&&int(angle_hl*10)<int(threshold_al*10)&&(u_gr==1)) {
-		u_kl_em = 0.0;
-		u_kl_fm = 0.9;
+	//if (int(angle_hl_now*10)>int(angle_hl_pre*10)&&int(angle_hl*10)<int(threshold_al*10)&&(u_gr==1)) {
+  if (angle_hl_low_pass>angle_hl_low_pass_pre&&angle_hl_low_pass<threshold_al&&(u_gr==1)) {
+	  state_u_kl_em = 0.0;
+	  state_u_kl_fm = 1.0;
 	}
 
 
 	// Hip Right move forward beyond the threshold then Extend the knee left
-	if (int(angle_hr*10)>int(threshold_ar*10)) {
-		u_kr_em = 0.9;
-		u_kr_fm = 0.00;
+	//if (int(angle_hr*10)>int(threshold_ar*10)) {
+  if (angle_hr_low_pass>threshold_ar) {
+	  state_u_kr_em = 1.0;
+	  state_u_kr_fm = 0.0;
 	}
 	// Hip Right move backward and below the threshold then the knee left is off
-	if (int(angle_hr_now*10)<int(angle_hr_pre*10)&&int(angle_hr*10)<int(threshold_ar*10)) {
-		u_kr_em = 0.5;
-		u_kr_fm = 0.00;
+	//if (int(angle_hr_now*10)<int(angle_hr_pre*10)){//&&int(angle_hr*10)<int(threshold_ar*10)) {
+  if (angle_hr_low_pass<angle_hr_low_pass_pre){//&&int(angle_hr*10)<int(threshold_ar*10)) {
+	  state_u_kr_em = 0.1;
+	  state_u_kr_fm = 0.0;
 	}
 	// Hip Right move forward and below the threshold then the knee right is flexing
-	if (int(angle_hr_now*10)>int(angle_hr_pre*10)&&int(angle_hr*10)<int(threshold_ar*10)&&(u_gl==1)) {
-		u_kr_em = 0.0;
-		u_kr_fm = 0.9;
+	//if (int(angle_hr_now*10)>int(angle_hr_pre*10)&&int(angle_hr*10)<int(threshold_ar*10)&&(u_gl==1)) {
+  if (angle_hr_low_pass>angle_hr_low_pass_pre&&angle_hr_low_pass<threshold_ar&&(u_gl==1)) {
+		state_u_kr_em = 0.0;
+		state_u_kr_fm = 1.0;
 	}
-
 
 
 	//If the robot does not touch the ground at all switch off knee motor
@@ -501,7 +523,21 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 
 
-	serialPlot2<<u_hl_fm<<' '<<u_hl_em<<' '<<u_hr_fm<<' '<<u_hr_em<<' '<<u_kl_fm<<' '<<u_kl_em<<' '<<u_kr_fm<<' '<<u_kr_em<<' '<<u_al<<' '<<u_ar<<' '<<u_gl<<' '<<u_gr<<' '<<motorvolt_kl<<' '<<motorvolt_kr<<' '<<motorvolt_hl<<' '<<motorvolt_hr<<' '<<input_data[6]<<' '<<input_data[7]<<endl;
+
+  /*state_motorvolt_hl = gait->gain_hl_ext()  * state_u_hl_em -
+      gait->gain_hl_flex() * state_u_hl_fm;
+  state_motorvolt_hr = gait->gain_hr_ext()  * state_u_hr_em -
+      gait->gain_hr_flex() * state_u_hr_fm;
+  */
+
+  state_motorvolt_kl = gait->gain_kl_ext()  * state_u_kl_em -
+      gait->gain_kl_flex() * state_u_kl_fm;
+  state_motorvolt_kr = gait->gain_kr_ext()  * state_u_kr_em -
+      gait->gain_kr_flex() * state_u_kr_fm;
+
+
+
+	serialPlot2<<angle_hl<<' '<<angle_hr<<' '<<u_hr_fm<<' '<<u_hr_em<<' '<<u_kl_fm<<' '<<u_kl_em<<' '<<u_kr_fm<<' '<<u_kr_em<<' '<<u_al<<' '<<u_ar<<' '<<u_gl<<' '<<u_gr<<' '<<motorvolt_kl<<' '<<motorvolt_kr<<' '<<motorvolt_hl<<' '<<motorvolt_hr<<' '<<input_data[6]<<' '<<input_data[7]<<endl;
 
 
 }
@@ -511,157 +547,17 @@ std::valarray< double > cNNet::update_motorvoltages() {
 
 
 
-
-	//*******Send voltage out to motor knee_left//
-
-	/*	double sign_hl_e = -1;
-	double sign_hl_f = 1;
-	double sign_hr_e = -1;
-	double sign_hr_f = 1;
-
-	double sign_kl_e = 1;
-	double sign_kl_f = -1;
-	double sign_kr_e = 1;
-	double sign_kr_f = -1;	
-
-
-	double motorvolt_hl= 2.2*(sign_hl_e*u_hl_em+sign_hl_f*u_hl_fm);	
-	double motorvolt_hr = 2.2*(sign_hr_e*u_hr_em+sign_hr_f*u_hr_fm);
-
-	double motorvolt_kl=	sign_kl_e*1.8*u_kl_em+sign_kl_f*1.8*u_kl_fm;
-	double motorvolt_kr=	sign_kr_e*1.8*u_kr_em+sign_kr_f*1.8*u_kr_fm;*/
-
-
-
-	/*    WeightH1_H1  =  1.4;
-		    WeightH2_H2  =  1.4;
-		    WeightH1_H2  =  0.18+0.1;
-		    WeightH2_H1  = -0.18-0.1;
-
-
-		    BiasH1      = 0.0;
-		    BiasH2      = 0.0;
-
-		    activityH1 = WeightH1_H1*outputH1+WeightH1_H2*outputH2+BiasH1;
-		    activityH2 = WeightH2_H2*outputH2+WeightH2_H1*outputH1+BiasH2;
-
-		    outputH1 = tanh(activityH1);
-		    outputH2 = tanh(activityH2);
-
-			if (outputH1>=0.5) { 
-				u_hl_fm = 1;
-				u_hl_em = 0;
-
-			} else if (outputH1<=-0.5) {
-				u_hl_em = 1;
-				u_hl_fm = 0;	
-			} else {
-				u_hl_em = 0;
-				u_hl_fm = 0;
-			}*/
-
-
-
-	/********************Controller here!*************************/
-
-	//
-	//
-	//switch state
-	//   //Bodenkontakt rechts
-	//    case 1
-	//       //rechte Hüfte zurückziehen
-	//        if (phi(1)>HRext)
-	//            U(1)=-UHret;
-	//        else
-	//            U(1)=0;
-	//        end
-	//        //rechtes Knie gestreckt halten
-	//        U(3)=UKhold;
-	//        //linke Hüfte vorziehen
-	//         if (phi(2)>HLflex)
-	//            U(2)=-UHpro;
-	//            //linkes Knie beugen
-	//            if (phi(4)<KLflex)
-	//                U(4)=-UKflex;
-	//                KL=false;
-	//            else
-	//                U(4)=0;
-	//            end
-	//        else
-	//            U(2)=0;
-	//            %linkes Knie stecken
-	//            if (phi(4)>KLext) && ~KL
-	//                U(4)=UKext;
-	//            else
-	//                U(4)=UKhold;
-	//                KL=true;
-	//            end
-	//        end
-	//   %% Bodenkontakt links
-	//    case 2
-	//        %rechte Hüfte vorziehen
-	//         if (phi(1)<HRflex)
-	//            U(1)=UHpro;
-	//            %rechtes Knie beugen
-	//            if (phi(3)>KRflex)
-	//                U(3)=-UKflex;
-	//                KR=false;
-	//            else
-	//                U(3)=0;
-	//            end
-	//         else
-	//            U(1)=0;
-	//            %rechtes Knie stecken
-	//            if (phi(3)<KRext) && ~KR
-	//                U(3)=UKext;
-	//            else
-	//                U(3)=UKhold;
-	//                KR=true;
-	//            end
-	//        end
-	//        if (phi(2)<HLext)
-	//            U(2)=UHret;
-	//        else
-	//            U(2)=0;
-	//        end
-	//        U(4)=UKhold;
-	//end
-	//
-	//
-
-	/*************************************************************/
-
-
-
 	motorvolt_hl = gait->gain_hl_ext()  * u_hl_em -
 			gait->gain_hl_flex() * u_hl_fm;
 	motorvolt_hr = gait->gain_hr_ext()  * u_hr_em -
 			gait->gain_hr_flex() * u_hr_fm;
-	motorvolt_kl = gait->gain_kl_ext()  * u_kl_em -
+/*	motorvolt_kl = gait->gain_kl_ext()  * u_kl_em -
 			gait->gain_kl_flex() * u_kl_fm;
 	motorvolt_kr = gait->gain_kr_ext()  * u_kr_em -
-			gait->gain_kr_flex() * u_kr_fm;
+			gait->gain_kr_flex() * u_kr_fm;*/
 
-
-
-
-
-	/* double motorvolt_hl = gait->gain_hl_ext()  * -u_hl_em +
-                          gait->gain_hl_flex() * u_hl_fm;
-    double motorvolt_hr = gait->gain_hr_ext()  * -u_hr_em +
-                          gait->gain_hr_flex() * u_hr_fm;
-    double motorvolt_kl = gait->gain_kl_ext()  * u_kl_em -
-                          gait->gain_kl_flex() * u_kl_fm;
-    double motorvolt_kr = gait->gain_kr_ext()  * u_kr_em -
-                          gait->gain_kr_flex() * u_kr_fm;*/
-
-
-	/* double motorvolt_hl =   1* -u_hl_em + 1* u_hl_fm;
-    double motorvolt_hr =   1* -u_hr_em + 1* u_hr_fm;
-    double motorvolt_kl =   1* u_kl_em - 1* u_kl_fm;
-    double motorvolt_kr =   1* u_kr_em - 1* u_kr_fm;*/
-
-
+  motorvolt_kl = state_motorvolt_kl;
+  motorvolt_kr = state_motorvolt_kr;
 
 
 	valarray<double> result(4);
@@ -669,8 +565,6 @@ std::valarray< double > cNNet::update_motorvoltages() {
 	result[1] = motorvolt_hr;
 	result[2] = motorvolt_kl;
 	result[3] = motorvolt_kr;
-
-
 
 
 	std::cout<<"threshold_al: "<<threshold_al<<std::endl;
@@ -733,3 +627,5 @@ std::valarray< double > runbot::cNNet::get_neuron_outputs() {
 	output_vector[11] = u_ar;
 	return output_vector;
 }
+
+

@@ -108,6 +108,7 @@ class MuscleRunbotController : public AbstractController {
        runbot::cGaitProfile *newGait;
        runbot::cGaitProfile *gait3;
        runbot::cNNet* nnet3;
+
        DCControllingVMM *RHmuscles;		//modelled muscles for each joint..
        DCControllingVMM *LHmuscles;
        DCControllingVMM *RKmuscles;
@@ -164,6 +165,8 @@ class MuscleRunbotController : public AbstractController {
        std::vector<double> shift;
        shift_register *phase,*leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
        derivativeTransitionRegister *checkWave;
+
+
 
 };
 

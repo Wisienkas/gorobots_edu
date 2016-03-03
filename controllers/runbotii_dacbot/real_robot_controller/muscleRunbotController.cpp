@@ -1,5 +1,7 @@
 
 #include "muscleRunbotController.h"
+using namespace matrix;
+using namespace std;
 
 #define STEPSIZE = 0.01
 #define RADIUS = 1;
@@ -22,9 +24,68 @@ MuscleRunbotController::MuscleRunbotController(const std::string& name, const st
   gait3=new runbot::cGaitProfile(78,115,115,175,2,2.7);
   nnet3=new runbot::cNNet((runbot::cGaitProfile*)gait3);
 
+
   addParameterDef("UBC",&ubc,-0.5,-1.0,1.0,"leaning forward and backwards [1 .. -1]");
   addParameterDef("Mass",&simulatedMass,0.4,0.0,3.0,"simulated mass for muscle model");
   addInspectableValue("speed",&speed,"the speed of runbot, measured in cm/sec");
+  addInspectableValue("motorvolt_hl",&nnet->motorvolt_hl,"motorvolt_hl");
+  addInspectableValue("motorvolt_hr",&nnet->motorvolt_hr,"motorvolt_hr");
+  addInspectableValue("motorvolt_kl",&nnet->motorvolt_kl,"motorvolt_kl");
+  addInspectableValue("motorvolt_kr",&nnet->motorvolt_kr,"motorvolt_kr");
+  addInspectableValue("u_hl_em",&nnet->u_hl_em,"u_hl_em");
+  addInspectableValue("u_hl_fm",&nnet->u_hl_fm,"u_hl_fm");
+  addInspectableValue("u_hr_em",&nnet->u_hr_em,"u_hr_em");
+  addInspectableValue("u_hr_fm",&nnet->u_hr_fm,"u_hr_fm");
+  addInspectableValue("u_kl_em",&nnet->u_kl_em,"u_kl_em");
+  addInspectableValue("u_kl_fm",&nnet->u_kl_fm,"u_kl_fm");
+  addInspectableValue("u_kr_em",&nnet->u_kr_em,"u_kr_em");
+  addInspectableValue("u_kr_fm",&nnet->u_kr_fm,"u_kr_fm");
+  addInspectableValue("state_u_kr_em",&nnet->state_u_kr_em,"state_u_kr_em");
+  addInspectableValue("state_u_kr_fm",&nnet->state_u_kr_fm,"state_u_kr_fm");
+  addInspectableValue("state_u_kl_em",&nnet->state_u_kl_em,"state_u_kr_em");
+  addInspectableValue("state_u_kl_fm",&nnet->state_u_kl_fm,"state_u_kr_fm");
+
+  addInspectableValue("state_motorvolt_kl",&nnet->state_motorvolt_kl ,"state_motorvolt_kl");
+  addInspectableValue("state_motorvolt_kr",&nnet->state_motorvolt_kr,"state_motorvolt_kr");
+  addInspectableValue("state_motorvolt_hl",&nnet->state_motorvolt_hl,"state_motorvolt_hl");
+  addInspectableValue("state_motorvolt_hr",&nnet->state_motorvolt_hr,"state_motorvolt_hr");
+
+
+  addInspectableValue("u_al",&nnet->u_al ,"u_al");
+  addInspectableValue("u_ar",&nnet->u_ar,"u_ar");
+  addInspectableValue("u_gl",&nnet->d_u_gl,"d_u_gl");
+  addInspectableValue("u_gr",&nnet->d_u_gr,"d_u_gr");
+
+
+  addInspectableValue("angle_hl_now",&nnet->angle_hl_now,"angle_hl_now");
+  addInspectableValue("angle_hr_now",&nnet->angle_hr_now,"angle_hr_now");
+  addInspectableValue("angle_hl_lowpass",&nnet->angle_hl_low_pass,"angle_hl_low_pass");
+  addInspectableValue("angle_hr_lowpass",&nnet->angle_hr_low_pass,"angle_hr_low_pass");
+
+  /*
+  std::cout << "u_gr>>>>" << u_gr << std::endl;
+  std::cout << "u_gl>>>>" << u_gl << std::endl;
+  std::cout << "u_al>>>>" << u_al << std::endl;
+  std::cout << "u_ar>>>>" << u_ar << std::endl;
+
+  std::cout << "u_kl_em>>>>" << u_kl_em << std::endl;
+  std::cout << "u_kl_fm>>>>" << u_kl_fm << std::endl;
+  std::cout << "u_kr_em>>>>" << u_kr_em << std::endl;
+  std::cout << "u_kr_fm>>>>" << u_kr_fm << std::endl;
+
+
+  std::cout << "u_hl_em>>>>" << u_hl_em << std::endl;
+  std::cout << "u_hl_fm>>>>" << u_hl_fm << std::endl;
+  std::cout << "u_hr_em>>>>" << u_hr_em << std::endl;
+  std::cout << "u_hr_fm>>>>" << u_hr_fm << std::endl;
+
+
+  std::cout << "motorvolt_kl>>>>" << motorvolt_kl << std::endl;
+  std::cout << "motorvolt_kr>>>>" << motorvolt_kr << std::endl;
+  std::cout << "motorvolt_hl>>>>" << motorvolt_hl << std::endl;
+  std::cout << "motorvolt_hr>>>>" << motorvolt_hr << std::endl;
+  */
+
   initialized = false;
 }
 
