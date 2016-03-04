@@ -40,15 +40,6 @@ MuscleRunbotController::MuscleRunbotController(const std::string& name, const st
   addInspectableValue("u_kl_fm",&nnet->u_kl_fm,"u_kl_fm");
   addInspectableValue("u_kr_em",&nnet->u_kr_em,"u_kr_em");
   addInspectableValue("u_kr_fm",&nnet->u_kr_fm,"u_kr_fm");
-
-  addInspectableValue(" u_kr_es",&nnet-> u_kr_es," u_kr_es");
-  addInspectableValue(" u_kl_es",&nnet-> u_kl_es," u_kl_es");
-  addInspectableValue("  u_kl_ei",&nnet->  u_kl_ei,"  u_kl_ei");
-  addInspectableValue("  u_kr_ei",&nnet->  u_kr_ei,"  u_kr_ei");
-
-
-
-
   addInspectableValue("state_u_kr_em",&nnet->state_u_kr_em,"state_u_kr_em");
   addInspectableValue("state_u_kr_fm",&nnet->state_u_kr_fm,"state_u_kr_fm");
   addInspectableValue("state_u_kl_em",&nnet->state_u_kl_em,"state_u_kr_em");
@@ -70,12 +61,6 @@ MuscleRunbotController::MuscleRunbotController(const std::string& name, const st
   addInspectableValue("angle_hr_now",&nnet->angle_hr_now,"angle_hr_now");
   addInspectableValue("angle_hl_lowpass",&nnet->angle_hl_low_pass,"angle_hl_low_pass");
   addInspectableValue("angle_hr_lowpass",&nnet->angle_hr_low_pass,"angle_hr_low_pass");
-
-  addInspectableValue("angle_kl_now",&nnet->angle_kl_now,"angle_kl");
-  addInspectableValue("angle_kr_now",&nnet->angle_kr_now,"angle_kr");
-  addInspectableValue("angle_kl_lowpass",&nnet->angle_kl_low_pass,"angle_kl_low_pass");
-  addInspectableValue("angle_kr_lowpass",&nnet->angle_kr_low_pass,"angle_kr_low_pass");
-
 
   /*
   std::cout << "u_gr>>>>" << u_gr << std::endl;

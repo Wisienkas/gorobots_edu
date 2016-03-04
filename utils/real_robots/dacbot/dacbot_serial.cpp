@@ -312,7 +312,7 @@ if (feedback[0]<= 90 && feedback[1]<= 60 && feedback[2]>= 170 && feedback[3]<= 1
 	
 	//Sendding command to serial port
 	int n = write(fd1, serial_motor2, sizeof(serial_motor2));
-	usleep (10000);
+	//usleep (10000);
 	// increase time counter
 	t++;
 
