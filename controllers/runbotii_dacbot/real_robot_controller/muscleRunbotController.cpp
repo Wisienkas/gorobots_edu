@@ -43,6 +43,7 @@ MuscleRunbotController::MuscleRunbotController(const std::string& name, const st
 
   addInspectableValue(" u_kr_es",&nnet-> u_kr_es," u_kr_es");
   addInspectableValue(" u_kl_es",&nnet-> u_kl_es," u_kl_es");
+  addInspectableValue("  u_kl_ei",&nnet->  u_kl_ei,"  u_kl_ei");
   addInspectableValue("  u_kr_ei",&nnet->  u_kr_ei,"  u_kr_ei");
 
 

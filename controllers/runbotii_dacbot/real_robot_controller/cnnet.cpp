@@ -66,9 +66,9 @@ cNNet::cNNet ( cGaitProfile* profile_ )
 
 	countpiezo = 0;
 
-	elf_knee = 2;
-	elf_hip_es=2;//4
-	elf_hip_fs=2;//4
+	elf_knee = 4;//2
+	elf_hip_es=4;//2
+	elf_hip_fs=4;//2
 
 	//Hip Left
 	y_hl_ei=0;
@@ -386,8 +386,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 	u_kl_es_low_pass = (1-gain_low_pass_es)*u_kl_es+ u_kl_es_low_pass_pre*gain_low_pass_es;
 	u_kl_fs=1/(1+exp(elf_kl_fs*(threshold_kl_fs-angle_kl_low_pass)));
 
-	//y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
-	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es_low_pass+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
+	y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
+	//y_kl_em=y_pre_kl_em*expp+(1-expp)*(w_kl_es_em*u_kl_es_low_pass+w_kl_ei_em*u_kl_ei+w_kl_fi_em*u_kl_fi);
 	y_kl_fm=y_pre_kl_fm*expp+(1-expp)*(w_kl_fs_fm*u_kl_fs+w_kl_fi_fm*u_kl_fi+w_kl_ei_fm*u_kl_ei);
 
 	u_kl_em=1/(1+exp(threshold_em-y_kl_em));
@@ -429,8 +429,8 @@ void cNNet::update_nnet ( std::valarray< double > input_data ) {
 
 	u_kr_fs=1/(1+exp(elf_kr_fs*(threshold_kr_fs-angle_kr_low_pass)));
 
-	//y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
-	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es_low_pass+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
+	y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
+	//y_kr_em=y_pre_kr_em*expp+(1-expp)*(w_kr_es_em*u_kr_es_low_pass+w_kr_ei_em*u_kr_ei+w_kr_fi_em*u_kr_fi);
 	y_kr_fm=y_pre_kr_fm*expp+(1-expp)*(w_kr_fs_fm*u_kr_fs+w_kr_fi_fm*u_kr_fi+w_kr_ei_fm*u_kr_ei);
 
 	u_kr_em=1/(1+exp(threshold_em-y_kr_em));
