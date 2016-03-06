@@ -80,7 +80,7 @@ EMGapproxESN::EMGapproxESN(
     train();
     test( true );
     
-    save( _num, _dir );
+//    save( _num, _dir );
 
 }
 
@@ -325,7 +325,7 @@ void EMGapproxESN::activate() {
     stringstream ss;
     double error        = 0.0;
     double squaredError = 0.0;
-    for(unsigned int i = 0; i < numberOfOutputs; i++ ) {
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ) {
         
         error           += ( targetValues[i] - ESN->outputs->val( i, 0 ) );
         squaredError    += ( error * error );
@@ -427,11 +427,20 @@ void EMGapproxESN::test( bool isValidation ) {
     /// Adding header
     // Writing header to file
     stringstream header;
-    for( unsigned int i = 0; i < numberOfOutputs; i++ ) header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
+    for( unsigned int i = 0; i < numberOfInputs; i++ ){
+        
+        header << "Input " << ( i + 1 ) << "\t";
+        
+    }
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
+        
+        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
+        
+    }
     header << "\n";
     resultsFile << header.str();
 
-    /// Iterate through the timesteps...
+    /// Iterate through the time steps...
     for( unsigned int i = 0; i < testingUnits.size(); i++ ) {
 
         /// ...set inputs...
@@ -446,6 +455,8 @@ void EMGapproxESN::test( bool isValidation ) {
                 inputValues[j] = testingUnits[i][0][j];
 
             }
+            
+            resultsFile << inputValues[j] << "\t";
 
         }
 

@@ -11,12 +11,11 @@
 
 #include "math.h"
 #include <algorithm>    // max()
-#include <stdio.h>        // NULL
-#include <stdlib.h>       // srand, rand
-#include <time.h>        // time
+#include <stdio.h>      // NULL
+#include <stdlib.h>     // srand, rand
+#include <time.h>       // time
 
-//#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
-#include "archive/koh/data_processing/include/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
+#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
 
 typedef vector< vector< vector< double > > > vector3Ddouble;
 // using namespace std;

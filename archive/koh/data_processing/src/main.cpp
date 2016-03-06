@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "EMGapproxESN.h"
+#include "EMGapproxESN_new.h"
+//#include "EMGapproxESN.h"
 
 int main( int argc, char ** argv ) {
 
