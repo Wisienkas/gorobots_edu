@@ -79,8 +79,8 @@ EMGapproxESN::EMGapproxESN(
 
     train();
     test( true );
-
-    save( _num, _dir );
+    
+//    save( _num, _dir );
 
 }
 
@@ -95,9 +95,9 @@ EMGapproxESN::EMGapproxESN(
         unsigned int _verboseLevel,
         char _delimiter,
         unsigned int _numOfHeaderLines ) {
-
+    
     /// Load a network
-    ESN                     = new ESNetwork( _num, _dir );
+    ESN                     = new ESNetwork( _num, _dir, _verboseLevel );
 
     /// Extracting ANN parameters
     numberOfInputs          = ESN->inputNeurons;
@@ -277,7 +277,7 @@ void EMGapproxESN::separateData(
 
     }
 
-    if( verboseLevel >= 1 ) cout << "\t\t\t\t[OK]" << endl;
+    if( verboseLevel >= 1 ) cout << "\t\t\t[OK]" << endl;
 
 }
 
@@ -322,38 +322,37 @@ void EMGapproxESN::activate() {
     // ESN Learning function
     ESN->takeStep( targetValues, learningRate /*0.9 RLS*/, 1 /*no td = 1 else td_error*/, learningFlag/* true= learn, false = not learning learn_critic*/, iteration/*0*/);
 
-    // TODO temporary solution
-    target_ESN = targetValues[0];
-    output_ESN = ESN->outputs->val(0, 0); // Read out the output of ESN
-
+    stringstream ss;
+    double error        = 0.0;
+    double squaredError = 0.0;
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ) {
+        
+        error           += ( targetValues[i] - ESN->outputs->val( i, 0 ) );
+        squaredError    += ( error * error );
+        ss << ESN->outputs->val( i, 0 ) << "\t" << targetValues[i] << "\t" << ( error * error );
+        
+    }
+    ss << "\n";
+    
     // ESN->printMatrix(ESN->endweights); //print weight matrix on screen
 
-    /// Calculate online error at each time step
-    squaredError = ( target_ESN - output_ESN ) * ( target_ESN - output_ESN );
-
-    mse += squaredError;
-
-
+    mse += ( squaredError / numberOfOutputs );
 
     /// Testing
     if( verboseLevel >= 2 ) {
 
         cout << "Iteration:\t\t"                << iteration << endl;
-        cout << "inputValues[0]:\t"             << inputValues[0] << endl;
-        cout << "targetValues[0]:\t"            << targetValues[0] << endl;
-        cout << "output_ESN:\t\t"               << output_ESN << endl;
         cout << "Online Training error:\t"      << squaredError << endl;
 
     }
 
     /// Save results if tests are being performed
-    //if( !learningFlag ) {
+    if( !learningFlag ) {
+        
+        
+        resultsFile << ss.str() << flush; //SAVE DATA
 
-    //    resultsFile << output_ESN << "\t" << target_ESN << "\t" << squaredError << "\n" << flush; //SAVE DATA
-
-    //}
-
-    resultsFile << output_ESN << "\t" << target_ESN << "\t" << squaredError << "\n" << flush; //SAVE DATA
+    }
 
 }
 
@@ -426,9 +425,22 @@ void EMGapproxESN::test( bool isValidation ) {
     }
 
     /// Adding header
-    // resultsFile << "Output" << "\t" << "Target" << "\t" << "Squared Error" << "\n" << flush;
+    // Writing header to file
+    stringstream header;
+    for( unsigned int i = 0; i < numberOfInputs; i++ ){
+        
+        header << "Input " << ( i + 1 ) << "\t";
+        
+    }
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
+        
+        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
+        
+    }
+    header << "\n";
+    resultsFile << header.str();
 
-    /// Iterate through the timesteps...
+    /// Iterate through the time steps...
     for( unsigned int i = 0; i < testingUnits.size(); i++ ) {
 
         /// ...set inputs...
@@ -443,6 +455,8 @@ void EMGapproxESN::test( bool isValidation ) {
                 inputValues[j] = testingUnits[i][0][j];
 
             }
+            
+            resultsFile << inputValues[j] << "\t";
 
         }
 
@@ -476,7 +490,6 @@ void EMGapproxESN::test( bool isValidation ) {
 
     }
 
-    resultsFile << "Output" << "\t" << "Target" << "\t" << "Squared Error" << "\n" << flush;
     /// Save MSE
     resultsFile << "\n" << "MSE" << "\t" << mse << "\n" << flush;
 

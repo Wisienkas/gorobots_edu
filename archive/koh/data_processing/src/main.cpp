@@ -2,19 +2,18 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "EMGapproxESN_new.h"
-//#include "EMGapproxESN.h"
+#include "EMGapproxESN.h"
 
 int main( int argc, char ** argv ) {
 
     if( argc == 1 ) { // XXX Manual mode
 
-        string inputPath                    = "resources/fishdata/Inputs23.txt";
+        string inputPath                    = "resources/fishdata/TrainInput1.txt";
         string targetPath                   = "resources/fishdata/Target.txt";
         string resultPath                   = "results/result.txt";
         string saveDir                      = "save_files/";
         unsigned int saveNum                = 1;
-        unsigned int numberOfInputs         = 2;
+        unsigned int numberOfInputs         = 1;
         unsigned int numberOfOutputs        = 1;
         unsigned int numberOfHiddenUnits    = 200;
         unsigned int learningMode           = 1;

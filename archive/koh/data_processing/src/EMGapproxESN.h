@@ -11,14 +11,12 @@
 
 #include "math.h"
 #include <algorithm>    // max()
-#include <stdio.h>        // NULL
-#include <stdlib.h>       // srand, rand
-#include <time.h>        // time
+#include <stdio.h>      // NULL
+#include <stdlib.h>     // srand, rand
+#include <time.h>       // time
 
 //#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
-#include "archive/koh/data_processing/include/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
-
-
+#include "archive/koh/data_processing/include/networkmatrix.h"
 typedef vector< vector< vector< double > > > vector3Ddouble;
 // using namespace std;
 
@@ -81,8 +79,6 @@ private:
     ESNetwork * ESN;
     float * inputValues;  // ESinput
     float * targetValues; // ESTrainOutput
-
-    double target_ESN, input_ESN, output_ESN; // Temporary variables, used for testing
 
     double mse; // Mean Square Error
     double squaredError;
