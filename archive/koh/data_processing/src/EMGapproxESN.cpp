@@ -80,7 +80,7 @@ EMGapproxESN::EMGapproxESN(
     train();
     test( true );
     
-//    save( _num, _dir );
+    save( _num, _dir );
 
 }
 
