@@ -18,8 +18,8 @@ ModularNeural::ModularNeural(){
 	//*******POST PROCESSING********
 		pcpg = new PCPG();
 
-		w(pcpg->getNeuron(0),cpg->getNeuron(0),1);
-		w(pcpg->getNeuron(1),cpg->getNeuron(1),1);
+		w(pcpg->getNeuron(0),cpg->getNeuron(0),5);
+		w(pcpg->getNeuron(1),cpg->getNeuron(1),5);
 
 		addSubnet(pcpg);
 

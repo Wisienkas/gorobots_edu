@@ -348,12 +348,12 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  //top left
 	  		y_[3]=pattern2TC*0.1;
 	  		y_[9]=pattern1CT*1.1;
-	  		y_[15]=0;
+	  		y_[15]=-pattern1FT;
 
 	  //top right
 	  		y_[0]=-pattern1TC*0.1;
 	  		y_[6]=-pattern1CT*1.1;
-	  		y_[12]=0;
+	  		y_[12]=-pattern2FT-0.5;
 
 	  //backbone joint
 	    	y_[18]=0;
