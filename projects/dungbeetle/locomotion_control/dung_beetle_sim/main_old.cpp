@@ -15,8 +15,8 @@
 
 
 // the controller
-//#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
-#include "controllers/dungbeetle/Michelangelo/modularneurocontroller.cpp"
+#include "controllers/dungbeetle/modular_neural_control/dung_beetle/dungBeetlecontrol.h"
+
 #include <ode_robots/joint.h>
 
 #include <ode_robots/passivesphere.h>
@@ -30,7 +30,7 @@ using namespace lpzrobots;
 std::vector<lpzrobots::AbstractObstacle*> obst;
 
 bool track = true;
-bool mCPGS = false;
+
 
 class ThisSim : public lpzrobots::Simulation {
 public:
@@ -108,8 +108,8 @@ public:
 
 
 
-		//controller = new dungBeetlecontrol(/*dungBeetle*/1,/*MCPGs=true*/false,/*Muscle Model =true*/false);
-		controller = new modularNeuroController(1,mCPGS,false);
+		controller = new dungBeetlecontrol(/*dungBeetle*/1,/*MCPGs=true*/false,/*Muscle Model =true*/false);
+
 		// create wiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
@@ -155,7 +155,6 @@ public:
 	      bool down)
 	  {
 	    if (down) { // only when key is pressed, not when released
-	    	getCommand(key);
 	      switch (char(key)) {
 	        case 'x':
 	          if (robotfixator) {
@@ -169,7 +168,6 @@ public:
 	          break;
 	      }
 	    }
-
 	    return false;
 	  }
 
