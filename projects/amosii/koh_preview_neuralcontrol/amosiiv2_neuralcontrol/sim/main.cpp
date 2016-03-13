@@ -53,164 +53,189 @@ std::vector<lpzrobots::AbstractObstacle*> obst;
 class ThisSim : public lpzrobots::Simulation {
   public:
 
-  ThisSim(){
-    addPaletteFile("colors/UrbanExtraColors.gpl");
-    addColorAliasFile("colors/UrbanColorSchema.txt");
-    // you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
-    // addColorAliasFile("myColorSchema.txt");
-    setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
-    //setTitle("centered text");
-    //setCaption("right aligned text");
-  }
-
-  /**
-   * starting function (executed once at the beginning of the simulation loop)
-   */
-  virtual void start(const lpzrobots::OdeHandle& odeHandle,
-      const lpzrobots::OsgHandle& osgHandle,
-      lpzrobots::GlobalData& global) {
-    // set initial camera position
-    setCameraHomePos(
-        lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
-        lpzrobots::Pos(178.866, -7.43884, 0));
-
-    // set simulation parameters
-    global.odeConfig.setParam("controlinterval", 10);
-    global.odeConfig.setParam("simstepsize", 0.01);
-    global.odeConfig.setParam("noise", 0.0);//0.02); // 0.02
-
-    // add playground
-//    lpzrobots::Playground* playground
-//    = new lpzrobots::Playground(odeHandle, osgHandle,
-//        osg::Vec3(10, 0.2, 0.3));
-//    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
-//    playground->setPosition(osg::Vec3(0,0,.0));
-//    global.obstacles.push_back(playground);
-
-    //----------create a sphere as the target by Ren-----------------------------
-    //the first sphere
-    lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-    s1->setTexture("Images/dusty.rgb");
-    s1->setColor(lpzrobots::Color(1,0,0));
-    obst.push_back(s1);
-    global.obstacles.push_back(s1);
-    lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-    fixator1->init(odeHandle, osgHandle);
-
-    //the second sphere
-    lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-    s2->setTexture("Images/dusty.rgb");
-    s2->setColor(lpzrobots::Color(0,1,0));
-    obst.push_back(s2);
-    global.obstacles.push_back(s2);
-    lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-    fixator2->init(odeHandle, osgHandle);
-
-    //the third sphere
-    lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-    s3->setTexture("Images/dusty.rgb");
-    s3->setColor(lpzrobots::Color(0,0,1));
-    obst.push_back(s3);
-    global.obstacles.push_back(s3);
-    lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-    fixator3->init(odeHandle, osgHandle);
-
-    //----------create a sphere as the target by Ren-----------------------------
-
-
-    // Add amosII robot
-    lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-    myAmosIIConf.rubberFeet = true;
-    myAmosIIConf.useLocalVelSensor = true;
-
-    //lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-    //myAmosIIConf.rubberFeet = true;
-
-    //myAmosIIConf.legContactSensorIsBinary = true;
-    lpzrobots::OdeHandle rodeHandle = odeHandle;
-    rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
-
-    //------------------- Link the sphere to the Goal Sensor by Ren---------------
-    for(int i = 0; i<obst.size(); i++)
-    {
-      myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
+    ThisSim(){
+      addPaletteFile("colors/UrbanExtraColors.gpl");
+      addColorAliasFile("colors/UrbanColorSchema.txt");
+      // you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
+      // addColorAliasFile("myColorSchema.txt");
+      setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
+      //setTitle("centered text");
+      //setCaption("right aligned text");
     }
-    //------------------- Link the sphere to the Goal Sensor by Ren---------------
 
-    amos = new lpzrobots::AmosII(
-        rodeHandle,
-        osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
-        myAmosIIConf, "AmosII");
+    double distance(){
+      double dx = pow(amos->getPosition().x,2);
+      double dy = pow(amos->getPosition().y,2);
+      return sqrt(dx+dy);
+    }
 
-    // define the usage of the individual legs
-    amos->setLegPosUsage(amos->L0, amos->LEG);
-    amos->setLegPosUsage(amos->L1, amos->LEG);
-    amos->setLegPosUsage(amos->L2, amos->LEG);
-    amos->setLegPosUsage(amos->R0, amos->LEG);
-    amos->setLegPosUsage(amos->R1, amos->LEG);
-    amos->setLegPosUsage(amos->R2, amos->LEG);
+    double distance(double x, double y){
+      double dx = pow(amos->getPosition().x - x,2);
+      double dy = pow(amos->getPosition().y - y,2);
+      return sqrt(dx+dy);
+    }
 
-    // put amos a little bit in the air
-    amos->place(osg::Matrix::translate(.0, .0, 0.5));
+    double distance(lpzrobots::AbstractObstacle* obj){
+      double dx = pow(amos->getPosition().x - obj->getPosition().x,2);
+      double dy = pow(amos->getPosition().y - obj->getPosition().y,2);
+      return sqrt(dx+dy);
+    }
 
-    controller = new AmosIIControl();//TripodGait18DOF();
-    // create wiring
-    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+    /**
+     * starting function (executed once at the beginning of the simulation loop)
+     */
+    virtual void start(const lpzrobots::OdeHandle& odeHandle,
+        const lpzrobots::OsgHandle& osgHandle,
+        lpzrobots::GlobalData& global) {
+      // set initial camera position
+      setCameraHomePos(
+          lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
+          lpzrobots::Pos(178.866, -7.43884, 0));
 
-    // create agent and init it with controller, robot and wiring
-    lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
-    agent->init(controller, amos, wiring);
+      // set simulation parameters
+      global.odeConfig.setParam("controlinterval", 10);
+      global.odeConfig.setParam("simstepsize", 0.01);
+      global.odeConfig.setParam("noise", 0.0);//0.02); // 0.02
 
-    // create a fixed joint to hold the robot in the air at the beginning
-    robotfixator = new lpzrobots::FixedJoint(
-        amos->getMainPrimitive(),
-        global.environment);
-    robotfixator->init(odeHandle, osgHandle, false);
+      // add playground
+      //    lpzrobots::Playground* playground
+      //    = new lpzrobots::Playground(odeHandle, osgHandle,
+      //        osg::Vec3(10, 0.2, 0.3));
+      //    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
+      //    playground->setPosition(osg::Vec3(0,0,.0));
+      //    global.obstacles.push_back(playground);
 
-    // inform global variable over everything that happened:
-    global.configs.push_back(amos);
-    global.agents.push_back(agent);
-    global.configs.push_back(controller);
+      //----------create a sphere as the target by Ren-----------------------------
+      //the first sphere
+      lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+      s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
+      s1->setTexture("Images/dusty.rgb");
+      s1->setColor(lpzrobots::Color(1,0,0));
+      obst.push_back(s1);
+      global.obstacles.push_back(s1);
+      lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
+      fixator1->init(odeHandle, osgHandle);
 
-    std::cout << "\n\n"
-        << "################################\n"
-        << "#   Press x to free amosII!    #\n"
-        << "################################\n"
-        << "\n\n" << std::endl;
-  }
+      //the second sphere
+      lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+      s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
+      s2->setTexture("Images/dusty.rgb");
+      s2->setColor(lpzrobots::Color(0,1,0));
+      obst.push_back(s2);
+      global.obstacles.push_back(s2);
+      lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
+      fixator2->init(odeHandle, osgHandle);
 
-  /**
-   * add own key handling stuff here, just insert some case values
-   */
-  virtual bool command(const lpzrobots::OdeHandle&,
-      const lpzrobots::OsgHandle&,
-      lpzrobots::GlobalData& globalData,
-      int key,
-      bool down)
-  {
-    if (down) { // only when key is pressed, not when released
-      switch (char(key)) {
-        case 'x':
-          if (robotfixator) {
-            std::cout << "dropping robot" << std::endl;
-            delete robotfixator;
-            robotfixator = NULL;
-          }
-          break;
-        default:
-          return false;
-          break;
+      //the third sphere
+      lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
+      s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
+      s3->setTexture("Images/dusty.rgb");
+      s3->setColor(lpzrobots::Color(0,0,1));
+      obst.push_back(s3);
+      global.obstacles.push_back(s3);
+      lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
+      fixator3->init(odeHandle, osgHandle);
+
+      //----------create a sphere as the target by Ren-----------------------------
+
+
+      // Add amosII robot
+      lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+      myAmosIIConf.rubberFeet = true;
+      myAmosIIConf.useLocalVelSensor = true;
+
+      //lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+      //myAmosIIConf.rubberFeet = true;
+
+      //myAmosIIConf.legContactSensorIsBinary = true;
+      lpzrobots::OdeHandle rodeHandle = odeHandle;
+      rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+
+      //------------------- Link the sphere to the Goal Sensor by Ren---------------
+      for(int i = 0; i<obst.size(); i++)
+      {
+        myAmosIIConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
       }
+      //------------------- Link the sphere to the Goal Sensor by Ren---------------
+
+
+      amos = new lpzrobots::AmosII(
+          rodeHandle,
+          osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
+          myAmosIIConf, "AmosII");
+
+      // define the usage of the individual legs
+      amos->setLegPosUsage(amos->L0, amos->LEG);
+      amos->setLegPosUsage(amos->L1, amos->LEG);
+      amos->setLegPosUsage(amos->L2, amos->LEG);
+      amos->setLegPosUsage(amos->R0, amos->LEG);
+      amos->setLegPosUsage(amos->R1, amos->LEG);
+      amos->setLegPosUsage(amos->R2, amos->LEG);
+
+
+
+
+      // put amos a little bit in the air
+      amos->place(osg::Matrix::translate(.0, .0, 0.5));
+
+      controller = new AmosIIControl();//TripodGait18DOF();
+      // create wiring
+      One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
+
+      // create agent and init it with controller, robot and wiring
+      lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
+      agent->init(controller, amos, wiring);
+
+      // create a fixed joint to hold the robot in the air at the beginning
+      robotfixator = new lpzrobots::FixedJoint(
+          amos->getMainPrimitive(),
+          global.environment);
+      robotfixator->init(odeHandle, osgHandle, false);
+
+      // inform global variable over everything that happened:
+      global.configs.push_back(amos);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+
+      std::cout << "\n\n"
+          << "################################\n"
+          << "#   Press x to free amosII!    #\n"
+          << "################################\n"
+          << "\n\n" << std::endl;
     }
-    return false;
-  }
+
+    /**
+     * add own key handling stuff here, just insert some case values
+     */
+    virtual bool command(const lpzrobots::OdeHandle&,
+        const lpzrobots::OsgHandle&,
+        lpzrobots::GlobalData& globalData,
+        int key,
+        bool down)
+    {
+      if (down) { // only when key is pressed, not when released
+        switch (char(key)) {
+          case 'x':
+            if (robotfixator) {
+              std::cout << "dropping robot" << std::endl;
+              delete robotfixator;
+              robotfixator = NULL;
+            }
+            break;
+          case 'P':  //print current position
+                  printf("(x,y) = (%2.3f,%2.3f), (vx, vy) = (%2.3f,%2.3f)\n",amos->getPosition().x,amos->getPosition().y, amos->getSpeed().x, amos->getSpeed().y);
+                  break;
+          default:
+            return false;
+            break;
+        }
+      }
+      return false;
+    }
   protected:
-  lpzrobots::Joint* robotfixator;
-  AbstractController* controller;
-  lpzrobots::AmosII* amos;
+    lpzrobots::Joint* robotfixator;
+    AbstractController* controller;
+    lpzrobots::AmosII* amos;
 };
 
 int main(int argc, char **argv)
