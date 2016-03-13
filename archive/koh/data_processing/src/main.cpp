@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include "EMGapproxESN.h"
 
-bool learning = false;
+bool learning = true;
 
 int main( int argc, char ** argv ) {
 

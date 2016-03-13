@@ -16,7 +16,10 @@
 #include <time.h>       // time
 
 //#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
-#include "archive/koh/data_processing/include/networkmatrix.h"
+
+//#include "archive/koh/data_processing/include/networkmatrix.h"
+#include <networkmatrix.h>
+
 typedef vector< vector< vector< double > > > vector3Ddouble;
 // using namespace std;
 
