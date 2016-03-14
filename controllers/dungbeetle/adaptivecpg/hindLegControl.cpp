@@ -13,7 +13,6 @@
 #include <math.h>
 
 
-
 using namespace std;
 
 hindLegControl::hindLegControl():
@@ -32,6 +31,12 @@ hindLegControl::hindLegControl():
 	reg=new shift_register(0);// STATIC shift register, bigger is its dimension, lower will be the final reached frequency
 
 	//reg2=new shift_register(20);
+
+
+	//Add Delay line /////////////////////////////////////////////////////
+	tau = 4;
+	tr_delayline = new Delayline(2 * tau + 1/*size of delayline buffer*/);
+	///////////////////////////////////////////////////////////////////////
 }
 
 hindLegControl::~hindLegControl() {
@@ -146,8 +151,17 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 			<<" "<<input_secJ<<" " <<osc->getOut2()<< " " <<osc->getOut0() << " " <<osc->getOut1()
 			<<" " << osc->getW02() << " "<<osc->getW20() <<" "<< osc->getW2p() <<" "<<std::endl;
 
+
+
+	//Add Delay line //////////////////////
+	//writing values into delayline buffer
+	tr_delayline->Write(input);
+	input_delay = tr_delayline->Read(tau);
+	tr_delayline->Step();
+	////////////////////////////////////////
+
 	// writing commands to the motors
-	y_[0]= input;
+	y_[0]= input_delay;//input;
 	y_[1]= input_secJ;
 	y_[2]= 0;//-input_secJ;
 
