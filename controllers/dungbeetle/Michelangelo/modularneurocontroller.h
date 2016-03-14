@@ -25,7 +25,7 @@
 extern double I_l = 0.0;
 extern double I_r = 0.0;
 extern double I3 = 0.0;
-extern double I2 = 0.0;
+extern double I2 = 1.0;
 extern bool multiple = false;
 
 void getCommand(char key);

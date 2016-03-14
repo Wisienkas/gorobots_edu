@@ -160,8 +160,8 @@ modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,boo
 void modularNeuroController::initialize(int aAMOSversion,bool mCPGs,bool mMuscleModelisEnabled)
 {	
 	//multiple = mCPGs;
-	I_l = 0.0;
-	I_r = 0.0;
+	I_l = 1.0;
+	I_r = 1.0;
 	I3 = 0.0;
 	t = 0;
 	if(!multiple)
