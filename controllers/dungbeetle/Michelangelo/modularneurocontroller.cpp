@@ -160,8 +160,8 @@ modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,boo
 void modularNeuroController::initialize(int aAMOSversion,bool mCPGs,bool mMuscleModelisEnabled)
 {	
 	//multiple = mCPGs;
-	I_l = 1.0;
-	I_r = 1.0;
+	I_l = 0.0;
+	I_r = 0.0;
 	I3 = 0.0;
 	t = 0;
 	if(!multiple)
@@ -263,20 +263,17 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
   		mod->setInputNeuronInput(I_l,I_r,I3);
 		mod->update(0);
 	
-	//right legs CT
+	//CT Signal 
 		pattern1CT=mod->getPsnOutput(11);
-		// if(pattern1CT > 0.1)
-		// pattern1CT=0.1;
-		// if(pattern1CT < -0.3)
-		// pattern1CT=-0.3;	
-	//left legs	 CT
-	
+		pattern2CT= -pattern1CT;
+		pattern3CT= pattern1CT;
+		pattern4CT= -pattern1CT;
 
-	//if(I2 == 0.0)
+	//FT Signal
 		pattern1FT=mod->getPsnOutput(10);
 		pattern2FT=-pattern1FT;
 
-	//right legs TC
+	
   		pattern1TC=mod->getVrnRightOut();
   		// if(pattern1TC < -0.3)
   		// 	pattern1TC=-0.3;
@@ -299,16 +296,17 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  		y_[8]=0;
 	 		 y_[14]=0;
 	 //left middle
-	 		 y_[4]=-0.4;
-	 		 y_[10]=0;
+	 		 y_[4]=-0.4+(pattern1CT-0.3);
+	 		 y_[10]=(pattern2TC-0.3);
 	 		 y_[16]=0;
 
 	  //right middle
-	  		y_[1]=-0.4;
-	  		y_[7]=0;
+	  		y_[2]=-0.4+(pattern1CT-0.4);
+	  		y_[8]=(pattern1TC-0.2);
 	  		y_[13]=0;
-
+	  	//USE FT JOINTS DURING LOCOMOTION	
 	  	//front legs have opposite direction : - is down,+ is up
+
 	  //top left
 	  		y_[3]=0;
 	  		y_[9]=0;
@@ -318,42 +316,42 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  		y_[0]=0;
 	  		y_[6]=0;
 	  		y_[12]=0;
-	
+
 	   		y_[18]=0;
 		}else if(I2 == 1.0){
 
 	
 	  //left back
-	  		y_[5]=-0.4-pattern1CT*0.7;
-	  		y_[11]=-pattern2TC*0.4;
+	  		y_[5]=-0.4+(pattern2CT-0.5);
+	  		y_[11]=(-pattern2TC-0.2)*0.5;
 	  		y_[17]=0;
 
 	  //right back
-	  		y_[2]=-0.4+pattern1CT*0.7;
-	  		y_[8]=pattern1TC*0.4;
+	  		y_[2]=-0.4+(pattern1CT-0.5);
+	  		y_[8]=(pattern1TC-0.2)*0.5;
 	  		y_[14]=0;
 
 	  //left middle
-	  		y_[4]=-0.4+pattern1CT*0.8;
-	  		y_[10]=pattern2TC*0.4;
+	  		y_[4]=-0.4+(pattern1CT-0.4);
+	  		y_[10]=(pattern2TC-0.4)*0.5;
 	  		y_[16]=0;
 
 	  //right middle
-	  		y_[1]=-0.4-pattern1CT*0.8;
-	  		y_[7]=-pattern1TC*0.4;
+	  		y_[1]=-0.4+(pattern2CT-0.4);
+	  		y_[7]=(-pattern1TC-0.4)*0.5;
 	  		y_[13]=0;
 
 
 	
 	  //top left
-	  		y_[3]=pattern2TC*0.1;
-	  		y_[9]=pattern1CT*1.1;
-	  		y_[15]=-pattern1FT;
+	  		y_[3]=pattern1TC*0.1;
+	  		y_[9]=(pattern3CT+0.4);
+	  		y_[15]=0;
 
 	  //top right
 	  		y_[0]=-pattern1TC*0.1;
-	  		y_[6]=-pattern1CT*1.1;
-	  		y_[12]=-pattern2FT-0.5;
+	  		y_[6]=(pattern4CT+0.4);
+	  		y_[12]=0;
 
 	  //backbone joint
 	    	y_[18]=0;

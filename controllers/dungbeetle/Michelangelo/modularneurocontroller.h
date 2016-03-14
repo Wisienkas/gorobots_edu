@@ -25,7 +25,7 @@
 extern double I_l = 0.0;
 extern double I_r = 0.0;
 extern double I3 = 0.0;
-extern double I2 = 1.0;
+extern double I2 = 0.0;
 extern bool multiple = false;
 
 void getCommand(char key);
@@ -126,8 +126,8 @@ class modularNeuroController : public AbstractController {
 		int t;
 
 	public:
-		//plastic *cpg;
-		double pattern1TC,pattern2TC,pattern1CT,pattern2CT,pattern1FT,pattern2FT;
+		
+		double pattern1TC,pattern2TC,pattern1CT,pattern2CT,pattern3CT,pattern4CT,pattern1FT,pattern2FT;
 		double o0,o1,o2;
 		double perturbation;
 		std::vector<sensor> x;
