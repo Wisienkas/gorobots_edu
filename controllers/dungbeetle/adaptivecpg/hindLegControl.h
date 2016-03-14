@@ -25,6 +25,11 @@
 #include <controllers/dungbeetle/adaptivecpg/plastic.h>
 #include "lowPassfilter.h"
 
+//Add Delay line////////////////////
+#include "utils/delayline.h"
+////////////////////////////////////
+
+
 class hindLegControl : public AbstractController{
 public:
 	hindLegControl();
@@ -68,5 +73,12 @@ public:
 	std::vector<double> inputDerivative;
 	double vec[2]={0,0};
 	std::ofstream plot;
+
+	//Add Delay line constructor/////////////////
+	Delayline* tr_delayline;
+	int tau;
+	double input_delay;
+	/////////////////////////////////////////////
+
 };
 #endif /* CONTROLLERS_DUNGBEETLE_CPG_HINDLEGCONTROL_H_ */
