@@ -22,7 +22,7 @@
 // used robot...
 #include <ode_robots/nimm2.h>
 #include <ode_robots/nimm4.h>
-#include <fourwheeledrpos_gripper.h>
+#include "fourwheeledrpos_gripper.h"
 
 
 #include <selforg/trackrobots.h>
@@ -33,7 +33,7 @@
 #include <ode_robots/passivebox.h>
 
 // controller
-#include "aslcontroller.h"
+#include <controllers/nimm4ii/action_sequence_learning/aslcontroller.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
