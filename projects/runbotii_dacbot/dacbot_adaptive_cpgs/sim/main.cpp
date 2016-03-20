@@ -23,6 +23,9 @@
  *                                                                         *
  ***************************************************************************/
 
+//Press "ctrl H" = reset robot to let it stand up
+
+
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
 // include agent (class for holding a robot, a controller and a wiring)
@@ -38,9 +41,10 @@
 #include <ode_robots/runbotii.h>
 
 
-#include "controllers/runbotii_dacbot/cpgDACBOTController.h"
-#include "controllers/runbotii_dacbot/runbotANNController.h"
+//#include "controllers/runbotii_dacbot/cpgDACBOTController.h"
+//#include "controllers/runbotii_dacbot/runbotANNController.h"
 
+#include "controllers/runbotii_dacbot/muscleRunbotController.h"
 
 #include <ode_robots/passivebox.h> //needed for obstacles
 
@@ -149,7 +153,7 @@ public:
 		global.configs.push_back(runbot);
 		global.agents.push_back(runAgent);
 		global.configs.push_back(controller);
-	if (showRealController){
+	/*if (showRealController){
 		runbot2 = new lpzrobots::Runbot(odeHandle,osgHandle, myRunbotConf,"Runbot2");
 		runbot2->place(osg::Matrix::translate(0.0,0.0,0.0));
 		controller2 = new RunbotANNController("realRunbotController","0.1");
@@ -176,7 +180,7 @@ public:
 	        	ode.addIgnoredPair(x,y);
 	        }
 	    }
-	}
+	}*/
 
 	}
 

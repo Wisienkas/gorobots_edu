@@ -13,13 +13,12 @@
 #include "plastic.h"
 #include "DynamicCpg.h"
 #include "lowPassfilter.h"
+
 #include <vector>
 #include <cmath>
 #include <controllers/runbotii_dacbot/shiftregister.h>
 #include <controllers/runbotii_dacbot/derivativeTransitionRegister.h>
 //CONTROLLERS_RUNBOTII_DACBOT_LOWPASSFILTER_H_
-
-
 
 
 #include <iostream> //for plotting
@@ -109,6 +108,7 @@ class MuscleRunbotController : public AbstractController {
        runbot::cGaitProfile *newGait;
        runbot::cGaitProfile *gait3;
        runbot::cNNet* nnet3;
+
        DCControllingVMM *RHmuscles;		//modelled muscles for each joint..
        DCControllingVMM *LHmuscles;
        DCControllingVMM *RKmuscles;
@@ -165,6 +165,10 @@ class MuscleRunbotController : public AbstractController {
        std::vector<double> shift;
        shift_register *phase,*leftKneeDelayed,*rightKneeDelayed,*leftHipDelayed, *rightHipDelayed;
        derivativeTransitionRegister *checkWave;
+
+
+       double fl_sensor;
+       double fr_sensor;
 
 };
 

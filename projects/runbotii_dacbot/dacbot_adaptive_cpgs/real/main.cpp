@@ -25,7 +25,7 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "controllers/runbotii_dacbot/real_robot_controller/muscleRunbotController.h"
+#include "controllers/runbotii_dacbot/muscleRunbotController.h"
 
 #include <utils/real_robots/dacbot/dacbot_serial.h>  //serial interface to AMOSII version 1
 //serial interface to AMOSII version 2
