@@ -21,12 +21,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef __FOUR_WHEELED__
-#define __FOUR_WHEELED__
+#ifndef __FOUR_WHEELED_GRIPPER__
+#define __FOUR_WHEELED_GRIPPER__
 #include <ode_robots/oderobot.h>
 #include <ode_robots/nimm4.h>
 #include <ode_robots/raysensorbank.h>
-//added
+
+//DSW
+#include <ode_robots/gripper.h>
 
 #include <iostream>
 #include <fstream>
@@ -56,12 +58,14 @@ namespace lpzrobots {
     //added
     bool relPosSensor;
     std::vector<Primitive*> rpos_sensor_references;
-  } FourWheeledConf;
+    // DSW
+    bool useGripper;
+  } FourWheeledConfGripper;
 
   /** Robot is based on nimm4 with
       4 wheels and a capsule like body
   */
-  class FourWheeledRPos : public Nimm4{
+  class FourWheeledRPosGripper : public Nimm4{
   public:
 
     /**
@@ -71,20 +75,20 @@ namespace lpzrobots {
      * @param conf configuration structure
      * @param name name of the robot
      */
-    FourWheeledRPos(const OdeHandle& odeHandle, const OsgHandle& osgHandle, FourWheeledConf conf, const std::string& name = "default");
+    FourWheeledRPosGripper(const OdeHandle& odeHandle, const OsgHandle& osgHandle, FourWheeledConfGripper conf, const std::string& name = "default");
 
 
-    static FourWheeledConf getDefaultConf(){
-      FourWheeledConf conf;
+    static FourWheeledConfGripper getDefaultConf(){
+      FourWheeledConfGripper conf;
       conf.size         = 1;
       conf.force        = 3;
       conf.speed        = 15;
       conf.sphereWheels = true;
       conf.twoWheelMode = false;
-      conf.useBumper    = true;
+      conf.useBumper    = false;
       conf.irFront      = true;
-      conf.irBack       = true;
-      conf.irSide       = true;
+      conf.irBack       = false;
+      conf.irSide       = false;
       conf.irRangeFront = 3;
       conf.irRangeSide  = 2;
       conf.irRangeBack  = 2;
@@ -92,10 +96,12 @@ namespace lpzrobots {
       //added:
       conf.relPosSensor = true;
       conf.rpos_sensor_references.clear();
+      // DSW
+      conf.useGripper = true;
       return conf;
     }
 
-    virtual ~FourWheeledRPos();
+    virtual ~FourWheeledRPosGripper();
 
     /**
      * updates the OSG nodes of the vehicle
@@ -114,6 +120,11 @@ namespace lpzrobots {
     // returns the joint with index i
     virtual Joint* getJoint(int i);
 
+		// returns pointer to gripper
+		virtual void addGrippables(Primitives objects);
+		virtual void removeGrippables(Primitives objects);
+		virtual void removeAllGrippables();
+    
   protected:
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
@@ -124,11 +135,26 @@ namespace lpzrobots {
      */
     virtual void destroy();
     //added
-    //    std::vector<RelativePositionSensor> rpos_sensor;
-    FourWheeledConf conf;
+    FourWheeledConfGripper conf;
     RaySensorBank irSensorBank; // a collection of ir sensors
     Primitive* bumpertrans;
     Primitive* bumper;
+    
+    // DSW
+    Primitive* gripperArm1;
+    Primitive* gripperArmTrans1;
+    Primitive* gripperArm2;
+    Primitive* gripperArmTrans2;
+    Primitive* gripperArm3;
+    Primitive* gripperArmTrans3;
+    Primitive* gripperArm4;
+    Primitive* gripperArmTrans4;
+    Primitive* gripperArm5;
+    Primitive* gripperArmTrans5;
+    Primitive* gripperArmGrip;
+    Primitive* gripperArmTransGrip;
+    
+		Gripper* gripper;
   };
 
 }
