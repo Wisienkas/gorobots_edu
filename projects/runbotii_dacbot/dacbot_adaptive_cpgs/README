@@ -1,0 +1,16 @@
+REAL ROBOT:
+1) run treadmill
+2) connect USB arduino
+3) Power the arduino board
+4) switch on power supply
+5) Run the program
+
+DACBOT Reflex and then CPG without foot sensor feedback
+dacbot@dacbot:~/workspace/pmanoonpong-gorobots-fork/projects/runbotii_dacbot/dacbot_adaptive_cpgs/real$ ./start 
+
+
+SIMULATION
+dacbot@dacbot:~/workspace/pmanoonpong-gorobots-fork/projects/runbotii_dacbot/dacbot_adaptive_cpgs/sim$ 
+
+
+

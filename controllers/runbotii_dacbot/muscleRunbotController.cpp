@@ -102,6 +102,7 @@ MuscleRunbotController::MuscleRunbotController(const std::string& name, const st
    */
 
   initialized = false;
+  ubc = 0.0;
 }
 
 
