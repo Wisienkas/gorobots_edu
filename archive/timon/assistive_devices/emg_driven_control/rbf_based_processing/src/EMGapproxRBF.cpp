@@ -100,7 +100,7 @@ EMGapproxRBF::EMGapproxRBF(
     
     
     
-    // Generating hidden units
+    /// Generating hidden units
     vector<RBFneuron*> neurons;
     for( unsigned int i = 0; i < numberOfHiddenUnits; i++ ) {
         
@@ -109,15 +109,34 @@ EMGapproxRBF::EMGapproxRBF(
         
     }
     
-    // Instantiate the network with the neurons generated above
+    /// Instantiate the network with the neurons generated above
     RBFnet = new RBFNetwork( numberOfInputs, numberOfOutputs, neurons );
     
-    // Open file for saving results
-    resultsFile.open( _resultPath, ios::out );
+    /// Open file for saving results
+    stringstream ss;
+    ss << _resultPath << "_trainnig.txt";
+    resultsFile.open( ss.str(), ios::out );
+    
+    /// Writing header to file
+    stringstream header;
+    for( unsigned int i = 0; i < numberOfInputs; i++ ){
+        
+        header << "Input " << ( i + 1 ) << "\t";
+        
+    }
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
+        
+        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
+        
+    }
+    header << "\n";
+    resultsFile << header.str();
     
     // RBFnet.print_RBF_hidden_neurons_information();
     
     train();
+    save();
+    
     test( true );
 
 }
@@ -163,8 +182,25 @@ EMGapproxRBF::EMGapproxRBF(
     
     readData( _inputPath, _targetPath );
     
-    // Open file for saving results
-    resultsFile.open( _resultPath, ios::out );
+    /// Open file for saving results
+    stringstream ss;
+    ss << _resultPath << "_testing.txt";
+    resultsFile.open( ss.str(), ios::out );
+    
+    /// Writing header to file
+    stringstream header;
+    for( unsigned int i = 0; i < numberOfInputs; i++ ){
+        
+        header << "Input " << ( i + 1 ) << "\t";
+        
+    }
+    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
+        
+        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
+        
+    }
+    header << "\n";
+    resultsFile << header.str();
     
     test( false );
     
@@ -377,21 +413,6 @@ void EMGapproxRBF::test( bool isValidation ) {
         }
         
     }
-
-    // Writing header to file
-    stringstream header;
-    for( unsigned int i = 0; i < numberOfInputs; i++ ){
-        
-        header << "Input " << ( i + 1 ) << "\t";
-        
-    }
-    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
-        
-        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
-        
-    }
-    header << "\n";
-    resultsFile << header.str();
     
     if( isValidation )
         activate( validationUnits );
