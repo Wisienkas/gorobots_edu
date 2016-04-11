@@ -10,14 +10,14 @@ int main( int argc, char ** argv ) {
 
   if( argc == 1 ) { // XXX Manual mode
 
-    string inputPath                    = "resources/fishdata/TrainInput1.txt";
-    string targetPath                   = "resources/fishdata/Target.txt";
+    string inputPath                    = "resources/fishdata/Input_emg_24576.txt";
+    string targetPath                   = "resources/fishdata/Target_emg_24576.txt";
     string resultPath                   = "results/result.txt";
     string saveDir                      = "save_files/";
     unsigned int saveNum                = 1;
     unsigned int numberOfInputs         = 1;
     unsigned int numberOfOutputs        = 1;
-    unsigned int numberOfHiddenUnits    = 200;
+    unsigned int numberOfHiddenUnits    = 500;
     unsigned int learningMode           = 1;
     unsigned int internalNonlinearity   = 2;
     unsigned int outputNonlinearity     = 0;
