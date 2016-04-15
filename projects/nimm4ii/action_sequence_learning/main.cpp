@@ -22,7 +22,7 @@
 // used robot...
 #include <ode_robots/nimm2.h>
 #include <ode_robots/nimm4.h>
-#include "fourwheeledrpos_gripper.h"
+#include <fourwheeledrpos_gripper.h>
 
 
 #include <selforg/trackrobots.h>
@@ -52,8 +52,7 @@ Primitives grippables;
 Primitives boxPrimitives;
 
 // number of runs before stopping
-int runs = 10;
-
+int runs = 1;
 
 class ThisSim : public Simulation {
 public:
@@ -165,6 +164,9 @@ public:
 		//4) - set gravity if not set then it uses -9.81 =earth gravity
 		//global.odeConfig.setParam("gravity", -9.81);
 
+		// set realtimefactor to speed up simulation
+		global.odeConfig.realTimeFactor = 1.0;
+
 		/**************************************************************************************************
 		***			Set up Environment
 		**************************************************************************************************/
@@ -221,7 +223,7 @@ public:
 	*******************************************************************************************/
 	virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
 	{
-
+		if (currentCycle >= runs) return false;
 		std::cout << "\n begin restart " << currentCycle << "\n";
 
 		std::cout<<"Current Cycle"<<this->currentCycle<<std::endl;
@@ -309,8 +311,8 @@ public:
 
 		qcontroller->setReset(false);
 
-		if (currentCycle < runs) return true;
-		else return false;
+		return true;
+		
 
 	}
 	
