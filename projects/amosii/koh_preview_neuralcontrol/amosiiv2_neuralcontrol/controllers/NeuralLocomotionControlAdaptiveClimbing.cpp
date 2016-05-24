@@ -859,7 +859,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
 
   //Control_input = 0.05;// L0 and R2 pair slight left curve*************** Grass
-  Control_input = 0.06;//slow stable Tetrapod OK USED
+  //Control_input = 0.06;//slow stable Tetrapod OK USED
   //Control_input = 0.07;//slow stable Tetrapod OK USED
 
 
@@ -880,7 +880,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   //Control_input = 0.17;//slow stable Tetrapod OK USED
   //Control_input = 0.18;//slow stable Tetrapod OK USED
-  //Control_input = 0.19;//slow stable Tetrapod OK USED
+  Control_input = 0.19;//slow stable Tetrapod OK USED
   //Control_input = 0.20;//slow stable Tetrapod OK USED
   //Control_input = 0.21;//slow stable Tetrapod OK USED
   //Control_input = 0.22;//slow stable Tetrapod OK USED
