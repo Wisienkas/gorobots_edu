@@ -88,6 +88,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   outFileCTR_joint_angle_sensors.open("CTRjoint_anglesCTR2_CTR1_CTR0_CTL2_CTL1_CTL0.dat");
   outFileFTI_joint_angle_sensors.open("FTIjoint_anglesFTR2_FTR1_FTR0_FTL2_FTL1_FTL0.dat");
   outFileFoot_sensors.open("Foot_sensors_R2_R1_R0_L2_L1_L0.dat");
+  outFilepreproFoot_sensors.open("PreprocessedFoot_sensors_R2_R1_R0_L2_L1_L0.dat");
 
 
   /*******************************************************************************
@@ -755,13 +756,14 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
   outFileCTR_joint_angle_sensors.close();
   outFileFTI_joint_angle_sensors.close();
   outFileFoot_sensors.close();
-
+  outFilepreproFoot_sensors.close();
 
 
 
 };
 
 std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> in0, const std::vector<double> in1){//, bool Footinhibition){
+
 
   // Define local parameters//
   //std::vector<double> m;
@@ -851,7 +853,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //From 0.02-1.5
   //Control_input = 0.0;// slow Wave St
   //Control_input = 0.01;// slow Wave St
-  //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+  Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
   // Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
@@ -880,7 +882,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
   //Control_input = 0.17;//slow stable Tetrapod OK USED
   //Control_input = 0.18;//slow stable Tetrapod OK USED
-  Control_input = 0.19;//slow stable Tetrapod OK USED
+  //Control_input = 0.19;//slow stable Tetrapod OK USED
   //Control_input = 0.20;//slow stable Tetrapod OK USED
   //Control_input = 0.21;//slow stable Tetrapod OK USED
   //Control_input = 0.22;//slow stable Tetrapod OK USED
@@ -3572,6 +3574,9 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   outFileCTR_joint_angle_sensors<<in1.at(CR2_as)<<' '<<in1.at(CR1_as)<<' '<<in1.at(CR0_as)<<' '<<in1.at(CL2_as)<<' '<<in1.at(CL1_as)<<' '<<in1.at(CL0_as)<<' '<<endl;
   outFileFTI_joint_angle_sensors<<in1.at(FR2_as)<<' '<<in1.at(FR1_as)<<' '<<in1.at(FR0_as)<<' '<<in1.at(FL2_as)<<' '<<in1.at(FL1_as)<<' '<<in1.at(FL0_as)<<' '<<endl;
   outFileFoot_sensors<<in1.at(R2_fs)<<' '<<in1.at(R1_fs)<<' '<<in1.at(R0_fs)<<' '<<in1.at(L2_fs)<<' '<<in1.at(L1_fs)<<' '<<in1.at(L0_fs)<<' '<<endl;
+  outFilepreproFoot_sensors<<in0.at(R2_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R0_fs)<<' '<<in0.at(L2_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<endl;
+
+
 
   outFilenlc_tc_pre <<m_pre.at(TR2_m)<<' '<<m_pre.at(TR1_m)<<' '<<m_pre.at(TR0_m)<<' '<<m_pre.at(TL2_m)<<' '<<m_pre.at(TL1_m)<<' '<<m_pre.at(TL0_m)<<' '<<endl;
   outFilenlc_ctr_pre <<m_pre.at(CR2_m)<<' '<<m_pre.at(CR1_m)<<' '<<m_pre.at(CR0_m)<<' '<<m_pre.at(CL2_m)<<' '<<m_pre.at(CL1_m)<<' '<<m_pre.at(CL0_m)<<' '<<endl;
