@@ -106,7 +106,7 @@ namespace lpzrobots {
     usSensorFrontLeft = 0;
     usSensorFrontRight = 0;
     speedsensor = 0;
-
+    //added separated CTr joint limit by Michelangelo
     addParameter("coxaPower", &conf.coxaPower);
     addParameter("secondPower", &conf.secondPower);
     addParameter("coxaDamp", &conf.coxaDamping);
@@ -116,15 +116,23 @@ namespace lpzrobots {
     addParameter("mcoxaJointLimitB", &conf.mcoxaJointLimitB);
     addParameter("rcoxaJointLimitF", &conf.rcoxaJointLimitF);
     addParameter("rcoxaJointLimitB", &conf.rcoxaJointLimitB);
-    addParameter("secondJointLimitD", &conf.secondJointLimitD);
-    addParameter("secondJointLimitU", &conf.secondJointLimitU);
+    addParameter("fsecondJointLimitD", &conf.fsecondJointLimitD);
+    addParameter("fsecondJointLimitU", &conf.fsecondJointLimitU);
+    addParameter("msecondJointLimitD", &conf.msecondJointLimitD);
+    addParameter("msecondJointLimitU", &conf.msecondJointLimitU);
+    addParameter("rsecondJointLimitD", &conf.rsecondJointLimitD);
+    addParameter("rsecondJointLimitU", &conf.rsecondJointLimitU);
     addParameter("coxaMaxVel", &conf.coxaMaxVel);
 
     if (conf.useTebiaJoints) {
       addParameter("tebiaPower", &conf.tebiaPower);
       addParameter("tebiaDamp", &conf.tebiaDamping);
-      addParameter("tebiaJointLimitD", &conf.tebiaJointLimitD);
-      addParameter("tebiaJointLimitU", &conf.tebiaJointLimitU);
+      addParameter("ftebiaJointLimitD", &conf.ftebiaJointLimitD);
+      addParameter("ftebiaJointLimitU", &conf.ftebiaJointLimitU);
+      addParameter("mtebiaJointLimitD", &conf.mtebiaJointLimitD);
+      addParameter("mtebiaJointLimitU", &conf.mtebiaJointLimitU);
+      addParameter("rtebiaJointLimitD", &conf.rtebiaJointLimitD);
+      addParameter("rtebiaJointLimitU", &conf.rtebiaJointLimitU);
     }
 
     // name the sensors
@@ -914,7 +922,7 @@ namespace lpzrobots {
 				  * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L0];
 
 
-    // also the relative coordinates for the shoulders
+    // also the relative coordinates for the shoulders NON QUESTO
     shouldertrunkconnections[R2] = ROTM(conf.rLegRotAngle, 0, 0, 1) * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
             * ROTM(conf.rLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R2];
     shouldertrunkconnections[L2] = ROTM(conf.rLegRotAngle, 0, 0, -1) * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
@@ -1350,14 +1358,19 @@ namespace lpzrobots {
         if (it->first == L0 || it->first == R0)
           tc->setMinMax(conf.fcoxaJointLimitF, conf.fcoxaJointLimitB);
       }
-
+      //added separated CTr joint limits by Michelangelo
       OneAxisServo * ctr = it->second.ctrServo;
       if (ctr) {
         ctr->setPower(conf.secondPower);
         ctr->setDamping(conf.secondDamping);
         ctr->setMaxVel(conf.secondMaxVel);
         //yes, min is up, up is negative
-        ctr->setMinMax(conf.secondJointLimitU, conf.secondJointLimitD);
+        if (it->first == L2 || it->first == R2)
+        	   ctr->setMinMax(conf.rsecondJointLimitU, conf.rsecondJointLimitD);
+        if (it->first == L1 || it->first == R1)
+               ctr->setMinMax(conf.msecondJointLimitU, conf.msecondJointLimitD);
+        if (it->first == L0 || it->first == R0)
+               ctr->setMinMax(conf.fsecondJointLimitU, conf.fsecondJointLimitD);
       }
 
       OneAxisServo * fti = it->second.ftiServo;
@@ -1366,7 +1379,12 @@ namespace lpzrobots {
         fti->setDamping(conf.tebiaDamping);
         fti->setMaxVel(conf.tebiaMaxVel);
         //yes, min is up, up is negative
-        fti->setMinMax(conf.tebiaJointLimitU, conf.tebiaJointLimitD);
+        if (it->first == L2 || it->first == R2)
+        fti->setMinMax(conf.rtebiaJointLimitU, conf.rtebiaJointLimitD);
+        if (it->first == L1 || it->first == R1)
+        fti->setMinMax(conf.mtebiaJointLimitU, conf.mtebiaJointLimitD);
+        if (it->first == L0 || it->first == R0)
+        fti->setMinMax(conf.ftebiaJointLimitU, conf.ftebiaJointLimitD);
       }
     }
 
@@ -1629,10 +1647,10 @@ namespace lpzrobots {
     // angle (in rad) around vertical axis at leg-trunk fixation 0:
     // perpendicular
     // => forward/backward
-    c.fLegTrunkAngleV = 0.0;
+    c.fLegTrunkAngleV = -0.2;
     // angle around horizontal axis at leg-trunk fixation 0: perpendicular
     // => upward/downward
-    c.fLegTrunkAngleH = 0.0;
+    c.fLegTrunkAngleH = 0.1;
     // rotation of leg around own axis 0: first joint axis is vertical
     // => till
     c.fLegRotAngle = 0.0;
@@ -1641,17 +1659,17 @@ namespace lpzrobots {
     // => forward/backward
     c.mLegTrunkAngleV = 0.0;
     // => upward/downward
-    c.mLegTrunkAngleH = 0.0;
+    c.mLegTrunkAngleH = 0.25;
     // => till
-    c.mLegRotAngle = 0.0;
+    c.mLegRotAngle = 0.8;
 
     // ------------- Rear legs ------------------
     // => forward/backward
     c.rLegTrunkAngleV = 0.0;
-    // => upward/downward
-    c.rLegTrunkAngleH = 0.0;
+    // => upward/downward 
+    c.rLegTrunkAngleH = 0.3;
     // => till
-    c.rLegRotAngle = 0.0;
+    c.rLegRotAngle = 0.7;
 
     // be careful changing the following dimension, they may break the
     // simulation!! (they shouldn't but they do)
@@ -1686,30 +1704,53 @@ namespace lpzrobots {
     // 45 deg; upward (-) MAX
     c.backJointLimitU = -M_PI / 180 * 45.0;
 
-    // 70 deg; forward (-) MAX --> normal walking range 60 deg MAX
+    // 70 deg; forward (-) MAX --> normal walking range 60 deg MAX 20 ok
     c.fcoxaJointLimitF = -M_PI / 180.0 * 50.0;
-    //-70 deg; backward (+) MIN --> normal walking range -10 deg MIN
-    c.fcoxaJointLimitB = M_PI / 180.0 * -10.0;
+    //-70 deg; backward (+) MIN --> normal walking range -10 deg MIN -40 ok
+    c.fcoxaJointLimitB = M_PI / 180.0 * 50.0;
 
-    //60 deg; forward (-) MAX --> normal walking range 30 deg MAX
-    c.mcoxaJointLimitF = -M_PI / 180.0 * 50.0;
-    //60 deg; backward (+) MIN --> normal walking range -40 deg MIN
-    c.mcoxaJointLimitB = M_PI / 180 * 20.0;
+    //60 deg; forward (-) MAX --> normal walking range 30 deg MAX leg down OK
+    c.mcoxaJointLimitF = -M_PI / 180.0 * 40.0;
+    //60 deg; backward (+) MIN --> normal walking range -40 deg MIN ok
+    c.mcoxaJointLimitB = M_PI / 180 * 40.0;
 
-    //70 deg; forward (-) MAX --> normal walking range 60 deg MAX
-    c.rcoxaJointLimitF = -M_PI / 180.0 * 50.0;
-    //70 deg; backward (+) MIN --> normal walking range -10 deg MIN
-    c.rcoxaJointLimitB = M_PI / 180.0 * 20.0;
+    //70 deg; forward (-) MAX --> normal walking range 60 deg MAX leg down OK
+    c.rcoxaJointLimitF = -M_PI / 180.0 * 40.0;
+    //70 deg; backward (+) MIN --> normal walking range -10 deg MIN leg down OK
+    c.rcoxaJointLimitB = M_PI / 180.0 * 40.0;
+    //added separated CTr joint limit by Michelangelo
+    // 30 deg; downward (+) MIN leg down OK
+    c.fsecondJointLimitD = M_PI / 180.0 * 60.0;
+    // 30 deg upward (-) MAX
+    c.fsecondJointLimitU = -M_PI / 180.0 * 10.0;
 
     // 30 deg; downward (+) MIN
-    c.secondJointLimitD = M_PI / 180.0 * 80.0;
+    c.msecondJointLimitD = M_PI / 180.0 * 80.0;
     // 30 deg upward (-) MAX
-    c.secondJointLimitU = -M_PI / 180.0 * 30.0;
+    c.msecondJointLimitU = -M_PI / 180.0 * 30.0;
+
+
+    // 30 deg; downward (+) MIN push backward OK
+    c.rsecondJointLimitD = M_PI / 180.0 * 80.0;
+    // 30 deg upward (-) MAX push forward
+    c.rsecondJointLimitU = -M_PI / 180.0 * 20.0;
 
     //130 deg downward; (+) MIN
-    c.tebiaJointLimitD = M_PI / 180.0 *0.0;
+    c.ftebiaJointLimitD = M_PI / 180.0 *0.0;
     // 20 deg  downward; (+) MAX
-    c.tebiaJointLimitU = M_PI / 180.0 *90.0;//1
+    c.ftebiaJointLimitU = M_PI / 180.0 *90.0;//1
+
+    //130 deg downward; (+) MIN
+    c.mtebiaJointLimitD = M_PI / 180.0 *0.0;
+    // 20 deg  downward; (+) MAX
+    c.mtebiaJointLimitU = M_PI / 180.0 *90.0;//1
+
+    //130 deg downward; (+) MIN
+    c.rtebiaJointLimitD = M_PI / 180.0 *0.0;
+    // 20 deg  downward; (+) MAX
+    c.rtebiaJointLimitU = M_PI / 180.0 *90.0;//1
+
+
 
     // -----------------------
     // 3) Motors
@@ -1847,14 +1888,34 @@ namespace lpzrobots {
     c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
     // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
-    c.secondJointLimitD = M_PI / 180.0 * 30.0;
+    c.fsecondJointLimitD = M_PI / 180.0 * 30.0;
     // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
-    c.secondJointLimitU = -M_PI / 180.0 * 100.0;
+    c.fsecondJointLimitU = -M_PI / 180.0 * 100.0;
+
+    // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
+    c.msecondJointLimitD = M_PI / 180.0 * 30.0;
+    // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
+    c.msecondJointLimitU = -M_PI / 180.0 * 100.0;
+
+    // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
+    c.rsecondJointLimitD = M_PI / 180.0 * 30.0;
+    // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
+    c.rsecondJointLimitU = -M_PI / 180.0 * 100.0;
 
     //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
-    c.tebiaJointLimitD = M_PI / 180.0 * -100.0;
+    c.ftebiaJointLimitD = M_PI / 180.0 * -100.0;
     //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
-    c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
+    c.ftebiaJointLimitU = M_PI / 180.0 * 15.0;
+
+    //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
+    c.mtebiaJointLimitD = M_PI / 180.0 * -100.0;
+    //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
+    c.mtebiaJointLimitU = M_PI / 180.0 * 15.0;
+
+    //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
+    c.rtebiaJointLimitD = M_PI / 180.0 * -100.0;
+    //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
+    c.rtebiaJointLimitU = M_PI / 180.0 * 15.0;
 
     return c;
   }

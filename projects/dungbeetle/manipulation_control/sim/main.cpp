@@ -32,34 +32,49 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
-//#include "amosII.h"
 #include "dungbeetle.h"
-
 //#include <ode_robots/dungbeetle.h>
 // the controller
-#include "controllers/dungbeetle/modular_neural_control/amosIIcontrol.h"
+//#include "emptycontroller.h"
+#include "modular_neural_control_sphere.h"
+#include "modular_neural_control_cylinder.h"
+//#include "controllers/dungbeetle/modular_neural_control/amosIIcontrol.h"
+
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
-// add head file for creating a sphere by Ren ------------
+// Objects
 #include <ode_robots/passivesphere.h>
+#include <ode_robots/passivecapsule.h>
 #include <ode_robots/passivebox.h>
 #include <selforg/abstractcontroller.h>
 #include <ode_robots/color.h>
 #include <iostream>
+#include <cstdio>
+#include <ctime>
+#include <math.h>
+#include <stdlib.h>
+
 using namespace std;
 using namespace lpzrobots;
-std::vector<lpzrobots::AbstractObstacle*> obst;
-//std::vector<lpzrobots::FixedJoint*> fixator;
-// add head file for creating a sphere by Ren ------------
 
-bool track = true;
+bool track = false;
+bool cylinder_visible = true;
+bool sphere_object = true;
+bool cylinder_object = false;
+bool bump = false;
+//If both stationary_push and boxing are false, then soft push is automatically true
+bool stationary_push = false;
+bool boxing = false;
+bool rough_terrain = false;
 
+double t = 0;
 
 class ThisSim : public lpzrobots::Simulation {
 public:
 
 	ThisSim() {
+
 		addPaletteFile("colors/UrbanExtraColors.gpl");
 		addColorAliasFile("colors/UrbanColorSchema.txt");
 		// you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
@@ -72,111 +87,119 @@ public:
 	 */
 	virtual void start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgHandle& osgHandle,
 			lpzrobots::GlobalData& global) {
+
+		
 		// set initial camera position
 		setCameraHomePos(lpzrobots::Pos(-0.0114359, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
+
 
 		// set simulation parameters
 		global.odeConfig.setParam("controlinterval", 10);
 		global.odeConfig.setParam("simstepsize", 0.01);
-		global.odeConfig.setParam("noise", 0.02); // 0.02
+		global.odeConfig.setParam("noise", 0.02);
 
-		// add playgrounds for three different experiments
+		
+		// add playground
 		lpzrobots::OdeHandle playgroundHandle = odeHandle;
-		playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!)
-		double steplength = 0.43; //AMOS II body length
+		playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!) 
+		//     (roughness,slip,hardness,elasticity)
 
-		//EXPERIMENTAL SETUP 1: SINGLE OBSTACLE (Adaption to different obstacle altitudes and walking gaits)
-		bool climbing_experiment_setup = true;
-		if (climbing_experiment_setup) {
-			lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2, 0.6,
-					0.07), 1, false);
-			playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
-			playground->setPosition(osg::Vec3(0, 0, .0));
-			global.obstacles.push_back(playground);
+		lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(10, 0.05,
+				0.18), 1, false);
+		playground->setTexture(0, 0, lpzrobots::TextureDescr("Images/wall_bw.jpg", -0.5, -3));
+		playground->setPosition(osg::Vec3(0, 0, .0));
+		global.obstacles.push_back(playground);
+		
+		if (bump)
+		{
+			// step obstacle
+			double boxmass = 1;
+			double box_height = 0.05; //meters
+			double box_long = 0.001; //meters
+			double box_width = 2; //meters
+
+			lpzrobots::OdeHandle boxHandle = odeHandle;
+			boxHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.0); //(roughness,slip,hardness,elasticity)
+				
+			box = new PassiveBox(boxHandle, osgHandle, osg::Vec3(box_long, box_width, box_height), boxmass);
+			box->setTexture("Images/wall.jpg");
+			box->setPose(osg::Matrix::translate(-0.6, 0.0, box_height/2));
+
+			boxfixator = new lpzrobots::FixedJoint(box->getMainPrimitive(), global.environment);
+			boxfixator->init(boxHandle, osgHandle, false);
+
+			global.obstacles.push_back(box);
+		}
+		
+		if (rough_terrain)
+		{
+			terrain.resize(14);
+			terrainfixator.resize(14);
+			
+			double terrain_mass = 1;
+			double terrain_height = 0.002;
+			double terrain_long = 0.02;
+			double terrain_width = 2;
+			
+			lpzrobots::OdeHandle terrainHandle = odeHandle;
+			terrainHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.0); //(roughness,slip,hardness,elasticity)
+			
+			for (int i = 0; i < 14; i++)
+			{
+				terrain.at(i) = new PassiveBox(terrainHandle, osgHandle, osg::Vec3(terrain_long, terrain_width, terrain_height), terrain_mass);
+				terrain.at(i)->setTexture("Images/wall.jpg");
+				terrain.at(i)->setPose(osg::Matrix::translate(-0.2-(i*0.06), 0.0, terrain_height/2));
+			
+				terrainfixator.at(i) = new lpzrobots::FixedJoint(terrain.at(i)->getMainPrimitive(), global.environment);
+				terrainfixator.at(i)->init(terrainHandle, osgHandle, false);
+			
+				global.obstacles.push_back(terrain.at(i));
+			}
+			
+		}
+		
+		// Create cylinder to push
+		double radius_sphere = 0.15; //meters
+		double radius_cylinder = 0.09; //meters
+		double height_cylinder = 0.6; //meters // 0.0 = sphere and 0.0 < cylinder
+		double mass_object = 2;
+		
+		lpzrobots::OdeHandle objectHandle = odeHandle;
+		objectHandle.substance = lpzrobots::Substance(2, 0.0, 30.0, 0.2)/*(3.0, 0.0, 50.0, 0.0)*/; //(roughness,slip,hardness,elasticity)
+		
+		if (sphere_object) sphere = new PassiveSphere(objectHandle, osgHandle, radius_sphere, mass_object);
+		else if (cylinder_object) cylinder = new PassiveCapsule(objectHandle, osgHandle, radius_cylinder, height_cylinder, mass_object);
+		
+		if (cylinder_visible)
+		{
+			if (sphere_object)
+			{
+				sphere->setPose(osg::Matrix::translate(0.1, 0, radius_sphere));
+				spherefixator = new lpzrobots::FixedJoint(sphere->getMainPrimitive(), global.environment);
+				spherefixator->init(objectHandle, osgHandle, false);
+				global.obstacles.push_back(sphere);
+			}
+			else if (cylinder_object)
+			{
+				cylinder->setPose(osg::Matrix::rotate(M_PI/2,1,0,0) * osg::Matrix::translate(0.1,0,radius_cylinder));
+				cylinderfixator = new lpzrobots::FixedJoint(cylinder->getMainPrimitive(), global.environment);
+			    cylinderfixator->init(objectHandle, osgHandle, false);
+				global.obstacles.push_back(cylinder);
+			}
 		}
 
-		//EXPERIMENTAL SETUP 2: STAIRS DECREASING IN LENGTH (Finding the minimal step length x which AMOS is able to negotiate)
-		bool stair_experiment_setup = false;
-		if (stair_experiment_setup) {
-			lpzrobots::Playground* stair1 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0, 4.0
-					* steplength, 0.08), 1, false);
-			lpzrobots::Playground* stair2 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + 4.0
-					* steplength, 2.0 * steplength, 0.16), 1, false);
-			lpzrobots::Playground* stair3 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (4.0
-					+ 2.0) * steplength, 1.0 * steplength, 0.24), 1, false);
-			lpzrobots::Playground* stair4 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (4.0
-					+ 2.0 + 1.0) * steplength, 0.5 * steplength, 0.32), 1, false);
-			lpzrobots::Playground* stair5 = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(2.0 + (4.0
-					+ 2.0 + 1.0 + 0.5) * steplength, 1.0, 0.40), 1, false);
-			stair1->setPosition(osg::Vec3(0, 0, .0));
-			stair2->setPosition(osg::Vec3(0, 0, .0));
-			stair3->setPosition(osg::Vec3(0, 0, .0));
-			stair4->setPosition(osg::Vec3(0, 0, .0));
-			stair5->setPosition(osg::Vec3(0, 0, .0));
-			global.obstacles.push_back(stair1);
-			global.obstacles.push_back(stair2);
-			global.obstacles.push_back(stair3);
-			global.obstacles.push_back(stair4);
-			global.obstacles.push_back(stair5);
-		}
-
-		//----------create a sphere as the target by Ren-----------------------------
-		//the first sphere
-		//    lpzrobots::PassiveSphere* s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s1->setPosition(osg::Vec3(3.0, 0.0, 0.1));
-		//    s1->setTexture("Images/dusty.rgb");
-		//    s1->setColor(lpzrobots::Color(1,0,0));
-		//    obst.push_back(s1);
-		//    global.obstacles.push_back(s1);
-		//    lpzrobots::FixedJoint* fixator1 = new  lpzrobots::FixedJoint(s1->getMainPrimitive(), global.environment);
-		//    fixator1->init(odeHandle, osgHandle);
-
-		//the second sphere
-		//    lpzrobots::PassiveSphere* s2 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s2->setPosition(osg::Vec3(0.0, 3.0, 0.1));
-		//    s2->setTexture("Images/dusty.rgb");
-		//    s2->setColor(lpzrobots::Color(0,1,0));
-		//    obst.push_back(s2);
-		//    global.obstacles.push_back(s2);
-		//    lpzrobots::FixedJoint* fixator2 = new  lpzrobots::FixedJoint(s2->getMainPrimitive(), global.environment);
-		//    fixator2->init(odeHandle, osgHandle);
-
-		//the third sphere
-		//    lpzrobots::PassiveSphere* s3 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.1);
-		//    s3->setPosition(osg::Vec3(0.0, -3.0, 0.1));
-		//    s3->setTexture("Images/dusty.rgb");
-		//    s3->setColor(lpzrobots::Color(0,0,1));
-		//    obst.push_back(s3);
-		//    global.obstacles.push_back(s3);
-		//    lpzrobots::FixedJoint* fixator3 = new  lpzrobots::FixedJoint(s3->getMainPrimitive(), global.environment);
-		//    fixator3->init(odeHandle, osgHandle);
-
-		//----------create a sphere as the target by Ren-----------------------------
 
 		/*******  End Modify Environment *******/
 
 		// Add dungbeetle robot
-
-
 		lpzrobots::dungbeetleConf mydungbeetleConf = lpzrobots::dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
 				1 /*_useFoot*/, 1 /*_useBack*/);
 		mydungbeetleConf.rubberFeet = true;
 
-		//lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-		//myAmosIIConf.rubberFeet = true;
-
-		//myAmosIIConf.legContactSensorIsBinary = true;
 		lpzrobots::OdeHandle rodeHandle = odeHandle;
 		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
 
-		//------------------- Link the sphere to the Goal Sensor by Ren---------------
-		for (unsigned int i = 0; i < obst.size(); i++) {
-			mydungbeetleConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
-		}
-		//------------------- Link the sphere to the Goal Sensor by Ren---------------
-
-		amos
-		= new lpzrobots::dungbeetle(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), mydungbeetleConf, "AmosII");
+		amos = new lpzrobots::dungbeetle(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), mydungbeetleConf, "dungbeetle");
 
 		// define the usage of the individual legs
 		amos->setLegPosUsage(amos->L0, amos->LEG);
@@ -187,35 +210,40 @@ public:
 		amos->setLegPosUsage(amos->R2, amos->LEG);
 
 		// put amos a little bit in the air
-		amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
+		amos->place(osg::Matrix::translate(0.545, 0.0, 0.0));
 
-
-		//controller = new AmosIIControl();//TripodGait18DOF();
-
-		controller = new AmosIIControl(/*AMOSv2*/2,/*MCPGs=true*/false,/*Muscle Model =true*/false);
+		controller_sphere = new Modular_neural_control_sphere();
+		controller_cylinder = new Modular_neural_control_cylinder();
+	
+		controller_sphere->bump = bump;
+		controller_sphere->stationary_push = stationary_push;
+		controller_sphere->boxing = boxing;
+		controller_cylinder->bump = bump;
+		controller_cylinder->stationary_push = stationary_push;
+		controller_cylinder->boxing = boxing;
 
 		// create wiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
 		// create agent and init it with controller, robot and wiring
 		lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
-		agent->init(controller, amos, wiring);
+		if (sphere_object) agent->init(controller_sphere, amos, wiring);
+		else if (cylinder_object) agent->init(controller_cylinder, amos, wiring);
 
 		// Possibility to add tracking for robot
 		if (track)
 			agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 		//if(track) agent->setTrackOptions(TrackRobot(false,false,false, false, ""));
-
+		
 		// create a fixed joint to hold the robot in the air at the beginning
-		//    robotfixator = new lpzrobots::FixedJoint(
-		//        amos->getMainPrimitive(),
-		//        global.environment);
-		//    robotfixator->init(odeHandle, osgHandle, false);
-
+		//robotfixator = new lpzrobots::FixedJoint(amos->getMainPrimitive(), global.environment);
+		//robotfixator->init(odeHandle, osgHandle, false);
+	
 		// inform global variable over everything that happened:
 		global.configs.push_back(amos);
 		global.agents.push_back(agent);
-		global.configs.push_back(controller);
+		if (sphere_object) global.configs.push_back(controller_sphere);
+		else if (cylinder_object) global.configs.push_back(controller_cylinder);
 
 		std::cout << "\n\n" << "################################\n" << "#   Press x to free amosII!    #\n"
 				<< "################################\n" << "\n\n" << std::endl;
@@ -229,56 +257,103 @@ public:
         	global.configs.erase(global.configs.begin());
 
         	delete amos;
+        	
         	//delete (agent);
         	global.agents.pop_back();
+        	
+			if (sphere_object) 
+			{
+				delete controller_sphere;
+				delete spherefixator;
+			}
+        	else if (cylinder_object) 
+			{
+				delete controller_cylinder;
+				delete cylinderfixator;
+			}
 
-        	//Add AMOSII robot
-		// Add amosII robot
-		lpzrobots::dungbeetleConf mydungbeetleConf = lpzrobots::dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
-				1 /*_useFoot*/, 1 /*_useBack*/);
-		mydungbeetleConf.rubberFeet = true;
+		    if (cylinder_visible)
+			{
+				double radius_sphere = 0.15;
+				double radius_cylinder = 0.09;
+				
+				lpzrobots::OdeHandle objectHandle = odeHandle;
+				objectHandle.substance = lpzrobots::Substance(2, 0.0, 30.0, 0.2)/*(3.0, 0.0, 50.0, 0.0)*/; //(roughness,slip,hardness,elasticity)				
+				
+				if (sphere_object)
+				{
+					sphere->setPose(osg::Matrix::translate(0.1, 0, radius_sphere));
+					sphere->setColor(lpzrobots::Color(1,1,1));
+					spherefixator = new lpzrobots::FixedJoint(sphere->getMainPrimitive(), global.environment);
+					spherefixator->init(objectHandle, osgHandle, false);
+				}
+				else if (cylinder_object)
+				{
+					cylinder->setPose(osg::Matrix::rotate(M_PI/2,1,0,0) * osg::Matrix::translate(0.1,0,radius_cylinder));
+					cylinder->setColor(lpzrobots::Color(1,1,1));
+					cylinderfixator = new lpzrobots::FixedJoint(cylinder->getMainPrimitive(), global.environment);
+					cylinderfixator->init(objectHandle, osgHandle, false);
+				}
+			}
 
-		//lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getAmosIIv1Conf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
-		//myAmosIIConf.rubberFeet = true;
+			// Add amosII robot
+			lpzrobots::dungbeetleConf mydungbeetleConf = lpzrobots::dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
+					1 /*_useFoot*/, 1 /*_useBack*/);
+			mydungbeetleConf.rubberFeet = true;
 
-		//myAmosIIConf.legContactSensorIsBinary = true;
-		lpzrobots::OdeHandle rodeHandle = odeHandle;
-		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
+			lpzrobots::OdeHandle rodeHandle = odeHandle;
+			rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
 
-		//------------------- Link the sphere to the Goal Sensor by Ren---------------
-		for (unsigned int i = 0; i < obst.size(); i++) {
-			mydungbeetleConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
-		}
-		//------------------- Link the sphere to the Goal Sensor by Ren---------------
+			amos
+			= new lpzrobots::dungbeetle(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), mydungbeetleConf, "dungbeetle");
 
-		amos
-		= new lpzrobots::dungbeetle(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)), mydungbeetleConf, "dungbeetle");
+			// define the usage of the individual legs
+			amos->setLegPosUsage(amos->L0, amos->LEG);
+			amos->setLegPosUsage(amos->L1, amos->LEG);
+			amos->setLegPosUsage(amos->L2, amos->LEG);
+			amos->setLegPosUsage(amos->R0, amos->LEG);
+			amos->setLegPosUsage(amos->R1, amos->LEG);
+			amos->setLegPosUsage(amos->R2, amos->LEG);
+			
 
-		// define the usage of the individual legs
-		amos->setLegPosUsage(amos->L0, amos->LEG);
-		amos->setLegPosUsage(amos->L1, amos->LEG);
-		amos->setLegPosUsage(amos->L2, amos->LEG);
-		amos->setLegPosUsage(amos->R0, amos->LEG);
-		amos->setLegPosUsage(amos->R1, amos->LEG);
-		amos->setLegPosUsage(amos->R2, amos->LEG);
+			// put amos a little bit in the air
+			amos->place(osg::Matrix::translate(0.545, 0.0, 0.0));
 
-		// put amos a little bit in the air
-		amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(M_PI / 180 * (-5), 0, 0, 1));
+			controller_sphere = new Modular_neural_control_sphere();
+			controller_cylinder = new Modular_neural_control_cylinder();
+
+			started = false;
+			finished = false;
+			controller_sphere->finished = false;
+			controller_sphere->bump = bump;
+			controller_sphere->stationary_push = stationary_push;
+			controller_sphere->boxing = boxing;
+			controller_cylinder->finished = false;
+			controller_cylinder->bump = bump;
+			controller_cylinder->stationary_push = stationary_push;
+			controller_cylinder->boxing = boxing;
 
        	 	//Create wiring
-        	One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
-
+        	One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());	
+        	
         	// create agent and init it with controller, robot and wiring
         	lpzrobots::OdeAgent* agent = new OdeAgent(global);
-        	agent->init(controller, amos, wiring);
+        	if (sphere_object) agent->init(controller_sphere, amos, wiring);
+			else if (cylinder_object) agent->init(controller_cylinder, amos, wiring);
 
         	// Possibility to add tracking for robot
         	if (track) agent->setTrackOptions(TrackRobot(true, false, false, true, "", 60)); // Display trace
 
+			// create a fixed joint to hold the robot in the air at the beginning
+		    //robotfixator = new lpzrobots::FixedJoint(amos->getMainPrimitive(), global.environment);
+		    //robotfixator->init(odeHandle, osgHandle, false);
+			
+
         	// inform global variable over everything that happened:
        	 	global.configs.push_back(amos);
         	global.agents.push_back(agent);
-        	global.configs.push_back(controller);
+        	if (sphere_object) global.configs.push_back(controller_sphere);
+			else if (cylinder_object) global.configs.push_back(controller_cylinder);
 
         	return true;
     	}
@@ -292,53 +367,13 @@ public:
 			int key, bool down) {
 		if (down) { // only when key is pressed, not when released
 			switch (char(key)) {
-			case 'x':
-				if (robotfixator) {
-					std::cout << "dropping robot" << std::endl;
-					delete robotfixator;
-					robotfixator = NULL;
-				}
-				break;
 			case 'r':
 				simulation_time_reached=true;
-				std::cout << "RESET" << endl;
-				break;
-			case 'b':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
-					std::cout << "BJC is OFF" << endl;
-				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = true;
-					((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
-					std::cout << "BJC is ON" << endl;
-				}
-				break;
-			case 'a':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle = false;
-					std::cout << "OA is OFF" << endl;
-				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_obstacle = true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
-					std::cout << "OA is ON" << endl;
-				}
-				break;
 
-			case 'e':
-				if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions) {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
-					std::cout << "Reflex is OFF" << endl;
-				} else {
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=true;
-					((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=true;
-					std::cout << "Reflex is ON" << endl;
+				//close all GUI loggers
+				for (OdeAgentList::iterator p = globalData.agents.begin(); p != globalData.agents.end(); ++p)
+				{
+					(*p)->removePlotOption(GuiLogger);
 				}
 				break;
 
@@ -361,35 +396,93 @@ public:
 	virtual void addCallback(lpzrobots::GlobalData& globalData, bool draw, bool pause, bool control) {
 		// for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
 		// if simulation_time_reached is set to true, the simulation cycle is finished
-
-		//----------------------------Reset Function-----------------------------------------
-		//      if (globalData.sim_step >= 6000) {
-		//        if (robotfixator) {
-		//          std::cout << "dropping robot" << std::endl;
-		//          delete robotfixator;
-		//          robotfixator = NULL;
-		//        }
-		//      }
-		if (globalData.sim_step >= 0) //a small delay to make sure the robot will not restart at beginning!
+		
+		// Put angular friction on a object
+		if (sphere_object)
 		{
-			if (((AmosIIControl*) controller)->preprocessing_learning.switchon_IRlearning
-					&& ((AmosIIControl*) controller)->x.at(25) > 0.9 && ((AmosIIControl*) controller)->x.at(26) > 0.9) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(0) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->bj_output.at(5) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->m.at(BJ_m) = 0.0;
-				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
-				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
-				amos->place(osg::Matrix::translate(.0, .0, 0.0) * osg::Matrix::rotate(0.0, -M_PI / 180 * (-5), 1, 0));
+			PassiveSphere* s = dynamic_cast<PassiveSphere*>(sphere);
+	      	float friction = 50;
+	      	if(s)
+	      	{
+				Pos svel = s->getMainPrimitive()->getVel();
+				s->getMainPrimitive()->applyForce(-svel*friction);
 			}
 		}
-		//-----------------------------------------------------------------------------------
+		
+		
+		if (sphere_object)
+		{
+			if (controller_sphere->start && !started)
+			{
+				sphere->setColor(lpzrobots::Color(1,0.2,0.2));
+				delete spherefixator;
+				spherefixator = NULL;
+				started = true;
+				t = globalData.time;
+			}
+		}
+		else if (cylinder_object)
+		{
+			if (controller_cylinder->start && !started)
+			{
+				cylinder->setColor(lpzrobots::Color(1,0.2,0.2));
+				delete cylinderfixator;
+				cylinderfixator = NULL;
+				started = true;
+			}
+		}
+		
+		controller_sphere->time = globalData.time - t;
+		
+		// Check if object has been pushed to goal
+		if (sphere_object)
+		{
+			Position sphere_pos = sphere->getPosition();
+			
+			if (sphere_pos.x < /*-0.72*/ -0.855 && !finished)
+			{
+				sphere->setColor(lpzrobots::Color(0.2,1,0.2));
+				//finished = true;
+				//controller_sphere->finished = true;
+			}
+		}
+		else if (cylinder_object)
+		{
+			Position cylinder_pos = cylinder->getPosition();
+			
+			if (cylinder_pos.x < /*-0.72*/ -0.855 && !finished)
+			{
+				cylinder->setColor(lpzrobots::Color(0.2,1,0.2));
+				//finished = true;
+				//controller_cylinder->finished = true;
+			}
+		}
+
 	}
 
 protected:
+	
+	lpzrobots::PassiveSphere* sphere;
+	lpzrobots::PassiveCapsule* cylinder;
+	lpzrobots::PassiveBox* box;
+	
+	std::vector<lpzrobots::PassiveBox*> terrain;
+	
 	lpzrobots::Joint* robotfixator;
-	AbstractController* controller;
+	lpzrobots::Joint* boxfixator;
+	
+	std::vector<lpzrobots::Joint*> terrainfixator;
+	
+	lpzrobots::Joint* cylinderfixator;
+	lpzrobots::Joint* spherefixator;
+	
+	Modular_neural_control_sphere* controller_sphere;
+	Modular_neural_control_cylinder* controller_cylinder;
+	
 	lpzrobots::dungbeetle* amos;
-
+	
+	bool started = false;
+	bool finished = false;
 };
 
 int main(int argc, char **argv) {

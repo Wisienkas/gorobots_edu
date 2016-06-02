@@ -212,13 +212,29 @@ namespace lpzrobots {
        *  (zero specified by fcoxaZero) */
       double rcoxaJointLimitB;
       /** lower limit of the CTr joints, positive is down */
-      double secondJointLimitD;
+      double fsecondJointLimitD;
       /** upper limit of the CTr joints, positive is down */
-      double secondJointLimitU;
+      double fsecondJointLimitU;
+      /** lower limit of the CTr joints, positive is down */
+      double msecondJointLimitD;
+      /** upper limit of the CTr joints, positive is down */
+      double msecondJointLimitU;
+      /** lower limit of the CTr joints, positive is down */
+      double rsecondJointLimitD;
+      /** upper limit of the CTr joints, positive is down */
+      double rsecondJointLimitU;
       /** lower limit of the FTi joints, positive is down */
-      double tebiaJointLimitD;
+      double ftebiaJointLimitD;
       /** upper limit of the FTi joints, positive is down */
-      double tebiaJointLimitU;
+      double ftebiaJointLimitU;
+      /**}*/
+      double mtebiaJointLimitD;
+      /** upper limit of the FTi joints, positive is down */
+      double mtebiaJointLimitU;
+      /**}*/
+      double rtebiaJointLimitD;
+      /** upper limit of the FTi joints, positive is down */
+      double rtebiaJointLimitU;
       /**}*/
 
       /** preload of the foot spring */
