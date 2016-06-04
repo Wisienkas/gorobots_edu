@@ -54,7 +54,7 @@ EMGapproxESN::EMGapproxESN(
 
     readData( _inputPath, _targetPath, _delimiter, _numOfHeaderLines );
 
-    ESN                     = new ESNetwork(numberOfInputs/*no. input*/,numberOfOutputs /*no. output*/, numberOfHiddenUnits /*rc hidden neurons*/, false /*W_back, feedback from output to hiddens*/, false /*feeding input to output*/, leak /*leak = 0.0-1.0*/, false /*IP*/);
+    ESN                     = new ESNetwork(numberOfInputs/*no. input*/,numberOfOutputs /*no. output*/, numberOfHiddenUnits /*rc hidden neurons*/, false /*W_back, feedback from output to hiddens*/, false/*feeding input to output*/, leak /*leak = 0.0-1.0*/, false /*IP*/);
     ESN->outnonlinearity    = outputNonlinearity; //0 = linear, 1 = sigmoid (logistic), 2  = tanh: transfer function of an output neuron
     ESN->nonlinearity       = internalNonlinearity; //0 = linear, 1 = sigmoid (logistic), 2  = tanh: transfer function of all hidden neurons
     ESN->withRL             = 2; //2 = stand ESN learning, 1 = RL with TD learning
@@ -79,7 +79,7 @@ EMGapproxESN::EMGapproxESN(
 
     train();
     test( true );
-    
+
     save( _num, _dir );
 
 }
@@ -95,9 +95,9 @@ EMGapproxESN::EMGapproxESN(
         unsigned int _verboseLevel,
         char _delimiter,
         unsigned int _numOfHeaderLines ) {
-    
+
     /// Load a network
-    ESN                     = new ESNetwork( _num, _dir, _verboseLevel );
+    ESN                     = new ESNetwork( _num, _dir );
 
     /// Extracting ANN parameters
     numberOfInputs          = ESN->inputNeurons;
@@ -268,16 +268,19 @@ void EMGapproxESN::separateData(
 
         vector< vector< double > > unit{ inputs, targets };
 
+
+
+
         if ( i <= index_1 )
-            trainingUnits.push_back( unit );
+          trainingUnits.push_back( unit );
         else if( i <= index_2 )
-            validationUnits.push_back( unit );
+          validationUnits.push_back( unit );
         else
-            testingUnits.push_back( unit );
+          testingUnits.push_back( unit );
 
     }
 
-    if( verboseLevel >= 1 ) cout << "\t\t\t[OK]" << endl;
+    if( verboseLevel >= 1 ) cout << "\t\t\t\t[OK]" << endl;
 
 }
 
@@ -322,37 +325,38 @@ void EMGapproxESN::activate() {
     // ESN Learning function
     ESN->takeStep( targetValues, learningRate /*0.9 RLS*/, 1 /*no td = 1 else td_error*/, learningFlag/* true= learn, false = not learning learn_critic*/, iteration/*0*/);
 
-    stringstream ss;
-    double error        = 0.0;
-    double squaredError = 0.0;
-    for( unsigned int i = 0; i < numberOfOutputs; i++ ) {
-        
-        error           += ( targetValues[i] - ESN->outputs->val( i, 0 ) );
-        squaredError    += ( error * error );
-        ss << ESN->outputs->val( i, 0 ) << "\t" << targetValues[i] << "\t" << ( error * error );
-        
-    }
-    ss << "\n";
-    
+    // TODO temporary solution
+    target_ESN = targetValues[0];
+    output_ESN = ESN->outputs->val(0, 0); // Read out the output of ESN
+
     // ESN->printMatrix(ESN->endweights); //print weight matrix on screen
 
-    mse += ( squaredError / numberOfOutputs );
+    /// Calculate online error at each time step
+    squaredError = ( target_ESN - output_ESN ) * ( target_ESN - output_ESN );
+
+    mse += squaredError;
+
+
 
     /// Testing
     if( verboseLevel >= 2 ) {
 
         cout << "Iteration:\t\t"                << iteration << endl;
+        cout << "inputValues[0]:\t"             << inputValues[0] << endl;
+        cout << "targetValues[0]:\t"            << targetValues[0] << endl;
+        cout << "output_ESN:\t\t"               << output_ESN << endl;
         cout << "Online Training error:\t"      << squaredError << endl;
 
     }
 
     /// Save results if tests are being performed
-    if( !learningFlag ) {
-        
-        
-        resultsFile << ss.str() << flush; //SAVE DATA
+   // if( !learningFlag ) {
 
-    }
+     //   resultsFile << output_ESN << "\t" << target_ESN << "\t" << squaredError << "\n" << flush; //SAVE DATA
+
+    //}
+
+    resultsFile << output_ESN << "\t" << target_ESN << "\t" << squaredError << "\n" << flush; //SAVE DATA
 
 }
 
@@ -375,6 +379,7 @@ void EMGapproxESN::train() {
 
         /// Iterate through the time steps...
         for( unsigned int i = 0; i < trainingUnits.size(); i++ ) {
+
 
             /// Escape condition
             if( iteration > iterationLimit ) break;
@@ -425,25 +430,14 @@ void EMGapproxESN::test( bool isValidation ) {
     }
 
     /// Adding header
-    // Writing header to file
-    stringstream header;
-    for( unsigned int i = 0; i < numberOfInputs; i++ ){
-        
-        header << "Input " << ( i + 1 ) << "\t";
-        
-    }
-    for( unsigned int i = 0; i < numberOfOutputs; i++ ){
-        
-        header << "Output " << ( i + 1 ) << "\t" << "Target " << ( i + 1 ) << "\t" << "Squared error " << ( i + 1 );
-        
-    }
-    header << "\n";
-    resultsFile << header.str();
+    // resultsFile << "Output" << "\t" << "Target" << "\t" << "Squared Error" << "\n" << flush;
 
-    /// Iterate through the time steps...
-    for( unsigned int i = 0; i < testingUnits.size(); i++ ) {
+    /// Iterate through the timesteps...
 
-        /// ...set inputs...
+    for( unsigned int i = 0; i < validationUnits.size(); i++ ) {
+    //for( unsigned int i = 0; i <  trainingUnits.size(); i++ ) {
+
+    /// ...set inputs...
         for( unsigned int j = 0; j < numberOfInputs; j++ ) {
 
             if( isValidation ) {
@@ -455,8 +449,6 @@ void EMGapproxESN::test( bool isValidation ) {
                 inputValues[j] = testingUnits[i][0][j];
 
             }
-            
-            resultsFile << inputValues[j] << "\t";
 
         }
 
@@ -477,6 +469,7 @@ void EMGapproxESN::test( bool isValidation ) {
 
         activate();
 
+
     }
 
     /// Calculate MSE
@@ -490,15 +483,19 @@ void EMGapproxESN::test( bool isValidation ) {
 
     }
 
-    /// Save MSE
-    resultsFile << "\n" << "MSE" << "\t" << mse << "\n" << flush;
+
+       resultsFile << "Output" << "\t" << "Target" << "\t" << "Squared Error" << "\n" << flush;
+       /// Save MSE
+       resultsFile << "\n" << "MSE" << "\t" << mse << "\n" << flush;
+       //resultsFile << "\n" << "MSE" << "\t" << mse << "\n" << validationUnits.size() << "\n" << testingUnits.size()<<flush;
 
     if( verboseLevel >= 1 ) {
 
         cout << "##                           Testing finished.                         ##" << endl;
         cout << endl;
 
-        cout << "MSE: " << mse << endl;
+        cout << "MSE: " << mse << "Hidden unit: "<< numberOfHiddenUnits << "Iteration: "<< iterationLimit<< endl;
+        cout << "Training data: " << trainingUnits.size() << "Validation data: "<< validationUnits.size() << "Total data: "<< trainingUnits.size()+validationUnits.size() << endl;
 
     }
 

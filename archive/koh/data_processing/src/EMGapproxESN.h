@@ -11,14 +11,13 @@
 
 #include "math.h"
 #include <algorithm>    // max()
-#include <stdio.h>      // NULL
-#include <stdlib.h>     // srand, rand
-#include <time.h>       // time
+#include <stdio.h>        // NULL
+#include <stdlib.h>       // srand, rand
+#include <time.h>        // time
 
 //#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
+#include "archive/koh/data_processing/include/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
 
-//#include "archive/koh/data_processing/include/networkmatrix.h"
-#include <networkmatrix.h>
 
 typedef vector< vector< vector< double > > > vector3Ddouble;
 // using namespace std;
@@ -35,7 +34,7 @@ public:
         unsigned int = 1,                   // Save file number
         unsigned int = 1,                   // # of input neurons
         unsigned int = 1,                   // # of output neurons
-        unsigned int = 32,                  // # of hidden neurons
+        unsigned int = 100,                  // # of hidden neurons
         unsigned int = 1,                   // Learning mode
         unsigned int = 2,                   // Internal nonlinearity
         unsigned int = 0,                   // Output nonlinearity
@@ -82,6 +81,8 @@ private:
     ESNetwork * ESN;
     float * inputValues;  // ESinput
     float * targetValues; // ESTrainOutput
+
+    double target_ESN, input_ESN, output_ESN; // Temporary variables, used for testing
 
     double mse; // Mean Square Error
     double squaredError;
