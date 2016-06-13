@@ -1,5 +1,5 @@
-#ifndef __MODULAR_NEURAL_CONTROL_CYLINDER_H
-#define __MODULAR_NEURAL_CONTROL_CYLINDER_H
+#ifndef __MODULAR_NEURAL_CONTROL_SPHERE_H
+#define __MODULAR_NEURAL_CONTROL_SPHERE_H
 
 #include <selforg/abstractcontroller.h>
 #include <selforg/controller_misc.h>
@@ -9,11 +9,13 @@
 #include <stdio.h>
 #include <deque>
 
-#include "dungbeetle.h"
+//#include "dungbeetle.h"
+#include "utils/sim_robots/dungbeetle/dungbeetle_manipulationv1.h"
 
-class Modular_neural_control_cylinder : public AbstractController {
+class Modular_neural_control_sphere : public AbstractController {
 public:
-
+		std::ofstream outfile;
+		double time;
 		//Changeable joints
 		double BJ;
 		double TL0;
@@ -50,26 +52,32 @@ public:
 		double weightH1_H2;
 		double weightH2_H1;
 
+		double CTroutputCPG;
+		double CTroutputCPGreverse;
+		double lastoutputCPG;
+		double lastoutputCPGreverse;
+
 		//Booleans
 		bool start;
 		bool legstart;
 	 	bool push;
 	 	bool finished;
 		bool bump;
+		bool object_touched;
 	 	bool climbed;
 	 	bool push_over_step;
 	 	bool stationary_push;
 	 	bool customise;
 		bool boxing;
+		bool step1;
+		bool step2;
 	 	
 		//Functions
-  		Modular_neural_control_cylinder();
+  		Modular_neural_control_sphere();
   		virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
-  		virtual int getSensorNumber() const {
-      		return number_sensors;}
-      	virtual int getMotorNumber() const {
-      		return number_motors;}
-      	double jointAngleScaling(double new_min, double new_max, double old_min, double old_max, double old_value);
+  		virtual int getSensorNumber() const {return number_sensors;}
+      	virtual int getMotorNumber() const {return number_motors;}
+      	double jointAngleScaling(double new_min, double new_max, double min_value, double max_value, double old_value);
       	double setJointDegrees(double degree);
       	void setStandConfiguration(motor* motors);
 		void MovingAverage(const sensor* sensors);
@@ -161,21 +169,22 @@ public:
 		double last_psn4_output_right;
 		double last_vrn1_output_left;
 		double last_vrn1_output_right;
-		
-		//F-joint signals
+		double lastFL2;
+		double lastFR2;
 		double FL2_motor;
 		double FR2_motor;
 		
-	    //Moving Average variables
+		//Moving Average variables
+		std::deque<double> z_ori;
+		double ori_average;
 		std::deque<float> movingAverageL2;
 		std::deque<float> movingAverageR2;
 		float sum;
 		
-		///Counters
+		//Counters
 		double startCounter;
 		double counter;
 		double timestepcount;
-		double timestepcount2;
   		
 };
 

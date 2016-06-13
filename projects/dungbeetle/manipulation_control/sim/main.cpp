@@ -32,12 +32,13 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
-#include "dungbeetle.h"
+//#include "dungbeetle.h"
+#include "utils/sim_robots/dungbeetle/dungbeetle_manipulationv1.h"
 //#include <ode_robots/dungbeetle.h>
 // the controller
 //#include "emptycontroller.h"
-#include "modular_neural_control_sphere.h"
-#include "modular_neural_control_cylinder.h"
+#include "controllers/dungbeetle/manipulation_control/modular_neural_control_sphere.h"
+#include "controllers/dungbeetle/manipulation_control/modular_neural_control_cylinder.h"
 //#include "controllers/dungbeetle/modular_neural_control/amosIIcontrol.h"
 
 // joint needed for fixation of the robot in the beginning

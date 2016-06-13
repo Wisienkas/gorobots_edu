@@ -62,7 +62,7 @@
 // include header file
 //#include "dungbeetle.h"
 
-#include "dungbeetle.h"
+#include "dungbeetle_manipulationv1.h"
 
 
 // rotation and translation matrixes (to make the code shorter)

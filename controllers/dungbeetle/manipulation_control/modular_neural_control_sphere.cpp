@@ -1,4 +1,4 @@
-#include <modular_neural_control_sphere.h>
+#include "modular_neural_control_sphere.h"
 double c = 0;
 Modular_neural_control_sphere::Modular_neural_control_sphere(): AbstractController("1", "1"){
 
