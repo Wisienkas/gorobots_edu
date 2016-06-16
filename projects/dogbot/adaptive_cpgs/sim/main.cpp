@@ -148,8 +148,8 @@ class ThisSim : public lpzrobots::Simulation {
 
     //----------create a sphere as the target by Ren-----------------------------
 
-    // Add amosII robot
-    lpzrobots::LilDogConf mylilDogConf = lpzrobots::LilDog::getDefaultConf(1.0 /*_scale*/,0/*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+    // Add lildog robot
+    lpzrobots::LilDogConf mylilDogConf = lpzrobots::LilDog::getDefaultConf(1.0 /*_scale*/,0/*_useShoulder*/,1 /*_useFoot*/);
     mylilDogConf.rubberFeet = true;
     lpzrobots::OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
@@ -159,19 +159,19 @@ class ThisSim : public lpzrobots::Simulation {
       mylilDogConf.GoalSensor_references.push_back(obst.at(i)->getMainPrimitive());
     }
     //------------------- Link the sphere to the Goal Sensor by Ren---------------
-    amos = new lpzrobots::LilDog(
+    lildog = new lpzrobots::LilDog(
         rodeHandle,
         osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
         mylilDogConf, "lilDog");
 
     // define the usage of the individual legs
-    amos->setLegPosUsage(amos->L0, amos->LEG);
-    amos->setLegPosUsage(amos->L1, amos->LEG);
-    amos->setLegPosUsage(amos->R0, amos->LEG);
-    amos->setLegPosUsage(amos->R1, amos->LEG);
+    lildog->setLegPosUsage(lildog->L0, lildog->LEG);
+    lildog->setLegPosUsage(lildog->L1, lildog->LEG);
+    lildog->setLegPosUsage(lildog->R0, lildog->LEG);
+    lildog->setLegPosUsage(lildog->R1, lildog->LEG);
 
-    // put amos a little bit in the air
-    amos->place(osg::Matrix::translate(.0, .0, 0.5));
+    // put lildog a little bit in the air
+    lildog->place(osg::Matrix::translate(.0, .0, 1));
 
     controller = new modularNeuroController();
     // create wiring
@@ -179,22 +179,22 @@ class ThisSim : public lpzrobots::Simulation {
 
     // create agent and init it with controller, robot and wiring
     lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
-    agent->init(controller, amos, wiring);
+    agent->init(controller, lildog, wiring);
 
     // create a fixed joint to hold the robot in the air at the beginning
     robotfixator = new lpzrobots::FixedJoint(
-        amos->getMainPrimitive(),
+        lildog->getMainPrimitive(),
         global.environment);
     robotfixator->init(odeHandle, osgHandle, false);
 
     // inform global variable over everything that happened:
-    global.configs.push_back(amos);
+    global.configs.push_back(lildog);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
 
     std::cout << "\n\n"
         << "################################\n"
-        << "#   Press x to free amosII!    #\n"
+        << "#   Press x to free lildog!    #\n"
         << "################################\n"
         << "\n\n" << std::endl;
 
@@ -228,7 +228,7 @@ class ThisSim : public lpzrobots::Simulation {
   protected:
   lpzrobots::Joint* robotfixator;
   AbstractController* controller;
-  lpzrobots::LilDog* amos;
+  lpzrobots::LilDog* lildog;
 };
 
 int main(int argc, char **argv)
