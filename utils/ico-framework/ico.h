@@ -111,6 +111,8 @@ class ICO : public ANN{
      */
     virtual void step();
 
+    void stepNoLearning();
+
     /**
      * Function for setting the input of the reflexive neuron.
      *
@@ -141,6 +143,12 @@ class ICO : public ANN{
      */
     void setPredictiveNeuronInput(std::vector<double>& values);
 
+    void setReflexiveNeuronWeight(const double& weight);
+
+    void setPredictiveNeuronWeight(const int& index, const double& weight);
+
+    void setPredictiveNeuronWeight(std::vector<double>& weights);
+
     /**
      * Function to get the output of the system.
      *
@@ -155,6 +163,14 @@ class ICO : public ANN{
      * @return Vector of doubles containing the weights, starting with the reflexive one.
      */
     std::vector<double> getWeights();
+
+    /**
+     * Redefinition of the ANN:dumpWeights method for the class.
+     *
+     * This method returns a string containing the weights for the predictive signals. The reflexive one is removed to save space in terminal.
+     * @return String with the predictive neuron weights.
+     */
+    std::string dumpWeights();
 
   protected:
     /**

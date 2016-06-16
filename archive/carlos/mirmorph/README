@@ -1,0 +1,19 @@
+ To run the ga programs:
+
+./start number of generation 
+
+e.g.,
+
+./start -10
+ 
+ -10 = ten generations that ga will evolve
+ 
+ using scripts:
+ first make-->ga and ga1
+ cd scripts
+ ./islands.sh
+ 
+ first make-->ga_ico and ga_ico1
+  cd scripts
+ ./islands_ico.sh
+ 
