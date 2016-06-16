@@ -1,0 +1,3 @@
+The example of receptive filed for DACBOT locomotion control for GPU!
+This program needs nvcc complier for creation of the makefile 
+- Parallelize.cpp and .h needs to the nvcc  
