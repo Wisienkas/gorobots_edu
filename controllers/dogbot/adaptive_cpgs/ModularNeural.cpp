@@ -84,35 +84,44 @@ ModularNeural::ModularNeural(bool multiple,int nCPGs){
 			addSubnet(mPSNs.at(i));
 
 		}
+		///BEGIN COUPLING MATRIX DEFINITION
 			for(int i=0;i<nCPGs;i++)
 		{
-			for(int j=i+1;j<nCPGs;j++)
-			{
+			for(int j=0;j<nCPGs;j++)
+			{	
+				delta[i][j]=0.0;
 				k[i][j]=0.0;
 			}
 		}
-		double k_=0.006;
-		for(int i=0;i<nCPGs;i++){
-			for(int j=0;j<nCPGs;j++){
-				if(i==j)
-					delta[i][j]=0;
-				if(i>j){
-					k[i][j]=k_;
-					if(i % 2 == 0){
-						if(j % 2 != 0)
-							delta[i][j]=M_PI;
-						else
-							delta[i][j]=0;
+		double k_ij=0.008;
+		//4 and 6 legs case
+		switch(nCPGs)
+		{	//IMPLEMENT MULTIPLE GAIT CHOICE
+			//TRIPOD-GAIT
+			case 4:
+			delta[1][0]=M_PI;
+			delta[2][0]=M_PI;delta[2][1]=0;
+			delta[3][0]=0;delta[3][1]=M_PI;delta[3][2]=M_PI;
 
-					}else{
-						if(j % 2 == 0)
-						    delta[i][j]=M_PI;
-						else
-							delta[i][j]=0;
-					}
-				}
-					
-			}
+			k[1][0]=k_ij;
+			k[2][0]=k_ij;k[2][1]=k_ij;
+			k[3][0]=k_ij;k[3][1]=k_ij;k[3][2]=k_ij;
+
+			break;
+
+			case 6:
+			delta[1][0]=M_PI;
+			delta[2][0]=0;delta[2][1]=M_PI;
+			delta[3][0]=M_PI;delta[3][1]=0;delta[3][2]=M_PI;
+			delta[4][0]=0;delta[4][1]=M_PI;delta[4][2]=0;delta[4][3]= M_PI;
+			delta[5][0]=M_PI; delta[5][1]=0; delta[5][2]=M_PI;delta[5][3]=0; delta[5][4]=M_PI;
+
+			k[1][0]=k_ij;
+			k[2][0]=k_ij;k[2][1]=k_ij;
+			k[3][0]=k_ij;k[3][1]=k_ij;k[3][2]=k_ij;
+			k[4][0]=k_ij;k[4][1]=k_ij;k[4][2]=k_ij;k[4][3]= k_ij;
+			k[5][0]=k_ij;k[5][1]=k_ij; k[5][2]=k_ij;k[5][3]=k_ij; k[5][4]=k_ij;
+			
 		}
 			
 
@@ -124,7 +133,7 @@ ModularNeural::ModularNeural(bool multiple,int nCPGs){
 				k[i][j]=k[j][i];
 			}
 		}
-}
+}///END COUPLING MATRIX DEFINITION
 }
 
 double ModularNeural::getVrnLeftOut(){

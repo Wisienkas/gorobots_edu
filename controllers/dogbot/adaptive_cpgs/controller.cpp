@@ -229,38 +229,34 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //input perturbation to the adaptive oscillator the number is the ID of the single CPGs
     //front right ID 0
-    //middle right ID 1
-    //rear right ID 2
-    //front left ID 3
-    //middle left ID 4
-    //rear left ID 5
-    //the feedback corresponds to the filtered signal from the CT angle sensor for middle/hind legs and TC angle sensor for front legs.
-    //Infact for the given dungbeetle simulation,the CT joint is responsible for forward/backward movement (middle/hind legs).
+    //rear right ID 1
+    //front left ID 2
+    //rear left ID 3
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  cpg->update(feedback0,0);    
-  cpg->update(feedback1,1);
-  cpg->update(feedback2,2);    
-  cpg->update(feedback3,3);
+  cpg->update((feedback0-0.4)/1.5,0);    
+  cpg->update((feedback1+0.4)/1.5,1);
+  cpg->update((feedback2-0.4)/1.5,2);    
+  cpg->update((feedback3+0.4)/1.5,3);
 
   
     //left back
-        y_[9]=0;//cpg->getCpgOut1(3);
-        y_[10]=cpg->getCpgOut1(3);
-        y_[11]=0;//cpg->getCpgOut1(3);
+        y_[9]=0.5;//cpg->getCpgOut1(3);
+        y_[10]=(-0.4+cpg->getCpgOut1(3))*1.5;
+        y_[11]=-0.4-cpg->getPsnOutput(3,11);
 
     //right back
-        y_[3]=0;//cpg->getCpgOut1(1);
-        y_[4]=cpg->getCpgOut1(1);
-        y_[5]=0;//cpg->getCpgOut1(1);
+        y_[3]=0.5;//cpg->getCpgOut1(1);
+        y_[4]=(-0.4+cpg->getCpgOut1(1))*1.5;
+        y_[5]=-0.4-cpg->getPsnOutput(1,11);
     //top left
-        y_[6]=0;//cpg->getCpgOut1(2);
-        y_[7]=cpg->getCpgOut1(2);
-        y_[8]=0;//cpg->getCpgOut1(2);
+        y_[6]=0.5;//cpg->getCpgOut1(2);
+        y_[7]=(+0.4+cpg->getCpgOut1(2))*1.5;
+        y_[8]=0.4+cpg->getPsnOutput(2,11);
 
     //top right
-        y_[0]=0;//cpg->getCpgOut1(0);
-        y_[1]=cpg->getCpgOut1(0);
-        y_[2]=0;//cpg->getCpgOut1(0);
+        y_[0]=0.5;//cpg->getCpgOut1(0);
+        y_[1]=(+0.4+cpg->getCpgOut1(0))*1.5;
+        y_[2]=0.4+cpg->getPsnOutput(0,11);
 
 
         updateGui();
