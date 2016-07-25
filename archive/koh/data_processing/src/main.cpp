@@ -8,8 +8,8 @@ int main( int argc, char ** argv ) {
 
     if( argc == 1 ) { // XXX Manual mode
 
-        string inputPath                    = "resources/withoutCF/maturingsalmon/Input13_89.txt"; //"resources/emg_data/Input_emg_24576.txt";
-        string targetPath                   = "resources/withoutCF/maturingsalmon/Target13_89.txt"; //"resources/emg_data/Target_emg_24576.txt";
+        string inputPath                    = "resources/withoutCF/maturingsalmon/Input13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Input13_89.txt"; //"resources/emg_data/Input_emg_24576.txt";
+        string targetPath                   = "resources/withoutCF/maturingsalmon/Target13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Target13_89.txt"; //"resources/emg_data/Target_emg_24576.txt";
         string resultPath                   = "results/result.txt";
         string saveDir                      = "save_files/";
         unsigned int saveNum                = 1;
@@ -23,7 +23,7 @@ int main( int argc, char ** argv ) {
         double internalSparsity             = 50.0;
         double learningRate                 = 0.99;
         double leak                         = 1.0; //0.3
-        double percentage_1                 = 85.0; //  85% of total data for "training" (save)
+        double percentage_1                 = 54.0; //  85% of total data for "training" (save)
         double percentage_2                 = 100.0; // 100% of the remaining data (15% of total) for "validationUnits" (save & final) and another 0% of the remaining data (15% of total)  for "testing" (not use!)
         unsigned int repetition             = 3;
         unsigned int iterationLimit         = 5000;
