@@ -507,7 +507,7 @@ namespace lpzrobots
     	// Allocate object
     	lpzrobots::Primitive* head = new Box( dimension[0], dimension[1], dimension[2] );
     	// Set texture from Image library
-    	head->setTexture( "body.jpg" );
+    	head->setTexture( "../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/body.jpg" );
     	// Initialize the primitive
     	head->init( odeHandle, mass, osgHandle );
     	// Set pose
@@ -523,7 +523,7 @@ namespace lpzrobots
         // Allocate object
         auto bodyPart = new Box( dimension[0], dimension[1], dimension[2] );
         // Set texture from Image library
-        bodyPart->setTexture( "body.jpg");
+        bodyPart->setTexture( "../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/body.jpg");
         // Initialize the primitive
         bodyPart->init( odeHandle, mass, osgHandle );
         // Set pose

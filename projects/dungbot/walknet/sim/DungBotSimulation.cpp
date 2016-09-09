@@ -15,8 +15,8 @@ namespace lpzrobots
 {
 	DungBotSimulation::DungBotSimulation( void )
 	{
-		setTitle("DungBot simulation");
-		setGroundTexture("sand_texture.jpg"); //sand_texture.jpg //whiteground_crosses.jpg
+		setTitle("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/DungBot simulation");
+		setGroundTexture("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/sand_texture.jpg"); //sand_texture.jpg //whiteground_crosses.jpg
 		simulation_time_seconds = 0.0;
 		trial_number = 0;
 		agent = NULL;
@@ -100,7 +100,7 @@ namespace lpzrobots
 		if(true){ // TODO IF TRUE, THEN A BALL SPAWNS
 		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3, 10); // If ball stand = 0.42 ~ If roll stand = 0.3
 	    s1->setPosition(osg::Vec3(-1.8, 0.0, 0.04)); // If ball stand = 0.032 ~ If roll stand = 0.3
-	    s1->setTexture("ground_texture3.jpg");
+	    s1->setTexture("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/ground_texture3.jpg");
 		Substance surface;
 		surface.toRubber( 50 );
 		s1->setSubstance( surface );
