@@ -126,7 +126,12 @@ namespace DungBotMotorSensor
 		L2_s4 = 59,
 		L2_s5 = 60,
 
-		DUNGBOT_SENSOR_MAX = 154, //NEEDS TO BE ONE MORE THAN THE HIGHEST NUMBER
+        //Body orientation sensors
+        BX_ori = 154, // around x axis
+        BY_ori = 155, // around y axis
+        BZ_ori = 156, // around z axis
+
+		DUNGBOT_SENSOR_MAX = 157, //NEEDS TO BE ONE MORE THAN THE HIGHEST NUMBER
 	};
 
 	enum DungBotMotorNames

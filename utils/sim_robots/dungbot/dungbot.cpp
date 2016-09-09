@@ -188,6 +188,12 @@ namespace lpzrobots
 		makeAllLegs( pose , rear, front , head);
 
 		/************************************
+		 * Tilt sensor
+		 ***********************************/
+		OrientationSensor = new AxisOrientationSensor(AxisOrientationSensor::Axis,Sensor::X |Sensor::Y | Sensor::Z);
+		OrientationSensor->init(front);
+
+		/************************************
 		 * 	Set all the parameters
 		 ***********************************/
 		setParam( "dummy", 0 ); // apply all parameters.
@@ -873,6 +879,18 @@ namespace lpzrobots
 
 		}
 
+		/********************************************
+		 *	Tilt sensor
+		 ********************************************/
+		std::list<sensor> Ori_lst =  OrientationSensor->getList();
+		double tmp;
+		tmp = Ori_lst.front(); Ori_lst.pop_front();
+		sensors[DungBotMotorSensor::BX_ori] = tmp;
+		tmp = Ori_lst.front(); Ori_lst.pop_front();
+		sensors[DungBotMotorSensor::BY_ori] = tmp;
+		tmp = Ori_lst.front();
+		sensors[DungBotMotorSensor::BY_ori] = tmp;
+
 		return DungBotMotorSensor::DUNGBOT_SENSOR_MAX;
 	}
 
@@ -1138,9 +1156,9 @@ namespace lpzrobots
          ********************************************/
 	    conf.head_Kp	= 1.5;
 	    conf.back_Kp 	= 4.0;
-		conf.coxa_Kp 	= {5.0, 5.0, 5.0}; 	// Originally 2.5 *This new speed (and 2.5) works very well, but when changed, the legs gets out of sync
-		conf.femur_Kp	= {5.0, 5.0, 5.0}; 	// Originally 2.5
-		conf.tibia_Kp 	= {5.0, 5.0, 5.0};	// Originally 2.5
+		conf.coxa_Kp 	= {4.3, 5.0, 4.8}; 	// Originally 2.5 *This new speed (and 2.5) works very well, but when changed, the legs gets out of sync
+		conf.femur_Kp	= {4.3, 5.0, 4.8}; 	// Originally 2.5
+		conf.tibia_Kp 	= {4.3, 5.0, 4.8};	// Originally 2.5
 		conf.tarsus_Kp 	= 0.0;
 
 		conf.head_Kd	= 0.0;

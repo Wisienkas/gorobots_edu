@@ -24,6 +24,7 @@
 // include sensors
 #include <ode_robots/contactsensor.h>
 #include <ode_robots/relativepositionsensor.h>
+#include <ode_robots/axisorientationsensor.h>
 
 // include joints
 #include <ode_robots/joint.h>
@@ -151,6 +152,9 @@ namespace lpzrobots
 
 			//	Position sensors
 			std::vector<RelativePositionSensor> bodyPartSensors;
+
+			//	Tilt sensor
+			AxisOrientationSensor* OrientationSensor;
 
 		private:
 		//	Private methods
