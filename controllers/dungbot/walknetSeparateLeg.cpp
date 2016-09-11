@@ -4,6 +4,7 @@ using namespace std;
 
 walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 	legNum = newlegNum;
+	kinController = new kinematicsController( legNum );
 	PEP.assign( 3 , 0 );
 	STM.assign( 3 , 0 );
 	MID.assign( 3 , 0 );
@@ -94,13 +95,13 @@ void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> 
 
 	if( RSunit ){
 		startSwing = true; startStance = false; phase = true;
-		swingNet1( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		swingNet4( sensor, viaAngle, jointVel ); //TODO SIMPLE
 	}else if( PEPunit && GCunit ) {
 		viaAngle[1] = localSensorArray[1] + 0.06; //TODO Edit?
 		viaAngle[2] = localSensorArray[2] - 0.03; //TODO Edit
 	}else if( PSunit ){
 		startSwing = false; startStance = true; phase = false;
-		stanceNet2( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		stanceNet4( sensor, viaAngle, jointVel ); //TODO SIMPLE
 
 		// Used for rule 3
 		if ( atPosition( PEP, 0.001 ) && close_to_PEP == false)
@@ -235,6 +236,49 @@ void walknetSeparateLeg::stanceNet3(const sensor* sensor, std::vector<double> &v
 	}
 }
 
+void walknetSeparateLeg::stanceNet4(const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel){
+	/**
+	 * Kinematic controlled stancenet.
+	 */
+	// Angle/Position controlled
+	viaAngle[3] = 0;
+	jointVel[3] = 1;
+
+	if(startStance == false){
+		stanceState = IDLE_STANCE;
+	}
+
+	switch(stanceState)
+	{
+		case TO_PEP_STANCE:
+			if( !atPosition(PEP,0.01) )
+			{
+				/**
+				 * 	Cont with kine
+				 */
+				kinController->stepKinematicsController( sensor, viaAngle, legNum );
+			} else {
+				startStance = false;
+				stanceState = IDLE_STANCE;
+			}
+			break;
+
+		case IDLE_STANCE:
+			if(startStance){
+				stanceState = TO_PEP_STANCE;
+				/**
+				 * 	Reset stance list
+				 */
+				kinController->resetStanceList();
+			}
+			break;
+
+		default: cout << "swingState Error!" << endl;
+			break;
+	}
+
+}
+
 void walknetSeparateLeg::swingNet1(const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel){
 	// Angle/Position controlled
 	viaAngle[3] = 0;
@@ -245,52 +289,52 @@ void walknetSeparateLeg::swingNet1(const sensor* sensor, std::vector<double> &vi
 	}
 
 	switch(swingState)
-		{
-			case LIFT:
-				if( !atAngle(MID[1], 1, 0.01) && !atAngle(MID[2], 2, 0.01) )
-				{
-					viaAngle[0] = PEP[0];
-					viaAngle[1] = MID[1];
-					viaAngle[2] = MID[2];
-				} else {
-					swingState = TO_AEP_SWING;
-				}
-				break;
+	{
+		case LIFT:
+			if( !atAngle(MID[1], 1, 0.01) && !atAngle(MID[2], 2, 0.01) )
+			{
+				viaAngle[0] = PEP[0];
+				viaAngle[1] = MID[1];
+				viaAngle[2] = MID[2];
+			} else {
+				swingState = TO_AEP_SWING;
+			}
+			break;
 
-			case TO_AEP_SWING:
-				if( !atAngle(AEP[0], 0, 0.01) )
-				{
-					viaAngle[0] = AEP[0];
-					viaAngle[1] = MID[1];
-					viaAngle[2] = MID[2];
-				} else {
-					swingState = LOWER;
-				}
-				break;
+		case TO_AEP_SWING:
+			if( !atAngle(AEP[0], 0, 0.01) )
+			{
+				viaAngle[0] = AEP[0];
+				viaAngle[1] = MID[1];
+				viaAngle[2] = MID[2];
+			} else {
+				swingState = LOWER;
+			}
+			break;
 
-			case LOWER:
-				if(!localSensorArray[3]){
-					viaAngle[1] = localSensorArray[1] - 0.3;
-				} else {
-					touch_down = true;
-					startSwing = false;
-					end = clock();
-					double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-					//cout << "Leg #" << legNum << ": "<< time_spent << endl; // TODO
-					swingState = IDLE_SWING;
-				}
-				break;
+		case LOWER:
+			if(!localSensorArray[3]){
+				viaAngle[1] = localSensorArray[1] - 0.3;
+			} else {
+				touch_down = true;
+				startSwing = false;
+				end = clock();
+				double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+				//cout << "Leg #" << legNum << ": "<< time_spent << endl; // TODO
+				swingState = IDLE_SWING;
+			}
+			break;
 
-			case IDLE_SWING:
-				if(startSwing){
-					begin = clock();
-					swingState = LIFT;
-				}
-				break;
+		case IDLE_SWING:
+			if(startSwing){
+				begin = clock();
+				swingState = LIFT;
+			}
+			break;
 
-			default: cout << "swingState Error!" << endl;
-				break;
-		}
+		default: cout << "swingState Error!" << endl;
+			break;
+	}
 }
 
 void walknetSeparateLeg::swingNet2(const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel){
@@ -440,7 +484,62 @@ void walknetSeparateLeg::swingNet3(const sensor* sensor, std::vector<double> &vi
 	}
 }
 
+void walknetSeparateLeg::swingNet4(const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel){
+	/**
+	 * Kinematic controlled swingnet.
+	 */
+	viaAngle[3] = 0;
+	jointVel[3] = 1;
 
+	if(startSwing == false){
+		swingState = IDLE_SWING;
+	}
+
+	switch(swingState)
+	{
+		case LIFT:
+			if( localSensorArray[3] )
+			{
+				/**
+				 * Cont with kine.
+				 */
+				kinController->stepKinematicsController( sensor, viaAngle, legNum );
+			} else {
+				swingState = LOWER;
+			}
+			break;
+
+		case LOWER:
+			if(!localSensorArray[3]){
+				/**
+				 * Cont with kine.
+				 */
+				viaAngle[1] = localSensorArray[1] - 0.3;
+			} else {
+				touch_down = true;
+				startSwing = false;
+				end = clock();
+				double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+				//cout << "Leg #" << legNum << ": "<< time_spent << endl; // TODO
+				swingState = IDLE_SWING;
+			}
+			break;
+
+		case IDLE_SWING:
+			if(startSwing){
+				begin = clock();
+				swingState = LIFT;
+				/**
+				 * 	Reset swing list
+				 */
+				kinController->resetSwingList();
+			}
+			break;
+
+		default: cout << "swingState Error!" << endl;
+			break;
+	}
+}
 
 void walknetSeparateLeg::stanceNetSimple(const sensor* sensor, std::vector<double>& viaAngle, std::vector<double> &jointVel) {
 	// Angle/Position controlled

@@ -15,6 +15,7 @@
 // #include <ode/ode.h>
 #include <ode-dbl/ode.h>
 #include <selforg/abstractcontroller.h>
+#include "kinematicsController.h"
 
 // Extra includes
 #include <vector>
@@ -95,6 +96,8 @@ class walknetSeparateLeg
 	int GCunit 	= 0;	//	Ground Contact
 	int PEPunit = 0;	//	Boolean value if the leg is in the PEP position.
 
+	kinematicsController * kinController;
+
 	private:
 	//	Private methods
 	void selectorNet( const sensor* sensor, std::vector<double> &, std::vector<double> & );
@@ -103,10 +106,12 @@ class walknetSeparateLeg
 	void stanceNet1( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	void stanceNet2( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	void stanceNet3( const sensor* sensor, std::vector<double> &, std::vector<double> & );
+	void stanceNet4( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	void stanceNet_maxmin( const sensor* sensor, std::vector<double> & );
 	void swingNet1( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	void swingNet2( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	void swingNet3( const sensor* sensor, std::vector<double> &, std::vector<double> & );
+	void swingNet4( const sensor* sensor, std::vector<double> &, std::vector<double> & );
 	double trajectory( double, int );
 
 

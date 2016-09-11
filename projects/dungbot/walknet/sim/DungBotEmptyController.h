@@ -74,7 +74,7 @@ class DungBotEmptyController : public AbstractController
 
 		double state[DungBotMotorSensor::DUNGBOT_MOTOR_MAX][2];
 
-		kinematicsController * invKin;
+		//kinematicsController * invKin;
 		walknetcontroller * walknet;
 };
 

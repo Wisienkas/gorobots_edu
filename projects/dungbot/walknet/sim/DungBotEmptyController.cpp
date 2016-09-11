@@ -39,9 +39,9 @@ DungBotEmptyController::DungBotEmptyController( const std::string& name  )
 	for(int i = 0; i < 6; i++) {
 		angleVector[i][3] = 0;
 		velocityVector[i][3] = 1;
+		//invKin = new kinematicsController( i );
 	};
 
-	invKin = new kinematicsController();
 	walknet = new walknetcontroller();
 
 }
@@ -77,7 +77,7 @@ void DungBotEmptyController::stepNoLearning( const sensor* sensor, int sensorNum
 	//standsimple( angleVector );
 	//walknet->stepWalknetTripod( sensor, angleVector, velocityVector );
 	walknet->stepWalknet( sensor, angleVector, velocityVector );
-	//invKin->stepKinematicsController( sensor, angleVector );
+	//invKin->stepKinematicsController( sensor, angleVector ); //this doesn't work
 	//ballstand( angleVector );
 	//rollstand( angleVector );
 	//headstand( angleVector );

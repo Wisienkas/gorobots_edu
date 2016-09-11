@@ -11,18 +11,15 @@
 
 #include "kinematicsController.h"
 
-kinematicsController::kinematicsController(void) {
+kinematicsController::kinematicsController( int newLegNum ) {
 	std::cout << "CREATING KINEMATICS CONTROLLER" << std::endl;
 
+	legNum = newLegNum;
 	targetPositionPointer.assign( 6, 1 );
 
 	std::cout << "LOADING POSITION VECTORS" << std::endl;
 
 	loadPositionVectors();
-
-	std::cout << "CREATE FRAME" << std::endl;
-
-	frame();
 
 	std::cout << "KinematicsController Constructor DONE" << std::endl;
 }
@@ -30,10 +27,20 @@ kinematicsController::kinematicsController(void) {
 kinematicsController::~kinematicsController(void) {
 }
 
-void kinematicsController::frame(){
+void kinematicsController::resetStanceList(){
+	/**
+	 * 	When this is called, we ready the stance phase.
+	 */
+	phase = false;
+	targetPositionPointer[legNum] = 0;
+}
 
-
-
+void kinematicsController::resetSwingList(){
+	/**
+	 * 	When this is called, we ready the swing phase.
+	 */
+	phase = true;
+	targetPositionPointer[legNum] = 0;
 }
 
 void kinematicsController::homo( std::vector<std::vector<double>> &t, std::vector<std::vector<double>> r, std::vector<double> p ){
@@ -127,30 +134,40 @@ void kinematicsController::kinematic( std::vector<double> &newAngle, std::vector
 	switch (legNum) {
 		case 0: case 3:
 		//	TC offset.
-			//tc = {1.65227/scale/4-2.8689/scale, lr * 2.5409/scale, -4.9/scale/2 + 0.4841/scale};
+			tc = {1.65227/scale/4-2.8689/scale, lr * 2.5409/scale, -4.9/scale/2 + 0.4841/scale}; //fine
 		//	Limb lengths
 			coxa = {0, 0, 2.46037/scale};
 			femur = {0, 0, 3.24472/scale};
 			tibia = {0, 0, 4.68943/scale};
+		//	Limb rotations // missing
+			rc = { M_PI/180*(180+112.5464), M_PI/180*(90-65.3676) };
+			rf = { M_PI/2, -M_PI/180*120 };
+			rt = { M_PI/180*85 };
 			break;
 		case 1: case 4:
 		//	TC offset.
-			//tc = {1.65227/scale/4+0/scale, lr * 2.5883/scale, -4.9/scale/2 + 0.5672/scale};
+			tc = {1.65227/scale/4+0/scale, lr * 2.5883/scale, -4.9/scale/2 + 0.5672/scale};
 		//	Limb lengths
 			coxa = {0, 0, 2.11888/scale};
 			femur = {0, 0, 4.23025/scale};
 			tibia = {0, 0, 3.72093/scale};
 		//	Limb rotations
-			rc = { M_PI/180*(180+110.4237), M_PI/180*(90-65.3676) };
+			rc = { M_PI/180*(180+110.4237), M_PI/180*(90-56.2446) };
 			rf = { M_PI/2, -M_PI/180*120 };
 			rt = { M_PI/180*85 };
 		//	Joint limits
-			break;
+				break;
 		case 2: case 5:
-			//tc = {1.65227/scale/4+3.1666/scale, lr * 4.7496/scale, -4.9/scale/2 + 0/scale};
+		//	TC offset.
+			tc = {1.65227/scale/4+3.1666/scale, lr * 4.7496/scale, -4.9/scale/2 + 0/scale}; //fine
+		//	Limb lengths
 			coxa = {0, 0, 4.05514/scale};
 			femur = {0, 0, 4.63394/scale};
 			tibia = {0, 0, 5.54793/scale};
+		//	Limb rotations
+			rc = { M_PI/180*(180+95.7143), M_PI/180*(90-64.6293) };
+			rf = { M_PI/2, -M_PI/180*120 };
+			rt = { M_PI/180*85 };
 			break;
 		default:
 			break;
@@ -225,7 +242,7 @@ void kinematicsController::preOffset( std::vector<double> &angleVector, int legN
 			break;
 	}
 
-	if(true){
+	if(false){
 		std::cout << "***********************-PRE" << std::endl;
 		std::cout << angleVector[0] << " " << angleVector[1] << " " << angleVector[2] << std::endl;
 	}
@@ -234,7 +251,7 @@ void kinematicsController::preOffset( std::vector<double> &angleVector, int legN
 	angleVector[1] = ( angleVector[1] - ( cf[1]+cf[2] )/2 ) * preScale( cf[0] );
 	angleVector[2] = ( angleVector[2] - ( ft[1]+ft[2] )/2 ) * preScale( ft[0] );
 
-	if(true){
+	if(false){
 		std::cout << angleVector[0] << " " << angleVector[1] << " " << angleVector[2] << std::endl;
 	}
 }
@@ -243,7 +260,7 @@ double kinematicsController::preScale( double x ){
 	return ( 2 * M_PI / 360 * x ) / (2 * M_PI/360 * 360);
 }
 
-void kinematicsController::postOffset( std::vector<std::vector<double>> &angleVector, int legNum ){
+void kinematicsController::postOffset( std::vector<double> &angleVector, int legNum ){
 	/**
 	 * 	Here we need to go from the angles that makes sense, back to the angles that the joints "understand".
 	 * 	"Large to small"
@@ -274,16 +291,16 @@ void kinematicsController::postOffset( std::vector<std::vector<double>> &angleVe
 			break;
 	}
 
-	if(true){
+	if(false){
 		std::cout << "***********************-POST" << std::endl;
-		std::cout << angleVector[legNum][0] << " " << angleVector[legNum][1] << " " << angleVector[legNum][2] << std::endl;
+		std::cout << angleVector[0] << " " << angleVector[1] << " " << angleVector[2] << std::endl;
 	}
-	angleVector[legNum][0] = ( angleVector[legNum][0] * postScale( tc[0] ) ) + ( tc[1]+tc[2] )/2;
-	angleVector[legNum][1] = ( angleVector[legNum][1] * postScale( cf[0] ) ) + ( cf[1]+cf[2] )/2;
-	angleVector[legNum][2] = ( angleVector[legNum][2] * postScale( ft[0] ) ) + ( ft[1]+ft[2] )/2;
+	angleVector[0] = ( angleVector[0] * postScale( tc[0] ) ) + ( tc[1]+tc[2] )/2;
+	angleVector[1] = ( angleVector[1] * postScale( cf[0] ) ) + ( cf[1]+cf[2] )/2;
+	angleVector[2] = ( angleVector[2] * postScale( ft[0] ) ) + ( ft[1]+ft[2] )/2;
 
-	if(true){
-		std::cout << angleVector[legNum][0] << " " << angleVector[legNum][1] << " " << angleVector[legNum][2] << std::endl;
+	if(false){
+		std::cout << angleVector[0] << " " << angleVector[1] << " " << angleVector[2] << std::endl;
 	}
 }
 
@@ -291,7 +308,7 @@ double kinematicsController::postScale( double x ){
 	return ( 2 * M_PI / 360 * 360 ) / (2 * M_PI/360 * x);
 }
 
-void kinematicsController::stepKinematicsController( const sensor* sensor, std::vector<std::vector<double>> &angleVector ) {
+void kinematicsController::stepKinematicsController( const sensor* sensor, std::vector<double> &angleVector, int legNum ) {
 	/**
 	 * 	For each step, we need to take a look at the position each leg is in now.
 	 * 	And if it is close enough, send it to the next "location".
@@ -305,52 +322,65 @@ void kinematicsController::stepKinematicsController( const sensor* sensor, std::
 	 *	to the next position.
 	 */
 
-	std::cout << "*********************" << std::endl;
-
-	std::cout << "COUNTER IS: " << counter << std::endl;
-
-	for( int i = 0; i < 6; i++ ){
-		legPositionControl( sensor, angleVector, 1 );
-		break; //todo: Remove when done
-		legPositionControl( sensor, angleVector, i );
-	}
-
-	counter++;
-	std::cout << "$$$$$$$$$$$$$$$$$$$$$" << std::endl;
+	legPositionControl( sensor, angleVector, legNum );
 
 }
 
-void kinematicsController::legPositionControl( const sensor* sensor, std::vector<std::vector<double>> &angleVector, int legNum ) {
+void kinematicsController::legPositionControl( const sensor* sensor, std::vector<double> &angleVector, int legNum ) {
 		std::vector<double> targetPos = {0, 0, 0};
 		switch(legNum){
 			case 0:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListL0[ targetPositionPointer[legNum] % positionListL0.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListL0SW[ targetPositionPointer[legNum] % positionListL0SW.size() ][i];
+					}else{
+						targetPos[i] = positionListL0ST[ targetPositionPointer[legNum] % positionListL0ST.size() ][i];
+					}
 				}
 				break;
 			case 1:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListL1[ targetPositionPointer[legNum] % positionListL1.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListL1SW[ targetPositionPointer[legNum] % positionListL1SW.size() ][i];
+					}else{
+						targetPos[i] = positionListL1ST[ targetPositionPointer[legNum] % positionListL1ST.size() ][i];
+					}
 				}
 				break;
 			case 2:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListL2[ targetPositionPointer[legNum] % positionListL2.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListL2SW[ targetPositionPointer[legNum] % positionListL2SW.size() ][i];
+					}else{
+						targetPos[i] = positionListL2ST[ targetPositionPointer[legNum] % positionListL2ST.size() ][i];
+					}
 				}
 				break;
 			case 3:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListR0[ targetPositionPointer[legNum] % positionListR0.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListR0SW[ targetPositionPointer[legNum] % positionListR0SW.size() ][i];
+					}else{
+						targetPos[i] = positionListR0ST[ targetPositionPointer[legNum] % positionListR0ST.size() ][i];
+					}
 				}
 				break;
 			case 4:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListR1[ targetPositionPointer[legNum] % positionListR1.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListR1SW[ targetPositionPointer[legNum] % positionListR1SW.size() ][i];
+					}else{
+						targetPos[i] = positionListR1ST[ targetPositionPointer[legNum] % positionListR1ST.size() ][i];
+					}
 				}
 				break;
 			case 5:
 				for( int i = 0; i < 3; i++ ){
-					targetPos[i] = positionListR2[ targetPositionPointer[legNum] % positionListR2.size() ][i];
+					if( phase ){
+						targetPos[i] = positionListR2SW[ targetPositionPointer[legNum] % positionListR2SW.size() ][i];
+					}else{
+						targetPos[i] = positionListR2ST[ targetPositionPointer[legNum] % positionListR2ST.size() ][i];
+					}
 				}
 				break;
 			default:
@@ -364,6 +394,7 @@ void kinematicsController::legPositionControl( const sensor* sensor, std::vector
 	//	Do the offset so that the angles fit correctly.
 		preOffset( legSensor, legNum );
 
+
 	//	Do forward kinematics to find the current position.
 		std::vector<double> currentPos;
 		kinematic( currentPos, legSensor, legNum );
@@ -373,7 +404,6 @@ void kinematicsController::legPositionControl( const sensor* sensor, std::vector
 
 	//	Find the distance from the start.
 		double dist_start = sqrt( pow(errorPos[0],2) + pow(errorPos[1],2) + pow(errorPos[2],2) );
-
 		std::vector<double> deltaStep;
 		std::vector<double> stepPosition;
 		double dist_test;
@@ -399,16 +429,17 @@ double threshold = 0.01; //todo: put in .h
 			}
 		}
 
-std::cout << std::endl;
-std::cout << "*******" << std::endl;
-std::cout << "cx: " << currentPos[0] << " cy: " << currentPos[1]  << " cz: " << currentPos[2]  << std::endl;
-std::cout << "ex: " << errorPos[0] << " ey: " << errorPos[1]  << " ez: " << errorPos[2]  << std::endl;
-std::cout << "dx: " << stepPosition[0] << " dy: " << stepPosition[1] << " dz: " << stepPosition[2] << std::endl;
-std::cout << "tx: " << targetPos[0] << " ty: " << targetPos[1] << " tz: " << targetPos[2] << std::endl;
-std::cout << "d:  " << std::setprecision(5) <<dist_start << std::endl;
-std::cout << "*******" << std::endl;
-std::cout << std::endl;
-
+if( false ){
+	std::cout << std::endl;
+	std::cout << "*******" << std::endl;
+	std::cout << "cx: " << currentPos[0] << " cy: " << currentPos[1]  << " cz: " << currentPos[2]  << std::endl;
+	std::cout << "ex: " << errorPos[0] << " ey: " << errorPos[1]  << " ez: " << errorPos[2]  << std::endl;
+	std::cout << "dx: " << stepPosition[0] << " dy: " << stepPosition[1] << " dz: " << stepPosition[2] << std::endl;
+	std::cout << "tx: " << targetPos[0] << " ty: " << targetPos[1] << " tz: " << targetPos[2] << std::endl;
+	std::cout << "d:  " << std::setprecision(5) << dist_start << std::endl;
+	std::cout << "*******" << std::endl;
+	std::cout << std::endl;
+}
 
 		//	Now that we have the position we want to hit, we try to rotate the joints, to the positions.
 		//	Do the six calculations.
@@ -467,60 +498,48 @@ std::cout << std::endl;
 
 
 		if( (lt[0] < lt[1]) && (lt[0] < lt[2]) && (lt[0] < lt[3]) && (lt[0] < lt[4]) && (lt[0] < lt[5]) ){
-			std::cout << "CASE 0" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	- stepsize;
-			angleVector[legNum][1] = legSensor[1]	;
-			angleVector[legNum][2] = legSensor[2]	;
+			angleVector[0] = legSensor[0]	- stepsize;
+			angleVector[1] = legSensor[1]	;
+			angleVector[2] = legSensor[2]	;
 		}
 		else if( (lt[1] < lt[0]) && (lt[1] < lt[2]) && (lt[1] < lt[3]) && (lt[1] < lt[4]) && (lt[1] < lt[5]) ){
-			std::cout << "CASE 1" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	+ stepsize;
-			angleVector[legNum][1] = legSensor[1]	;
-			angleVector[legNum][2] = legSensor[2]	;
+			angleVector[0] = legSensor[0]	+ stepsize;
+			angleVector[1] = legSensor[1]	;
+			angleVector[2] = legSensor[2]	;
 		}
 		else if( (lt[2] < lt[0]) && (lt[2] < lt[1]) && (lt[2] < lt[3]) && (lt[2] < lt[4]) && (lt[2] < lt[5]) ){
-			std::cout << "CASE 2" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	;
-			angleVector[legNum][1] = legSensor[1]	- stepsize;
-			angleVector[legNum][2] = legSensor[2]	;
+			angleVector[0] = legSensor[0]	;
+			angleVector[1] = legSensor[1]	- stepsize;
+			angleVector[2] = legSensor[2]	;
 		}
 		else if( (lt[3] < lt[0]) && (lt[3] < lt[1]) && (lt[3] < lt[2]) && (lt[3] < lt[4]) && (lt[3] < lt[5]) ){
-			std::cout << "CASE 3" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	;
-			angleVector[legNum][1] = legSensor[1]	+ stepsize;
-			angleVector[legNum][2] = legSensor[2]	;
+			angleVector[0] = legSensor[0]	;
+			angleVector[1] = legSensor[1]	+ stepsize;
+			angleVector[2] = legSensor[2]	;
 		}
 		else if( (lt[4] < lt[0]) && (lt[4] < lt[1]) && (lt[4] < lt[2]) && (lt[4] < lt[3]) && (lt[4] < lt[5]) ){
-			std::cout << "CASE 4" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	;
-			angleVector[legNum][1] = legSensor[1]	;
-			angleVector[legNum][2] = legSensor[2]	- stepsize;
+			angleVector[0] = legSensor[0]	;
+			angleVector[1] = legSensor[1]	;
+			angleVector[2] = legSensor[2]	- stepsize;
 		}
 		else if( (lt[5] < lt[0]) && (lt[5] < lt[1]) && (lt[5] < lt[2]) && (lt[5] < lt[3]) && (lt[5] < lt[4]) ){
-			std::cout << "CASE 5" << std::endl;
-			angleVector[legNum][0] = legSensor[0]	;
-			angleVector[legNum][1] = legSensor[1]	;
-			angleVector[legNum][2] = legSensor[2]	+ stepsize;
+			angleVector[0] = legSensor[0]	;
+			angleVector[1] = legSensor[1]	;
+			angleVector[2] = legSensor[2]	+ stepsize;
 		}
 		else{
 			std::cout << "DEFAULT CASE" << std::endl;
-			std::cout << lt[0] << " " << lt[1] << " " << lt[2] << " " << lt[3] << " " << lt[4] << " " << lt[5] << std::endl;
+			std::cout << std::setprecision(5) << lt[0] << " " << lt[1] << " " << lt[2] << " " << lt[3] << " " << lt[4] << " " << lt[5] << std::endl;
 		}
 
 		std::vector<double> nextPos;
-		temp = { angleVector[legNum][0], angleVector[legNum][1], angleVector[legNum][2] };
+		temp = { angleVector[0], angleVector[1], angleVector[2] };
 		kinematic( nextPos, temp, legNum );
 
 		double dist_fin = sqrt( pow(targetPos[0] - nextPos[0],2) + pow(targetPos[1] - nextPos[1],2) + pow(targetPos[2] - nextPos[2],2) );
 
 		if( dist_fin < threshold ){
 			targetPositionPointer[legNum] = targetPositionPointer[legNum]+1;
-			std::cout << dist_fin << " - TRUE  TRUE  TRUE  - leg: " << legNum << " state: " << targetPositionPointer[legNum] % positionListL0.size() << " state changed: " << targetPositionPointer[legNum] << std::endl;
-			std::cout << "test condition: " << num_test_counter << std::endl;
-		}
-		else{
-			std::cout << dist_fin << " - FALSE FALSE FALSE - leg: " << legNum << " state: " << targetPositionPointer[legNum] % positionListL0.size() << " state changed: " << targetPositionPointer[legNum] << std::endl;
-			std::cout << "test condition: " << num_test_counter << std::endl;
 		}
 
 		/**
@@ -532,15 +551,15 @@ std::cout << std::endl;
 
 		postOffset( angleVector, legNum );
 
-		if( angleVector[legNum][0] >= 1 ){ angleVector[legNum][0] = 0.99; };
-		if( angleVector[legNum][1] >= 1 ){ angleVector[legNum][1] = 0.99; };
-		if( angleVector[legNum][2] >= 1 ){ angleVector[legNum][2] = 0.99; };
+		if( angleVector[0] >= 1 ){ angleVector[0] = 0.99; };
+		if( angleVector[1] >= 1 ){ angleVector[1] = 0.99; };
+		if( angleVector[2] >= 1 ){ angleVector[2] = 0.99; };
 
 
 		if(false){
-			angleVector[legNum][0] = 0;
-			angleVector[legNum][1] = 0;
-			angleVector[legNum][2] = -1;
+			angleVector[0] = 0;
+			angleVector[1] = 0;
+			angleVector[2] = -1;
 		}
 }
 
@@ -589,50 +608,94 @@ void kinematicsController::loadPositionVectors(void) {
 			std::vector<double> temp_vec;
 
 			switch (i) {
-				case 0: case 1: case 2:			//	L0
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+			case 0: case 1: case 2:			//	L0
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListL0.push_back( temp_vec );
-					break;
+				positionListL0SW.push_back( temp_vec );
+				break;
 
-				case 3: case 4: case 5:			//	L1
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+			case 3: case 4: case 5:			//	L1
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListL1.push_back( temp_vec );
-					break;
+				positionListL1SW.push_back( temp_vec );
+				break;
 
-				case 6: case 7: case 8:			//	L2
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+			case 6: case 7: case 8:			//	L2
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListL2.push_back( temp_vec );
-					break;
-				case 9: case 10: case 11:		//	R0
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+				positionListL2SW.push_back( temp_vec );
+				break;
+			case 9: case 10: case 11:		//	R0
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListR0.push_back( temp_vec );
-					break;
-				case 12: case 13: case 14:		//	R1
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+				positionListR0SW.push_back( temp_vec );
+				break;
+			case 12: case 13: case 14:		//	R1
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListR1.push_back( temp_vec );
-					break;
-				case 15: case 16: case 17:		//	R2
-					temp_vec.push_back(record[i]);
-					temp_vec.push_back(record[i+1]);
-					temp_vec.push_back(record[i+2]);
+				positionListR1SW.push_back( temp_vec );
+				break;
+			case 15: case 16: case 17:		//	R2
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
 
-					positionListR2.push_back( temp_vec );
-					break;
+				positionListR2SW.push_back( temp_vec );
+				break;
+			case 18: case 19: case 20:			//	L0
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListL0ST.push_back( temp_vec );
+				break;
+
+			case 21: case 22: case 23:			//	L1
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListL1ST.push_back( temp_vec );
+				break;
+
+			case 24: case 25: case 26:			//	L2
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListL2ST.push_back( temp_vec );
+				break;
+			case 27: case 28: case 29:		//	R0
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListR0ST.push_back( temp_vec );
+				break;
+			case 30: case 31: case 32:		//	R1
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListR1ST.push_back( temp_vec );
+				break;
+			case 33: case 34: case 35:		//	R2
+				temp_vec.push_back(record[i]);
+				temp_vec.push_back(record[i+1]);
+				temp_vec.push_back(record[i+2]);
+
+				positionListR2ST.push_back( temp_vec );
+				break;
 
 				default:
 					std::cout << "default" << std::endl;
