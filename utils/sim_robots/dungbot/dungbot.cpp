@@ -96,6 +96,7 @@ namespace lpzrobots
 
 		// update statistics
     	position = getPosition();
+
     }
 
     void DungBot::update( void )

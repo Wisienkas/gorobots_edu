@@ -98,7 +98,7 @@ namespace lpzrobots
 
 
 		if(true){ // TODO IF TRUE, THEN A BALL SPAWNS
-		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3, 10); // If ball stand = 0.42 ~ If roll stand = 0.3
+		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3, 10, true); // If ball stand = 0.42 ~ If roll stand = 0.3
 	    s1->setPosition(osg::Vec3(-1.8, 0.0, 0.04)); // If ball stand = 0.032 ~ If roll stand = 0.3
 	    s1->setTexture("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/ground_texture3.jpg");
 		Substance surface;
@@ -108,6 +108,16 @@ namespace lpzrobots
 	    //FixedJoint* fixator1 = new  FixedJoint(s1->getMainPrimitive(), global.environment);
 	    //fixator1->init(odeHandle, osgHandle);
 		}
+
+if(false){
+Primitive* s2 = new Sphere( 0.3 );
+s2->setPosition(osg::Vec3(-1.8, 0.0, 0.04)); // If ball stand = 0.032 ~ If roll stand = 0.3
+s2->setTexture("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/ground_texture3.jpg");
+Substance surface;
+surface.toRubber( 50 );
+s2->setSubstance( surface );
+s2->init( odeHandle, 10, osgHandle, char(1) );
+}
 
 		// create a fixed joint to hold the robot in the air at the beginning
 		robotfixator = new lpzrobots::FixedJoint(robot->getMainPrimitive(),global.environment);
