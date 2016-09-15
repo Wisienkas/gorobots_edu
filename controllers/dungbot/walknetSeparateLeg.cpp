@@ -95,13 +95,13 @@ void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> 
 
 	if( RSunit ){
 		startSwing = true; startStance = false; phase = true;
-		swingNet4( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		swingNet2( sensor, viaAngle, jointVel ); //TODO SIMPLE
 	}else if( PEPunit && GCunit ) {
 		viaAngle[1] = localSensorArray[1] + 0.06; //TODO Edit?
 		viaAngle[2] = localSensorArray[2] - 0.03; //TODO Edit
 	}else if( PSunit ){
 		startSwing = false; startStance = true; phase = false;
-		stanceNet4( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		stanceNet1( sensor, viaAngle, jointVel ); //TODO SIMPLE
 
 		// Used for rule 3
 		if ( atPosition( PEP, 0.001 ) && close_to_PEP == false)
