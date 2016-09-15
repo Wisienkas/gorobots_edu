@@ -16,14 +16,27 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 	swingState = IDLE_SWING;
 	stanceState = IDLE_STANCE;
 
-	if(false){ //TODO SIMPLE
+	if(false){ // use for rolling
 		switch (newlegNum){
-			case 0: case 3: PEP[0] = -0.4; 	PEP[1] = -0.6; 	PEP[2] = 0.0;
-							AEP[0] = 0.4; 	AEP[1] = -0.2; 	AEP[2] = 0.0; break;
-			case 1: case 4: PEP[0] = -0.4; 	PEP[1] = -0.6;	PEP[2] = 0.0;
-							AEP[0] = 0.7; 	AEP[1] = -0.2; 	AEP[2] = 0.0; break;
-			case 2: case 5: PEP[0] = -0.4; 	PEP[1] = -0.6; 	PEP[2] = 0.0;
-							AEP[0] = 0.7; 	AEP[1] = -0.2; 	AEP[2] = 0.0; break;
+			case 0: case 3:
+			// 		Coxa			Femur			Tibia
+				PEP[0] =  0.4; 	PEP[1] = 0.2;	PEP[2] = -0.7;	// EDIT
+				STM[0] = -0.5; 	STM[1] = 0.85;	STM[2] = -0.4;  //OK
+				MID[0] =  0.0; 	MID[1] = 1.0;	MID[2] = -0.7;	// EDIT
+				AEP[0] = -0.4;	AEP[1] = 0.0; 	AEP[2] = -0.7;  // EDIT
+				break;
+			case 1: case 4:
+				PEP[0] = -0.9; 	PEP[1] = 0.1; 	PEP[2] = -0.55; //OK
+				STM[0] = -0.4; 	STM[1] = 0.45;	STM[2] = -0.55; //OK
+				MID[0] = -0.5; 	MID[1] = 0.5; 	MID[2] = -1.0;
+				AEP[0] =  0.1; 	AEP[1] = 0.6; 	AEP[2] = -0.55; //OK
+				break;
+			case 2: case 5:
+				PEP[0] = -0.6;  PEP[1] = 0.3; 	PEP[2] = -0.55; //OK
+				STM[0] = -0.4; 	STM[1] = 0.8;	STM[2] = -0.55; //OK
+				MID[0] = -0.5; 	MID[1] = 1.0; 	MID[2] = -0.85;
+				AEP[0] = -0.2; 	AEP[1] = 0.9; 	AEP[2] = -0.65; //OK
+				break;
 			default: cout << "LEG UNKNOWN";
 			break;}
 	}
@@ -58,10 +71,9 @@ walknetSeparateLeg::~walknetSeparateLeg(void) {
 void walknetSeparateLeg::stepWalknetSeprateLeg( const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel )
 {
 	 extractSensor(sensor, legNum, localSensorArray);
-	 //stanceNet_maxmin(sensor, viaAngle );
 	 selectorNet( sensor, viaAngle, jointVel );
-	 //stanceNet2(sensor,viaAngle);
-	 //swingNet2(sensor,viaAngle);
+	 //swingNet1( sensor, viaAngle, jointVel );
+	 //stanceNet1( sensor, viaAngle, jointVel );
 }
 
 void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> &viaAngle, std::vector<double> &jointVel )
@@ -95,13 +107,13 @@ void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> 
 
 	if( RSunit ){
 		startSwing = true; startStance = false; phase = true;
-		swingNet2( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		swingNet1( sensor, viaAngle, jointVel );
 	}else if( PEPunit && GCunit ) {
-		viaAngle[1] = localSensorArray[1] + 0.06; //TODO Edit?
-		viaAngle[2] = localSensorArray[2] - 0.03; //TODO Edit
+		viaAngle[1] = localSensorArray[1] + 0.06;
+		viaAngle[2] = localSensorArray[2] - 0.03;
 	}else if( PSunit ){
 		startSwing = false; startStance = true; phase = false;
-		stanceNet1( sensor, viaAngle, jointVel ); //TODO SIMPLE
+		stanceNet2( sensor, viaAngle, jointVel );
 
 		// Used for rule 3
 		if ( atPosition( PEP, 0.001 ) && close_to_PEP == false)
@@ -118,7 +130,6 @@ void walknetSeparateLeg::stanceNet1(const sensor* sensor, std::vector<double> &v
 	// Angle/Position controlled
 	viaAngle[3] = 0;
 	jointVel[3] = 1;
-
 	if(startStance == false){
 		stanceState = IDLE_STANCE;
 	}
@@ -197,9 +208,6 @@ void walknetSeparateLeg::stanceNet3(const sensor* sensor, std::vector<double> &v
 	// Velocity controlled
 	viaAngle[3] = 1;
 	jointVel[3] = 0;
-
-	// TODO: Does not work at the moment
-	// Problem is that the different DOF interacts with eachother
 
 	if(startStance == false){
 		stanceState = IDLE_STANCE;
@@ -320,7 +328,7 @@ void walknetSeparateLeg::swingNet1(const sensor* sensor, std::vector<double> &vi
 				startSwing = false;
 				end = clock();
 				double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-				//cout << "Leg #" << legNum << ": "<< time_spent << endl; // TODO
+				//cout << "Leg #" << legNum << ": "<< time_spent << endl; //
 				swingState = IDLE_SWING;
 			}
 			break;
@@ -345,8 +353,6 @@ void walknetSeparateLeg::swingNet2(const sensor* sensor, std::vector<double> &vi
 	const double MID_COXA_POS = (AEP[0] + PEP[0]) / 2;
 	double coxaspeed = 0, femurUp = 0, femurDown = 0, tibiaUp = 0, tibiaDown = 0;
 
-	// Speeds for the different joints: 1 = MAX_SPEED
-	// It is possible to set the following more precise
 	switch( legNum )
 	{
 		case 0: case 3: //FRONTLEGS
@@ -520,7 +526,7 @@ void walknetSeparateLeg::swingNet4(const sensor* sensor, std::vector<double> &vi
 				startSwing = false;
 				end = clock();
 				double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-				//cout << "Leg #" << legNum << ": "<< time_spent << endl; // TODO
+				//cout << "Leg #" << legNum << ": "<< time_spent << endl;
 				swingState = IDLE_SWING;
 			}
 			break;

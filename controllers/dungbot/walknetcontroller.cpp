@@ -96,6 +96,43 @@ void walknetcontroller::stepWalknetTripod( const sensor* sensor, std::vector<std
 
 }
 
+void walknetcontroller::frontLegWalk( const sensor* sensor, std::vector<std::vector<double>> &angleVector, std::vector<std::vector<double>> &velocityVector  )
+{
+	bool flag = true;
+
+	for( int i = 0; i < 6; i++ ){
+		if( separateLegs[i].startStance == true || separateLegs[i].startSwing == true ){
+			flag = false;
+		}
+	}
+
+	if( flag ){
+		switchFlag = !switchFlag;
+
+		if( switchFlag ){
+			separateLegs[0].startSwing = true;
+			separateLegs[3].startStance = true;
+		}
+		else{
+			separateLegs[3].startSwing = true;
+			separateLegs[0].startStance = true;
+			std::cout << "test" << std::endl;
+		}
+	}
+
+	std::cout << "xxxx" << std::endl;
+	std::cout << "Leg 0 State (STANC): " << separateLegs[0].startStance << std::endl;
+	std::cout << "Leg 3 state (STANC): " << separateLegs[3].startStance << std::endl;
+	std::cout << "----" << std::endl;
+	std::cout << "Leg 0 State (SWING): " << separateLegs[0].startSwing << std::endl;
+	std::cout << "Leg 3 state (SWING): " << separateLegs[3].startSwing << std::endl;
+	std::cout << "xxxx" << std::endl;
+
+	for( int i = 0; i < 6; i++ ){
+		separateLegs[i].stepWalknetSeprateLeg( sensor, angleVector[i], velocityVector[i] );
+	}
+}
+
 
 void walknetcontroller::stepWalknet( const sensor* sensor, std::vector<std::vector<double>> &angleVector, std::vector<std::vector<double>> &velocityVector  )
 {
