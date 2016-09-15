@@ -34,6 +34,7 @@ class walknetcontroller
 	virtual ~walknetcontroller( void );
 
 	void stepWalknetTripod( const sensor* sensor, std::vector<std::vector<double>> &, std::vector<std::vector<double>> & );
+	void frontLegWalk( const sensor* sensor, std::vector<std::vector<double>> &, std::vector<std::vector<double>> & );
 	void stepWalknet( const sensor* sensor, std::vector<std::vector<double>> &, std::vector<std::vector<double>> & );
 	void getPhase( std::vector<bool> & );
 

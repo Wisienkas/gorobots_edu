@@ -62,13 +62,15 @@ void DungBotEmptyController::stepNoLearning( const sensor* sensor, int sensorNum
 	//	Update internal time
 	ticks_since_init++;
 
-	if( int(ticks_since_init) < 600 ) // Start after 1000 ticks in init position. Please drop before times run out
+	int wait_time = 600;
+	if( int(ticks_since_init) < wait_time ) // Start after 1000 ticks in init position. Please drop before times run out
 	{
+		//stand( angleVector );
 		stand( angleVector );
 		moveRobot( motor, angleVector, velocityVector );
 
 		if( int(ticks_since_init)%100==0 )
-			std::cout << (600-ticks_since_init)/100 << std::endl;
+			std::cout << (wait_time-ticks_since_init)/100 << std::endl;
 		return;
 	}
 
@@ -76,6 +78,7 @@ void DungBotEmptyController::stepNoLearning( const sensor* sensor, int sensorNum
 	//start(motor, 1.0);
 	//standsimple( angleVector );
 	//walknet->stepWalknetTripod( sensor, angleVector, velocityVector );
+	//walknet->frontLegWalk( sensor, angleVector, velocityVector );
 	walknet->stepWalknet( sensor, angleVector, velocityVector );
 	//invKin->stepKinematicsController( sensor, angleVector ); //this doesn't work
 	//ballstand( angleVector );
@@ -140,13 +143,11 @@ void DungBotEmptyController::stand( std::vector<std::vector<double>> &angleVecto
 	double femur_pos[3]	= {0.1, 0, 0.1};
 	double tibia_pos[3]	= {0.1, 0, 0.1};
 
-
-
 	for( int i = 0; i < 6; i++ )
 	{
-		angleVector[i][0] = coxa_pos[i%3];
-		angleVector[i][1] = femur_pos[i%3];
-		angleVector[i][2] = -tibia_pos[i%3];
+			angleVector[i][0] = coxa_pos[i%3];
+			angleVector[i][1] = femur_pos[i%3];
+			angleVector[i][2] = -tibia_pos[i%3];
 	}
 }
 
@@ -171,16 +172,21 @@ void DungBotEmptyController::ballstand( std::vector<std::vector<double>> &angleV
 
 void DungBotEmptyController::rollstand( std::vector<std::vector<double>> &angleVector )
 {
+	// THIS FUCKING ONE
+	// Todo: Revert femur motion (so that + = up)
+	//
 	// 						Front		 Middle		 Rear
-	double coxa_pos[3] 	= { 0.4, 		-0.25, 		-0.2};  // Coxa
-	double femur_pos[3]	= {	0.2, 		 0.2, 		 0.5};	// Femur
-	double tibia_pos[3]	= { 0.7, 		 0.2, 		 0.2};  // Tibia
+	double coxa_pos[3] 	= { 0.4, 		-0.4, 		-0.15};  // Coxa  	+ = to head	, - = to back
+	double femur_pos[3]	= {	0.2, 		-0.2, 		-0.3};	// Femur 	+ = down 	, - = up
+	double tibia_pos[3]	= { 0.7, 		 0.5, 		 0.2};  // Tibia	+ = up		, - = down
 
 	for( int i = 0; i < 6; i++ )
 	{
-		angleVector[i][0] = coxa_pos[i%3];
-		angleVector[i][1] = femur_pos[i%3];
-		angleVector[i][2] = -tibia_pos[i%3];
+		if( i!=0 && i!=3){
+			angleVector[i][0] = coxa_pos[i%3];
+			angleVector[i][1] = femur_pos[i%3];
+			angleVector[i][2] = -tibia_pos[i%3];
+		}
 	}
 }
 

@@ -80,7 +80,7 @@ namespace lpzrobots
 		// Instantiate robot
 		DungBotConf conf = DungBot::getDefaultConf();
 		robot = new DungBot( odeHandle, osgHandle, conf, "Dungbot_Robot" );
-		robot->place( Pos( 0.0, 0.0, 1 ) ); // If ball stand = 0.8 ~ If roll stand = 0.7 ~ standard = 1.0
+		robot->place( Pos( 0.0, 0.0, 0.5 ) ); // If ball stand = 0.8 ~ If roll stand = 0.7 ~ standard = 1.0
 
 		// Instantiate controller
 		controller = new DungBotEmptyController( "DungBotEmptyController" );
@@ -97,9 +97,9 @@ namespace lpzrobots
 		setSimulationDuration( simulation_time_seconds );
 
 
-		if(true){ // TODO IF TRUE, THEN A BALL SPAWNS
-		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.3, 10); // If ball stand = 0.42 ~ If roll stand = 0.3
-	    s1->setPosition(osg::Vec3(-1.8, 0.0, 0.04)); // If ball stand = 0.032 ~ If roll stand = 0.3
+		if(false){ // TODO IF TRUE, THEN A BALL SPAWNS
+		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.28, 10); // If ball stand = 0.42 ~ If roll stand = 0.3
+	    s1->setPosition(osg::Vec3(0.1, 0.0, 0.03)); // If ball stand = 0.032 ~ If roll stand = 0.3
 	    s1->setTexture("../../../../../pmanoonpong-lpzrobots-fork/ode_robots/osg/data/Images/ground_texture3.jpg");
 		Substance surface;
 		surface.toRubber( 50 );
@@ -166,14 +166,15 @@ namespace lpzrobots
 	void DungBotSimulation::addPlayground( const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
 	{
 		// implement playground here.
-	    lpzrobots::Playground* playground = new lpzrobots::Playground(odeHandle, osgHandle, osg::Vec3(10, 0.05, 0.4),0.3);
+	    lpzrobots::Playground* playground = new lpzrobots::Playground(odeHandle, osgHandle, osg::Vec3(12, 0.05, 0.7),0.047);
 	    Substance PGsubstance;
 	    PGsubstance.toRubber( 50 );
 	    playground->setGroundSubstance(PGsubstance);
-	    playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
+	    //playground->setTexture(0,0,lpzrobots::TextureDescr("/home/mat/dark-mosaic.png",-1.5,-3));
 	    playground->setGroundColor(Color(0.372, 0.737, 0.360));  //http://doc.instantreality.org/tools/color_calculator/
-	    playground->setColor(Color(0.737, 0.647, 0.360));
-	    playground->setPosition( osg::Vec3( -4, 0, .2 ) );
+	    //playground->setColor(Color(0.737, 0.647, 0.360));
+	    playground->setColor(Color(0.5,0.1,0.1,0.1)); // inner wall invisible
+	    playground->setPosition( osg::Vec3( 5, 0, -0.2 ) );
 	    global.obstacles.push_back( playground );
 	}
 
