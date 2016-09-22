@@ -7,8 +7,9 @@
 #
 #  This guide was tested Nov 11 2014
 #  Updated 2015-10-18 by Leon: Changed repositories
+#  Updated 2016-09-21 by Theis: Various additions
 #
-#  Assuming a clean install of Ubuntu 14.04
+#  Assuming a clean install of Ubuntu 14.04 or 16.04
 #
 #######################################################
 Short step-by-step guide for anyone having problems with
@@ -21,7 +22,7 @@ for AI3:
 2. Create a new directory under your home directory:
 	$ mkdir workspace
 
-3. Create a new directory under your home directory:
+3. Go into the new workspace folder:
 	$ cd workspace
 	
 4. Install git:
@@ -36,18 +37,20 @@ for AI3:
 
 7. Update path:
 	$ export PATH=/home/<user>/bin:$PATH
-	$ source ~/.bashrc)
+	$ source ~/.bashrc
 
 8. Build LPZ robots:
 	$ cd lpzrobots
-	$ make all
+	$ make all -j4
 
 9. When asked where to install it, say: 
 	/home/<user>
 
-
 10. When asked if you want developer mode (d), 
 	say 'd' and confirm with 'y'
+
+10a.You might be asked for your sudo password
+	during the compile time.
 
 11. Make symbolic link to the library
 	$ sudo ln -sf /home/<user>/workspace/lpzrobots/opende/ode/src/.libs/libode_dbl.so.1 /lib/libode_dbl.so.1
