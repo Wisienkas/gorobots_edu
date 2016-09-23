@@ -23,6 +23,8 @@
  *                                                                         *
  ***************************************************************************/
 
+// Ctrl H to reset the robot
+
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
 // include agent (class for holding a robot, a controller and a wiring)

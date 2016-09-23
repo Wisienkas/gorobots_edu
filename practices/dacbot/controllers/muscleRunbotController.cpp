@@ -162,7 +162,6 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
     }
 
 
-  //-----Student implement controller  ----------------------------//
 
   //----------- Available sensors for controller-------------------//
 
@@ -183,59 +182,70 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
 
 
 
+    //-----Student Modify the control parameters  Your task is here!!!----------------------------//
+    //Set either 1.0 or 0.0 below
+    // 0.0 = inactive
+    // 1.0 = active
+
     //Hip joint control/////////////////
     if (u_gr==1){
       state_u_hr_em = 0.0;
-      state_u_hr_fm = 1.0;
-
-      state_u_hl_em = 1.0;
-      state_u_hl_fm = 0.0;
-    }
-
-
-    if (u_gl==1){
-      state_u_hr_em = 1.0;
       state_u_hr_fm = 0.0;
 
       state_u_hl_em = 0.0;
-      state_u_hl_fm = 1.0;
+      state_u_hl_fm = 0.0;
+    }
+
+    if (u_gl==1){
+      state_u_hr_em = 0.0;
+      state_u_hr_fm = 0.0;
+
+      state_u_hl_em = 0.0;
+      state_u_hl_fm = 0.0;
     }
 
     //Knee joint control/////////////////
 
     // Hip Left move forward beyond the threshold then the knee left is extending
     if (angle_hl_low_pass>threshold_al){
-      state_u_kl_em = 1.0;
+      state_u_kl_em = 0.0;
       state_u_kl_fm = 0.0;
     }
 
     // Hip Left move backward and below the threshold then the knee left is hold
-    if (angle_hl_low_pass<angle_hl_low_pass_pre){
-      state_u_kl_em = 1.0; // holding power
+    if (angle_hl_low_pass<angle_hl_low_pass_pre){ // holding power
+      state_u_kl_em = 0.0;
       state_u_kl_fm = 0.0;
     }
 
     // Hip Left move forward and below the threshold then the knee left is flexing
     if (angle_hl_low_pass>angle_hl_low_pass_pre&&angle_hl_low_pass<threshold_al&&(u_gr==1)) {
       state_u_kl_em = 0.0;
-      state_u_kl_fm = 1.0;
+      state_u_kl_fm = 0.0;
     }
 
     // Hip Right move forward beyond the threshold then Extend the knee left
     if (angle_hr_low_pass>threshold_ar) {
-      state_u_kr_em = 1.0;
+      state_u_kr_em = 0.0;
       state_u_kr_fm = 0.0;
     }
     // Hip Right move backward and below the threshold then the knee left is off
-    if (angle_hr_low_pass<angle_hr_low_pass_pre){
-      state_u_kr_em = 1.0; // holding power
+    if (angle_hr_low_pass<angle_hr_low_pass_pre){ // holding power
+      state_u_kr_em = 0.0;
       state_u_kr_fm = 0.0;
     }
     // Hip Right move forward and below the threshold then the knee right is flexing
     if (angle_hr_low_pass>angle_hr_low_pass_pre&&angle_hr_low_pass<threshold_ar&&(u_gl==1)) {
       state_u_kr_em = 0.0;
-      state_u_kr_fm = 1.0;
+      state_u_kr_fm = 0.0;
     }
+
+    //-----Student Modify the control parameters  ----------------------------//
+
+
+
+
+
 
     //Hip left
     state_motorvolt_hl = 2.2*(state_u_hl_em-state_u_hl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
@@ -250,9 +260,6 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
     //Knee right
     state_motorvolt_kr = 1.8*(state_u_kr_em-state_u_kr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
-
-
-    //-----Student implement controller  ----------------------------//
 
 
   //write to file,
