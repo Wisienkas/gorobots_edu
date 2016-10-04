@@ -56,6 +56,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
 	 /*******************************************************************************
 	 *  MODULE 1 CPG
 	 *******************************************************************************/
+	//cpg_input = 0.03;
 
 	switch(cpg_option) {
     case 1: //Kohs CPG
@@ -64,7 +65,7 @@ ModularNeuralControl::ModularNeuralControl(int cpg_option){
       cpg_bias = 0.0;
       //From 0.02-1.5
       //Control_input = 0.02;// slow Wave
-      Control_input = 0.03;// slow Wave OK USED
+      Control_input = 0.04;// slow Wave OK USED
       //Control_input = 0.05;//slow stable Tetrapod OK USED
       //Control_input = 0.14; //terapod OK USED
       //Control_input = 0.18; //Tripod fast OK USED

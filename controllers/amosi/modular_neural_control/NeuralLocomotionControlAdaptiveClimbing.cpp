@@ -199,22 +199,22 @@ void NeuralLocomotionControlAdaptiveClimbing::init(int aamosVersion,bool mMCPGs,
 	 *  CONTROL OPTION!!!!
 	 *******************************************************************************/
 	//Switch on or off all reflexes
-	switchon_allreflexactions=true;
+	switchon_allreflexactions= false;//true;
 
 	//Switch on or off backbone joint control
-	switchon_backbonejoint = true;//true;
+	switchon_backbonejoint = false; //true;//true;
 
 	//Switch on or off reflexes
-	switchon_reflexes = true;//true;//true;//1;// true==on, false == off
+	switchon_reflexes = false;//true;//true;//true;//1;// true==on, false == off
 
 	//Switch on pure foot signal
-	switchon_purefootsignal = true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
+	switchon_purefootsignal = false;//true;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
 
 	//Switch on or off IR reflexes
-	switchon_irreflexes = true;//true;
+	switchon_irreflexes = false;//true;//true;
 
 	//Switch on foot inhibition
-	switchon_footinhibition = false; //true = hind foot inhibit front foot, false;
+	switchon_footinhibition = false;//false; //true = hind foot inhibit front foot, false;
 
 	//Switch on soft landing  = reset to normal walking as  soon as acc error = 0
 	softlanding = false;
@@ -277,8 +277,8 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 	if( switchon_obstacle){
 		//for obstacle avoidance
-		input.at(3) = in0[FL_us][1];
-		input.at(4) = in0[FR_us][1];
+		input.at(3) = -1;//in0[FL_us][1];
+		input.at(4) = -1;//in0[FR_us][1];
 		nlc->setInputNeuronInput(3,input.at(3));//in0[FL_us][1]);
 		nlc->setInputNeuronInput(4,input.at(4));// in0[FR_us][1]);
 

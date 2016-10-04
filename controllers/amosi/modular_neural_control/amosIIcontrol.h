@@ -135,6 +135,7 @@ class AmosIIControl : public AbstractController {
 
     /********Subhi***********/
     std::vector<NeuralLocomotionControlAdaptiveClimbing *> control_adaptiveclimbing;
+    std::vector<ModularNeuralControl *> control_cpg_input;
 
     /**********End ****************/
 

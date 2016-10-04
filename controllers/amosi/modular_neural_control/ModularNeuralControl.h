@@ -71,6 +71,8 @@ public:
     double ContactForceEffect1;
     double ContactForceEffect0;
 
+    double cpg_input;
+
 /*************************************/
 
 private:

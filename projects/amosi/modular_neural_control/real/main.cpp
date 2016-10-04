@@ -175,8 +175,9 @@ int main(int argc, char** argv) {
 			}
 		}
 
-
 		if (key==101){ //E
+
+			//((AmosIIControl*) controller)->control_cpg_input.at(0)->cpg_input = 0.15;
 			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions) {
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = false;
 				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
