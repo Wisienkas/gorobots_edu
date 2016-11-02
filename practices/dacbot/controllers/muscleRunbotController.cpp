@@ -248,17 +248,17 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
 
 
     //Hip left
-    state_motorvolt_hl = 2.2*(state_u_hl_em-state_u_hl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_hl = 0.25*(state_u_hl_em-state_u_hl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
     //Hip right
-    state_motorvolt_hr = 2.2*(state_u_hr_em-state_u_hr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_hr = 0.25*(state_u_hr_em-state_u_hr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
 
     //Knee left
-    state_motorvolt_kl = 1.8*(state_u_kl_em-state_u_kl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_kl = 0.25*(state_u_kl_em-state_u_kl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
     //Knee right
-    state_motorvolt_kr = 1.8*(state_u_kr_em-state_u_kr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_kr = 0.25*(state_u_kr_em-state_u_kr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
 
 
@@ -270,7 +270,7 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
   motors[1] = state_motorvolt_hr;//Right hip;
   motors[2] = state_motorvolt_kl;//Left knee;
   motors[3] = state_motorvolt_kr;//Right hip;
-  motors[4] = ubc;//Upper body = +1 (lean forward), -1 (lean backward)
+  motors[4] = 0.8;//ubc;//Upper body = +1 (lean forward), -1 (lean backward)
 
 
 }

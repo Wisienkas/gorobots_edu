@@ -162,7 +162,6 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
     }
 
 
-  //-----Student implement controller  ----------------------------//
 
   //----------- Available sensors for controller-------------------//
 
@@ -183,6 +182,11 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
 
 
 
+    //-----Student Modify the control parameters  Your task is here!!!----------------------------//
+    //Set either 1.0 or 0.0 below
+    // 0.0 = inactive
+    // 1.0 = active
+
     //Hip joint control/////////////////
     if (u_gr==1){
       state_u_hr_em = 0.0;
@@ -191,7 +195,6 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
       state_u_hl_em = 1.0;
       state_u_hl_fm = 0.0;
     }
-
 
     if (u_gl==1){
       state_u_hr_em = 1.0;
@@ -210,8 +213,8 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
     }
 
     // Hip Left move backward and below the threshold then the knee left is hold
-    if (angle_hl_low_pass<angle_hl_low_pass_pre){
-      state_u_kl_em = 1.0; // holding power
+    if (angle_hl_low_pass<angle_hl_low_pass_pre){ // holding power
+      state_u_kl_em = 1.0;
       state_u_kl_fm = 0.0;
     }
 
@@ -227,8 +230,8 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
       state_u_kr_fm = 0.0;
     }
     // Hip Right move backward and below the threshold then the knee left is off
-    if (angle_hr_low_pass<angle_hr_low_pass_pre){
-      state_u_kr_em = 1.0; // holding power
+    if (angle_hr_low_pass<angle_hr_low_pass_pre){ // holding power
+      state_u_kr_em = 1.0;
       state_u_kr_fm = 0.0;
     }
     // Hip Right move forward and below the threshold then the knee right is flexing
@@ -237,22 +240,26 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
       state_u_kr_fm = 1.0;
     }
 
+    //-----Student Modify the control parameters  ----------------------------//
+
+
+
+
+
+
     //Hip left
-    state_motorvolt_hl = 2.2*(state_u_hl_em-state_u_hl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_hl = 0.25*(state_u_hl_em-state_u_hl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
     //Hip right
-    state_motorvolt_hr = 2.2*(state_u_hr_em-state_u_hr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_hr = 0.25*(state_u_hr_em-state_u_hr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
 
     //Knee left
-    state_motorvolt_kl = 1.8*(state_u_kl_em-state_u_kl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_kl = 0.25*(state_u_kl_em-state_u_kl_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
     //Knee right
-    state_motorvolt_kr = 1.8*(state_u_kr_em-state_u_kr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
+    state_motorvolt_kr = 0.25*(state_u_kr_em-state_u_kr_fm); // positive value = move forward, negative = move backward, 0 = center (not moving)
 
-
-
-    //-----Student implement controller  ----------------------------//
 
 
   //write to file,
@@ -263,7 +270,7 @@ void MuscleRunbotController::step(const sensor* sensors, int sensornumber, motor
   motors[1] = state_motorvolt_hr;//Right hip;
   motors[2] = state_motorvolt_kl;//Left knee;
   motors[3] = state_motorvolt_kr;//Right hip;
-  motors[4] = ubc;//Upper body = +1 (lean forward), -1 (lean backward)
+  motors[4] = 0.8;//ubc;//Upper body = +1 (lean forward), -1 (lean backward)
 
 
 }
