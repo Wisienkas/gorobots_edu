@@ -67,13 +67,6 @@ class NeuralLocomotionControlAdaptiveClimbing{
     ofstream outFilegait;
     ofstream outFilegait2;
     ofstream outFilepower1;
-
-    ofstream outFileTC_joint_angle_sensors;
-    ofstream outFileCTR_joint_angle_sensors;
-    ofstream outFileFTI_joint_angle_sensors;
-    ofstream outFileFoot_sensors;
-    ofstream outFilepreproFoot_sensors;
-
     //---End Save files---//
 
 

@@ -56,7 +56,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   elevator_reflexes = false;
   switchoff_searching_reflexes = false;
 
-  switchon_less_reflexes = true;// = very high leg extension during searching reflex
+  switchon_less_reflexes = false;// = very high leg extension during searching reflex
 
   lift_body_up = false;// if set to true = lifting the bod up above ground, if set to false = not lefting
 
@@ -72,24 +72,15 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
   outFilenlc4.open("NeurallocomotionL0.dat");
   outFilenlc5.open("NeurallocomotionL1.dat");
   outFilenlc6.open("NeurallocomotionL2.dat");
-
-  outFilenlc_tc.open("Motor_outputs_TR2_TR2deg_TR1__TR1deg_TR0_TR0deg_TL2_TL2deg_TL1_TL1deg_TL0_TL0deg.dat");
-  outFilenlc_ctr.open("Motor_outputs_CR2_CR2deg_CR1__CR1deg_CR0_CR0deg_CL2_CL2deg_CL1_CL1deg_CL0_CL0deg.dat");
-  outFilenlF_fti.open("Motor_outputs_FR2_FR2deg_FR1__FR1deg_FR0_FR0deg_FL2_FL2deg_FL1_FL1deg_FL0_CL0deg.dat");
-
+  outFilenlc_tc.open("NeurallocomotionTC.dat");
+  outFilenlc_ctr.open("NeurallocomotionCTR.dat");
+  outFilenlF_fti.open("NeurallocomotionFTI.dat");
   outFilenlc_tc_pre.open("NeurallocomotionTC_pre.dat");
   outFilenlc_ctr_pre.open("NeurallocomotionCTR_pre.dat");
   outFilenlF_fti_pre.open("NeurallocomotionFTI_pre.dat");
   outFilegait.open("NeurallocomotionGait.dat");
   outFilegait2.open("NeurallocomotionGait2.dat");
   outFilepower1.open("NeurallocomotionPower.dat");
-
-  outFileTC_joint_angle_sensors.open("TCjoint_anglesTR2_TR1_TR0_TL2_TL1_TL0.dat");
-  outFileCTR_joint_angle_sensors.open("CTRjoint_anglesCTR2_CTR1_CTR0_CTL2_CTL1_CTL0.dat");
-  outFileFTI_joint_angle_sensors.open("FTIjoint_anglesFTR2_FTR1_FTR0_FTL2_FTL1_FTL0.dat");
-  outFileFoot_sensors.open("Foot_sensors_R2_R1_R0_L2_L1_L0.dat");
-  outFilepreproFoot_sensors.open("PreprocessedFoot_sensors_R2_R1_R0_L2_L1_L0.dat");
-
 
   /*******************************************************************************
    * Set vector size
@@ -636,7 +627,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
     //Lifting body up
     for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
     {
-      int lifting_value = 10;//5;//10; //20
+      int lifting_value = 5;//5;//10; //20
 
       //lifting_value = 10; small lifting body up
       //lifting_value = 20; small lifting body up
@@ -752,18 +743,9 @@ NeuralLocomotionControlAdaptiveClimbing::~NeuralLocomotionControlAdaptiveClimbin
   outFilegait2.close();
   outFilepower1.close();
 
-  outFileTC_joint_angle_sensors.close();
-  outFileCTR_joint_angle_sensors.close();
-  outFileFTI_joint_angle_sensors.close();
-  outFileFoot_sensors.close();
-  outFilepreproFoot_sensors.close();
-
-
-
 };
 
 std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std::vector<double> in0, const std::vector<double> in1){//, bool Footinhibition){
-
 
   // Define local parameters//
   //std::vector<double> m;
@@ -774,43 +756,43 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   int static iii=0;
   iii++;
 
-  //  std::cout<<"counter"<<" "<<iii<< "\n";
-  //  if(iii<400)
-  //  {
-  //  //Forward
-  //    input.at(0) = 1; //tc JOINT inhibition = 0
-  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-  //    input.at(2) = 1; //PSN control
-  //    input.at(3) = -1; //turn left = 1,
-  //    input.at(4) = -1; //turn right = 1,
-  //  }
-  //  else if(iii>400 && iii<600)
-  //  {
-  //    //Backward
-  //    input.at(0) = 1; //tc JOINT inhibition = 0
-  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-  //    input.at(2) = 1; //PSN control
-  //    input.at(3) = 1; //turn left = 1,
-  //    input.at(4) = 1; //turn right = 1,
-  //  }
-  //  else if(iii>600 && iii<800)
-  //  {
-  //    //Turn right
-  //    input.at(0) = 1; //tc JOINT inhibition = 0
-  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-  //    input.at(2) = 1; //PSN control
-  //    input.at(3) = -1; //turn left = 1,
-  //    input.at(4) = 1; //turn right = 1,
-  //  }
-  //  else if(iii>800)
-  //  {
-  //    //Turn left
-  //    input.at(0) = 1; //tc JOINT inhibition = 0
-  //    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
-  //    input.at(2) = 1; //PSN control
-  //    input.at(3) = 1; //turn left = 1,
-  //    input.at(4) = -1; //turn right = 1,
-  //  }
+//  std::cout<<"counter"<<" "<<iii<< "\n";
+//  if(iii<400)
+//  {
+//  //Forward
+//    input.at(0) = 1; //tc JOINT inhibition = 0
+//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+//    input.at(2) = 1; //PSN control
+//    input.at(3) = -1; //turn left = 1,
+//    input.at(4) = -1; //turn right = 1,
+//  }
+//  else if(iii>400 && iii<600)
+//  {
+//    //Backward
+//    input.at(0) = 1; //tc JOINT inhibition = 0
+//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+//    input.at(2) = 1; //PSN control
+//    input.at(3) = 1; //turn left = 1,
+//    input.at(4) = 1; //turn right = 1,
+//  }
+//  else if(iii>600 && iii<800)
+//  {
+//    //Turn right
+//    input.at(0) = 1; //tc JOINT inhibition = 0
+//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+//    input.at(2) = 1; //PSN control
+//    input.at(3) = -1; //turn left = 1,
+//    input.at(4) = 1; //turn right = 1,
+//  }
+//  else if(iii>800)
+//  {
+//    //Turn left
+//    input.at(0) = 1; //tc JOINT inhibition = 0
+//    input.at(1) = 1; //FL0, FR1, FR2 control NOT USED
+//    input.at(2) = 1; //PSN control
+//    input.at(3) = 1; //turn left = 1,
+//    input.at(4) = -1; //turn right = 1,
+//  }
 
   //Forward
   input.at(0) = 1; //All JOINTS inhibition = 0, 1 activate all joints = I1 in paper
@@ -819,21 +801,21 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   input.at(3) = -1; //turn left = 1,  = I3 in paper
   input.at(4) = -1; //turn right = 1,  = I4 in paper
 
-  //  if(iii<=1000)
-  //    {
-  //    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
-  //    }
-  //    else if(iii>1000 && iii<=1400)
-  //    {
-  //      Control_input = 0.06;// slow Wave St **************** Forward model // Stone
-  //
-  //    }
-  //
-  //    else if(iii>1400)
-  //    {
-  //      Control_input = 0.15;// slow Wave St **************** Forward model // Stone
-  //
-  //    }
+//  if(iii<=1000)
+//    {
+//    Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+//    }
+//    else if(iii>1000 && iii<=1400)
+//    {
+//      Control_input = 0.06;// slow Wave St **************** Forward model // Stone
+//
+//    }
+//
+//    else if(iii>1400)
+//    {
+//      Control_input = 0.15;// slow Wave St **************** Forward model // Stone
+//
+//    }
 
 
   //
@@ -853,15 +835,15 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   //From 0.02-1.5
   //Control_input = 0.0;// slow Wave St
   //Control_input = 0.01;// slow Wave St
-  Control_input = 0.02;// slow Wave St **************** Forward model // Stone
+  //Control_input = 0.02;// slow Wave St **************** Forward model // Stone
 
-  // Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
+ // Control_input = 0.03;// L0 and R2 pair slight left curve STEFFEN
 
 
   //Control_input = 0.04;// L0 and R2 pair slight left curve for small stone
 
   //Control_input = 0.05;// L0 and R2 pair slight left curve*************** Grass
-  //Control_input = 0.06;//slow stable Tetrapod OK USED
+  Control_input = 0.06;//slow stable Tetrapod OK USED
   //Control_input = 0.07;//slow stable Tetrapod OK USED
 
 
@@ -922,46 +904,46 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   }
 
 
-  //  //Lifting body function
-  //
-  //  if(lift_body_up==true)
-  //  {
-  //    //Lifting body up
-  //    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
-  //    {
-  //      int lifting_value = 10;//50;
-  //
-  //      if(Control_input<0.07)
-  //      {
-  //        lifting_value = 0;//50;//20;
-  //      }
-  //      else
-  //      {
-  //        lifting_value = 5;
-  //      }
-  //
-  //      //lifting_value = 10; small lifting body up
-  //      //lifting_value = 20; small lifting body up
-  //      //lifting_value = 50; high lifting body up
-  //
-  //      //These parameters need to be adjust the high values, the more lifting body!!!
-  //      offset_ftil_downward.at(i) = lifting_value; //KOH-->Eduard
-  //      offset_ftir_downward.at(i) = lifting_value; //KOH-->Eduard
-  //      offset_ctl_downward.at(i) = lifting_value; //KOH-->Eduard
-  //      offset_ctr_downward.at(i) = lifting_value; //KOH-->Eduard
-  //    }
-  //  }
-  //  else
-  //  {
-  //    //Lifting body up
-  //    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
-  //    {
-  //      offset_ftil_downward.at(i) = 0; //KOH-->Eduard
-  //      offset_ftir_downward.at(i) = 0; //KOH-->Eduard
-  //      offset_ctl_downward.at(i) = 0; //KOH-->Eduard
-  //      offset_ctr_downward.at(i) = 0; //KOH-->Eduard
-  //    }
-  //  }
+//  //Lifting body function
+//
+//  if(lift_body_up==true)
+//  {
+//    //Lifting body up
+//    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+//    {
+//      int lifting_value = 10;//50;
+//
+//      if(Control_input<0.07)
+//      {
+//        lifting_value = 0;//50;//20;
+//      }
+//      else
+//      {
+//        lifting_value = 5;
+//      }
+//
+//      //lifting_value = 10; small lifting body up
+//      //lifting_value = 20; small lifting body up
+//      //lifting_value = 50; high lifting body up
+//
+//      //These parameters need to be adjust the high values, the more lifting body!!!
+//      offset_ftil_downward.at(i) = lifting_value; //KOH-->Eduard
+//      offset_ftir_downward.at(i) = lifting_value; //KOH-->Eduard
+//      offset_ctl_downward.at(i) = lifting_value; //KOH-->Eduard
+//      offset_ctr_downward.at(i) = lifting_value; //KOH-->Eduard
+//    }
+//  }
+//  else
+//  {
+//    //Lifting body up
+//    for(unsigned int i=0; i< offset_ftil_downward.size(); i++)
+//    {
+//      offset_ftil_downward.at(i) = 0; //KOH-->Eduard
+//      offset_ftir_downward.at(i) = 0; //KOH-->Eduard
+//      offset_ctl_downward.at(i) = 0; //KOH-->Eduard
+//      offset_ctr_downward.at(i) = 0; //KOH-->Eduard
+//    }
+//  }
 
   //********CPG end************
 
@@ -1159,7 +1141,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(7) = vrn_w.at(7).at(0) * vrn_output.at(0) + vrn_w.at(7).at(1) * vrn_output.at(1) + vrn_bias;
 
   vrn_activity.at(12) = vrn_w.at(12).at(4) * vrn_output.at(4) + vrn_w.at(12).at(5) * vrn_output.at(5) + vrn_w.at(12).at(6) * vrn_output.at(6)
-				                        + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
+				                    + vrn_w.at(12).at(7) * vrn_output.at(7); //Output to TL1,2,3
 
   //VRN 2 (right)
   vrn_activity.at(2) = vrn_psn_w.at(2).at(11) * psn_output.at(11);
@@ -1171,7 +1153,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   vrn_activity.at(11) = vrn_w.at(11).at(2) * vrn_output.at(2) + vrn_w.at(11).at(3) * vrn_output.at(3) + vrn_bias;
 
   vrn_activity.at(13) = vrn_w.at(13).at(8) * vrn_output.at(8) + vrn_w.at(13).at(9) * vrn_output.at(9) + vrn_w.at(13).at(10) * vrn_output.at(10)
-				                        + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
+				                    + vrn_w.at(13).at(11) * vrn_output.at(11); //Output to TR1,2,3
 
 
   for(unsigned int i=0; i<vrn_output.size();i++)
@@ -1419,7 +1401,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
       if((buffer_tl.size()-tau_l)>0)
       {
-        m_pre.at(TL2_m) = buffer_tl[buffer_tl.size()-tau_l-1]*input.at(0);//-----------------------------EDurd-----------STOP TC-------------------------------------------Omin_KOH_24_6_2012
+       m_pre.at(TL2_m) = buffer_tl[buffer_tl.size()-tau_l-1]*input.at(0);//-----------------------------EDurd-----------STOP TC-------------------------------------------Omin_KOH_24_6_2012
       }
       else
       {
@@ -1826,12 +1808,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
 
 
     //      //Real
-    fmodel_fmodel_cmr_w.at(0)=1.29465; fmodel_cmr_bias.at(0)= 0.723935 ; fmodel_cmr_w.at(0)= 1.13595;//counter2348cin=0.02
-    fmodel_fmodel_cmr_w.at(1)=1.38465; fmodel_cmr_bias.at(1)= 0.870631 ; fmodel_cmr_w.at(1)= 1.14199;//counter2147cin=0.02
-    fmodel_fmodel_cmr_w.at(2)=1.49071; fmodel_cmr_bias.at(2)= 0.519824 ; fmodel_cmr_w.at(2)= 1.06734;//counter1220cin=0.02
-    fmodel_fmodel_cml_w.at(0)=1.26498;fmodel_cml_bias.at(0)= 0.712059 ;fmodel_cml_w.at(0)= 1.17424;//counter2300cin=0.02
-    fmodel_fmodel_cml_w.at(1)=1.34942;fmodel_cml_bias.at(1)= 0.784529 ;fmodel_cml_w.at(1)= 1.1596;//counter2205cin=0.02
-    fmodel_fmodel_cml_w.at(2)=1.58616;fmodel_cml_bias.at(2)= 0.463477 ;fmodel_cml_w.at(2)= 1.0325;//counter744cin=0.02
+       fmodel_fmodel_cmr_w.at(0)=1.29465; fmodel_cmr_bias.at(0)= 0.723935 ; fmodel_cmr_w.at(0)= 1.13595;//counter2348cin=0.02
+       fmodel_fmodel_cmr_w.at(1)=1.38465; fmodel_cmr_bias.at(1)= 0.870631 ; fmodel_cmr_w.at(1)= 1.14199;//counter2147cin=0.02
+       fmodel_fmodel_cmr_w.at(2)=1.49071; fmodel_cmr_bias.at(2)= 0.519824 ; fmodel_cmr_w.at(2)= 1.06734;//counter1220cin=0.02
+       fmodel_fmodel_cml_w.at(0)=1.26498;fmodel_cml_bias.at(0)= 0.712059 ;fmodel_cml_w.at(0)= 1.17424;//counter2300cin=0.02
+       fmodel_fmodel_cml_w.at(1)=1.34942;fmodel_cml_bias.at(1)= 0.784529 ;fmodel_cml_w.at(1)= 1.1596;//counter2205cin=0.02
+       fmodel_fmodel_cml_w.at(2)=1.58616;fmodel_cml_bias.at(2)= 0.463477 ;fmodel_cml_w.at(2)= 1.0325;//counter744cin=0.02
 
   }
   //-----------------------------AMOSiiV2_Config------------------------------------------//
@@ -2896,12 +2878,12 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TR0_m) = (((m_pre.at(TR0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
   m_reflex.at(TL0_m) = (((m_pre.at(TL0_m)-min_tc)/(max_tc-min_tc))*(max_tc_f_nwalking-min_tc_f_nwalking))+min_tc_f_nwalking;
 
-  //  //convert from activation to deg
-  //  m_deg.at(TR0_m) = 70*m_reflex.at(TR0_m);
-  //  m_deg.at(TL0_m) = 70*m_reflex.at(TL0_m);
-  //
-  //  std::cout<<"motor deg TR0"<<":"<<m_deg.at(TR0_m)<< "\n";
-  //  std::cout<<"motor deg TL0"<<":"<<m_deg.at(TL0_m)<< "\n";
+//  //convert from activation to deg
+//  m_deg.at(TR0_m) = 70*m_reflex.at(TR0_m);
+//  m_deg.at(TL0_m) = 70*m_reflex.at(TL0_m);
+//
+//  std::cout<<"motor deg TR0"<<":"<<m_deg.at(TR0_m)<< "\n";
+//  std::cout<<"motor deg TL0"<<":"<<m_deg.at(TL0_m)<< "\n";
 
   //TC_middle//->normal walking range: middle legs 30 deg Max = 0.501, -40 deg Min = -0.668
 
@@ -2912,11 +2894,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TL1_m) = (((m_pre.at(TL1_m)-min_tc)/(max_tc-min_tc))*(max_tc_m_nwalking-min_tc_m_nwalking))+min_tc_m_nwalking;
 
   //convert from activation to deg
-  //  m_deg.at(TR1_m) = 60*m_reflex.at(TR1_m);
-  //  m_deg.at(TL1_m) = 60*m_reflex.at(TL1_m);
-  //
-  //  std::cout<<"motor deg TR1"<<":"<<m_deg.at(TR1_m)<< "\n";
-  //  std::cout<<"motor deg TL1"<<":"<<m_deg.at(TL1_m)<< "\n";
+//  m_deg.at(TR1_m) = 60*m_reflex.at(TR1_m);
+//  m_deg.at(TL1_m) = 60*m_reflex.at(TL1_m);
+//
+//  std::cout<<"motor deg TR1"<<":"<<m_deg.at(TR1_m)<< "\n";
+//  std::cout<<"motor deg TL1"<<":"<<m_deg.at(TL1_m)<< "\n";
 
   //TC_rear//->normal walking range: hind legs 10 deg Max = 0.143, -60 deg Min = -0.858
 
@@ -2927,11 +2909,11 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   m_reflex.at(TL2_m) = (((m_pre.at(TL2_m)-min_tc)/(max_tc-min_tc))*(max_tc_r_nwalking-min_tc_r_nwalking))+min_tc_r_nwalking;
 
   //convert from activation to deg
-  //  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);
-  //  m_deg.at(TL2_m) = 70*m_reflex.at(TL2_m);
-  //
-  //  std::cout<<"motor deg TR2"<<":"<<m_deg.at(TR2_m)<< "\n";
-  //  std::cout<<"motor deg TL2"<<":"<<m_deg.at(TL2_m)<< "\n";
+//  m_deg.at(TR2_m) = 70*m_reflex.at(TR2_m);
+//  m_deg.at(TL2_m) = 70*m_reflex.at(TL2_m);
+//
+//  std::cout<<"motor deg TR2"<<":"<<m_deg.at(TR2_m)<< "\n";
+//  std::cout<<"motor deg TL2"<<":"<<m_deg.at(TL2_m)<< "\n";
 
 
   //*****Motor mapping & Searching reflexes
@@ -3225,7 +3207,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     //-----------Elevator reflexes END----------------------------------------//
 
     //convert from activation to deg
-    // m_deg.at(i+FL0_m) = 55*m_reflex.at(i+FL0_m)-75;
+   // m_deg.at(i+FL0_m) = 55*m_reflex.at(i+FL0_m)-75;
 
     //m_reflex.at(i+FR0_m/*12*/) = 1; //max = -20 deg
     //m_reflex.at(i+FL0_m/*15*/) = 1; //max = -20 deg
@@ -3461,7 +3443,7 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m.at(TL1_m) = m_reflex.at(TL1_m);
     m.at(TL2_m) = m_reflex.at(TL2_m);//-1.0
 
-    //   m.at(CL0_m) = 1;//m_reflex.at(CL0_m);
+ //   m.at(CL0_m) = 1;//m_reflex.at(CL0_m);
     m.at(CL0_m) = m_reflex.at(CL0_m);
     m.at(CL1_m) = m_reflex.at(CL1_m);
     m.at(CL1_m) = m_reflex.at(CL1_m);
@@ -3472,18 +3454,18 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
     m.at(CR1_m) = m_reflex.at(CR1_m);
     m.at(CR2_m) = m_reflex.at(CR2_m);
 
-    //    m.at(CR2_m) = 1;//m_reflex.at(CR2_m);
+//    m.at(CR2_m) = 1;//m_reflex.at(CR2_m);
 
 
-    m.at(FR0_m) = m_reflex.at(FR0_m);
-    m.at(FR1_m) = m_reflex.at(FR1_m);
-    m.at(FR2_m) = m_reflex.at(FR2_m);
+    m.at(FR0_m) = -1;//m_reflex.at(FR0_m);
+    m.at(FR1_m) = -1;//m_reflex.at(FR1_m);
+    m.at(FR2_m) = -1;//m_reflex.at(FR2_m);
 
     //m.at(FR2_m) = 1;//m_reflex.at(FR2_m);
 
-    m.at(FL0_m) = m_reflex.at(FL0_m);
-    m.at(FL1_m) = m_reflex.at(FL1_m);
-    m.at(FL2_m) = m_reflex.at(FL2_m);
+    m.at(FL0_m) = -1;//m_reflex.at(FL0_m);
+    m.at(FL1_m) = -1;//m_reflex.at(FL1_m);
+    m.at(FL2_m) = -1;//m_reflex.at(FL2_m);
 
     //m.at(FL2_m) =1;// m_reflex.at(FL2_m);
 
@@ -3570,60 +3552,41 @@ std::vector<double> NeuralLocomotionControlAdaptiveClimbing::step_nlc(const std:
   outFilenlc_ctr<<m.at(CR2_m)<<' '<<m_deg.at(CR2_m)<<' '<<m.at(CR1_m)<<' '<<m_deg.at(CR1_m)<<' '<<m.at(CR0_m)<<' '<<m_deg.at(CR0_m)<<' '<<m.at(CL2_m)<<' '<<m_deg.at(CL2_m)<<' '<<m.at(CL1_m)<<' '<<m_deg.at(CL1_m)<<' '<<m.at(CL0_m)<<' '<<m_deg.at(CL0_m)<<' '<<endl;
   outFilenlF_fti<<m.at(FR2_m)<<' '<<m_deg.at(FR2_m)<<' '<<m.at(FR1_m)<<' '<<m_deg.at(FR1_m)<<' '<<m.at(FR0_m)<<' '<<m_deg.at(FR0_m)<<' '<<m.at(FL2_m)<<' '<<m_deg.at(FL2_m)<<' '<<m.at(FL1_m)<<' '<<m_deg.at(FL1_m)<<' '<<m.at(FL0_m)<<' '<<m_deg.at(FL0_m)<<' '<<endl;
 
-  outFileTC_joint_angle_sensors<<in1.at(TR2_as)<<' '<<in1.at(TR1_as)<<' '<<in1.at(TR0_as)<<' '<<in1.at(TL2_as)<<' '<<in1.at(TL1_as)<<' '<<in1.at(TL0_as)<<' '<<endl;
-  outFileCTR_joint_angle_sensors<<in1.at(CR2_as)<<' '<<in1.at(CR1_as)<<' '<<in1.at(CR0_as)<<' '<<in1.at(CL2_as)<<' '<<in1.at(CL1_as)<<' '<<in1.at(CL0_as)<<' '<<endl;
-  outFileFTI_joint_angle_sensors<<in1.at(FR2_as)<<' '<<in1.at(FR1_as)<<' '<<in1.at(FR0_as)<<' '<<in1.at(FL2_as)<<' '<<in1.at(FL1_as)<<' '<<in1.at(FL0_as)<<' '<<endl;
-  outFileFoot_sensors<<in1.at(R2_fs)<<' '<<in1.at(R1_fs)<<' '<<in1.at(R0_fs)<<' '<<in1.at(L2_fs)<<' '<<in1.at(L1_fs)<<' '<<in1.at(L0_fs)<<' '<<endl;
-  outFilepreproFoot_sensors<<in0.at(R2_fs)<<' '<<in0.at(R1_fs)<<' '<<in0.at(R0_fs)<<' '<<in0.at(L2_fs)<<' '<<in0.at(L1_fs)<<' '<<in0.at(L0_fs)<<' '<<endl;
-
-
-
   outFilenlc_tc_pre <<m_pre.at(TR2_m)<<' '<<m_pre.at(TR1_m)<<' '<<m_pre.at(TR0_m)<<' '<<m_pre.at(TL2_m)<<' '<<m_pre.at(TL1_m)<<' '<<m_pre.at(TL0_m)<<' '<<endl;
   outFilenlc_ctr_pre <<m_pre.at(CR2_m)<<' '<<m_pre.at(CR1_m)<<' '<<m_pre.at(CR0_m)<<' '<<m_pre.at(CL2_m)<<' '<<m_pre.at(CL1_m)<<' '<<m_pre.at(CL0_m)<<' '<<endl;
   outFilenlF_fti_pre <<m_pre.at(FR2_m)<<' '<<m_pre.at(FR1_m)<<' '<<m_pre.at(FR0_m)<<' '<<m_pre.at(FL2_m)<<' '<<m_pre.at(FL1_m)<<' '<<m_pre.at(FL0_m)<<' '<<endl;
 
 
-
-                  /*  R0_fs= 19, //Right front foot
-                  R1_fs= 20, //Right middle foot
-                  R2_fs= 21, //Right hind foot
-                  L0_fs= 22, //Left front foot
-                  L1_fs= 23, //Left middle foot
-                  L2_fs= 24, //Left hind foot
-                   */
-
-
-
-                  std::cout<<"i_motor: "<<i_motor<<"ac_motor : "<<ac_motor<<endl;
+  std::cout<<"i_motor: "<<i_motor<<"ac_motor : "<<ac_motor<<endl;
 
   int data = -1;
 
-  //		m.at(TR0_m) = 0.44;//data;//m_reflex.at(TR0_m);
-  //		m.at(TR1_m) = 0.0;//data;//m_reflex.at(TR1_m);
-  //		m.at(TR2_m) = -0.44;//data//m_reflex.at(TR2_m);
-  //
-  //		m.at(TL0_m) = 0.44;//data;//m_reflex.at(TL0_m);
-  //		m.at(TL1_m) = 0.0;//data;//m_reflex.at(TL1_m);
-  //		m.at(TL2_m) = -0.44;//data;//m_reflex.at(TL2_m);
-  //
-  //		m.at(CL0_m) = 0.45;//data;//m_reflex.at(CL0_m);
-  //		m.at(CL1_m) = 0.45;//data;//m_reflex.at(CL1_m);
-  //		m.at(CL2_m) = 0.45;//data;//m_reflex.at(CL2_m);
-  //
-  //		m.at(CR0_m) = 0.45;//data;//m_reflex.at(CR0_m);
-  //		m.at(CR1_m) = 0.45;//data;//m_reflex.at(CR1_m);
-  //		m.at(CR2_m) = 0.45;//data;//m_reflex.at(CR2_m);
-  //
-  //
-  //		m.at(FR0_m) = -0.65;//data;//m_reflex.at(FR0_m);
-  //    m.at(FR1_m) = -0.65;//data;//m_reflex.at(FR1_m);
-  //	  m.at(FR2_m) = -0.65;//data;//m_reflex.at(FR2_m);
-  //
-  //		m.at(FL0_m) = -0.65;//data;//m_reflex.at(FL0_m);
-  //		m.at(FL1_m) = -0.65;//data;//m_reflex.at(FL1_m);
-  //		m.at(FL2_m) = -0.65;//data;//m_reflex.at(FL2_m);
+//		m.at(TR0_m) = 0.44;//data;//m_reflex.at(TR0_m);
+//		m.at(TR1_m) = 0.0;//data;//m_reflex.at(TR1_m);
+//		m.at(TR2_m) = -0.44;//data//m_reflex.at(TR2_m);
+//
+//		m.at(TL0_m) = 0.44;//data;//m_reflex.at(TL0_m);
+//		m.at(TL1_m) = 0.0;//data;//m_reflex.at(TL1_m);
+//		m.at(TL2_m) = -0.44;//data;//m_reflex.at(TL2_m);
+//
+//		m.at(CL0_m) = 0.45;//data;//m_reflex.at(CL0_m);
+//		m.at(CL1_m) = 0.45;//data;//m_reflex.at(CL1_m);
+//		m.at(CL2_m) = 0.45;//data;//m_reflex.at(CL2_m);
+//
+//		m.at(CR0_m) = 0.45;//data;//m_reflex.at(CR0_m);
+//		m.at(CR1_m) = 0.45;//data;//m_reflex.at(CR1_m);
+//		m.at(CR2_m) = 0.45;//data;//m_reflex.at(CR2_m);
+//
+//
+//		m.at(FR0_m) = -0.65;//data;//m_reflex.at(FR0_m);
+//    m.at(FR1_m) = -0.65;//data;//m_reflex.at(FR1_m);
+//	  m.at(FR2_m) = -0.65;//data;//m_reflex.at(FR2_m);
+//
+//		m.at(FL0_m) = -0.65;//data;//m_reflex.at(FL0_m);
+//		m.at(FL1_m) = -0.65;//data;//m_reflex.at(FL1_m);
+//		m.at(FL2_m) = -0.65;//data;//m_reflex.at(FL2_m);
 
-  //m.at(BJ_m) =  m_reflex.at(BJ_m);//(m_reflex.at(TR0_m)-0.35)*5;//
+		//m.at(BJ_m) =  m_reflex.at(BJ_m);//(m_reflex.at(TR0_m)-0.35)*5;//
 
 
   global_count++;
