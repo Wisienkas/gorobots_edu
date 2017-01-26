@@ -42,7 +42,7 @@ export PATH = /home/poma/bin:$PATH
 \subsubsection{Fail to run setUpGoRotobots.sh}
 \begin{lstlisting}
 
-You might have to change permission ``chmod u+x setUpGoRobots.sh'' 
+You might have to change permission ``chmod u+x setUpGoRobots.sh''
 if you cannot execute.
 
 You should also try to update your system.
@@ -241,7 +241,40 @@ https://www.assembla.com/user/edit/edit_git_settings
 Please also check instructions on assembla:
 
 https://www.assembla.com/spaces/dshaikh-gorobots-fork/git/instructions
-
 \end{lstlisting}
 
 
+
+\subsection{Setting up LPZ robots and gorobots of Mac (OSX)}
+
+\begin{lstlisting}
+
+1) Download Ubuntu on you Mac (https://www.ubuntu.com/download/desktop)
+,e.g., Ubuntu 16.04.1 LTS
+
+2) Install VirtualBox on you Mac (https://www.virtualbox.org/wiki/Downloads)
+
+3) Install Ubuntu on VirtualBox 
+(http://www.simplehelp.net/2015/06/09/how-to-install-ubuntu-onyour-mac/)
+
+4) Setting up LPZ robots and gorobots on Ubuntu
+(http://manoonpong.com/MOROCO/lpz_guide.txt)
+
+(On Ubuntu)
+
+5) Go to USB settings > Ports > USB > Adds new USB filter > Select your USB port > Ok
+
+6) Run the program
+
+To control a robot via serial interface, if you cannot run the program
+because of serial port terminal problems(cannot open /dev/ttyUSB0), please try this:
+
+1) Adding yourself to the dialout group, run the command below.
+$ sudo adducer <your user> dialout
+$ sudo reboot
+
+2) Open the terminal and run the program again.
+
+You should now have a window with the hexapod simulation running.
+
+\end{lstlisting}
