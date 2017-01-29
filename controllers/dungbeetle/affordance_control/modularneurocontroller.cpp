@@ -362,7 +362,7 @@ void modularNeuroController::lineSegmentation(){
 		rightmost = 122+int(mmxr.first->y);
 		vector<double> points_shape;
 		
-		for(int i= (F_lid_89-pointapprox/2);i<(F_lid_89+pointapprox/2);i++){
+		for(int i= (211-pointapprox/2);i<(211+pointapprox/2);i++){
 			
 			points_shape.push_back(x[i]);
 
@@ -371,10 +371,10 @@ void modularNeuroController::lineSegmentation(){
 		vector<double> test_in;
 		counter = 0;
 		 	for(int j = 0 ; j < points_shape.size() ; j++){
-		 //cout <<" i: "<<j<<" dist: "<<round(abs(points_shape[j]-x[F_lid_89])*1000)/1000<<endl; 
+		 //cout <<" i: "<<j<<" dist: "<<round(abs(points_shape[j]-x[211])*1000)/1000<<endl;
 	 	//cout <<" i: "<<j<< "norm :" << round((points_shape[j]/norm(points_shape))*1000)/1000<<endl;}
 		//  	//cout <<" i: "<<j<< "norm :" << points_shape[j]<<endl;}
-		 	test_in.push_back(round(abs(points_shape[j]-x[F_lid_89])*1000)/1000);
+		 	test_in.push_back(round(abs(points_shape[j]-x[211])*1000)/1000);
 	
 
 		   }
@@ -551,8 +551,8 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  		switch(current){
 	  			case stop:
 	  			if(!pushed){
-	  				if(floor(x_[F_lid_89]*100)/100 <= 0.15){
-	  					cout << floor(x_[F_lid_89]*100)/100 <<endl;
+	  				if(floor(x_[211]*100)/100 <= 0.15){
+	  					cout << floor(x_[211]*100)/100 <<endl;
 	  					cout << "PUSH!" << endl;
 	  					ds=0;
 	  					current=zero;
@@ -603,7 +603,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  				current=four;
 	  			break;
 	  			case four:
-	  				d0=floor(x_[F_lid_89]*100)/100 ;
+	  				d0=floor(x_[211]*100)/100 ;
 	  				cout << "4" << endl;
 	  				//top left
 	  				y_[3]=0.8;
@@ -614,8 +614,8 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  				current=five;
 				break;
 					case five:
-						//cout << " d0-d1 "<< abs(floor(x_[F_lid_89]*100)/100-d0) <<endl;
-						if(abs(floor(x_[F_lid_89]*100)/100-d0) <= 0.01) {
+						//cout << " d0-d1 "<< abs(floor(x_[211]*100)/100-d0) <<endl;
+						if(abs(floor(x_[211]*100)/100-d0) <= 0.01) {
 							//cout << "5" << endl;
 	  						
 	  						//cout << " size: " << size << endl;
@@ -623,8 +623,8 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  						
 	  						}else{
 	  							
-	  							d1 = floor(x_[F_lid_89]*100)/100;
-	  							//cout << " d1 " << floor(x_[F_lid_89]*100)/100 << endmesl;
+	  							d1 = floor(x_[211]*100)/100;
+	  							//cout << " d1 " << floor(x_[211]*100)/100 << endmesl;
 	  							save = true;
 	  							
 	  							//top left
