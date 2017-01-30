@@ -1,0 +1,24 @@
+Installing opencv
+
+http://docs.opencv.org/3.1.0/d7/d9f/tutorial_linux_install.html 
+
+
+1) 
+cd ~/<my_working_directory>
+git clone https://github.com/Itseez/opencv.git
+git clone https://github.com/Itseez/opencv_contrib.git
+    
+2)
+cd ~/opencv
+mkdir build
+cd build   
+
+
+3)
+cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
+
+4)
+make -j7 
+
+5)
+sudo make install
