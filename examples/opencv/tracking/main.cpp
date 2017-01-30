@@ -6,6 +6,11 @@
  */
 #include "getColorTrajectory.h"
 #include<sstream>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/core/core.hpp>
+//#include <opencv2/highgui/highgui.hpp>
+//#include <opencv2/highgui/imgproc.hpp>
+//#include <opencv2/imgcodecs.hpp>
 
 int main(int argc, char* argv[])
 {
