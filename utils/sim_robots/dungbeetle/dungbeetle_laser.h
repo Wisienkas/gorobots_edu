@@ -30,7 +30,8 @@
 #include <ode_robots/contactsensor.h>
 //-------------Add by Ren relativepositionsensor.h-------
 #include <ode_robots/relativepositionsensor.h>
-#include <ode_robots/amosiisensormotordefinition.h>
+//#include <ode_robots/amosiisensormotordefinition_laser.h>
+#include "amosiisensormotordefinition_laser.h"
 #include <ode_robots/axisorientationsensor.h>
 #include <ode_robots/rangeFinder.h>
 
