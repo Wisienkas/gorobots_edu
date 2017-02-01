@@ -3,6 +3,12 @@ Installing opencv
 http://docs.opencv.org/3.1.0/d7/d9f/tutorial_linux_install.html 
 
 
+Before compiling:
+1) in the folder opencv/opencv/modules/core/include/opencv2/core (the uncompiled source code you downloaded) , 
+replace the original base.hpp with the one in this folder!!!!
+2)
+Then Follow the setps below:
+
 1) 
 cd ~/<my_working_directory>
 git clone https://github.com/Itseez/opencv.git
