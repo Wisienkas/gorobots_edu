@@ -13,7 +13,6 @@
 
 #include "utils/sim_robots/dungbeetle/dungbeetle_laser.h"
 
-
 // the controller
 //#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
 #include "controllers/dungbeetle/manipulation_control/modular_neural_control_sphere.cpp"
