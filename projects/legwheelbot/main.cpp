@@ -23,7 +23,6 @@
 // The robot
 #include "legWheelBot.h"
 
-//#include "utils/sim_robots/legwheelbot/legWheelBot.h"
 #include "legWheelBotDifferentialDriveController.h"
 
 #include "legWheelSim.h"

@@ -144,7 +144,7 @@ float LegWheelBotPopulationEvaluator::objective ( GAGenome& c )
 void runEvaluation (int idx, TerrainType t, std::string filename, float lsl, int lns, float rsl, int rns, std::vector<int> &exitcodes)
 {
       std::stringstream stream;
-    stream << "/home/almeh/workspace/pmanoonpong-gorobots-fork/projects/legwheelbot/sim -onlyeval -simtime 1 -nographics "
+    stream << "./sim -onlyeval -simtime 1 -nographics "
            << "-terrains " << AllTerrainTypeNames[t] << " "
            << "-lsl " << lsl << " "
            << "-lns " << lns << " "

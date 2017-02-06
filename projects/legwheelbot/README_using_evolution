@@ -1,0 +1,31 @@
+
+Make sure that you install ga lib>
+
+Installation and usage
+----------------------
+In utils/ga-mpi/
+* Compile with `make` (requires mpic++)
+
+
+
+1) Run make 
+2) Run  mpirun -np 2 sim -simtime 1 -popsize 10 -ngen 20 -terrains rock-grass-ice  
+
+
+Example>
+
+poma@poma-X9SRA-X9SRA-3:~/workspace/pmanoonpong-gorobots-fork/projects/legwheelbot$ make
+poma@poma-X9SRA-X9SRA-3:~/workspace/pmanoonpong-gorobots-fork/projects/legwheelbot$ mpirun -np 2 sim -simtime 1 -popsize 10 -ngen 20 -terrains rock-grass-ice  
+
+
+To display robot during evolving:
+
+In legWheelBotPopulationEvaluator.cpp
+
+void runEvaluation (int idx, TerrainType t, std::string filename, float lsl, int lns, float rsl, int rns, std::vector<int> &exitcodes)
+{
+      std::stringstream stream;
+    stream << "./sim -onlyeval -simtime 1 -nographics "
+    
+    
+    If you write--> stream << "./sim -onlyeval -simtime 1 " , you will see many robot simulations
