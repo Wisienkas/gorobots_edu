@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <ctime>
 
 // ode_robots
 #include <ode_robots/base.h>
@@ -23,15 +24,11 @@
 // The robot
 #include "legWheelBot.h"
 
+// The controller
 #include "legWheelBotDifferentialDriveController.h"
 
+// The simmulation
 #include "legWheelSim.h"
-
-
-/// testing STUF
-#include <signal.h>
-#include <stdio.h>
-#include <unistd.h>
 
 using namespace lpzrobots;
 using namespace std;
@@ -50,23 +47,51 @@ int simTimeMinutes = 1;
 //indicating whether we should execute a testrun or real runEvolution
 int testnumber = 0;
 
-// Used if program is launched for evaluation of a genome only
+// Used if program is launched for a single genome evaluation
 bool onlyeval;
+TerrainType evalterrain;
 float rsl, lsl;
 int rns, lns;
 std::string resultsFileName;
 
 // Method declarations
 bool parseArguments ( int argc, char **argv );
-
 const vector<string> explode ( const string& s, const char& c );
 const int findIdx ( vector<string> vector, string& element );
 int testRun1 ( int argc, char **argv );
 int testRun2 ( int argc, char **argv );
-int doEvaluation ( int argc, char **argv );
+int doSingleGenomeEvaluation ( int argc, char **argv );
 int runEvolution ( int argc, char **argv );
 
-int doEvaluation ( int argc, char **argv )
+int main ( int argc, char **argv )
+{
+    if ( !parseArguments ( argc, argv ) ) { // Means arguments for the program were wrong
+        std::cerr << "Error parsing arguments\n";
+        return 1;
+    }
+    
+    if(onlyeval) { // Means this program is spawned to perform a single genome evaluation
+      return doSingleGenomeEvaluation(argc, argv);
+    }
+    
+    else if ( testnumber == 0 ) { // Means the -testrun argument was not provided and we should run an evolution
+        return runEvolution ( argc, argv );
+	
+    } else { // The testrun argument was specified so we execute a testrun method // Just used for debugging during development
+        switch ( testnumber ) {
+        case 1:
+            return testRun1 ( argc,argv );
+        case 2:
+            return testRun2 ( argc,argv );
+        }
+    }
+
+    return 0;
+}
+
+// This method is used to evaluate a single genome in a single terrains
+// It's called from behind the scenes and should usually not be used directley
+int doSingleGenomeEvaluation ( int argc, char **argv )
 {
     std::ofstream resultsFile;
     resultsFile.open (resultsFileName, std::ios::out);
@@ -79,8 +104,8 @@ int doEvaluation ( int argc, char **argv )
     conf.rightWheel.noOfSpokes = rns;
     
     // New simulation
-    LegWheelSim* sim = new LegWheelSim ( Evaluator_TerrainsToEvaluate[0] , conf );
-    sim->setTitle ( "Legwheelbot sim " + AllTerrainTypeNames[Evaluator_TerrainsToEvaluate[0]] );
+    LegWheelSim* sim = new LegWheelSim ( evalterrain, conf );
+    sim->setTitle ( "Legwheelbot sim " + AllTerrainTypeNames[evalterrain] );
 
     //Run simulation
     bool simSucess = sim->run ( Evaluator_argc, Evaluator_argv );
@@ -96,29 +121,7 @@ int doEvaluation ( int argc, char **argv )
     return simSucess ? 10 : 0;
 }
 
-int main ( int argc, char **argv )
-{
-    if ( !parseArguments ( argc, argv ) ) {
-        std::cerr << "Error parsing arguments\n";
-        return 1;
-    }
-    if(onlyeval) {
-      return doEvaluation(argc, argv);
-    } 
-    else if ( testnumber == 0 ) {
-        return runEvolution ( argc, argv );
-    } else {
-        switch ( testnumber ) {
-        case 1:
-            return testRun1 ( argc,argv );
-        case 2:
-            return testRun2 ( argc,argv );
-        }
-    }
-
-    return 0;
-}
-
+// Returns true if arguments were sucessfully parsed and false otherwise
 bool parseArguments ( int argc, char **argv )
 {
     if(argc == 1) { // No arguments were passed to the program
@@ -138,6 +141,7 @@ bool parseArguments ( int argc, char **argv )
     int terrainsToEvalIdx = Base::contains ( argv, argc, "-terrains" );
     int simtimeIdx = Base::contains ( argv, argc, "-simtime" );
     onlyeval = Base::contains ( argv, argc, "-onlyeval" ) != 0;
+    int onlyEvalTerrainIdx = Base::contains( argv, argc, "-evalterrain" );
     int lslIdx = Base::contains ( argv, argc, "-lsl" );
     int lnsIdx = Base::contains ( argv, argc, "-lns" );
     int rslIdx = Base::contains ( argv, argc, "-rsl" );
@@ -182,6 +186,8 @@ bool parseArguments ( int argc, char **argv )
     }
     
     if(onlyeval != 0) {
+      string terrain = argv[onlyEvalTerrainIdx];
+      evalterrain = AllTerrains[findIdx ( AllTerrainTypeNames, terrain )];
       lsl = atof ( argv[lslIdx] );
       lns = atoi ( argv[lnsIdx] );
       rsl = atof ( argv[rslIdx] );
@@ -193,14 +199,18 @@ bool parseArguments ( int argc, char **argv )
     Evaluator_argc = argc;
     Evaluator_argv = argv;
 
-    return true;
+    return true;  
 }
 
 //Run a simple visual test simulation
 int testRun1 ( int argc, char **argv )
 {
-    std::cout << "Testrun 1...";
-
+    std::cout << "Testrun 1...\n";
+    for(int i = 0; i < argc; i++) {
+       std::cout << argv[i] << " ";
+    }
+    std::cout << "\n";
+    
     LegWheelBotConf conf = LegWheelBot::getDefaultConf();
     conf.leftWheel.spokeLength=1.45968;
     conf.leftWheel.noOfSpokes=29;
@@ -214,18 +224,14 @@ int testRun1 ( int argc, char **argv )
     sim->setTitle ( "Test simulation 2" );
 
     // Simulation begins
-    //    argc = 1;
-    //    char* argv2[] = {"sim"};
-
     int exitcode = sim->run ( argc, argv ) ? 0 : 1;
 
-    cout << "Exitcode was " << exitcode;
+    cout << "Exitcode was from the simmulation was " << exitcode;
 
     return 0;
-    //sim->run ( argc, argv ) ? 0 : 1;
 }
 
-//Tests all terraintypes visually
+// Tests all terraintypes visually
 int testRun2 ( int argc, char **argv )
 {
     for ( TerrainType t : AllTerrains ) {
@@ -239,10 +245,9 @@ int testRun2 ( int argc, char **argv )
     return 0;
 }
 
+// Run a batch of evolution in parralell using MPI
 int runEvolution ( int argc, char **argv )
 {
-    std::cout << "runEvolution...";
-
     // MPI init
     MPI_Init ( &argc, &argv );
     MPI_Comm_size ( MPI_COMM_WORLD, &mpi_tasks );
@@ -254,13 +259,13 @@ int runEvolution ( int argc, char **argv )
     std::cout << "mpiranks: " + std::to_string ( mpi_rank );
 
     // popsize / mpi_tasks must be an integer
-    popsize = mpi_tasks * int ( ( double ) popsize/ ( double ) mpi_tasks+0.999 );
+    popsize = mpi_tasks * int ( ( double ) popsize/ ( double ) mpi_tasks + 0.999 );
 
     std::cout << "popsize after: " + std::to_string ( popsize );
 
     // Create the phenotype for four variables.  The number of bits you can use to
     // represent any number is limited by the type of computer you are using.
-    // For this case we use 10 bits for each var,
+    // For this case we use 5 or 10 bits for each variable in the genome
     GABin2DecPhenotype map;
 
     LegWheelBotConf defaultConf = LegWheelBot::getDefaultConf();
@@ -272,7 +277,6 @@ int runEvolution ( int argc, char **argv )
     map.add ( /*nbits->*/ 10, /*minvalue->*/minSpokeLength, /*maxvalue->*/maxSpokeLength );
     //Left wheel number of spokes
     map.add ( 5, 1, maxNoOfSpokes );
-
     //Right wheel spokeLength
     map.add ( 10, minSpokeLength, maxSpokeLength );
     //Right wheel number of spokes
@@ -281,8 +285,7 @@ int runEvolution ( int argc, char **argv )
     // Create the template genome using the phenotype map we just made.
     GABin2DecGenome genome ( map, LegWheelBotPopulationEvaluator::objective );
 
-    // Now create the GA using the genome and run it. We'll use sigma truncation
-    // scaling so that we can handle negative objective scores.
+    // Now create the GA using the genome and run it.
     GAPopulation pop ( genome, popsize );
     pop.evaluator ( LegWheelBotPopulationEvaluator::evaluate );
 
@@ -294,8 +297,10 @@ int runEvolution ( int argc, char **argv )
     ga.elitist ( _GABoolean::gaTrue );
     ga.scaling ( scaling );
 
+    // Make sure we have a folder for holding temporary data during evolution and a folder where results are put to
     if ( mpi_rank == 0 ) {
-        ga.scoreFilename ( "evolution.txt" );
+	system("mkdir -p results_legwheelbot");
+	system("mkdir -p tmp_data_legwheelbot");
     } else {
         ga.scoreFilename ( "/dev/null" );
     }
@@ -304,6 +309,7 @@ int runEvolution ( int argc, char **argv )
     ga.scoreFrequency ( 1 );
     ga.flushFrequency ( 1 );
     ga.selectScores ( GAStatistics::AllScores );
+    
     // Pass MPI data to the GA class
     ga.mpi_rank ( mpi_rank );
     ga.mpi_tasks ( mpi_tasks );
@@ -320,18 +326,15 @@ int runEvolution ( int argc, char **argv )
             printf ( "lsl = %f, lns = %f, rsl = %f, rns = %f\n",
                      genome.phenotype ( 0 ), genome.phenotype ( 1 ), genome.phenotype ( 2 ), genome.phenotype ( 3 ) );
 
-            // New simulation
-            //LegWheelSim sim ;
-            // set Title of simulation
-            //sim.setTitle("Best individual");
-            //sim.x = genome.phenotype(0);
-            //sim.y = genome.phenotype(1);
+            // ### Use below code if you are running in an environment which support graphics to view the final best legwhellbot ###
+	    //LegWheelSim sim ;
+            // sim.setTitle("Best individual");
+            // sim.x = genome.phenotype(0);
+            // sim.y = genome.phenotype(1);
 
-            // Simulation begins
-// 		int argc = 1;
-// 		char* argv[] = {"sim"};
-
-// 		int simExitStatus = sim.run(argc, argv) ? 0 : 1;
+	    // int argc = 1;
+	    // char* argv[] = {"sim"};
+	    // sim.run(argc, argv) ? 0 : 1;
         }
     }
 
@@ -340,6 +343,7 @@ int runEvolution ( int argc, char **argv )
     return 0;
 }
 
+// Utility method to split a string on a certain char and return a vector of the split string
 const vector<string> explode ( const string& s, const char& c )
 {
     string buff {""};
@@ -360,6 +364,8 @@ const vector<string> explode ( const string& s, const char& c )
     return v;
 }
 
+// Utility method to find and return the index of a given element in a vector
+// Returns -1 if not found
 const int findIdx ( vector<string> vector, string& element )
 {
     auto it = std::find ( vector.begin(), vector.end(), element );

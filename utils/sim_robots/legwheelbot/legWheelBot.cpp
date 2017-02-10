@@ -1,7 +1,8 @@
 #include "legWheelBot.h"
+
 //ODE Relative position sensor
 #include <ode_robots/relativepositionsensor.h>
-
+//ODE Relative rotationsensor sensor
 #include <ode_robots/rotationsensor.h>
 
 // Using namespaces
@@ -19,8 +20,6 @@ namespace lpzrobots {
   }
 
   void LegWheelBot::placeIntern(const Matrix& pose){
-    // Configuration check: wheels have to be bigger than the body
-    //assert(2*(conf.spokeLength + conf.wheelRadius) > conf.bodyHeight);
     
     Matrix initialPose;
     

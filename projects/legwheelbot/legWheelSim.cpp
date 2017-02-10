@@ -15,32 +15,31 @@
 
 #include <legWheelBotPopulationEvaluator.h>
 
-// The robot
+// From legwheelbot project
 #include <legWheelBot.h>
-
-//#include "utils/sim_robots/legwheelbot/legWheelBot.h"
 #include "legWheelBotDifferentialDriveController.h"
-
 #include "legWheelSim.h"
 #include "terrainGenerator.h"
+
+using namespace lpzrobots;
+using namespace std;
 
 LegWheelSim::LegWheelSim(TerrainType terrainType, LegWheelBotConf conf) { 
   LegWheelSim::terrainType = terrainType;
   LegWheelSim::conf = conf;
 }
-LegWheelSim::~LegWheelSim() { }
 
-using namespace lpzrobots;
-using namespace std;
+LegWheelSim::~LegWheelSim() { }
 
 void LegWheelSim::start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) {
   
-  // Initial position and orientation of the camera (use 'p' in graphical window to find out)
+      // Initial position and orientation of the camera (use 'p' in graphical window to find out)
       setCameraHomePos(Pos(-14,14, 10),  Pos(-135, -24, 0));
       // Some simulation parameters can be set here
       global.odeConfig.setParam("controlinterval", 1);
       global.odeConfig.setParam("gravity", -9.8); 
-	
+      
+      // The TerrainGenerator setsup the terrain ground and returns the height of the terrain such that robot can be placed according to terrainheight
       float terrainHeight = TerrainGenerator::setupTerrain(odeHandle,osgHandle,global, terrainType, 0.0f, 5.0f);
       
       // Instantiating the robot 

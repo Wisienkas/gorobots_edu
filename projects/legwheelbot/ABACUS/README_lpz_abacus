@@ -1,0 +1,47 @@
+#######################################################
+#
+#  Running lpzrobots and legwheelbot on abacus
+#
+#  Almir Mehanovic: 	<almeh12@student.sdu.dk>
+#
+#  This guide was created 2017-02-10
+#
+#  Assuming a clean user profile on abacus
+#
+#######################################################
+This small guide will describe how you can get lpz-robots and the legwheel bot simmulation running on Abacus.
+
+1. Install software and setup environment variables for lpz robots to work.
+	source install_lpz_dependencies.sh
+
+2. Create a new directory under your home directory and cd to it:
+	mkdir ~/workspace
+	cd ~/workspace
+
+3. Clone lpz and go robots from assembla
+	git clone https://git.assembla.com/pmanoonpong-gorobots-fork.git
+	git clone https://git.assembla.com/pmanoonpong-lpzrobots-fork.git
+
+4. Make sure to checkout the correct branch you are supposed to work on. Eg. for legwheelbot:
+	cd ~/workspace/pmanoonpong-gorobots-fork/
+	git checkout -b master_locokit_runbotii_integration origin/master_locokit_runbotii_integration
+
+	cd ~/workspace/pmanoonpong-lpzrobots-fork/
+	git checkout -b georg-lpzrobots-master-runbotii origin/georg-lpzrobots-master-runbotii
+
+5. Build lpz robots using 48 cores
+	cd ~/workspace/pmanoonpong-lpzrobots-fork/
+	make all -j48
+
+6. When asked where to install it, say:
+	/home/<user>
+
+7. When asked if you want developer mode (d),
+	say 'd' and confirm with 'y'
+
+8. You are now ready to compile simulations in go-robots.
+Make sure that Makefile.conf in whatever simulation you are compiling contains the line:
+	ADDITIONAL_LIBS+=-L$(HOME)/lpz_dependencies/usr/lib64
+
+9. The file slurmjob_example.sh shows an example slurm job which can be submitted for execution on Abacus.
+Refer to the abacus documentation for more information on submitting jobs.

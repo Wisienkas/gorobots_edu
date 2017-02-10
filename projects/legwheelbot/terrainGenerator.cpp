@@ -4,28 +4,17 @@
 #include <ode_robots/odeagent.h>
 // playground
 #include <ode_robots/playground.h>
-
+// terrainground
 #include <ode_robots/terrainground.h>
-
-// simple wiring
-#include <selforg/one2onewiring.h>
-// the robot
-#include <ode_robots/amosII.h>
-
-// joint needed for fixation of the robot in the beginning
-#include <ode_robots/joint.h>
-
-// add head file for creating a sphere by Ren ------------
-#include <ode_robots/passivesphere.h>
-#include <ode_robots/passivebox.h>
-#include <selforg/abstractcontroller.h>
 #include <ode_robots/color.h>
+
 #include <iostream>
 #include <terrainGenerator.h>
 
 using namespace std;
 using namespace lpzrobots;
 
+// Utility method to return random float
 double fRand ( double fMin, double fMax )
 {
     double f = ( double ) rand() / RAND_MAX;
@@ -244,11 +233,14 @@ float TerrainGenerator::setupTerrain (
     float terrainObjectSpacing = 0.005;
 
     Playground* playground = new Playground ( odeHandle, osgHandle,osg::Vec3 ( playgroundSize, .2, 5 ), playgroundXYfactor, false);
-//     
-// //     playground->setGroundColor(terrain_color);
-// //     playground->setGroundSubstance(roughterrainSubstance);
-// //     playground->setGroundTexture(terrainFile);
-//     
+    
+    // ### If terrainheight is not important comment out the for loop below and use this code instead.
+    // ### The terrain will have the specified properties but will remain flat
+    // ### This will increase simmulation performace a lot
+    // playground->setGroundColor(terrain_color);
+    // playground->setGroundSubstance(roughterrainSubstance);
+    // playground->setGroundTexture(terrainFile);
+    
     playground->setColor ( Color ( 1., .784, .082, .3 ) );
     playground->setPosition ( osg::Vec3 ( .0, ( ( playgroundSize*playgroundXYfactor ) /2. ) - playgroundSize/2., .1 ) );
 

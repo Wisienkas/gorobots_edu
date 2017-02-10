@@ -21,14 +21,14 @@ void LegWheelBotPopulationEvaluator::evaluate ( GAPopulation &p )
 
     if ( p.geneticAlgorithm()->statistics().initial() == 0. ) {
         //This is the very first initial generation so create new files
-        resultsFile.open ( "results_process_" + std::to_string ( rank ) + ".txt", std::ios::out );
+        resultsFile.open ( "results_legwheelbot/results_process_" + std::to_string ( rank ) + ".txt", std::ios::out );
         resultsFile << "generation,left_spoke_length,left_noof_spokes,right_spoke_length,right_noof_spokes";
         for ( TerrainType t : Evaluator_TerrainsToEvaluate ) {
             resultsFile << "," << AllTerrainTypeNames[t];
         }
         resultsFile << "\n";
     } else {
-        resultsFile.open ( "results_process_" + std::to_string ( rank ) + ".txt", std::ios::out | std::ios::app );
+        resultsFile.open ( "results_legwheelbot/results_process_" + std::to_string ( rank ) + ".txt", std::ios::out | std::ios::app );
     }
 
     // MPI aux vars
@@ -114,7 +114,7 @@ float LegWheelBotPopulationEvaluator::objective ( GAGenome& c )
 
     int idx = 0;
     for ( TerrainType t : Evaluator_TerrainsToEvaluate ) {
-        std::string paritalName = "partial_data_" + std::to_string ( rank ) + "_" + std::to_string(t);
+        std::string paritalName = "tmp_data_legwheelbot/partial_data_" + std::to_string ( rank ) + "_" + std::to_string(t);
         filenames.push_back (paritalName);
 	
         threads.push_back ( std::thread (runEvaluation,idx,t,paritalName,conf.leftWheel.spokeLength, conf.leftWheel.noOfSpokes,conf.rightWheel.spokeLength,conf.rightWheel.noOfSpokes,ref(returnCodes) ));
@@ -143,14 +143,21 @@ float LegWheelBotPopulationEvaluator::objective ( GAGenome& c )
 
 void runEvaluation (int idx, TerrainType t, std::string filename, float lsl, int lns, float rsl, int rns, std::vector<int> &exitcodes)
 {
+      // Evaluation of a single genome is performed by calling the program again with the -onlyeval flag
+      // This will launch the perform single evaluation method from the main.cpp
+      // This ensures that if the simmulator fails it will not crash the main process running the genetic algorithm
       std::stringstream stream;
-    stream << "./sim -onlyeval -simtime 1 -nographics "
-           << "-terrains " << AllTerrainTypeNames[t] << " "
-           << "-lsl " << lsl << " "
-           << "-lns " << lns << " "
-           << "-rsl " << rsl << " "
-           << "-rns " << rns << " "
-           << "-resultfile " << filename;
+      stream << "./";
+      for(int i = 0; i < Evaluator_argc; i++) {
+	stream << Evaluator_argv[i] << " ";
+      }
+      stream << "-evalterrain " << AllTerrainTypeNames[t] << " "
+      << "-onlyeval " << lsl << " "
+      << "-lsl " << lsl << " "
+      << "-lns " << lns << " "
+      << "-rsl " << rsl << " "
+      << "-rns " << rns << " "
+      << "-resultfile " << filename;
 
     //std::cout <<"Command to execute = " << command << "\n";
     int returncode = system ( stream.str().c_str() );

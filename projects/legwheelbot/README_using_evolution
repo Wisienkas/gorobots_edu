@@ -1,31 +1,53 @@
+### To see how you can run this project on Abacus, see the README_lpz_abacus file in the ABACUS dir of the legwheelbot project.
+### To see what this program does you can look at the legwheelbot_project_report.pdf from the project dir.
+### This file will explain how you can run this program
 
-Make sure that you install ga lib>
-
-Installation and usage
-----------------------
-In utils/ga-mpi/
-* Compile with `make` (requires mpic++)
-
-
-
-1) Run make 
-2) Run  mpirun -np 2 sim -simtime 1 -popsize 10 -ngen 20 -terrains rock-grass-ice  
+1)
+Compile the project simply by running make in the project directory. 
+Be sure to use the make file included in this project as it is different from the standard one used in gorobots.
+It uses the mpic++ compiler so if you get any errors related to compilation make sure you have the necessary software to compile mpi applications installed.
 
 
-Example>
+2)
+To just make a quick testrun you can run the compiled executable 'sim' without parameters.
+Be sure you cd to the project directory first, otherwise the program will fail because it cannot find some relative paths on disk.
 
-poma@poma-X9SRA-X9SRA-3:~/workspace/pmanoonpong-gorobots-fork/projects/legwheelbot$ make
-poma@poma-X9SRA-X9SRA-3:~/workspace/pmanoonpong-gorobots-fork/projects/legwheelbot$ mpirun -np 2 sim -simtime 1 -popsize 10 -ngen 20 -terrains rock-grass-ice  
+
+3)	
+To run an evolution of the robot morphology you must run the program with mpi: Example
+
+		$ mpirun -np 2 sim -simtime 1 -popsize 10 -ngen 20 -terrains rock-grass-ice -nographics
+
+The -np parameter specifies the number of processes that will be spawned, in this case 2. 
+This means that two individuals will be evaluated concurently during evolution. 
+Additionally each individual being evaluated will be simultaniously evaluated in all specified terrains.
+Thus in above case where 3 terrains are specified we will have 2 * 3 = 6 concurrent simmulations running.
+Idealy you should choose theese parameters such that the number of concurrent simmulations matches the number of cores on your machine.
 
 
-To display robot during evolving:
+4)
+Following parameters can be specified to the program. 
+All parameters given are passed on to the lpz robots simulator, so you can specify any of the things available in lpzrobots and it will be passed on.
+	-ngen		<How many generations do you want the evolution to run for : default 10>
+	-popsize 	<The size of the population : default 10>
+	-pmut		<The genome mutation probability between 0 and 1 : default 0.05>
+	-pcross		<The genome crossover probability between 0 and 1 : default 0.65>
+	-simtime	<For how long should the simmulation last in minutes each time a genome is evaluated. Must be positive integer greater than 1>
+	-r		<Random seed. This seed is used both by lpz robots and the genetic algorithm : default 1234>
+	-terrains	<A dash seperated list of terrains in which to evaluate each individual. Eg. grass-rock-sand. Look in terrainGenerator.cpp to see all terrains>
+	-nographics	<When this parameter is specified all simmulations are run full speed without graphics. You probably want this when running long evolutions>
 
-In legWheelBotPopulationEvaluator.cpp
 
-void runEvaluation (int idx, TerrainType t, std::string filename, float lsl, int lns, float rsl, int rns, std::vector<int> &exitcodes)
-{
-      std::stringstream stream;
-    stream << "./sim -onlyeval -simtime 1 -nographics "
-    
-    
-    If you write--> stream << "./sim -onlyeval -simtime 1 " , you will see many robot simulations
+5)
+During evolution results are written to csv files in a subfolder named results_legwheelbot.
+Each time you run the program these files will be overwritten, so make sure to take a copy when you need the results.
+You can kill the program at any point and use the results obtained so far to whatever generation was reached.
+Each process outputs results to its own file, so to have the full data of the evolution you need to merge theese. In R this can be done with the following code:
+
+DATA_DIR = "path/to/results_legwheelbot"
+data = data.frame()
+for(file in list.files(DATA_DIR, pattern = "*.csv", full.names = T)) {
+  data = rbind(data, read.csv(file))
+}
+
+

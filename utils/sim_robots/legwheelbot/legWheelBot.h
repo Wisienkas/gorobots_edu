@@ -14,10 +14,6 @@
 // ODE angular motors
 #include <ode_robots/angularmotor.h>
 
-// ODE infrared distance sensors
-#include <ode_robots/raysensorbank.h>
-#include <ode_robots/irsensor.h>
-
 //ODE axisorientation sensors
 #include <ode_robots/axisorientationsensor.h>
 
@@ -124,8 +120,6 @@ namespace lpzrobots {
 	    void attachTail(const osg::Matrix& bodyPose, Cylinder *body, LegWheelBotConf conf);
             void createTestObject(osg::Matrix& pose);
   };
-
-
 } // end namespace lpzrobots
 
 
