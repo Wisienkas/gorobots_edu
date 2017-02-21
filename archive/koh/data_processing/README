@@ -1,0 +1,54 @@
+To use the RC network for input-output mapping
+
+1) Prepare your data into two files: input file and target file and put them into the resources folder
+
+For example, in the resources folder, 
+
+there are:
+the input file--> "Input123_Data1_2_4_test_15_percent_missing_124data.txt" under the folder: fishdata_combinedmodels/Table1/ModelA
+the target or desired output file--> "Target_Data1_2_4_test_15_percent_missing_124data.txt" under the folder: fishdata_combinedmodels/Table1/ModelA
+
+The input file contains --> 3 inputs
+
+Column1 = Input1 ! Column2 = Input2 ! Column3 = Input3
+
+The target file contains --> one output
+
+Column1 = output of the network
+
+Note that the first part of the data will be used to train and the remaining part will be used to test the trained model!
+
+
+2) Open 'main.cpp' in the src folder
+  
+-Set the path to the input and target files
+  
+  
+ string inputPath                    = "resources/fishdata_combinedmodels/Table1/ModelE/Input13_Data3_5_test_35_124full.txt";
+ string targetPath                   = "resources/fishdata_combinedmodels/Table1/ModelE/Target_Data3_5_test_35_124full.txt";
+
+-Set number of input, output, and hidden neurons
+ 
+ unsigned int numberOfInputs         = 2;//3;
+ unsigned int numberOfOutputs        = 1;
+ unsigned int numberOfHiddenUnits    = 50;
+ 
+ 
+-Set learning parameters 
+   double inputSparsity                = 50.0;
+   double internalSparsity             = 50.0;
+   double learningRate                 = 0.99;
+   double leak                         = 1.0; //0.3
+      
+-Sat how many data points you want to use for training  
+
+For example,    
+      
+double percentage_1                 = 13.0; //  85% of total data for "training" (save)
+
+This means that 13 % of total data points will be used to train the RC network and the remaining data points 87% will be used to test the network
+
+
+3) All weights after learning will be saved in the save_files folder
+
+4) The output data of the network, Target data, and error data will be saved in the results folder
