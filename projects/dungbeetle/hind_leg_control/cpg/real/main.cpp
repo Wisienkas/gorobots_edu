@@ -25,10 +25,10 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "controllers/amosii/modular_neural_control/amosIIcontrol.h"
+#include "controllers/dungbeetle/hind_leg_control/cpg/hindLegControl.h"
 
-#include "amosIIserialv1.h"  //serial interface to AMOSII version 1
-#include "amosIIserialv2.h"  //serial interface to AMOSII version 2
+#include <utils/real_robots/dungbeetle/dungBeetleSerialV1.h>  //serial interface to AMOSII version 1
+//serial interface to AMOSII version 2
 #include <cmath>
 
 #include <stdio.h> // standard input / output functions
@@ -71,6 +71,7 @@ int main(int argc, char** argv) {
 	int index = contains(argv, argc, "-g");
 	if (index > 0 && argc > index) {
 		plotoptions.push_back(PlotOption(GuiLogger, atoi(argv[index])));
+
 	}
 	if (contains(argv, argc, "-f") != 0)
 		plotoptions.push_back(PlotOption(File));
@@ -91,28 +92,22 @@ int main(int argc, char** argv) {
 	}
 
 	GlobalData globaldata;
-	AmosIISerialV2* robot;
+	dungBeetleSerial* robot;
 	Agent* agent;
 	initializeConsole();
 
 	// Different controllers
 
-	AbstractController* controller = new AmosIIControl();
+	AbstractController* controller = new hindLegControl();
 	// one2onewiring gives full range of robot actuators
 	AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
 
 	//****************Finetuning for real robot experiments
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
-	for (unsigned int i = TR0_m; i < (BJ_m); i++) {
-		((AmosIIControl*) controller)->control_adaptiveclimbing->motormap.at(i)->max_ctr = 130;
-		((AmosIIControl*) controller)->control_adaptiveclimbing->motormap.at(i)->max_ctr_offset = 120;
-	}
-	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(25) = 1.5;
-	((AmosIIControl*) controller)->preprocessing_learning.rho1.at(26) = 1.5;
 
 	//robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
-	robot = new AmosIISerialV2("/dev/ttyUSB0"); // using USB-to-serial adapter
+	robot = new dungBeetleSerial("/dev/ttyUSB0"); // using USB-to-serial adapter
 
 
 	agent = new Agent(plotoptions);
@@ -141,69 +136,86 @@ int main(int argc, char** argv) {
 	keypad(stdscr,TRUE);
 	nodelay(stdscr,TRUE);
 
-	cout<<"Options: Press a= Obstacle Avoidance ON/OFF"<<endl;
+	/*cout<<"Options: Press a= Obstacle Avoidance ON/OFF"<<endl;
 	cout<<"Options: Press b= BJC ON/OFF"<<endl;
 	cout<<"Options: Press e= Reflex ON/OFF"<<endl;
 
-	while(!stop) {
+	cout << "hi brf"<< endl;
+	*/while(!stop) {//!stop
+
 		agent->step(noise,t);
+		//std::cout << "hifgvf" << t <<endl;
+
 
 		int key=0;
 		key = wgetch (stdscr);
+		if(key==98)
+		{
+			//((hindLegControl*) controller)->y.at(1) = -1;
+			for(int i=0;i<DUNGBEETLE_MOTOR_MAX;i++)
+			{
 
+
+				((hindLegControl*) controller)->y.at(i) = -1;
+				std::cout << "BJC is OFF" << endl;
+				//y_[i]=y.at(i);//SET CPG VALUE HERE
+			}
+
+		}
+		/*
 		//KEYBOARD BJC OPTION
 		if (key==98){ //B
-			if (((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint = false;
+			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint) {
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = false;
 				std::cout << "BJC is OFF" << endl;
 			} else {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_backbonejoint = true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_backbonejoint = true;
 				((AmosIIControl*) controller)->y.at(BJ_m) = 0.0;
 				std::cout << "BJC is ON" << endl;
 			}
 		}
 
-		if (key==97){ //A
-			if (((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_obstacle) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_obstacle = false;
-				std::cout << "OA is OFF" << endl;
-			} else {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_obstacle = true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_reflexes=false;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_irreflexes=false;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_purefootsignal=false;
-				std::cout << "OA is ON" << endl;
-			}
-		}
+		 */if (key==97){ //A
+			 //((hindLegControl*) controller)->y.at(1) = -1;
+			 for(int i=0;i<DUNGBEETLE_MOTOR_MAX;i++)
+			 {
 
 
+				 ((hindLegControl*) controller)->y.at(i) = +1;
+				 std::cout << "BJC is OFF" << endl;
+				 //y_[i]=y.at(i);//SET CPG VALUE HERE
+			 }
+
+		 }
+
+		 /*
 		if (key==101){ //E
-			if (((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_allreflexactions) {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_allreflexactions = false;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_reflexes=false;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_irreflexes=false;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_purefootsignal=false;
+			if (((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions) {
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes=false;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=false;
 				std::cout << "Reflex is OFF" << endl;
 			} else {
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_allreflexactions = true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_reflexes=true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_irreflexes= true;
-				((AmosIIControl*) controller)->control_adaptiveclimbing->switchon_purefootsignal=true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_allreflexactions = true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_reflexes=true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_irreflexes= true;
+				((AmosIIControl*) controller)->control_adaptiveclimbing.at(0)->switchon_purefootsignal=true;
 				std::cout << "Reflex is ON" << endl;
 			}
 		}
+		  */
+
+		 if(control_c_pressed()) {
+
+			 if(!handleConsole(globaldata)) {
+				 stop=1;
+			 }
+			 cmd_end_input();
+		 }
 
 
-		if(control_c_pressed()) {
-
-			if(!handleConsole(globaldata)) {
-				stop=1;
-			}
-			cmd_end_input();
-		}
-
-
-		t++;
+		 t++;
 	};
 	delete robot;
 	delete agent;

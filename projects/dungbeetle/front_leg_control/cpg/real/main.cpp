@@ -25,9 +25,9 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "controllers/dungbeetle/adaptivecpg/hindLegControl.h"
+#include "controllers/dungbeetle/front_leg_control/cpg/frontLegControl.h" //controller
 
-#include <utils/real_robots/dungbeetle/dungBeetleSerialV2.h>  //serial interface to AMOSII version 1
+#include <utils/real_robots/dungbeetle/dungBeetleSerial_frontleg.h>  //serial interface to dung beetle front legs
 //serial interface to AMOSII version 2
 #include <cmath>
 
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
 		if(key==98)
 		{
 			//((hindLegControl*) controller)->y.at(1) = -1;
-			for(int i=0;i<DUNGBEETLE_MOTOR_MAX;i++)
+			for(int i=0;i<DUNGBEETLE_FRONTLEG_MOTOR_MAX;i++)
 			{
 
 
@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
 
 		 */if (key==97){ //A
 			 //((hindLegControl*) controller)->y.at(1) = -1;
-			 for(int i=0;i<DUNGBEETLE_MOTOR_MAX;i++)
+			 for(int i=0;i<DUNGBEETLE_FRONTLEG_MOTOR_MAX;i++)
 			 {
 
 

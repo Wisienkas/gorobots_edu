@@ -5,7 +5,7 @@
  *      Author: giuliano
  */
 
-#include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.h>
 
 shift_register::shift_register(int delay) {
 	delay_=delay;

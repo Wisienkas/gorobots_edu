@@ -25,9 +25,9 @@
 #include <selforg/sinecontroller.h>
 //#include <ode_robots/amosiistdscalingwiring.h>
 
-#include "controllers/dungbeetle/cpg/hindLegControl.h"
+#include "controllers/dungbeetle/hind_leg_control/adaptivecpg/hindLegControl.h"
 
-#include <utils/real_robots/dungbeetle/dungBeetleSerialV1.h>  //serial interface to AMOSII version 1
+#include <utils/real_robots/dungbeetle/dungBeetleSerialV2.h>  //serial interface to AMOSII version 1
 //serial interface to AMOSII version 2
 #include <cmath>
 
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 
 	//robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
-	robot = new dungBeetleSerial("/dev/ttyUSB1"); // using USB-to-serial adapter
+	robot = new dungBeetleSerial("/dev/ttyUSB0"); // using USB-to-serial adapter
 
 
 	agent = new Agent(plotoptions);

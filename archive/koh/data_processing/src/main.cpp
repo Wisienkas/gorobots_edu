@@ -8,28 +8,35 @@ int main( int argc, char ** argv ) {
 
     if( argc == 1 ) { // XXX Manual mode
 
-        //string inputPath                    = "resources/withoutCF/maturingsalmon/Input13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Input13_89.txt"; //"resources/emg_data/Input_emg_24576.txt";
+        //Fish data
+    	//string inputPath                    = "resources/withoutCF/maturingsalmon/Input13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Input13_89.txt"; //"resources/emg_data/Input_emg_24576.txt";
         //string targetPath                   = "resources/withoutCF/maturingsalmon/Target13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Target13_89.txt"; //"resources/emg_data/Target_emg_24576.txt";
 
-    	string inputPath                    = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Input13_Data5_test_15_percent_missing.txt";
-	    string targetPath                   = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Target_Data5_test_15_percent_missing.txt";
-        string resultPath                   = "results/result.txt";
+    	//string inputPath                    = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Input13_Data5_test_15_percent_missing.txt";
+	    //string targetPath                   = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Target_Data5_test_15_percent_missing.txt";
+
+    	//EEG data
+    	string inputPath                    = "resources/eeg_data/Input_14000.txt";
+        string targetPath                   = "resources/eeg_data/Target_14000.txt";
+
+
+	    string resultPath                   = "results/result.txt";
         string saveDir                      = "save_files/";
         unsigned int saveNum                = 1;
-        unsigned int numberOfInputs         = 2;
+        unsigned int numberOfInputs         = 1;
         unsigned int numberOfOutputs        = 1;
-        unsigned int numberOfHiddenUnits    = 50;
+        unsigned int numberOfHiddenUnits    = 60;
         unsigned int learningMode           = 1;
         unsigned int internalNonlinearity   = 2;
-        unsigned int outputNonlinearity     = 0;
+        unsigned int outputNonlinearity     = 2;
         double inputSparsity                = 50.0;
         double internalSparsity             = 50.0;
         double learningRate                 = 0.99;
-        double leak                         = 1;
-        double percentage_1                 = 85.0; //  85% of total data for "training" (save)
+        double leak                         = 0.7;
+        double percentage_1                 = 65.0; //  85% of total data for "training" (save)
         double percentage_2                 = 100.0; // 100% of the remaining data (15% of total) for "validationUnits" (save & final) and another 0% of the remaining data (15% of total)  for "testing" (not use!)
-        unsigned int repetition             = 3;
-        unsigned int iterationLimit         = 5000;
+        unsigned int repetition             = 1;
+        unsigned int iterationLimit         = 500000;
         unsigned int verboseLevel           = 1;
         char delimiter                      = '\t';
         unsigned int numOfHeaderLines       = 0;

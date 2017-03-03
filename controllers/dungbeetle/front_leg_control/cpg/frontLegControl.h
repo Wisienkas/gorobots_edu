@@ -13,21 +13,16 @@
 #include <selforg/controller_misc.h>
 #include <selforg/configurable.h>
 #include <selforg/types.h>
-#include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
 
 #include <assert.h>
 #include <cmath>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
-#include <selforg/matrix.h>
-#include <utils/real_robots/dungbeetle/dungBeetle_hindlegSensMotDef.h>
-#include <controllers/dungbeetle/adaptivecpg/plastic.h>
-#include "lowPassfilter.h"
 
-//Add Delay line////////////////////
-#include "utils/delayline.h"
-////////////////////////////////////
+#include <selforg/matrix.h>
+#include <utils/real_robots/dungbeetle/dungBeetle_frontlegSensMotDef.h>
+#include <controllers/dungbeetle/front_leg_control/cpg/neuroOscillator.h>
 
 
 class hindLegControl : public AbstractController{
@@ -57,28 +52,10 @@ protected:
 
 
 public:
-	double derivative;
-	int count;
-	double max, min;
-	bool rangeLimit;
-	std::vector<double> getMaxMinFeedback(double feedback, double max, double min);
-	shift_register *reg;
-	shift_register *reg2;
-
-	lowPass_filter *filterJoint1, *filterJoint2, *filterJoint3;
-	double feedbackFiltered_1, feedbackFiltered_2, feedbackFiltered_3;
 	std::vector<sensor> x;
 	std::vector<sensor> y;
-	plastic *osc, *plas;
-	std::vector<double> inputDerivative;
+	neuroOscillator* osc;
 	double vec[2]={0,0};
-	std::ofstream plot;
-
-	//Add Delay line constructor/////////////////
-	Delayline* tr_delayline;
-	int tau;
-	double input_delay;
-	/////////////////////////////////////////////
-
+	ofstream plot;
 };
 #endif /* CONTROLLERS_DUNGBEETLE_CPG_HINDLEGCONTROL_H_ */

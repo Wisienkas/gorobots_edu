@@ -8,7 +8,7 @@
  *       double per=((feedbackFiltered_1+45)/(90))*0.4-0.2;
  *       Shift register is only to have a bigger control of the final frequency, mostly for testing purposes.
  */
-#include <controllers/dungbeetle/adaptivecpg/hindLegControl.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/hindLegControl.h>
 #include <selforg/controller_misc.h>
 #include <math.h>
 
