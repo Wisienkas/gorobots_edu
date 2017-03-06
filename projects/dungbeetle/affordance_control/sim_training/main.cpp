@@ -8,14 +8,10 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
-//#include <ode_robots/dungBeetle.h>
-
-
-#include "utils/sim_robots/dungbeetle/dungbeetle_laser.h"
+#include "utils/sim_robots/dungbeetle/dungbeetle_laser.cpp"
 
 
 // the controller
-//#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
 #include "controllers/dungbeetle/affordance_control/modularneurocontroller.cpp"
 #include <ode_robots/joint.h>
 
@@ -139,6 +135,8 @@ public:
 		dungbeetleConf myDungBeetleConf = dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
 				1 /*_useFoot*/, 1 /*_useBack*/);
 		myDungBeetleConf.rubberFeet = true;
+		myDungBeetleConf.useLidar = true;
+
 
 		lpzrobots::OdeHandle rodeHandle = odeHandle;
 		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);

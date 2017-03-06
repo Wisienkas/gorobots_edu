@@ -20,8 +20,8 @@
 #include "controllers/dungbeetle/multiple_adaptive_cpg/ModularNeural.cpp"
 #include "utils/sim_robots/dungbeetle/amosiisensormotordefinition_laser.h"
 #include <ode_robots/rangeFinder.h>
-#include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
-#include <controllers/dungbeetle/adaptivecpg/lowPassfilter.cpp>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/lowPassfilter.cpp>
 #include <opencv2/opencv.hpp>
 #include "affordance.cpp"
 

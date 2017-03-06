@@ -103,6 +103,8 @@ namespace lpzrobots {
     // robot is not created till now
     created = false;
     backboneServo = 0;
+
+    if(conf.useLidar)
     lidar = 0;
     // usSensorFrontLeft = 0;
     // usSensorFrontRight = 0;
@@ -164,6 +166,7 @@ namespace lpzrobots {
     nameSensor(L2_fs, "*L2 foot contact sensor");
     // nameSensor(FR_us, "*Front Ultrasonic sensors right");
     // nameSensor(FL_us, "*Front Ultrasonic sensors left");
+if(conf.useLidar){
     nameSensor(F_lid_0, "*lidar 0");
     nameSensor(F_lid_1, "*lidar 1");
     nameSensor(F_lid_2, "*lidar 2");
@@ -204,7 +207,7 @@ namespace lpzrobots {
     nameSensor(F_lid_37, "*lidar 37");
     nameSensor(F_lid_38, "*lidar 38");
     nameSensor(F_lid_39, "*lidar 39");
-
+}
     nameSensor(R0_irs, "*R0 IR sensor");
     nameSensor(R1_irs, "*R1 IR sensor");
     nameSensor(R2_irs, "*R2 IR sensor");
@@ -540,12 +543,8 @@ namespace lpzrobots {
     // // Front Ultrasonic sensors (right and left)
     // sensors[FR_us] = usSensorFrontRight->getValue();
     // sensors[FL_us] = usSensorFrontLeft->getValue();
-    
-    lidar->get(&sensors[F_lid_0],180);
-    // for(int i=0;i>lidar->getNumRays();i++){
-
-    //   sensors[F_lid_0+i]=lidar->getBeam(i);;
-    // }
+    if(conf.useLidar)
+        lidar->get(&sensors[F_lid_0],180);
 
     // IR sensors at the legs
     sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->getValue() : 0;
@@ -708,7 +707,8 @@ namespace lpzrobots {
 #endif
     assert(created);
     // robot must exist
-    lidar->update();
+    if(conf.useLidar)
+        lidar->update();
     // update the graphical representation of the sensorbank
     irSensorBank->update();
 
@@ -739,7 +739,8 @@ namespace lpzrobots {
     OdeRobot::sense(globalData);
     // reset ir sensors to maximum value
     irSensorBank->sense(globalData);
-    lidar->sense(globalData);
+    if(conf.useLidar)
+        lidar->sense(globalData);
 
     for (int i = 0; i < LEG_POS_MAX; i++) {
       if (legContactSensors[LegPos(i)])
@@ -869,12 +870,13 @@ namespace lpzrobots {
     irSensorBank->init(0);
 
     //front range finder
-    lidar = new RangeFinder();
-    lidar->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
-    lidar->init(front);
-    lidar->registerSensorRange(180,M_PI/180*90,-M_PI/180*90,4,conf.height/2,RaySensor::drawRay);
+    if(conf.useLidar){
+        lidar = new RangeFinder();
+        lidar->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
+        lidar->init(front);
+        lidar->registerSensorRange(180,M_PI/180*90,-M_PI/180*90,4,conf.height/2,RaySensor::drawRay);
     
-
+    }
     // // ultrasonic sensors at Front part
     // usSensorFrontRight = new IRSensor();
     // irSensorBank->registerSensor(usSensorFrontRight, front,
@@ -1332,9 +1334,10 @@ namespace lpzrobots {
         }
 
       }
-
+    if(conf.useLidar){
       lidar->clear();
       delete lidar;
+    }
 
       irSensorBank->clear();
       delete irSensorBank;
@@ -1639,6 +1642,8 @@ namespace lpzrobots {
 
     // "Internal" variable storing the currently used version
     c.beetle_version = 2;
+    //front lidar use set to false by default
+    c.useLidar = false;
     // use shoulder (fixed joint between legs and trunk)
     c.useShoulder = _useShoulder;
     c.useTebiaJoints = 0;

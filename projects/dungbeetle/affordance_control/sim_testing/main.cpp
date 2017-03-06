@@ -8,10 +8,7 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
-//#include <ode_robots/dungBeetle.h>
-
-
-#include "utils/sim_robots/dungbeetle/dungbeetle_laser.h"
+#include "utils/sim_robots/dungbeetle/dungbeetle_laser.cpp"
 
 // the controller
 //#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
@@ -87,6 +84,7 @@ public:
 		dungbeetleConf myDungBeetleConf = dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
 				1 /*_useFoot*/, 1 /*_useBack*/);
 		myDungBeetleConf.rubberFeet = true;
+		myDungBeetleConf.useLidar = true;
 
 		lpzrobots::OdeHandle rodeHandle = odeHandle;
 		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
@@ -182,22 +180,6 @@ public:
 
 		agent->init(affordance, dungBeetleRobot, wiring);
 
-		//put dung beetl ein the air
-
-		 // robotfixator = new lpzrobots::FixedJoint(
-		 //        dungBeetleRobot->getMainPrimitive(),
-		 //        global.environment);
-		 //    robotfixator->init(odeHandle, osgHandle, false);
-
-
-
-		    std::cout << "\n\n"
-		        << "################################\n"
-		        << "#   Press x to free dungBeetle!    #\n"
-		        << "################################\n"
-		       << "\n\n" << std::endl;
-
-		    //
 
        // Possibility to add tracking for robot
 		if (track)
@@ -216,30 +198,6 @@ public:
 	}
 
 
-	 virtual bool command(const lpzrobots::OdeHandle&,
-	      const lpzrobots::OsgHandle&,
-	      lpzrobots::GlobalData& globalData,
-	      int key,
-	      bool down)
-	  {
-	    if (down) { // only when key is pressed, not when released
-	    	getCommand(key);
-	      switch (char(key)) {
-	        case 'x':
-	          if (robotfixator) {
-	            std::cout << "dropping robot" << std::endl;
-	            delete robotfixator;
-	            robotfixator = NULL;
-	          }
-	          break;
-	        default:
-	          return false;
-	          break;
-	      }
-	    }
-
-	    return false;
-	  }
 
 
 /**************************Reset Function***************************************************************/
