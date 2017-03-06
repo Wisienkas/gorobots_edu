@@ -20,8 +20,8 @@
 #include "ModularNeural.cpp"
 //#include <ode_robots/amosiisensormotordefinition.h>
 #include <ode_robots/dungbeetlesensormotordefinition.h>
-#include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
-#include <controllers/dungbeetle/adaptivecpg/lowPassfilter.cpp>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/lowPassfilter.cpp>
 
 //Add Delay line////////////////////
 #include "utils/delayline.h"

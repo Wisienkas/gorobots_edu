@@ -1,7 +1,7 @@
 #include <math.h>
 #include "modularneurocontroller.h"
 #include "utils/delayline.cpp"
-#include <controllers/dungbeetle/adaptivecpg/shiftregister.cpp>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.cpp>
 
 using namespace matrix;
 using namespace std;
