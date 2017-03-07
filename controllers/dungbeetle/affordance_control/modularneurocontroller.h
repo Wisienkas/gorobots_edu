@@ -18,7 +18,7 @@
 #include "utils/ann-framework/ann.cpp"
 #include "utils/ann-library/vrn.cpp"
 #include "controllers/dungbeetle/multiple_adaptive_cpg/ModularNeural.cpp"
-#include "utils/sim_robots/dungbeetle/amosiisensormotordefinition_laser.h"
+#include "utils/sim_robots/dungbeetle/dungbeetlesensormotordefinition_laser.h"
 #include <ode_robots/rangeFinder.h>
 #include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.h>
 #include <controllers/dungbeetle/hind_leg_control/adaptivecpg/lowPassfilter.cpp>
