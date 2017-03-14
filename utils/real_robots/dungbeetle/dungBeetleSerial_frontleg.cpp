@@ -172,15 +172,16 @@ int dungBeetleSerial::getSensors(sensor* sensors, int sensornumber){
 void dungBeetleSerial::processSensors(sensor* psensors){
 
 
-	psensors[COXA1_RIGHT] = psensors[COXA1_RIGHT]+1;
-	psensors[COXA2_RIGHT] = psensors[COXA2_RIGHT]+1;
-	psensors[FEMUR_RIGHT] = psensors[FEMUR_RIGHT]+1;
-	psensors[TIBIA_RIGHT] = psensors[TIBIA_RIGHT]+1;
+	//Need to do proper mapping into proper range, at the moment these values are between 0...255
+	psensors[COXA1_RIGHT] = psensors[COXA1_RIGHT]+0;
+	psensors[COXA2_RIGHT] = psensors[COXA2_RIGHT]+0;
+	psensors[FEMUR_RIGHT] = psensors[FEMUR_RIGHT]+0;
+	psensors[TIBIA_RIGHT] = psensors[TIBIA_RIGHT]+0;
 
-	psensors[COXA1_LEFT] = psensors[COXA1_LEFT]+1;
-	psensors[COXA2_LEFT] = psensors[COXA2_LEFT]+1;
-	psensors[FEMUR_LEFT] = psensors[FEMUR_LEFT]+1;
-	psensors[TIBIA_LEFT] = psensors[TIBIA_LEFT]+1;
+	psensors[COXA1_LEFT] = psensors[COXA1_LEFT]+0;
+	psensors[COXA2_LEFT] = psensors[COXA2_LEFT]+0;
+	psensors[FEMUR_LEFT] = psensors[FEMUR_LEFT]+0;
+	psensors[TIBIA_LEFT] = psensors[TIBIA_LEFT]+0;
 
 }
 
@@ -203,34 +204,35 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 	// -------------------- initializing the Motor range ------------------------
 
 	//[-45,.., 45 deg]
-	//TR0_m
+	//Coxa1_right
 	servoPosMin[0] = 20;//200;
 	servoPosMax[0] = 245;//20;
-	//TR1_m
+	//Coxa2_right
 	servoPosMin[1] = 240;//160;
 	servoPosMax[1] = 100;//80;
-	//TR2_m
+	//Femur_right
 	servoPosMin[2] = 170;//170;
 	servoPosMax[2] = 10;//80;
-
-	//TR0_m
+	//Tibia_right
 	servoPosMin[3] = 20;//200;
 	servoPosMax[3] = 245;//20;
-	//TR1_m
+
+	//Coxa1_left
 	servoPosMin[4] = 240;//160;
 	servoPosMax[4] = 100;//80;
-	//TR2_m
+	//Coxa2_left
 	servoPosMin[5] = 170;//170;
 	servoPosMax[5] = 10;//80;
-
-	//TR0_m
+	//Femur_left
 	servoPosMin[6] = 20;//200;
 	servoPosMax[6] = 245;//20;
-	//TR1_m
+	//Tibia_left
 	servoPosMin[7] = 240;//160;
 	servoPosMax[7] = 100;//80;
 
-
+	//Body
+	servoPosMin[8] = 240;//160;
+	servoPosMax[8] = 100;//80;
 
 	// ##################### move motors ################
 	for(int i=0;i<DUNGBEETLE_FRONTLEG_MOTOR_MAX;i++)
@@ -241,36 +243,33 @@ void dungBeetleSerial::setMotors(const motor* motors, int motornumber){
 	  if (motorCom[i]<-1) motorCom[i]=-1;
 	}
 
-
-
-	//TC
-	serialPos[28] = (int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
-	//CT0
+	//COXA1_RIGHT-J1
+	serialPos[32] = (int) (double)(((motorCom[0]+1.0)/2.0)*(servoPosMax[0]-servoPosMin[0])+servoPosMin[0]) ;
+	//COXA2_RIGHT-J2
 	serialPos[31] = (int) (double)(((motorCom[1]+1.0)/2.0)*(servoPosMax[1]-servoPosMin[1])+servoPosMin[1]) ;
-
-
-	//FT0
-	serialPos[32] = (int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]) ;
-
-	//TC
+	//FEMUR_RIGHT-J3
+	serialPos[30] = (int) (double)(((motorCom[2]+1.0)/2.0)*(servoPosMax[2]-servoPosMin[2])+servoPosMin[2]) ;
+	//TIBIA_RIGHT-J4
 	serialPos[29] = (int) (double)(((motorCom[3]+1.0)/2.0)*(servoPosMax[3]-servoPosMin[3])+servoPosMin[3]) ;
-	//CT0
-	serialPos[27] = (int) (double)(((motorCom[4]+1.0)/2.0)*(servoPosMax[4]-servoPosMin[4])+servoPosMin[4]) ;
-	//FT0
-	serialPos[26] = (int) (double)(((motorCom[5]+1.0)/2.0)*(servoPosMax[5]-servoPosMin[5])+servoPosMin[5]) ;
 
 
-	//TC
-	serialPos[25] = (int) (double)(((motorCom[6]+1.0)/2.0)*(servoPosMax[6]-servoPosMin[6])+servoPosMin[6]) ;
-	//CT0
-	serialPos[24] = (int) (double)(((motorCom[7]+1.0)/2.0)*(servoPosMax[7]-servoPosMin[7])+servoPosMin[7]) ;
+	//COXA1_LEFT-J1
+	serialPos[28] = (int) (double)(((motorCom[4]+1.0)/2.0)*(servoPosMax[4]-servoPosMin[4])+servoPosMin[4]) ;
+	//COXA2_LEFT-J2
+	serialPos[27] = (int) (double)(((motorCom[5]+1.0)/2.0)*(servoPosMax[5]-servoPosMin[5])+servoPosMin[5]) ;
+	//FEMUR_LEFT-J3
+	serialPos[26] = (int) (double)(((motorCom[6]+1.0)/2.0)*(servoPosMax[6]-servoPosMin[6])+servoPosMin[6]) ;
+	//TIBIA_LEFT-J4
+	serialPos[25] = (int) (double)(((motorCom[7]+1.0)/2.0)*(servoPosMax[7]-servoPosMin[7])+servoPosMin[7]) ;
 
 
+	//Body-J1
+	serialPos[24] = (int) (double)(((motorCom[8]+1.0)/2.0)*(servoPosMax[8]-servoPosMin[8])+servoPosMin[8]) ;
 
 
 
 	//usleep(1000);
-	usleep (10000);//10000);
+	//usleep (10000);//10000);
 	// do some processing for motor commands before sending AMOS sensors
 
 	sprintf(serial_motor, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"

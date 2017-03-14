@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 	//((AmosIIControl*) controller)->  ---Access to controller parameters
 	//see  $(AMOSIICONT)/amosIIcontrol.cpp for controller classes
 
-	//robot         = new AmosIISerialV2("/dev/ttyS0");     // using serial port
+	//robot         = new dungBeetleSerial("/dev/ttyS0");     // using serial port
 	robot = new dungBeetleSerial("/dev/ttyUSB0"); // using USB-to-serial adapter
 
 

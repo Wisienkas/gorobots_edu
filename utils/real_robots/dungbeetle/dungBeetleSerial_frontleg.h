@@ -137,15 +137,15 @@ private:
 	 /*Add more sensors here according to the port of the MBoard*/
 
 	  // Poti sensors
-	  COXA1_RIGHT_REAL= 9,
-	  COXA2_RIGHT_REAL= 10,
-	  FEMUR_RIGHT_REAL= 11,
-	  TIBIA_RIGHT_REAL= 12,
+	  COXA1_RIGHT_REAL= 1, // Start from the Pin front right
+	  COXA2_RIGHT_REAL= 2,
+	  FEMUR_RIGHT_REAL= 3,
+	  TIBIA_RIGHT_REAL= 4,
 
-	  COXA1_LEFT_REAL= 13,
-	  COXA2_LEFT_REAL= 14,
-	  FEMUR_LEFT_REAL= 15,
-	  TIBIA_LEFT_REAL= 0,
+	  COXA1_LEFT_REAL= 5,
+	  COXA2_LEFT_REAL= 6,
+	  FEMUR_LEFT_REAL= 7,
+	  TIBIA_LEFT_REAL= 8,
 
 
 	 };
