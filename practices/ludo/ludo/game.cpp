@@ -215,7 +215,7 @@ std::vector<int> game::relativePosition(){
             relative_positons[i] = (relative_positons[i]+52-modifier);
         } else if(relative_positons[i] > 50) {
             relative_positons[i] = (relative_positons[i]-color*5-1);
-        } else if(relative_positons[i] > modifier) {
+        } else if(relative_positons[i] >= modifier) {
             relative_positons[i] = (relative_positons[i]-modifier);
         }
     }
