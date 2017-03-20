@@ -161,7 +161,7 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 	////////////////////////////////////////
 
 	// writing commands to the motors
-	y_[0]= input_delay;//input;
+	y_[0]= input_delay*0.5;//input;
 	y_[1]= input_secJ;
 	y_[2]= 0;//-input_secJ;
 
