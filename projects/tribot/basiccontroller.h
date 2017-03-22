@@ -3,11 +3,12 @@
 #define __BASIC_CONTROOLER_H
 
 #include <selforg/abstractcontroller.h>
+#include "tribot.h"
 
 class BasicController : public AbstractController{
   public:
 
-    BasicController();
+  BasicController(lpzrobots::Tribot* robot, const Position& goal);
 
     /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use. The random generator is optional.
@@ -38,6 +39,7 @@ class BasicController : public AbstractController{
       */
     virtual void stepNoLearning(const sensor* , int number_sensors,
         motor* , int number_motors);
+
     /** stores the object to the given file stream (binary).
     */
     virtual bool store(FILE* f) const;
@@ -46,10 +48,22 @@ class BasicController : public AbstractController{
     */
     virtual bool restore(FILE* f);
 
+    virtual void addTeammate(lpzrobots::Tribot* teammate);
+
+    virtual void printTeam();
  private:
     double nSensors;
     double nMotors;
     bool initialized;
+
+    Position goal;
+
+    lpzrobots::Tribot* robot;
+    std::vector<lpzrobots::Tribot*> teammates;
+
+
+    virtual std::map<lpzrobots::Tribot*, double> getMateAngles();
+    virtual double getAngle(Position point);
 };
 
 #endif

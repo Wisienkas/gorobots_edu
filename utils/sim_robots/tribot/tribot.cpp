@@ -1,5 +1,6 @@
 #include "tribot.h"
-
+#include <math.h>
+#include "toolbox.h"
 #include <ode_robots/primitive.h>
 
 namespace lpzrobots {
@@ -18,6 +19,8 @@ namespace lpzrobots {
   Tribot::~Tribot()
   {
   }
+
+  int Tribot::count = 0;
 
   void Tribot::placeIntern(const osg::Matrix& pose)
   {
@@ -63,6 +66,13 @@ namespace lpzrobots {
     addMotor(motor);
   }
 
+  double Tribot::getWheelToWorldAngle() {
+    Position left = lWheel->getPosition().toPosition();
+    Position right = rWheel->getPosition().toPosition();
+
+    return toolbox::trimRadian(atan2(left.x - right.x, left.y - right.y) - (M_PI / 2));
+  }
+
   void Tribot::create(const osg::Matrix& pose)
   {
     // Set the body type
@@ -72,8 +82,29 @@ namespace lpzrobots {
     body->setPose(pose);
     objects.push_back(body);
 
+    double noseRadius = 0.1;
+    double noseHeight = 0.2;
+    double noseMass = 0.000001;
+    Primitive* nose = new Cylinder(noseRadius, noseHeight);
+    nose->setTexture("Images/wood.jpg");
+    nose->init(odeHandle, noseMass, osgHandle);
+    double transY = conf.bodyRadius + noseHeight / 2;
+    osg::Matrix nosePose =
+      osg::Matrix::rotate(M_PI / 2.0, 0, 1, 0) *
+      osg::Matrix::translate(.0, transY, conf.bodyHeight / 2) *
+      pose;
+
+    nose->setPose(nosePose);
+    objects.push_back(nose);
+
+    auto* noseJoint = new FixedJoint(body,
+                                     nose,
+                                     nose->getPosition());
+    noseJoint->init(odeHandle, osgHandle);
+    joints.push_back(noseJoint);
+
     // Left Wheel
-    Primitive* lWheel = createWheel(0, pose);
+    lWheel = createWheel(0, pose);
     auto* bodyLeftWheelJoint = new HingeJoint(body,
                                               lWheel,
                                               lWheel->getPosition(),
@@ -82,7 +113,7 @@ namespace lpzrobots {
     joints.push_back(bodyLeftWheelJoint);
 
     // Right Wheel
-    Primitive* rWheel = createWheel(1, pose);
+    rWheel = createWheel(1, pose);
     auto* bodyRightWheelJoint = new HingeJoint(body,
                                               rWheel,
                                               rWheel->getPosition(),

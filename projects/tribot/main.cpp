@@ -1,6 +1,6 @@
 // Include simulation Environment header
 #include <ode_robots/simulation.h>
-// include robot container (agent)
+// Include robot container (agent)
 #include <ode_robots/odeagent.h>
 // include playground
 #include <ode_robots/playground.h>
@@ -24,7 +24,7 @@
 // Regular include
 #include <iostream> // why I need this?
 
-#include "tribot.h"
+//#include "tribot.h"
 #include "factory.h"
 
 
@@ -83,11 +83,13 @@ class TribotSim : public Simulation {
   /**
    * Will put fixed objects into the world
    */
-  void initializeFixedObjects(const OdeHandle& odeHandle,
+  std::vector<lpzrobots::AbstractObstacle*> initializeFixedObjects(const OdeHandle& odeHandle,
                               const OsgHandle& osgHandle,
                               GlobalData& global)
   {
-
+    Factory * factory = new Factory(odeHandle, osgHandle, global);
+    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(-10,20,0));
+    return factory->initFixedJoint(passiveBox);
   }
 
   /**
@@ -96,12 +98,13 @@ class TribotSim : public Simulation {
   OdeAgent * createRobot(const OdeHandle& odeHandle,
                          const OsgHandle& osgHandle,
                          GlobalData& global,
-                         const Pos& position)
+                         const Pos& position,
+                         const Position& goal)
   {
     auto robot = new Tribot(odeHandle, osgHandle);
     robot->place(position);
 
-    auto controller = new BasicController();
+    auto controller = new BasicController(robot, goal);
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(.1));
 
     OdeAgent* agent = new OdeAgent(global);
@@ -116,10 +119,37 @@ class TribotSim : public Simulation {
 
   void initializeRobots(const OdeHandle& odeHandle,
                         const OsgHandle& osgHandle,
-                        GlobalData& global)
+                        GlobalData& global,
+                        const Position& goal)
   {
-    createRobot(odeHandle, osgHandle, global, Pos(4, 0, 0));
-    createRobot(odeHandle, osgHandle, global, Pos(-4, 0, 0));
+    // Put all the agents in a list.
+    std::vector<OdeAgent*> agents;
+    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 5, 0), goal));
+    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(0, 0, 0), goal));
+
+    // Combine all robots from list
+    for (vector<OdeAgent*>::iterator i = agents.begin(); i != agents.end(); ++i) {
+      BasicController* controller = dynamic_cast<BasicController*>((*i)->getController());
+      if(controller == nullptr) {
+        continue;
+      }
+      for (vector<OdeAgent*>::iterator j = agents.begin(); j != agents.end(); ++j) {
+        Tribot* teammate = dynamic_cast<Tribot*>((*j)->getRobot());
+        if(i == j || teammate == nullptr) {
+          continue;
+        }
+        controller->addTeammate(teammate);
+      }
+    }
+
+    for (vector<OdeAgent*>::iterator i = agents.begin(); i != agents.end(); ++i) {
+      BasicController* controller = dynamic_cast<BasicController*>((*i)->getController());
+      if(controller == nullptr) {
+        continue;
+      }
+      controller->printTeam();
+    }
+
   }
 
   /**
@@ -129,14 +159,15 @@ class TribotSim : public Simulation {
                      const OsgHandle& osgHandle,
                      GlobalData& global)
   {
-    initializeCamera(Pos(10, 10, 30), Pos(-10, -10, 0));
+    initializeCamera(Pos(10, 10, 100), Pos(-10, -10, 0));
 
     initializeSimulationParameters(global);
     initializePlayground(global, odeHandle, osgHandle);
 
-    initializeFixedObjects(odeHandle, osgHandle, global);
+    std::vector<lpzrobots::AbstractObstacle*> obstacles =
+      initializeFixedObjects(odeHandle, osgHandle, global);
 
-    initializeRobots(odeHandle, osgHandle, global);
+    initializeRobots(odeHandle, osgHandle, global, obstacles.front()->getPosition());
 
   }
 };

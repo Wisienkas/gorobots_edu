@@ -27,7 +27,7 @@ lpzrobots::PassiveBox * Factory::createBox(double length,
     = new lpzrobots::PassiveBox(odeHandle, osgHandle,
                                 osg::Vec3(length, width, height));
   passiveBox->setColor(lpzrobots::Color(1,0,0));
-  passiveBox->setPose(osg::Matrix::rotate(2, 0, 0, 1) * osg::Matrix::translate(2.0, 0.0, 0.0));
+  passiveBox->setPose(osg::Matrix::rotate(2, 0, 0, 1) * osg::Matrix::translate(position));
 
   return passiveBox;
 }
@@ -42,10 +42,13 @@ lpzrobots::PassiveSphere * Factory::createSphere(double size,
   return sphere;
 }
 
-void Factory::initFixedJoint(lpzrobots::AbstractObstacle* fixedObject) {
+std::vector<lpzrobots::AbstractObstacle*>
+Factory::initFixedJoint(lpzrobots::AbstractObstacle* fixedObject) {
   std::vector<lpzrobots::AbstractObstacle*> obstacles = global.obstacles;
   obstacles.push_back(fixedObject);
   lpzrobots::FixedJoint* fixator
     = new lpzrobots::FixedJoint(fixedObject->getMainPrimitive(), global.environment);
   fixator->init(odeHandle, osgHandle);
+
+  return obstacles;
 }

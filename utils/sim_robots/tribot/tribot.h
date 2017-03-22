@@ -2,6 +2,7 @@
 #ifndef __TRIBOT_H
 #define __TRIBOT_H
 
+#include <iostream>
 // Include ODE robot to inherit
 #include <ode_robots/oderobot.h>
 // ODE primitive
@@ -19,6 +20,8 @@ namespace lpzrobots {
    */
   class Tribot : public OdeRobot {
   public:
+    static int getCount() { return count++; }
+
     typedef struct {
       double bodyRadius;          // Radius of the cylinder defining the body
       double bodyHeight;          // Height of the cylinder defining the body
@@ -51,7 +54,7 @@ namespace lpzrobots {
     Tribot(const OdeHandle& odeHandle,
            const OsgHandle& osgHandle,
            const TribotConfig& config = getDefaultConfig(),
-           const std::string& name = "Tribot");
+           const std::string& name = "Tribot " + std::to_string(Tribot::getCount()));
 
 
     /**
@@ -70,9 +73,18 @@ namespace lpzrobots {
      * @param pose desired 4x4 pose matrix
      */
     virtual void create(const osg::Matrix& pose);
+
+    void printInfo() {
+      std::cout << "Robot: " << getName() << "\n";
+    }
+
+    virtual double getWheelToWorldAngle();
   private:
     virtual Primitive * createWheel(int side, const osg::Matrix& pose);
     virtual void createMotor(std::string name, HingeJoint* joint);
+    Primitive* lWheel;
+    Primitive* rWheel;
+    static int count;
   };
 }
 

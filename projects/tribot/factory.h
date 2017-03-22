@@ -33,7 +33,8 @@ class Factory {
   lpzrobots::PassiveSphere * createSphere(double size,
                                           osg::Vec3 position);
 
-  void initFixedJoint(lpzrobots::AbstractObstacle * fixedObject);
+  std::vector<lpzrobots::AbstractObstacle*>
+    initFixedJoint(lpzrobots::AbstractObstacle * fixedObject);
 };
 
 #endif
