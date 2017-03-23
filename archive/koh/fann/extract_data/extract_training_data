@@ -1,0 +1,62 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# For knee correction: generate a set of fann training data from
+# comedi_out and nnet_out files.
+#
+# Actually we will disable the left knee. So Everything except the
+# corresponding motor commands will be input. The later ones will be
+# output.
+#
+# comedi_out:
+# time   Boom   left foot   right foot   left hip   right hip   left knee   right knee
+# nnet_out:
+# time u_hl_em u_hl_fm u_hr_em u_hr_fm u_kl_em u_kl_fm u_kr_em u_kr_fm u_gl u_gr u_al u_ar
+
+## New style (python-3 like) print function
+from __future__ import print_function
+from __future__ import division
+
+import sys
+
+## Check for file name as parameter!
+if len(sys.argv)  < 2:
+    print( "To few arguments. File name missing." )
+    sys.exit(1)
+
+file_name = sys.argv[1]
+comedi = open(file_name)
+
+## How many columns have output signals
+no_of_outputs = 1
+if len(sys.argv) == 3:
+    no_of_outputs = int(sys.argv[2])
+print ( no_of_outputs )
+
+train_data = list()
+aim_data   = list()
+for sensors_line in comedi:
+    inputs = sensors_line.split()
+    # sensors 2 and 3 are foot contact, use u_gl and u_gr instead:
+    train_data.append(inputs[:-no_of_outputs])
+    aim_data.append(inputs[-no_of_outputs:])
+
+### Generate training data file
+train = open("training", "w")
+## First line: number_of_samples number_of_inputs number_of_outputs
+print(len(train_data), len(train_data[0]), len(aim_data[0]), file=train)
+
+def format(arr):
+    out=""
+    for i in arr:
+        out += str(i) + " "
+    return out
+
+## One line inputs
+## One line outputs
+for i in xrange(len(train_data)):
+    print(format(train_data[i]), file=train)
+    print(format(aim_data[i]),   file=train)
+
+
+
