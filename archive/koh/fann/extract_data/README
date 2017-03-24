@@ -1,5 +1,4 @@
 
-
 1) Preparing data in text file containing, e.g.,
 
 Column1 Column2 Column3 Column4
@@ -27,11 +26,28 @@ Then you will get a new file called "training"
 - All data of training file / 2 = number of training data
 - write on top of training file ==> number of data   number of inputs    number of output
 
-3) Set number of neurons at "knee_controller.h"
+3) Set number of neurons (input, hidden, output) in "network.h"
 
-4) Run the FAN program to train a neural network --> ./train_knee_controller training
+4) Run the FANN program to train a neural network 
+--> make  
+-->./start training
+F
+or example,
+/workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ make
+/workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ ./start training
 
-5) Testing the trained network
+5) After training, the network parameters (trained weights) will be saved in "training.net"
+use this file to test the network
+
+
+To use python file "test_trained_net", you need to install python-pyfann
+to install it>
+
+sudo apt-get update
+sudo apt-get install python-pyfann
+
+
+6) Testing the trained network
 
 >> python generic_training_verifyer.py
 
