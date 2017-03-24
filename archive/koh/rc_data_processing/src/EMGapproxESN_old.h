@@ -16,7 +16,7 @@
 #include <time.h>        // time
 
 //#include "utils/esn-framework/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
-#include "archive/koh/data_processing/include/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
+#include "archive/koh/rc_data_processing/include/networkmatrix.h" // XXX Include the networkmatrix last, otherwise it won't work!!!
 
 
 typedef vector< vector< vector< double > > > vector3Ddouble;
@@ -34,7 +34,7 @@ public:
         unsigned int = 1,                   // Save file number
         unsigned int = 1,                   // # of input neurons
         unsigned int = 1,                   // # of output neurons
-        unsigned int = 100,                  // # of hidden neurons
+        unsigned int = 32,                  // # of hidden neurons
         unsigned int = 1,                   // Learning mode
         unsigned int = 2,                   // Internal nonlinearity
         unsigned int = 0,                   // Output nonlinearity

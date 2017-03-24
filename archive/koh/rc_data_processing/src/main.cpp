@@ -12,12 +12,12 @@ int main( int argc, char ** argv ) {
     	//string inputPath                    = "resources/withoutCF/maturingsalmon/Input13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Input13_89.txt"; //"resources/emg_data/Input_emg_24576.txt";
         //string targetPath                   = "resources/withoutCF/maturingsalmon/Target13_166_salmon_cod.txt";//"resources/withoutCF/maturingsalmon/Target13_89.txt"; //"resources/emg_data/Target_emg_24576.txt";
 
-    	//string inputPath                    = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Input13_Data5_test_15_percent_missing.txt";
-	    //string targetPath                   = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Target_Data5_test_15_percent_missing.txt";
+    	string inputPath                    = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Input13_Data5_test_15_percent_missing.txt";
+	    string targetPath                   = "resources/fishdata_combinedmodels/Table1/ModelData/Data5/Target_Data5_test_15_percent_missing.txt";
 
     	//EEG data
-    	string inputPath                    = "resources/eeg_data/Input_14000.txt";
-        string targetPath                   = "resources/eeg_data/Target_14000.txt";
+    	//string inputPath                    = "resources/eeg_data/Input_14000.txt";
+        //string targetPath                   = "resources/eeg_data/Target_14000.txt";
 
 
 	    string resultPath                   = "results/result.txt";
