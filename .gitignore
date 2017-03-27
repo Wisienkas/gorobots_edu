@@ -17,3 +17,11 @@ video0*
 *.la
 *~
 *#
+
+# Ignoring GTAGS
+GTAGS
+GRTAGS
+GPATH
+
+# Ignore simulation msg output from versioning
+*.msg
