@@ -4,9 +4,37 @@
 
 #include <selforg/abstractcontroller.h>
 #include "tribot.h"
+#include "action.h"
 
 class BasicController : public AbstractController{
-  public:
+ private:
+  double nSensors;
+  double nMotors;
+  bool initialized;
+
+  lpzrobots::Tribot* robot;
+  Position goal;
+
+  std::vector<lpzrobots::Tribot*> teammates;
+
+  virtual Action calcActionForGoal(const double& angle, const double& margin);
+  virtual void updateMotors(motor* motors, const Action& action);
+
+  virtual std::map<lpzrobots::Tribot*, double> getMateAngles();
+  virtual double getAngle(Position point);
+
+    /**
+   * given an action containing left or right,
+   * will make the robot turn in that direction
+   * using the turnAccelleration and maxTurnSpeed
+   */
+  virtual void turn(int midxLeft,
+                    int midxRight,
+                    motor* motors,
+                    const double& maxTurnSpeed,
+                    const double& turnAccelleration,
+                    const Action& action);
+ public:
 
   BasicController(lpzrobots::Tribot* robot, const Position& goal);
 
@@ -51,19 +79,6 @@ class BasicController : public AbstractController{
     virtual void addTeammate(lpzrobots::Tribot* teammate);
 
     virtual void printTeam();
- private:
-    double nSensors;
-    double nMotors;
-    bool initialized;
-
-    Position goal;
-
-    lpzrobots::Tribot* robot;
-    std::vector<lpzrobots::Tribot*> teammates;
-
-
-    virtual std::map<lpzrobots::Tribot*, double> getMateAngles();
-    virtual double getAngle(Position point);
 };
 
 #endif

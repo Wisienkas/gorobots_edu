@@ -31,6 +31,11 @@ namespace lpzrobots {
       double wheelMass;           // Mass of the wheel
       double wheelMotorPower;     // Maximum power allowed to the motor to reach MaxSpeed
       double wheelMotorMaxSpeed;  // Maximum speed of the wheel
+      double maxTurnSpeed;
+      double maxTurnAccelleration;
+      double maxSpeed;
+      double speedupAccelleration;
+      double speedupMargin;
     } TribotConfig;
 
     TribotConfig conf;
@@ -45,6 +50,10 @@ namespace lpzrobots {
       conf.wheelMass          = 5.;
       conf.wheelMotorPower    = 5.;
       conf.wheelMotorMaxSpeed = 5.;
+      conf.maxTurnSpeed = 0.2;
+      conf.maxTurnAccelleration = 0.05;
+      conf.speedupAccelleration = 0.1;
+      conf.speedupMargin = M_PI / 12;
       return conf;
     }
 
