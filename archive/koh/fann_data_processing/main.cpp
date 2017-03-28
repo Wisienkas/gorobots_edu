@@ -61,10 +61,10 @@ int train ( const string filename, const float desired_error, float learning_rat
 	// fann_set_activation_function_output ( ann, FANN_SIGMOID_SYMMETRIC );
 	// Training alorithm definitions: http://leenissen.dk/fann/fann_1_2_0/r1996.html
 
-	fann_set_training_algorithm ( ann, FANN_TRAIN_INCREMENTAL);
+	//  fann_set_training_algorithm ( ann, FANN_TRAIN_INCREMENTAL);
 	//  fann_set_training_algorithm ( ann,  FANN_TRAIN_RPROP );
 
-	//fann_set_training_algorithm ( ann,   FANN_TRAIN_QUICKPROP);
+	fann_set_training_algorithm ( ann,   FANN_TRAIN_QUICKPROP);
 
 
 
