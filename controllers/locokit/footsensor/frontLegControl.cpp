@@ -69,7 +69,8 @@ void hindLegControl::step(const sensor* x_, int number_sensors,motor* y_, int nu
 	std::cout<<"sensor"<<x.at(0)<< "\n";
 
 	// save data
-	plot <<x.at(0)<< endl;
+	plot <<x.at(0)<<' '<<x.at(1)<<' '<<x.at(2)<<' '<<x.at(3)<< endl;
+
 
 
 	//cout << "sensor 1 value: " << x.at(1) << endl;
