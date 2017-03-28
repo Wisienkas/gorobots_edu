@@ -19,9 +19,9 @@ int main( int argc, char ** argv ) {
     	//string inputPath                    = "resources/eeg_data/Input_14000.txt";
         //string targetPath                   = "resources/eeg_data/Target_14000.txt";
 
-
-    	string inputPath                    = "resources/cpg_footsensor_data/InputData_4900_noise.txt";
-        string targetPath                   = "resources/cpg_footsensor_data/TargetData_4900.txt";
+      //Foot sensor data
+    	string inputPath                    = "resources/cpg_footsensor_data/InputData_4000_noise.txt"; //InputData_4900_noise.txt
+      string targetPath                   = "resources/cpg_footsensor_data/TargetData_4000.txt";//TargetData_4900.txt
 
 
 
@@ -35,11 +35,11 @@ int main( int argc, char ** argv ) {
         unsigned int learningMode           = 1;
         unsigned int internalNonlinearity   = 2;
         unsigned int outputNonlinearity     = 2;
-        double inputSparsity                = 50.0;
+        double inputSparsity                = 20.0;
         double internalSparsity             = 50.0;
         double learningRate                 = 0.99;
-        double leak                         = 0.33;
-        double percentage_1                 = 85.0; //  85% of total data for "training" (save)
+        double leak                         = 0.23;
+        double percentage_1                 = 90.0; //  85% of total data for "training" (save)
         double percentage_2                 = 100.0; // 100% of the remaining data (15% of total) for "validationUnits" (save & final) and another 0% of the remaining data (15% of total)  for "testing" (not use!)
         unsigned int repetition             = 1;
         unsigned int iterationLimit         = 500000;
