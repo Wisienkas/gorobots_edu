@@ -31,6 +31,7 @@ int train ( const string filename, const float desired_error, float learning_rat
 	outputF1.open("error.dat");
 
 
+    float error;
 
 	const unsigned int num_layers = 3; // Can Change Number of layers
 	unsigned int neurons_per_layer[num_layers] = {INPUTS, HIDDEN, OUTPUTS};
@@ -71,8 +72,23 @@ int train ( const string filename, const float desired_error, float learning_rat
 	fann_randomize_weights ( ann, -0.25, 0.25 );
 	fann_reset_MSE ( ann );
 
-	fann_train_on_file ( ann, fninput, max_iterations,
-			iterations_between_reports, desired_error );
+	//fann_train_on_file ( ann, fninput, max_iterations,iterations_between_reports, desired_error );
+
+
+	struct fann_train_data *data = fann_read_train_from_file("training");
+	for(int i = 1 ; i <= max_iterations; i++) {
+	  error = fann_train_epoch(ann, data);
+	  if ( error < desired_error ) {
+		  break;
+	  }
+
+		cout << "error" << error << endl;
+	}
+	fann_destroy_train(data);
+
+// Testing network
+//http://leenissen.dk/fann/html/files/fann_train-h.html#fann_test_data
+
 
 //	actual_error = fann_train_epoch ( ann, train_data );
 //	outputF1<< actual_error <<endl;
