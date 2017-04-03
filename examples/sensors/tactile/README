@@ -33,3 +33,20 @@ Netmask 255.255.255.0
 4) Run the program
 poma@poma-HP-EliteBook-840-G1:~/workspace/pmanoonpong-gorobots-fork/examples/sensors/tactile$ python ctakt_multiple.py 
 
+poma@poma-HP-EliteBook-840-G1:~/workspace/pmanoonpong-gorobots-fork/examples/sensors/tactile$ python ctakt_multiple.py 
+starting up on 192.168.1.100 port 10001
+starting up on 192.168.1.100 port 10002
+starting up on 192.168.1.100 port 10003
+data received
+starting up on 192.168.1.100 port 10004
+starting up on 192.168.1.100 port 10005
+starting up on 192.168.1.100 port 10006
+>> v
+>> l
+Saving to file started
+>> l
+Saving to file ended
+>> 
+
+
+
