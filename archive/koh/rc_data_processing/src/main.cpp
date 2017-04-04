@@ -34,7 +34,7 @@ int main( int argc, char ** argv ) {
         unsigned int numberOfHiddenUnits    = 50;
         unsigned int learningMode           = 1;
         unsigned int internalNonlinearity   = 2;
-        unsigned int outputNonlinearity     = 2;
+        unsigned int outputNonlinearity     = 0; //0 = linear, 1 = sigmoid (logistic), 2  = tanh:
         double inputSparsity                = 20.0;
         double internalSparsity             = 50.0;
         double learningRate                 = 0.99;
