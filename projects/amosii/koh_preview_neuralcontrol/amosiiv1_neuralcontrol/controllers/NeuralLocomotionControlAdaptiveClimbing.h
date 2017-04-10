@@ -19,6 +19,12 @@
 #include <fstream>
 #include <string.h>
 
+//-----------Add laser scanner Patrick---------------
+#ifdef LASERSCANNER
+#include "sensors/laserscanner/laserScanner.h"
+#endif
+//------------------------------------------------
+
 //atof function
 #include <stdio.h>
 #include <stdlib.h>
@@ -357,9 +363,30 @@ public:
 
     std::vector<double> m_deg_test;
 
+
+
+
+    //MRC parameters -begin//
+     std::vector<double> mrc_input;    //MRC inputs
+     std::vector<double> mrc_avg_input;    //MRC average inputs
+     std::vector<double> mrc_activity; //MRC neural activities
+     std::vector<double> mrc_output;   //MRC neural outputs
+     std::vector<double> mrc_input_w;   //MRC neural weight from inputs to MRC neurons
+     std::vector< std::vector<double> > mrc_w;       //MRC neural weights
+     double mrc_bias;                  //MRC bias
+
 	//---End Define vector----//
 
 private:
+
+    //-------------------Laser scanner Patrick-------------
+#ifdef LASERSCANNER
+    //Not yet needed
+    //URGLaser urg;
+    ofstream streamMotor1,streamMotor2;
+    double laserOutputOld;
+#endif
+    //------------------------------------------------
 
 	double  h;
 	double count1;

@@ -49,6 +49,15 @@ AmosIIControl::AmosIIControl()
 	addInspectableValue("m_pre.atCR1",&control_adaptiveclimbing.m.at(CR0_m),"CR0_m");
 	addInspectableValue("m_pre.atCR2",&control_adaptiveclimbing.m.at(FR0_m),"FR0");
 
+  addInspectableValue("input.at(3)",&control_adaptiveclimbing.input.at(3),"CR0_m");
+  addInspectableValue("input.at(4)",&control_adaptiveclimbing.input.at(4),"FR0");
+  addInspectableValue("mrc_output.at(0)",&control_adaptiveclimbing.mrc_output.at(0),"CR0_m");
+  addInspectableValue("mrc_output.at(1)",&control_adaptiveclimbing.mrc_output.at(1),"FR0");
+
+
+   addInspectableValue("mrc_input.at(0)",&control_adaptiveclimbing.mrc_input.at(0),"CR0_m");
+   addInspectableValue("mrc_input.at(1)",&control_adaptiveclimbing.mrc_input.at(1),"FR0");
+
 
 
 
