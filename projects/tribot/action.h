@@ -1,5 +1,5 @@
-#ifndef __ACTION_H
-#define __ACTION_H
+#ifndef __GOROBOTS_EDU_PROJECTS_TRIBOT_ACTION_H
+#define __GOROBOTS_EDU_PROJECTS_TRIBOT_ACTION_H
 
 enum Action {
   LEFT,
@@ -8,4 +8,4 @@ enum Action {
   BACKWARDS
 };
 
-#endif
+#endif // end of __GOROBOTS_EDU_PROJECTS_TRIBOT_ACTION_H

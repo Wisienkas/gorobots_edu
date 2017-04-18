@@ -1,5 +1,5 @@
-#ifndef __FACTORY_H
-#define __FACTORY_H
+#ifndef __GOROBOTS_EDU_PROJECTS_TRIBOT_FACTORY_H
+#define __GOROBOTS_EDU_PROJECTS_TRIBOT_FACTORY_H
 
 // add head file for creating a sphere by Ren ------------
 #include <ode_robots/passivesphere.h>
@@ -37,4 +37,4 @@ class Factory {
     initFixedJoint(lpzrobots::AbstractObstacle * fixedObject);
 };
 
-#endif
+#endif // end of __GOROBOTS_EDU_PROJECTS_TRIBOT_FACTORY_H

@@ -3,6 +3,7 @@
 #define __TRIBOT_H
 
 #include <iostream>
+#include <string>
 // Include ODE robot to inherit
 #include <ode_robots/oderobot.h>
 // ODE primitive
@@ -20,7 +21,7 @@ namespace lpzrobots {
    */
   class Tribot : public OdeRobot {
   public:
-    static int getCount() { return count++; }
+
 
     typedef struct {
       double bodyRadius;          // Radius of the cylinder defining the body
@@ -63,7 +64,7 @@ namespace lpzrobots {
     Tribot(const OdeHandle& odeHandle,
            const OsgHandle& osgHandle,
            const TribotConfig& config = getDefaultConfig(),
-           const std::string& name = "Tribot " + std::to_string(Tribot::getCount()));
+           const std::string& name = "Tribot");
 
 
     /**
@@ -93,7 +94,6 @@ namespace lpzrobots {
     virtual void createMotor(std::string name, HingeJoint* joint);
     Primitive* lWheel;
     Primitive* rWheel;
-    static int count;
   };
 }
 

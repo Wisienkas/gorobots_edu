@@ -11,9 +11,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include <pigpio.h>
-#include <ncurses.h>
+//#include <linux/i2c-dev.h>
+//#include <pigpio.h>
+//#include <ncurses.h>
 #include <signal.h>
 #include <math.h>
 
@@ -95,10 +95,12 @@ lizard_ear::~lizard_ear()
 
 }
 
-void lizard_ear::filter(double *signalL, double *signalR)
+void lizard_ear::filter(std::vector<double> signalLeft, std::vector<double> signalRight)
 {
 	unsigned int i;
 
+        std::vector<double>::iterator left = signalLeft.begin();
+        std::vector<double>::iterator right = signalRight.begin();
 	sumL = sumR = 0;
 	xL[0] = xR[0] = 0;
 	xL[1] = xR[1] = 0;
@@ -113,8 +115,8 @@ void lizard_ear::filter(double *signalL, double *signalR)
 	for (i = 0; i < N_SAMPLES_USED; i++)
 	{
 		// Load the current input sample in the shift register "x"
-		xL[0] = *signalL;
-		xR[0] = *signalR;
+		xL[0] = *left;
+		xR[0] = *right;
 
 		// Do convolution
 		out_LC[i] =	xL[0]*params_13mm.bz_C[0] + xL[1]*params_13mm.bz_C[1] +
@@ -172,8 +174,8 @@ void lizard_ear::filter(double *signalL, double *signalR)
 		sumR = sumR + fabs(out_RI[i] + out_LC[i]);
 
 		// Increment pointer
-		signalL++;
-		signalR++;
+		left++;
+		right++;
 	}
 }
 

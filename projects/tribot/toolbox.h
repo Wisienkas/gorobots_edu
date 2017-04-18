@@ -1,6 +1,8 @@
 // Header Guard
-#ifndef __TOOLBOX_H
-#define __TOOLBOX_H
+#ifndef __GOROBOTS_EDU_PROJECTS_TRIBOT_TOOLBOX_H
+#define __GOROBOTS_EDU_PROJECTS_TRIBOT_TOOLBOX_H
+
+#include <vector>
 
 namespace toolbox {
 
@@ -19,6 +21,14 @@ namespace toolbox {
    * Converts degrees to radian
    */
   double toRadian(double degrees);
+
+  /**
+   * Phaseshift Values
+   */
+  std::vector<std::vector<double>> sinewaveSampling(double angle,
+                                                    int samples,
+                                                    int sample_rate,
+                                                    int frequency);
 }
 
-#endif
+#endif // end of __GOROBOTS_EDU_PROJECTS_TRIBOT_TOOLBOX_H

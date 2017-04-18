@@ -47,10 +47,12 @@ shared:  libode_robots_shared
 	$(MAKE) BASELIBS="$(BASELIBSSHARED)" LIBSELFORG="$(LIBSELFORGSHARED)" \
 		LIBODEROBOTS="$(LIBODEROBOTSSHARED)" $(EXEC)
 
-$(EXEC): Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS) $(LIBSELFORG)
+# will build all the files
+build: Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS) $(LIBSELFORG)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
-	./$(EXEC)
-	rm -f $(EXEC)
+
+$(EXEC): build
+	./$(EXEC) -g 1
 
 libode_robots:
 	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) lib

@@ -1,9 +1,12 @@
+#ifndef __LIZARD_EAR_H
+#define __LIZARD_EAR_H
+
 #define PMODAD2_I2C_ADDRESS 0x28
 
 #define N_CHANNELS 4
-#define N_SAMPLES_PER_CHANNEL 100
+#define N_SAMPLES_PER_CHANNEL 500
 #define N_BYTES_PER_SAMPLE 2
-#define N_SAMPLES_USED 100
+#define N_SAMPLES_USED 500
 #define BUF_SIZE (N_BYTES_PER_SAMPLE * N_SAMPLES_PER_CHANNEL * N_CHANNELS)
 
 
@@ -37,18 +40,21 @@
 #define CHANNEL_3 (AD7991_CH3_OFF | AD7991_CH2_ON | AD7991_CH1_OFF | AD7991_CH0_OFF)
 #define CHANNEL_4 (AD7991_CH3_ON | AD7991_CH2_OFF | AD7991_CH1_OFF | AD7991_CH0_OFF)
 
+#include <vector>
+
 class lizard_ear
 {
 
 private:
         // Samplerate = 50 KHz
-/*      double bz_C[4] = {1.12149800000000e-008,-3.13962940619566e-008,3.00757214285979e-008,-9.87041934581002e-009};
-        double bz_I[4] = {3.25260651745651e-24,2.31950732009048e-10,-1.31371090623241e-11,-2.18814137699633e-10};
-        double az_C[4] = {-3.67744663463145,5.21122916122862,-3.36870319684106,0.839136745082569};
-        double az_I[4] = {-3.67744663463145,5.21122916122862,-3.36870319684106,0.839136745082569};
-*/
+  struct parameters {
+    double bz_C[4] = {1.12149800000000e-008,-3.13962940619566e-008,3.00757214285979e-008,-9.87041934581002e-009};
+    double bz_I[4] = {1.08420651745651e-24,-2.31950732009048e-10,-1.31371090623241e-11,2.18814137699633e-10};
+    double az_C[4] = {-3.67744663463145,5.21122916122862,-3.36870319684106,0.839136745082569};
+    double az_I[4] = {-3.67744663463145,5.21122916122862,-3.36870319684106,0.839136745082569};
+  } params_13mm;
         // Samplerate = 25 KHz
-        struct parameters
+  /*        struct parameters
         {
                 double bz_C[4] = {      2.24299600000000e-08,
                                         -5.38772873816963e-08,
@@ -69,7 +75,7 @@ private:
                                         4.05873039241399,
                                         -2.60229347594167,
                                         0.704150476947769};
-        } params_13mm;
+                                        } params_13mm;*/
 
         double xL[4] = {0}, xR[4] = {0};
         double yLC[4] = {0}, yLI[4] = {0}, yRC[4] = {0}, yRI[4] = {0};
@@ -84,5 +90,7 @@ public:
 
         ~lizard_ear();
 
-        void filter(double *, double *);
+        void filter(std::vector<double>, std::vector<double>);
 };
+
+#endif // end of __LIZARD_EAR_H

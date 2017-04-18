@@ -20,8 +20,6 @@ namespace lpzrobots {
   {
   }
 
-  int Tribot::count = 0;
-
   void Tribot::placeIntern(const osg::Matrix& pose)
   {
     osg::Matrix initialPose;

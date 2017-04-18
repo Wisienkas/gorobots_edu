@@ -26,7 +26,7 @@
 
 //#include "tribot.h"
 #include "factory.h"
-
+#include "lizard_ear.h"
 
 using namespace std;
 using namespace lpzrobots;
@@ -88,7 +88,7 @@ class TribotSim : public Simulation {
                               GlobalData& global)
   {
     Factory * factory = new Factory(odeHandle, osgHandle, global);
-    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(-10,20,0));
+    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(2,10,0));
     return factory->initFixedJoint(passiveBox);
   }
 
@@ -101,7 +101,7 @@ class TribotSim : public Simulation {
                          const Pos& position,
                          const Position& goal)
   {
-    auto robot = new Tribot(odeHandle, osgHandle);
+    auto robot = new Tribot(odeHandle, osgHandle, Tribot::getDefaultConfig(), "Tribot");
     robot->place(position);
 
     auto controller = new BasicController(robot, goal);
@@ -124,8 +124,8 @@ class TribotSim : public Simulation {
   {
     // Put all the agents in a list.
     std::vector<OdeAgent*> agents;
-    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 5, 0), goal));
     agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(0, 0, 0), goal));
+    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 0, 0), goal));
 
     // Combine all robots from list
     for (vector<OdeAgent*>::iterator i = agents.begin(); i != agents.end(); ++i) {
@@ -138,7 +138,7 @@ class TribotSim : public Simulation {
         if(i == j || teammate == nullptr) {
           continue;
         }
-        controller->addTeammate(teammate);
+        //controller->addTeammate(teammate);
       }
     }
 
@@ -147,7 +147,7 @@ class TribotSim : public Simulation {
       if(controller == nullptr) {
         continue;
       }
-      controller->printTeam();
+      //controller->printTeam();
     }
 
   }
@@ -172,11 +172,36 @@ class TribotSim : public Simulation {
   }
 };
 
+void test();
+
 /**
  * Main method to start the program
  */
 int main(int argc, char **argv)
 {
+  //test();
+  //return 0;
   TribotSim sim;
   return sim.run(argc, argv) ? 0 : 1;
+}
+
+#include "toolbox.h"
+#include "sinewave.h"
+void test() {
+  int size = 500;
+  std::vector<std::vector<double>> values = toolbox::sinewaveSampling(M_PI, size, 50000, 1700);
+  std::vector<double>::iterator a = values.front().begin();
+  std::vector<double>::iterator b = values.back().begin();
+  for (int i = 0; i < size; i++) {
+    //std::cout << "L: " << *a << " R: " << *b << "\n";
+    a++;
+    b++;
+  }
+  //LizardEar *ear = new LizardEar(size);
+  //LizardEarSum sum = ear->filter(values.front(), values.back());
+  //std::cout << "L: " << sum.left << "\nR: " << sum.right << "\n";
+  lizard_ear *ear2 = new lizard_ear();
+  ear2->filter(values.front(), values.back());
+  std::cout << "L: " << std::log10(ear2->sumL) * 20 << "\nR: " << std::log10(ear2->sumR) * 20 << "\n";
+  std::cout << "diff: " << std::log10(ear2->sumL) * 20 - std::log10(ear2->sumR) * 20 << "\n";
 }
