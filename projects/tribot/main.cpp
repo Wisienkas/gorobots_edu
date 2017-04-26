@@ -88,7 +88,7 @@ class TribotSim : public Simulation {
                               GlobalData& global)
   {
     Factory * factory = new Factory(odeHandle, osgHandle, global);
-    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(2,20,0));
+    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(-4,20,0));
     return factory->initFixedJoint(passiveBox);
   }
 
@@ -99,12 +99,13 @@ class TribotSim : public Simulation {
                          const OsgHandle& osgHandle,
                          GlobalData& global,
                          const Pos& position,
-                         const Position& goal)
+                         const Position& goal,
+                         const std::string& name)
   {
     auto robot = new Tribot(odeHandle, osgHandle, Tribot::getDefaultConfig(), "Tribot");
     robot->place(position);
 
-    auto controller = new BasicController(robot, goal);
+    auto controller = new BasicController(robot, goal, name);
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(.1));
 
     OdeAgent* agent = new OdeAgent(global);
@@ -124,8 +125,8 @@ class TribotSim : public Simulation {
   {
     // Put all the agents in a list.
     std::vector<OdeAgent*> agents;
-    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(0, 0, 0), goal));
-    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 0, 0), goal));
+    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(0, 0, 0), goal, "agent1"));
+    agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 0, 0), goal, "agent2"));
 
 
     // Combine all robots from list

@@ -3,6 +3,7 @@
 #define __GOROBOTS_EDU_PROJECTS_TRIBOT_BASIC_CONTROLLER_H
 
 #include <selforg/abstractcontroller.h>
+#include <string>
 // The Tribot robot header file
 #include "tribot.h"
 // The action enumerates
@@ -23,11 +24,23 @@ class BasicController : public AbstractController{
   lpzrobots::Tribot * mate;
   tribot::BraitenBerg braitenBerg;
   double highestMateValue = 0.0;
+
+  tribot::Output frontOutput;
+  tribot::Output sideOutput;
+  double highestEarOutput;
+  double lowestEarOutput;
+
+  double featureScaling(double x);
+
+  void calculateLizardEarSpectrum();
+
   void updateMateValue(double incoming);
 
   virtual double getAngle(Position point);
   virtual double getAngle(Position point, double robotDirection);
+
   void setMotorPower(motor* motor, double left, double right);
+
   tribot::Output getLizardEarOutput(const Position& position);
   tribot::Output getLizardEarOutput(const Position& position, double offsetAngle);
 
@@ -36,7 +49,7 @@ class BasicController : public AbstractController{
   void stearGoal(tribot::Output goal, tribot::Output mate, motor * motors);
 
  public:
-  BasicController(lpzrobots::Tribot* robot, const Position& goal);
+  BasicController(lpzrobots::Tribot* robot, const Position& goal, const std::string& name);
 
   virtual void setMatePositionReference(lpzrobots::Tribot * mate);
 
