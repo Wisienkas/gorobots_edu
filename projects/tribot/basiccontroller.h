@@ -20,12 +20,25 @@ class BasicController : public AbstractController{
 
   lpzrobots::Tribot* robot;
   Position goal;
+  lpzrobots::Tribot * mate;
   tribot::BraitenBerg braitenBerg;
+  double highestMateValue = 0.0;
+  void updateMateValue(double incoming);
 
   virtual double getAngle(Position point);
+  virtual double getAngle(Position point, double robotDirection);
+  void setMotorPower(motor* motor, double left, double right);
+  tribot::Output getLizardEarOutput(const Position& position);
+  tribot::Output getLizardEarOutput(const Position& position, double offsetAngle);
+
+  // Stearing Methods
+  void stearParrallel(tribot::Output mate, motor * motors);
+  void stearGoal(tribot::Output goal, tribot::Output mate, motor * motors);
 
  public:
   BasicController(lpzrobots::Tribot* robot, const Position& goal);
+
+  virtual void setMatePositionReference(lpzrobots::Tribot * mate);
 
   /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use. The random generator is optional.

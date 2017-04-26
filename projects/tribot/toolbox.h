@@ -29,6 +29,8 @@ namespace toolbox {
                                                     int samples,
                                                     int sample_rate,
                                                     int frequency);
+
+  bool isSameSign(double a, double b);
 }
 
 #endif // end of __GOROBOTS_EDU_PROJECTS_TRIBOT_TOOLBOX_H

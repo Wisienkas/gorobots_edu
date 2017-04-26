@@ -6,8 +6,10 @@
 namespace tribot {
 
   struct Output {
-      double left;
-      double right;
+    double left;
+    double right;
+
+    inline double getDifference() { return left - right; }
   };
 
   class BraitenBerg {

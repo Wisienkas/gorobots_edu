@@ -28,8 +28,8 @@ namespace tribot {
     lizardEar.filter(left, right);
 
     Output output;
-    output.right = std::log10(lizardEar.sumL) * DB_SCALAR;
-    output.left = std::log10(lizardEar.sumR) * DB_SCALAR;
+    output.right = std::log10(lizardEar.sumR) * DB_SCALAR;
+    output.left = std::log10(lizardEar.sumL) * DB_SCALAR;
 
     return output;
   }

@@ -1,7 +1,7 @@
 #include "toolbox.h"
 // Used to include things as the PI value as M_PI
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include "sinewave.h"
 
@@ -60,5 +60,15 @@ namespace toolbox {
     result.push_back(rightSinewave.sample(from, to, step));
 
     return result;
+  }
+
+  bool isSameSign(double a, double b) {
+    if (std::fabs(a) < 0.001 || std::fabs(b) < 0.001) {
+      return true;
+    } else if (a > 0) {
+      return b > 0;
+    } else {
+      return b < 0;
+    }
   }
 }

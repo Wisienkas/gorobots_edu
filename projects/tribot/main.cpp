@@ -88,7 +88,7 @@ class TribotSim : public Simulation {
                               GlobalData& global)
   {
     Factory * factory = new Factory(odeHandle, osgHandle, global);
-    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(2,10,0));
+    PassiveBox * passiveBox = factory->createBox(1,1,1, osg::Vec3(2,20,0));
     return factory->initFixedJoint(passiveBox);
   }
 
@@ -127,6 +127,7 @@ class TribotSim : public Simulation {
     agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(0, 0, 0), goal));
     agents.push_back(createRobot(odeHandle, osgHandle, global, Pos(5, 0, 0), goal));
 
+
     // Combine all robots from list
     for (vector<OdeAgent*>::iterator i = agents.begin(); i != agents.end(); ++i) {
       BasicController* controller = dynamic_cast<BasicController*>((*i)->getController());
@@ -138,7 +139,7 @@ class TribotSim : public Simulation {
         if(i == j || teammate == nullptr) {
           continue;
         }
-        //controller->addTeammate(teammate);
+        controller->setMatePositionReference(teammate);
       }
     }
 
