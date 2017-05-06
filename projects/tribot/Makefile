@@ -34,7 +34,7 @@ LIBS  += $(BASELIBS) $(ADDITIONAL_LIBS)
 INC   += -I.
 
 CXX = g++
-CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) \
+CPPFLAGS = -g -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) \
   $(shell ode_robots-config $(CFGOPTS) --intern --cflags)
 
 normal: libode_robots

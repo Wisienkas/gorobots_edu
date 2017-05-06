@@ -13,6 +13,7 @@
 
 const int SAMPLE_SIZE = 4;
 
+namespace tribot {
 class BasicController : public AbstractController{
  private:
   double nSensors;
@@ -92,5 +93,5 @@ class BasicController : public AbstractController{
   virtual bool restore(FILE* f);
 
 };
-
+}
 #endif // end of __GOROBOTS_EDU_PROJECTS_TRIBOT_BASIC_CONTROLLER_H

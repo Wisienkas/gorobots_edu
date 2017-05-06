@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace matrix;
+using namespace tribot;
 
 BasicController::BasicController(lpzrobots::Tribot* robot, const Position& goal,
                                  const std::string& name)
@@ -63,6 +64,7 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
 
   tribot::Output mateOutputFront = getLizardEarOutput(mate->getPosition());
 
+  //stearGoal(goalOutput, mateOutputFront, motors);
   if (toolbox::isSameSign(mateOutputFront.getDifference(), goalOutput.getDifference())) {
     stearParrallel(mateOutputFront, motors);
   } else {
@@ -102,9 +104,10 @@ void BasicController::stearGoal(tribot::Output goal, tribot::Output mate, motor 
   double baseSpeed = 0.5;
   double turned90DegreeAngle = robot->getWheelToWorldAngle() + (M_PI / 2);
   tribot::Output mateOutput = getLizardEarOutput(this->mate->getPosition(), turned90DegreeAngle);
+
   setMotorPower(motors,
                 baseSpeed + featureScaling(goal.right) - featureScaling(mateOutput.right),
-                baseSpeed + featureScaling(goal.left) - featureScaling(mateOutput.left));
+                baseSpeed + featureScaling(goal.left)  - featureScaling(mateOutput.left));
 }
 
 tribot::Output BasicController::getLizardEarOutput(const Position& position) {
