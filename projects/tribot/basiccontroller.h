@@ -20,6 +20,8 @@ class BasicController : public AbstractController{
   double nMotors;
   bool initialized;
 
+  long sim_step = 0;
+
   lpzrobots::Tribot* robot;
   Position goal;
   lpzrobots::Tribot * mate;
@@ -49,10 +51,17 @@ class BasicController : public AbstractController{
   void stearParrallel(tribot::Output mate, motor * motors);
   void stearGoal(tribot::Output goal, tribot::Output mate, motor * motors);
 
+  double softstep(double y);
+
  public:
   BasicController(lpzrobots::Tribot* robot, const Position& goal, const std::string& name);
 
   virtual void setMatePositionReference(lpzrobots::Tribot * mate);
+
+  lpzrobots::Tribot * getRobot() {return robot;}
+  Position getGoal() {return goal;}
+
+  double rangeToGoal();
 
   /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use. The random generator is optional.

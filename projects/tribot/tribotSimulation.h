@@ -10,6 +10,7 @@
 #include <ode_robots/simulationtaskhandle.h>
 #include <selforg/position.h>
 #include "tribotSimTaskHandle.h"
+#include "tribot.h"
 #include <ode_robots/odeagent.h>
 #include <ode_robots/abstractobstacle.h>
 
@@ -17,9 +18,14 @@
 // Contains important piece of code to make playground.h compile apparently
 #include <ode_robots/passivesphere.h>
 
+#include <string>
+#include <fstream>
+#include <iostream>
+
 namespace tribot {
   class TribotSimulation : public lpzrobots::TaskedSimulation {
   private:
+    std::fstream * stream;
     TribotSimTaskHandle tribotSimTaskHandle;
 
     void initializeCamera(lpzrobots::Pos from, lpzrobots::Pos to);
@@ -29,9 +35,8 @@ namespace tribot {
     lpzrobots::OdeAgent * createRobot(const lpzrobots::OdeHandle& odeHandle,
                                       const lpzrobots::OsgHandle& osgHandle,
                                       lpzrobots::GlobalData& global,
-                                      const lpzrobots::Pos& position,
-                                      const Position& goal,
-                                      const std::string& name);
+                                      const TribotAgentConfig& agentConfig,
+                                      const Position& goal);
     lpzrobots::AbstractObstacle * initializeGoal(const lpzrobots::OdeHandle& odeHandle,
                                            const lpzrobots::OsgHandle& osgHandle,
                                            lpzrobots::GlobalData& globalData);
@@ -40,8 +45,11 @@ namespace tribot {
                           lpzrobots::GlobalData& global,
                           const Position& goal);
     void initializeSimulationParameters(const lpzrobots::GlobalData & globalData);
+    std::string getLine(lpzrobots::Tribot * bot);
+    void setupFileStream(std::string filename);
   public:
     TribotSimulation(TribotSimTaskHandle);
+    ~TribotSimulation();
 
     /**
      * All objects, agents etc should be initialized in this method

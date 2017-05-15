@@ -3,10 +3,14 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/noisegenerator.h>
 
-
 #include "factory.h"
 #include "tribot.h"
 #include "basiccontroller.h"
+
+#include <ode_robots/odeagent.h>
+
+#include <fstream>
+#include <iostream>
 
 using namespace tribot;
 
@@ -18,6 +22,16 @@ TribotSimulation::TribotSimulation(TribotSimTaskHandle tribotSimTaskHandle)
   setGroundTexture("Images/whiteground.jpg");
   setGroundTexture("Images/greenground.rgb");
   setTaskNameSuffix(tribotSimTaskHandle.name);
+  setupFileStream(tribotSimTaskHandle.name + ".csv");
+}
+
+void TribotSimulation::setupFileStream(std::string filename) {
+  this->stream = new std::fstream();
+  stream->open(filename, std::fstream::out);
+  (*stream) << "\"step\",";
+  (*stream) << "\"name1\",\"x1\",\"y1\",\"z1\",";
+  (*stream) << "\"name2\",\"x2\",\"y2\",\"z2\",";
+  (*stream) << "\"goal_x\",\"goal_y\",\"goal_z\"\n";
 }
 
   /**
@@ -54,17 +68,16 @@ lpzrobots::Playground * TribotSimulation::initializePlayground(const lpzrobots::
 lpzrobots::OdeAgent * TribotSimulation::createRobot(const lpzrobots::OdeHandle& odeHandle,
                                   const lpzrobots::OsgHandle& osgHandle,
                                   lpzrobots::GlobalData& global,
-                                  const lpzrobots::Pos& position,
-                                  const Position& goal,
-                                  const std::string& name)
+                                  const TribotAgentConfig& agentConfig,
+                                  const Position& goal)
 {
   auto robot = new lpzrobots::Tribot(odeHandle,
                                      osgHandle,
                                      lpzrobots::Tribot::getDefaultConfig(),
-                                     name);
-  robot->place(position);
+                                     agentConfig.name);
+  robot->place(agentConfig.position);
 
-  auto controller = new BasicController(robot, goal, name);
+  auto controller = new BasicController(robot, goal, agentConfig.name);
   One2OneWiring* wiring =
     new One2OneWiring(new ColorUniformNoise(.1));
 
@@ -86,15 +99,13 @@ void TribotSimulation::initializeRobots(const lpzrobots::OdeHandle& odeHandle,
   lpzrobots::OdeAgent * agent1 = createRobot(odeHandle,
                                              osgHandle,
                                              global,
-                                             tribotSimTaskHandle.agent1.position,
-                                             goal,
-                                             tribotSimTaskHandle.agent1.name);
+                                             tribotSimTaskHandle.agent1,
+                                             goal);
   lpzrobots::OdeAgent * agent2 = createRobot(odeHandle,
                                              osgHandle,
                                              global,
-                                             tribotSimTaskHandle.agent2.position,
-                                             goal,
-                                             tribotSimTaskHandle.agent2.name);
+                                             tribotSimTaskHandle.agent2,
+                                             goal);
 
   // Sets robot2 to controller1
   BasicController * controller1 = dynamic_cast<BasicController*>(agent1->getController());
@@ -146,13 +157,52 @@ void TribotSimulation::initializeSimulationParameters(const lpzrobots::GlobalDat
  * Allows for inspection at each step
  */
 void TribotSimulation::addCallback(lpzrobots::GlobalData &globalData,
-                        bool draw,
-                        bool pause,
-                        bool control,
-                        lpzrobots::SimulationTaskHandle & handle,
-                        int taskId)
+                                   bool draw,
+                                   bool pause,
+                                   bool control,
+                                   lpzrobots::SimulationTaskHandle & handle,
+                                   int taskId)
 {
+  std::vector<lpzrobots::OdeAgent*> agents = globalData.agents;
+  bool goalFlag = false;
+  Position goal;
+  (*this->stream) << globalData.sim_step << ",";
+  for (std::vector<lpzrobots::OdeAgent*>::iterator agent = agents.begin();
+       agent != agents.end();
+       agent++) {
+    BasicController * controller = dynamic_cast<BasicController*>((*agent)->getController());
+    lpzrobots::Tribot * bot = controller->getRobot();
+    (*this->stream) << getLine(bot);
+    double dist = controller->rangeToGoal();
+    //std::cout << "dist: " << dist << "\n";
+    goal = controller->getGoal();
+    if (dist <= tribotSimTaskHandle.goal.winDistance) {
+      goalFlag = true;
+    }
+  }
+  (*this->stream) << goal.x << "," << goal.y << "," << goal.z << "\n";
+  if(goalFlag) {
+    std::cout << "Reached Goal\n";
+    // Will end simulation as goal condition
+    simulation_time_reached = true;
+  }
+  if(globalData.sim_step >= 3000) {
+    std::cout << "Sim ended noncomplete at step 5000\n";
+    simulation_time_reached = true;
+  }
+}
 
+std::string TribotSimulation::getLine(lpzrobots::Tribot * bot) {
+  std::stringstream str;
+  str << "\"" << bot->getName() << "\",";
+  Position position = bot->getPosition();
+  str << position.x  << "," << position.y << "," << position.z << ",";
+  return str.str();
+}
+
+TribotSimulation::~TribotSimulation() {
+  std::cout << "Closing Stream\n";
+  this->stream->close();
 }
 
 bool TribotSimulation::restart(const lpzrobots::OdeHandle &,

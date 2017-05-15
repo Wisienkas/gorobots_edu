@@ -48,19 +48,42 @@ double BasicController::featureScaling(double x) {
 
 void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
                                      motor* motors, int number_motors) {
-  tribot::Output goalOutput = getLizardEarOutput(goal);
+  sim_step++;
 
-  double offset = 110.0;
-  double divideGoal = 5.0;
-  double divideMate = 50.0;
+  tribot::Output pair1Goal = getLizardEarOutput(goal);
+  // Determines rotation for to stay aligned
+  tribot::Output pair1Mate = getLizardEarOutput(mate->getPosition());
+  // Determines if speed should increase or fall using diff
+  tribot::Output pair2Mate = getLizardEarOutput(mate->getPosition(),
+                                                robot->getWheelToWorldAngle() + M_PI / 2);
 
+  // Basespeed constant
+  double k = 0.2;
+  double speedup = 1;
+
+  //double goalMod = 1;
+  //double goalMod = std::pow(0.96, (pair1Goal.getDifference() * pair1Mate.getDifference()));
+  double goalMod = pair1Goal.getDifference() * pair1Mate.getDifference() < 0 ? 1 : 0;
+
+  double power = featureScaling(pair1Goal.right) * goalMod + featureScaling(pair1Goal.left) * goalMod;
+  //std::cout << getName() << ":" << goalMod << "\n";
+  double leftWheel = k
+    + featureScaling(pair1Goal.right) * goalMod
+    + featureScaling(pair1Mate.left) * pair2Mate.getDifference()
+    - power / 2;
+  double rightWheel = k
+    + featureScaling(pair1Goal.left) * goalMod // Using Cross -> seek mode
+    + featureScaling(pair1Mate.right) * pair2Mate.getDifference() // Using fear, sateliting
+    - power / 2;
+
+  setMotorPower(motors, softstep(leftWheel) * speedup, softstep(rightWheel) * speedup);
+  /*
   double leftPower = featureScaling(goalOutput.right);
   double rightPower = featureScaling(goalOutput.left);
   if(!mate) {
     setMotorPower(motors, leftPower, rightPower);
     return;
   }
-
 
   tribot::Output mateOutputFront = getLizardEarOutput(mate->getPosition());
 
@@ -69,7 +92,18 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
     stearParrallel(mateOutputFront, motors);
   } else {
     stearGoal(goalOutput, mateOutputFront, motors);
-  }
+    }*/
+}
+
+double BasicController::softstep(double y) {
+  double L = 1.0; // Max value of curve
+  double x0 = 100.0; // mid point
+  double k = 0.1; // Steepness of curve
+  double x = sim_step; // time unit
+
+  double a = L / (1.0 + std::pow(M_E, -k * (x - x0)));
+
+  return y;
 }
 
 void BasicController::setMotorPower(motor* motors, double left, double right) {
@@ -89,9 +123,13 @@ void BasicController::stearParrallel(tribot::Output mate, motor * motors) {
   setMotorPower(motors,
                 baseSpeed + featureScaling(mateOutput.right),
                 baseSpeed + featureScaling(mateOutput.left));
+}
 
-  std::cout << this->getName() << " power: " << featureScaling(mateOutput.right) << ", " <<
-    featureScaling(mateOutput.left) << "\n";
+double BasicController::rangeToGoal() {
+  Position pos = robot->getPosition();
+  return std::sqrt(std::pow(pos.x - goal.x, 2.0) +
+                   std::pow(pos.y - goal.y, 2.0) +
+                   std::pow(pos.z - goal.z, 2.0));
 }
 
 void BasicController::updateMateValue(double incoming) {

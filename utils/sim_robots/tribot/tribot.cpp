@@ -24,7 +24,6 @@ namespace lpzrobots {
   {
     osg::Matrix initialPose;
     initialPose = osg::Matrix::translate(osg::Vec3(0, 0, conf.wheelRadius) * pose);
-
     create(initialPose);
   }
 
@@ -122,5 +121,7 @@ namespace lpzrobots {
     // Motors
     createMotor(std::string("left motor"), bodyLeftWheelJoint);
     createMotor(std::string("right motor"), bodyRightWheelJoint);
+
+
   }
 }

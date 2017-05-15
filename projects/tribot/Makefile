@@ -35,7 +35,7 @@ INC   += -I.
 
 CXX = g++
 CPPFLAGS = -g -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) \
-  $(shell ode_robots-config $(CFGOPTS) --intern --cflags)
+  $(shell ode_robots-config $(CFGOPTS) --intern --cflags) -std=c++17
 
 normal: libode_robots
 	$(MAKE) $(EXEC)
@@ -75,7 +75,7 @@ depend:
 
 check-syntax:
 	$(CXX) $(CPPFLAGS) -Wextra -S -fsyntax-only $(CHK_SOURCES)
-	cppcheck --std=c++11 --std=posix --enable=performance,information,portability --suppress=incorrectStringBooleanError --suppress=invalidscanf --quiet --template={file}:{line}:{severity}:{message} $(CHK_SOURCES)
+	cppcheck --std=c++17 --std=posix --enable=performance,information,portability --suppress=incorrectStringBooleanError --suppress=invalidscanf --quiet --template={file}:{line}:{severity}:{message} $(CHK_SOURCES)
 
 todo:
 	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;

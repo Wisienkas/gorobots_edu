@@ -4,6 +4,8 @@
 
 #include "tribotAgentConfig.h"
 #include "tribotGoal.h"
+#include "soundgenerator.h"
+#include <ode_robots/simulationtaskhandle.h>
 #include <string>
 
 namespace tribot {
@@ -12,15 +14,18 @@ namespace tribot {
     TribotAgentConfig agent2;
     TribotGoal goal;
     std::string name;
+    SoundGenerator soundGenerator;
 
     TribotSimTaskHandle(TribotAgentConfig agent1,
                         TribotAgentConfig agent2,
                         TribotGoal goal,
-                        std::string name)
+                        std::string name,
+                        SoundGenerator soundGenerator)
       : agent1(agent1),
       agent2(agent2),
       goal(goal),
-      name(name) {}
+      name(name),
+      soundGenerator(soundGenerator) {}
       };
 }
 
