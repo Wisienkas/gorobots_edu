@@ -28,7 +28,7 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 								AEP[0] = 0.7; 	AEP[1] = -0.2; 	AEP[2] = 0.0; break;
 				default: cout << "LEG UNKNOWN"; break;}
 	}
-	else if(false){ //  use for rolling
+	else if(true){ //  use for rolling
 		switch (newlegNum){
 			case 0: case 3:
 			// 		Coxa			Femur			Tibia
@@ -38,10 +38,10 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 				AEP[0] = -0.9;	AEP[1] = 0.4; 	AEP[2] = -0.5;  // EDIT
 				break;
 			case 1: case 4:
-				PEP[0] = -1.0; 	PEP[1] = 0.0; 	PEP[2] = 0.0; 	//OK
+				PEP[0] = -0.9; 	PEP[1] = 0.1; 	PEP[2] = -0.55; //OK
 				STM[0] = -0.4; 	STM[1] = 0.45;	STM[2] = -0.55; //OK
-				MID[0] = -1.0; 	MID[1] = 0.5; 	MID[2] = -0.2;	//MID[0] = -0.5; 	MID[1] = 0.1; 	MID[2] = 0.1;
-				AEP[0] = -0.5; AEP[1] = 0.25; 	AEP[2] = 0.0; 	//OK
+				MID[0] = -0.5; 	MID[1] = 0.5; 	MID[2] = -1.0;
+				AEP[0] =  0.1; 	AEP[1] = 0.6; 	AEP[2] = -0.55; //OK
 				break;
 			case 2: case 5:
 				PEP[0] = -0.6;  PEP[1] = 0.3; 	PEP[2] = -0.55; //OK
@@ -52,7 +52,7 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 			default: cout << "LEG UNKNOWN";
 			break;}
 	}
-	else if(true){ // Use for standard dungbot
+	else if(false){ // Use for standard dungbot
 		switch (newlegNum){
 			case 0: case 3:
 				PEP[0] = -1.0; 	PEP[1] = 0.8;	PEP[2] = -0.4;  //OK
@@ -132,15 +132,11 @@ void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> 
 		}
 	}
 
-	if(legNum == 1 || legNum == 4){
-		if( false ){
-			viaAngle[0] = PEP[0];
-			viaAngle[1] = PEP[1];
-			viaAngle[2] = PEP[2];
-		}
+	if( false ){
+		viaAngle[0] = -1;
+		viaAngle[1] = 0.9;
+		viaAngle[2] = -0.9;
 	}
-
-	//if(legNum == 4) std::cout <<  stanceState << "\t" << swingState << std::endl;
 
 }
 
@@ -263,32 +259,16 @@ void walknetSeparateLeg::swingNet1(const sensor* sensor, std::vector<double> &vi
 			break;
 
 		case LOWER:
-			if(false){
-				if( !atAngle(AEP[0], 0, 0.01) && !atAngle(AEP[1], 0, 0.01) && !atAngle(AEP[2], 0, 0.01)  ){
-					pre_touch_down = true;
-					viaAngle[0] = AEP[0];
-					viaAngle[1] = AEP[1];
-					viaAngle[2] = AEP[2];
-				}else{
-					touch_down = true;
-					startSwing = false;
-					end = clock();
-					double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-					//cout << "Leg #" << legNum << ": "<< time_spent << endl; //
-					swingState = IDLE_SWING;
-				}
-			}else{
-				if(!localSensorArray[3]){
-					viaAngle[1] = localSensorArray[1] - 0.3;
-					pre_touch_down = true;
-				} else {
-					touch_down = true;
-					startSwing = false;
-					end = clock();
-					double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-					//cout << "Leg #" << legNum << ": "<< time_spent << endl; //
-					swingState = IDLE_SWING;
-				}
+			if(!localSensorArray[3]){
+				viaAngle[1] = localSensorArray[1] - 0.3;
+				pre_touch_down = true;
+			} else {
+				touch_down = true;
+				startSwing = false;
+				end = clock();
+				double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+				//cout << "Leg #" << legNum << ": "<< time_spent << endl; //
+				swingState = IDLE_SWING;
 			}
 			break;
 

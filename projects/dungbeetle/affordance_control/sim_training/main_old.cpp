@@ -63,7 +63,6 @@ public:
     double width = 0.2;
     double height = 0.2;
     bool obstacle_active = false;
-    trainingFlag = true;
    lpzrobots::OdeHandle objHandle = odeHandle;
    objHandle.substance.toMetal(0.1);	
     if(obstacle_active)

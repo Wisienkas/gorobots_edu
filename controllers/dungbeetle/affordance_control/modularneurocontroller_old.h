@@ -40,7 +40,7 @@ extern double I3 = 0.0;
 extern double I2 = 1.0;
 extern bool sim_flag = false;
 extern bool pushed = false;
-extern double distan = 0.30;
+extern double distan = 0.90;
 extern int counter=0;
 extern bool cylinder_object = false;
 extern bool sphere_object = false;
@@ -49,7 +49,6 @@ extern bool detected = false;
 extern bool transporting = false;
 extern bool turning = false;
 extern double mode = 0.0;
-extern bool trainingFlag = true;
 
 void getCommand(char key);
 
@@ -65,8 +64,6 @@ class modularNeuroController : public AbstractController {
 		void lineSegmentation();
 
 		void saveOnFile();
-
-		void sampleEnvironment();
 
 
 	public:
@@ -186,7 +183,6 @@ class modularNeuroController : public AbstractController {
     	cv::Mat color_dst;    	
     	vector<vector<cv::Point> > contours;
   		vector<cv::Vec4i> hierarchy;
-  		vector<double> points_shape;
   		enum State {stop,zero,one,two,three,four,five};
   		double d0,tc0,size,d1,ds;
   		

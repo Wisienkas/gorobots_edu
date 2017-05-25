@@ -3,6 +3,7 @@
 #include "utils/delayline.cpp"
 #include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.cpp>
 
+
 using namespace matrix;
 using namespace cv;
 
@@ -77,22 +78,14 @@ modularNeuroController::modularNeuroController():AbstractController("modularNeur
 modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled):AbstractController("modularNeuroController", "$Id: modularneurocontroller.cpp,v 0.1 $"){
 	initialize(dungBeetletype, mCPGs, mMuscleModelisEnabled);
 	img = Mat(1000,1000, CV_8UC1,Scalar::all(255));
-	
-	if(!trainingFlag)
-	{
-		aff = new affordanceController();
-		aff->createAffordance();
-		counter = 0;
-	}
-	else
-	{
-		current=stop;
-		pushed = false;
-	//save = true;		
-	}
-	
+	aff = new affordanceController();
+	aff->createAffordance();
+	current=stop;
+	pushed = true;
+	//save = true;
 	sensorAngle =  M_PI/180*90;
 	d1 = 0;
+	counter = 0;
 	///Single CPG Modular neuaral controller
 	if(!mCPGs){
 
@@ -307,7 +300,7 @@ void modularNeuroController::lineSegmentation(){
    vector<Point2d> vertexl(contours_poly.size());
    vector<Point2d> vertexr(contours_poly.size());
    vector<Point2d> mc( contours_poly.size() );
-  //Draw contours
+  // /// Draw contours
   color_dst = Mat::zeros( img.size(), CV_8UC3 );
 
   for( int i = 0; i< contours.size(); i++ )
@@ -350,7 +343,7 @@ void modularNeuroController::lineSegmentation(){
        dr=x[122+int(mmxr.first->y)];
        theta=(M_PI/180*90+mmxr.first->y*angleStep)-(M_PI/180*90+mmxl.first->y*angleStep);
 
-      size = floor(sqrt(pow(dl,2)+pow(dr,2)-2*dl*dr*cos(theta))*100+0.5)/100;
+      
 
        // cout <<"\n/---------------------------------------------------------------------------------------/\n"<<endl;
        // cout << " min norm left: " << mmxl.first->x << " beam: "<< beams[int(mmxl.first->y)] << " distance j: "<< x[122+int(mmxl.first->y)] << " distance j-1: " << x[122+int(mmxl.first->y)-1] << endl;
@@ -367,29 +360,71 @@ void modularNeuroController::lineSegmentation(){
 		leftmost = 122+int(mmxl.first->y);
 		currentbeam = leftmost;
 		rightmost = 122+int(mmxr.first->y);
-		
+		vector<double> points_shape;
 		
 		for(int i= (211-pointapprox/2);i<(211+pointapprox/2);i++){
 			
 			points_shape.push_back(x[i]);
 
 		}
+	if(counter == 50){	
+		vector<double> test_in;
+		counter = 0;
+		 	for(int j = 0 ; j < points_shape.size() ; j++){
+		 //cout <<" i: "<<j<<" dist: "<<round(abs(points_shape[j]-x[211])*1000)/1000<<endl;
+	 	//cout <<" i: "<<j<< "norm :" << round((points_shape[j]/norm(points_shape))*1000)/1000<<endl;}
+		//  	//cout <<" i: "<<j<< "norm :" << points_shape[j]<<endl;}
+		 	test_in.push_back(round(abs(points_shape[j]-x[211])*1000)/1000);
+	
+
+		   }
+
+
+
+	 // 	   aff->test_in.clear();
 		// cout << " leftmost: " << x[leftmost] <<endl;
 		// cout << " beams" <<nbeams<< endl;
 		// cout << " step " <<step<< endl;
 		// cout << " rightmost: " << x[rightmost]<<endl;
 		// cout << " angle: "<< -theta/M_PI*180/pointapprox  <<endl;
-		if(!trainingFlag)
-		{
-			sampleEnvironment();  	
-			counter ++;	
-	   		points_shape.clear();
-       		dx.clear();
-       		sx.clear();
-       		cen.clear();
-       		beams.clear();  
-       	} 
-   		
+	   vector<double> lvl1_in;
+	   vector<double> lvl1_out;
+	   size = floor(sqrt(pow(dl,2)+pow(dr,2)-2*dl*dr*cos(theta))*100+0.5)/100;
+	   if(!detected && size > 0.0){
+	   cout << "size:"<<size<<endl;
+	   if(cylinder_object){
+	   	lvl1_in.push_back(size);
+	   lvl1_in.push_back(0.5);
+	   lvl1_out = aff->objects[0]->aff_model->get_output(lvl1_in);
+	   }
+	   if(box_object){
+	   lvl1_in.push_back(size);
+	   lvl1_in.push_back(0.7);
+	   lvl1_out = aff->objects[1]->aff_model->get_output(lvl1_in);
+		}
+	   if(sphere_object){
+	   lvl1_in.push_back(size);	
+	   lvl1_in.push_back(0.7);
+	   lvl1_out = aff->objects[2]->aff_model->get_output(lvl1_in);
+		}
+		
+		test_in.push_back(lvl1_out[0]);
+				vector<double> out;
+		   out = aff->shape_classification->get_output(test_in);
+	 	   cout << " output: " << round(out[0])<<endl;
+	 	   mode = round(out[0]);
+	 	   if(mode == 1 || mode == 0 || mode == -1)
+	 	   detected = true;
+	 	 }
+}	   
+	   counter ++;	
+	   points_shape.clear();
+       dx.clear();
+       sx.clear();
+       cen.clear();
+       beams.clear();
+
+          	   
    		}
    	}
      
@@ -397,66 +432,6 @@ void modularNeuroController::lineSegmentation(){
 	sensorAngle = M_PI/180*90;
 }
 
-void modularNeuroController::sampleEnvironment()
-{
-		
-		if(counter == 50)
-		{	
-			vector<double> test_in;
-			counter = 0;
-		
-			for(int j = 0 ; j < points_shape.size() ; j++)
-			{
-	
-		 		test_in.push_back(round(abs(points_shape[j]-x[211])*1000)/1000);
-	
-
-			}
-
-	   		vector<double> lvl1_in;
-	   		vector<double> lvl1_out;
-	   		size = floor(sqrt(pow(dl,2)+pow(dr,2)-2*dl*dr*cos(theta))*100+0.5)/100;
-	   
-	   		if(!detected && size > 0.0)
-	   		{
-	   			cout << "size:"<<size<<endl;
-
-	   			if(cylinder_object)
-	   			{
-	   				
-	   				lvl1_in.push_back(size);
-	   				lvl1_in.push_back(0.5);
-	   				lvl1_out = aff->objects[0]->aff_model->get_output(lvl1_in);
-	   			}
-	   
-	   			else if(box_object)
-	   			{
-	  				lvl1_in.push_back(size);
-	   				lvl1_in.push_back(0.7);
-	   				lvl1_out = aff->objects[1]->aff_model->get_output(lvl1_in);
-				}
-	   
-	   			else if(sphere_object)
-	   			{
-	   				lvl1_in.push_back(size);	
-	   				lvl1_in.push_back(0.7);
-	   				lvl1_out = aff->objects[2]->aff_model->get_output(lvl1_in);
-				}
-		
-				test_in.push_back(lvl1_out[0]);
-				vector<double> out;
-		   
-		   		out = aff->shape_classification->get_output(test_in);
-	 	   		cout << " output: " << round(out[0])<<endl;
-	 	   		mode = round(out[0]);
-	 	   
-	 	   		if(mode == 1 || mode == 0 || mode == -1)
-	 	   			detected = true;
-	 	 	}
-
-		}	   
-        	   
-}
 
 void modularNeuroController::init(int sensornumber, int motornumber, RandGen* randGen) {
 	numbersensors = sensornumber;
@@ -509,7 +484,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 
 		if(I2==1.0){
 		
-		if(!trainingFlag && detected && !turning){
+		if(detected && !turning){
 			I_l = -1.0;
 			I_r = 1.0;
 			I2 = 0.0;
@@ -535,15 +510,22 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  // 		y_[7]=0;//(-pattern1TC)*0.5;
 	  // 		y_[13]=0;//-pattern1FT+0.4;
 
-	  	//top left
-	  		
+	  		  		  //top left
+	  		y_[3]=0;//(pattern2TC+0.1)*0.3;
 	  		y_[9]=-0.1;//-0.1+(pattern2CT-0.05)*0.6;
-
+	  		y_[15]=0;//-pattern1FT+0.4;
 
 	  //top right
-	  	
+	  		y_[0]=0;//(0;//-pattern1TC+0.1)*0.3;
 	  		y_[6]=-0.1;//-0.1+(pattern1CT-0.05)*0.6;
-	  		
+	  		y_[12]=0;//pattern1FT+0.4;
+
+	  		//top left
+	  		y_[3]=0;
+	  		y_[15]=0;
+			//top right
+	  		y_[0]=0;
+	  		y_[12]=0;
 
 	  		y_[5]=0;
 	  		y_[11]=0;
@@ -565,8 +547,6 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  		y_[13]=0;//-pattern1FT+0.4;
 
 	  		//TO DO optimal distance for each object for push
-	  	if(trainingFlag){
-
 
 	  		switch(current){
 	  			case stop:
@@ -626,27 +606,26 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 	  				d0=floor(x_[211]*100)/100 ;
 	  				cout << "4" << endl;
 	  				//top left
-	  				y_[3]=0.9;
+	  				y_[3]=0.8;
 	  				y_[15]=1;
 					//top right
-	  				y_[0]=0.9;
+	  				y_[0]=0.8;
 	  				y_[12]=1;
 	  				current=five;
 				break;
 					case five:
-						
+						//cout << " d0-d1 "<< abs(floor(x_[211]*100)/100-d0) <<endl;
 						if(abs(floor(x_[211]*100)/100-d0) <= 0.01) {
-							cout << "5" << endl;
+							//cout << "5" << endl;
 	  						
-	  						
-	  						cout << " size: " << size << endl;
+	  						//cout << " size: " << size << endl;
 	  						tc0=floor(x_[0]*100)/100;
 	  						
 	  						}else{
 	  							
 	  							d1 = floor(x_[211]*100)/100;
 	  							//cout << " d1 " << floor(x_[211]*100)/100 << endmesl;
-	  							//save = true;
+	  							save = true;
 	  							
 	  							//top left
 	  							y_[3]=0;
@@ -694,7 +673,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 
 	  	}
 
-}
+
 	  								//  	if(counter < 3002)
 		 								// counter++;
 		 								// else{

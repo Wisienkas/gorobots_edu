@@ -118,7 +118,7 @@ public:
 
 		// create agent and init it with controller, robot and wiring
 		lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
-		trainingFlag = false;
+
 		if(!created){
 				lpzrobots::OdeHandle objectHandle = odeHandle;
     			objectHandle.substance = lpzrobots::Substance(3, 0.0, 50.0, 0.0);			
