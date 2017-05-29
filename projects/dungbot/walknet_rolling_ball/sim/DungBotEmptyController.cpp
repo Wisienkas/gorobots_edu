@@ -178,12 +178,14 @@ void DungBotEmptyController::ballstand_head( std::vector<std::vector<double>> &a
 	// Femur 	+ = up 	, - = down
 	// Tibia	+ = up 	, - = down
 	int numof_frontleg = 4;
+	int numof_midleg = 5;
 	float tibia_grep_hind = 0.1;
 	float tibia_grep_mid = -0.87;
 
 
 	if(ticks_since_init > 2000){
 		numof_frontleg = -1;
+		numof_midleg = -1;
 
 		//angleVector[3][0] = -0.9;
 		//angleVector[3][2] = -0.9; 	// -0.7;
@@ -201,11 +203,11 @@ void DungBotEmptyController::ballstand_head( std::vector<std::vector<double>> &a
 				angleVector[i][1] = 0.9; 	// 0.05;
 				angleVector[i][2] = -0.55; 	// -0.7;
 			}
-
-			for (int i = 1; i < 5; i+=3) {
-				angleVector[i][0] = -0.7;
-				angleVector[i][1] = -0.74;
-				angleVector[i][2] = tibia_grep_mid;
+			for (int i = 1; i < numof_midleg; i+=3) {
+				angleVector[i][0] = -0.5;
+				angleVector[i][1] = 0.25;
+				angleVector[i][2] = 0.2;
+				std::cout << "test"<< std::endl;
 			}
 
 			for (int i = 2; i < 6; i+=3) {

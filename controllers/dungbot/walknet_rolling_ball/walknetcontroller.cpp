@@ -187,12 +187,33 @@ void walknetcontroller::coordinateRule1( const sensor* sensor ){
 				}
 				break;
 			case 1:
-			case 4:
-				if( sensor[154] < 0.8 ){ continue; }
-				if( separateLegs[i].startSwing == true ){
-					separateLegs[i-1].rule1 = 1;
+				if( sensor[154] < 0.8 ){
+					if( separateLegs[i].startSwing == true ){
+						separateLegs[i+3].rule1 = 1;
+					}else{
+						separateLegs[i+3].rule1 = 0;
+					}
 				}else{
-					separateLegs[i-1].rule1 = 0;
+					if( separateLegs[i].startSwing == true ){
+						separateLegs[i-1].rule1 = 1;
+					}else{
+						separateLegs[i-1].rule1 = 0;
+					}
+				}
+				break;
+			case 4:
+				if( sensor[154] < 0.8 ){
+					if( separateLegs[i].startSwing == true ){
+						separateLegs[i-3].rule1 = 1;
+					}else{
+						separateLegs[i-3].rule1 = 0;
+					}
+				}else{
+					if( separateLegs[i].startSwing == true ){
+						separateLegs[i-1].rule1 = 1;
+					}else{
+						separateLegs[i-1].rule1 = 0;
+					}
 				}
 				break;
 			case 2:

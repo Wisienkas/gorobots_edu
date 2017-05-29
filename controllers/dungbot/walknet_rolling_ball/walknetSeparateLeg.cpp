@@ -28,7 +28,7 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 								AEP[0] = 0.7; 	AEP[1] = -0.2; 	AEP[2] = 0.0; break;
 				default: cout << "LEG UNKNOWN"; break;}
 	}
-	else if(false){ //  use for rolling
+	else if(true){ //  use for rolling
 		switch (newlegNum){
 			case 0: case 3:
 			// 		Coxa			Femur			Tibia
@@ -52,7 +52,7 @@ walknetSeparateLeg::walknetSeparateLeg( int newlegNum ){
 			default: cout << "LEG UNKNOWN";
 			break;}
 	}
-	else if(true){ // Use for standard dungbot
+	else if(false){ // Use for standard dungbot
 		switch (newlegNum){
 			case 0: case 3:
 				PEP[0] = -1.0; 	PEP[1] = 0.8;	PEP[2] = -0.4;  //OK
@@ -140,7 +140,7 @@ void walknetSeparateLeg::selectorNet( const sensor* sensor, std::vector<double> 
 		}
 	}
 
-	//if(legNum == 4) std::cout <<  stanceState << "\t" << swingState << std::endl;
+	if(legNum == 4) std::cout <<  stanceState << "\t" << swingState << std::endl;
 
 }
 
