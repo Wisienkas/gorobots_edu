@@ -251,5 +251,3 @@ int main(int argc, char **argv)
 
 
 
-
-//Locomotion control for complex behaviour of multiple legged systems

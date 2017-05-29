@@ -47,10 +47,6 @@ class adaptiveSF : public AbstractController {
     int simN = 0;
     bool saveData;
     bool active = false;
-//    double C1, C2;
-//    double S1, S2;
-//    double B1, B2;
-//    double w[4];
     MillipedeConf mconf;
     std::vector<localLegController> cpgs;
     std::vector<double> sensors, motors, odom;

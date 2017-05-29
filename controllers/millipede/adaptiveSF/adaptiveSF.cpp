@@ -25,9 +25,9 @@ void adaptiveSF::initialize(){
 //      gl_Bf = 0.0051;
 //      gl_Bs = 0.0001;
     //distributed sfw
-    gl_Af = 0.78;
+    gl_Af = 0.59;
     gl_As = 0.9972;
-    gl_Bf = 0.00;
+    gl_Bf = 0.005;
     gl_Bs = 0.0005;
     gl_SFweight = 0;
     total_error = 0;
@@ -53,7 +53,8 @@ void adaptiveSF::stepNoLearning(const sensor* x_, int number_sensors,
 
   //----Students--------Adding your Neural Controller here------------------------------------------//
 
-//      //Outputs of CPG
+
+      //Outputs of CPG
 
     if(t>=100 && !active)
         //std::cout << "activate now!" << std::endl;
@@ -104,75 +105,26 @@ void adaptiveSF::stepNoLearning(const sensor* x_, int number_sensors,
 
                 double input1 = 0, input2 = 0;
                 if((i==0 && j>1) || i>0){
-                    input1 = followed*cpgs[i*4+j-2].C1;
-//                        input2 = followed*cpgs[i*4+j-2].C2;
+                    input1 = followed*cpgs[i*4+j-2].C1-followed*cpgs[i*4+j-2].prevC1;
+                    input2 = followed*cpgs[i*4+j-2].C2-followed*cpgs[i*4+j-2].prevC2;
                 }
 
 
                 std::vector<double> motorCommands = cpgs[cpg_index].control_step(sensor_data, input1, input2);
-                //filter touch sensor with low pass filter (now mean filter for last n values)
-//                double sumofvalues = 0;
-//                for(int k = cpgs[cpg_index].lowpass.size()-1; k >= 0; k--){
-//                    sumofvalues+= cpgs[cpg_index].lowpass[k];
-//                    cpgs[cpg_index].lowpass[k+1] = cpgs[cpg_index].lowpass[k];
-//                }
-//                cpgs[cpg_index].lowpass[0] = x_[touchSensorIdentity(mconf, i, j)];
-//                sumofvalues+= x_[touchSensorIdentity(mconf, i, j)];
-//                 //average
-//                sumofvalues = sumofvalues / cpgs[cpg_index].lowpass_n * 1.0;
 
 
                 y_[motorIdentity(mconf, i, j, 0)] = motorCommands[0];
                 y_[motorIdentity(mconf, i, j, 1)] = motorCommands[1];
                 y_[motorIdentity(mconf, i, j, 2)] = motorCommands[2];
 
-//                    if(i == 0 && j == 2)
-//                        std::cout << cpgs[cpg_index].prevC1 << "\t" << cpgs[cpg_index].C1 << std::endl;
-
-//                if (sumofvalues>1)
-//                    sumofvalues = 1;
-//                if(sumofvalues<0)
-//                    sumofvalues = 0;
-//                //compute error from forward model
-//                 //1 calculate fwd model output
-//                double G = sin(cpgs[cpg_index].C2) < sin(cpgs[cpg_index].prevC2) ? 0 : 1;
-
-//                cpgs[cpg_index].fwdMod = 0.5*G + 0.5*cpgs[cpg_index].fwdMod;
-
-//                 //2 calculate error
-//                double error = -sumofvalues + cpgs[cpg_index].fwdMod;
-
-//                // filter error
-////                    for(int k = cpgs[cpg_index].filtererror_n-1; k >= 0; k--){
-////                        error+= cpgs[cpg_index].filtererror[k];
-////                        cpgs[cpg_index].filtererror[k+1] = cpgs[cpg_index].filtererror[k];
-////                    }
-////                    cpgs[cpg_index].filtererror[0] = sumofvalues-cpgs[cpg_index].fwdMod;
-////                    error+= sumofvalues-cpgs[cpg_index].fwdMod;
-////                    error= error/ cpgs[cpg_index].filtererror_n ;
-
-//                if(t>100)
-//{
-//                 //3 calculate dw
-//                cpgs[cpg_index].dslow = cpgs[cpg_index].dslow*cpgs[cpg_index].As + error*cpgs[cpg_index].Bs;
-//                cpgs[cpg_index].dfast = cpgs[cpg_index].dfast*cpgs[cpg_index].Af + error*cpgs[cpg_index].Bf;
-//                cpgs[cpg_index].dW = (cpgs[cpg_index].dslow + cpgs[cpg_index].dfast);
-
-//                 //4 update weight
-//                cpgs[cpg_index].SFweight = cpgs[cpg_index].dW; // > 0 ? cpgs[cpg_index].dW : 0;
-//}
-//                //calculate error for averaging
-
+                //calculate error for global sensory feedback strength
                 total_error += cpgs[cpg_index].efferenceCopy_error;
-//                    cpgs[cpg_index].SFweight = gl_SFweight; //cpgs[cpg_index].dW;
-//                    cpgs[cpg_index].SFweight = gl_SFweight;
-
 
 //                if((i == 0 && j>=2) || i == 1){
                     sensors.push_back(cpgs[cpg_index].SFweight);
                     sensors.push_back(sensor_data);
-                    motors.push_back(y_[motorIdentity(mconf,i,j,1)]);
-                    motors.push_back(cpgs[cpg_index].fwdMod);
+                    motors.push_back(cpgs[cpg_index].C1);
+                    motors.push_back(cpgs[cpg_index].C2);
 
 //                }
 
@@ -182,7 +134,6 @@ void adaptiveSF::stepNoLearning(const sensor* x_, int number_sensors,
         //average all errors
         total_error = total_error/(mconf.nOfSegments*mconf.legsPerSegment);
 
-//            std::cout << total_error << std::endl;
         //calculate dw
         gl_dslow = gl_dslow*gl_As + total_error*gl_Bs;
         gl_dfast = gl_dfast*gl_Af + total_error*gl_Bf;

@@ -150,7 +150,7 @@ class ThisSim : public lpzrobots::Simulation {
     //----------create a sphere as the target by Ren-----------------------------
 
     // Add millipedeII robot
-    lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/,1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+    lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 5 /*_nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
     myMillipedeConf.rubberFeet = true;
     lpzrobots::OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance = lpzrobots::Substance::getDefaultSubstance();//lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
@@ -177,6 +177,7 @@ class ThisSim : public lpzrobots::Simulation {
     millipede->place(osg::Matrix::translate(.0, .0, 1.2*myMillipedeConf.height));
 
     controller = new CentralCPG();
+    controller->mconf = myMillipedeConf;
     // create wiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 

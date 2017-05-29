@@ -81,15 +81,17 @@ class independent_cpgSim : public lpzrobots::Simulation {
       const lpzrobots::OsgHandle& osgHandle,
       lpzrobots::GlobalData& global) {
     // set initial camera position
-    setCameraHomePos(
-        lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
-        lpzrobots::Pos(178.866, -7.43884, 0));
+      setCameraHomePos(
+          lpzrobots::Pos(-0.0114359, 4.66848, 0.922832),
+          lpzrobots::Pos(178.866, -7.43884, 0));
+      setCameraMode(lpzrobots::Simulation::CameraMode(3));
+
 
     // set simulation parameters
     global.odeConfig.setParam("controlinterval", 1);
 //    global.odeConfig.setParam("simstepsize", 0.0025);
     global.odeConfig.setParam("noise", 0.3);
-    global.odeConfig.setParam("realtimefactor",2);
+    global.odeConfig.setParam("realtimefactor",0.5);
 
     // add playground
 //    lpzrobots::Playground* playground
@@ -99,27 +101,34 @@ class independent_cpgSim : public lpzrobots::Simulation {
 //    playground->setPosition(osg::Vec3(0,0,.0));
 //    global.obstacles.push_back(playground);
 
-    int diedIn = 0;
-    initial_followed = 0.0;
-    initial_S = 0.1;
-    initial_sfeed = -0.1;
-    initial_trWeight = 3;
+    // set parameters of controller
+    int diedIn = 0; //-> if the simulations stop at some point, they can be recovered from this
 
+    // initial values for the set of simulations:
+    initial_followed = 0.0; // interconnection between successive CPGs
+    initial_S = 0.1;        // parameter S for frequency of CPG)
+    initial_sfeed = 0.100;  // sensory feedback strength
+    initial_trWeight = 3;   // robot trunk weight
+
+    // Steps, on each reset, the parameters are updated
     followed_step = 0.0;
     S_step = 0.0;
-    sfeed_step = 0.00025;
+    sfeed_step = 0.0003;
     trWeight_step = 0.0;
 
+    // Get initial parameters when the simulation stops at some point
     followed = initial_followed + followed_step*diedIn;
     S = initial_S + S_step*diedIn;
     sfeed = initial_sfeed + sfeed_step*diedIn;
     trWeight = initial_trWeight + trWeight_step*diedIn;
 
+    //Initialization of counters
     simN = diedIn;
     count = 0;
     instantiateAgent(global);
 
-    number_of_runs = 1000;
+    // total number of resets
+    number_of_runs = 1;
     runs_x = 0;
 
   }
@@ -143,6 +152,7 @@ class independent_cpgSim : public lpzrobots::Simulation {
 
   virtual bool restart(const OdeHandle&, const OsgHandle&, GlobalData& global)
   {
+      //Updating parameters
       count++;
       if (count >= runs_x){
           sfeed += sfeed_step;
@@ -178,10 +188,15 @@ class independent_cpgSim : public lpzrobots::Simulation {
 
   void instantiateAgent(GlobalData& global) {
       // Add millipedeII robot
-      lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 3 /*_nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+      // currently only four legs per segment are implemented and a maximum of five segments can be used
+      lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 5 /*_nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
       myMillipedeConf.rubberFeet = true;
       lpzrobots::OdeHandle rodeHandle = odeHandle;
-      rodeHandle.substance = lpzrobots::Substance(0.8, 0.01, 40.0, 0.5);//lpzrobots::Substance::getDefaultSubstance();
+
+      // Set ground substance
+      rodeHandle.substance = lpzrobots::Substance(0.8, 0.01, 40.0, 0.5);//getRubber(40);//getMetal(1);//(0.8, 0.01, 40.0, 0.5);//lpzrobots::Substance::getDefaultSubstance();
+
+      // add terrain surface
 //      auto terrainground = new lpzrobots::TerrainGround(rodeHandle, osgHandle.changeColor(lpzrobots::Color(83.0/255.0, 48.0/255.0, 0.0)), "rough6.ppm", "", 34.9, 34.9, 0.2);
 //      terrainground->setPose(osg::Matrix::translate(4, 0, 0.19));
 //      global.obstacles.push_back(terrainground);
@@ -190,7 +205,7 @@ class independent_cpgSim : public lpzrobots::Simulation {
       //Change weight over time to check evolution of sensory feedback strength
       myMillipedeConf.frontMass = trWeight;
 
-
+        //create robot
       millipede = new lpzrobots::Millipede(
           rodeHandle,
           osgHandle.changeColor(lpzrobots::Color(2, 1, 1)),
@@ -204,6 +219,7 @@ class independent_cpgSim : public lpzrobots::Simulation {
       //  (specifiy index if needed)
       millipede->addSensor(std::make_shared<SpeedSensor>(1), Attachment(-1));
 
+      // set up controller
       controller = new IndependentCPGSF();
       controller->mconf = myMillipedeConf;
       controller->initializeCPGs(sfeed);
@@ -223,9 +239,8 @@ class independent_cpgSim : public lpzrobots::Simulation {
       global.agents.push_back(agent);
       global.configs.push_back(controller);
 
-
+      // Duration of simulation in seconds
       setSimulationDuration(21);
-      //usleep(500000);
   }
 
 
@@ -248,7 +263,3 @@ int main(int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 }
 
-
-
-
-//Locomotion control for complex behaviour of multiple legged systems

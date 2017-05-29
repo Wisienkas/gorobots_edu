@@ -83,14 +83,16 @@ class adaptiveSFsim : public lpzrobots::Simulation {
       lpzrobots::GlobalData& global) {
     // set initial camera position
     setCameraHomePos(
-        lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
+        lpzrobots::Pos(-0.0114359, 4.66848, 0.922832),
         lpzrobots::Pos(178.866, -7.43884, 0));
+    setCameraMode(lpzrobots::Simulation::CameraMode(3));
+
 
     // set simulation parameters
     global.odeConfig.setParam("controlinterval", 1);
 //    global.odeConfig.setParam("simstepsize", 0.0025);
     global.odeConfig.setParam("noise", 0.30);
-    global.odeConfig.setParam("realtimefactor",1);
+    global.odeConfig.setParam("realtimefactor",0.5);
 
     // add playground
 //    lpzrobots::Playground* playground
@@ -100,31 +102,37 @@ class adaptiveSFsim : public lpzrobots::Simulation {
 //    playground->setPosition(osg::Vec3(0,0,.0));
 //    global.obstacles.push_back(playground);
 
-    int diedIn = 0;
-    initial_S = 0.1;
-    initial_trWeight = 3;
-    initial_followed = 0;
+    // set parameters of controller
+    int diedIn = 0; //-> if the simulations stop at some point, they can be recovered from this
+
+    // initial values for the set of simulations:
+    initial_S = 0.1;        // parameter S for frequency of CPG)
+    initial_trWeight = 3;   // robot trunk weight
+    initial_followed = 0.0; // interconnection between successive CPGs
     Bs = 0.0;
     Bf = 0.0;
 
+    // Steps, on each reset, the parameters are updated
     S_step = 0.0;
     trWeight_step = 0.0;
 //    Bs_step = 0.00005;
 //    Bf_step = 0.0005;
-    followed_step = 0.0005;
+    followed_step = 0.000;
 
+    // Get initial parameters when the simulation stops at some point
     S = initial_S + S_step*diedIn;
     trWeight = initial_trWeight + trWeight_step*diedIn;
 //    Bs += Bs_step*diedIn;
 //    Bf += Bf_step*diedIn; // To make bf change in every sim and not after a whole group
     followed = initial_followed + followed_step*diedIn;
 
-
+    //Initialization of counters
     simN = diedIn;
     count = 0;
     instantiateAgent(global);
 
-    number_of_runs = 2000;
+    // total number of resets
+    number_of_runs = 1;
 
   }
 
@@ -175,10 +183,15 @@ class adaptiveSFsim : public lpzrobots::Simulation {
 
   void instantiateAgent(GlobalData& global) {
       // Add millipedeII robot
+      // currently only four legs per segment are implemented and a maximum of five segments can be used
       lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 3/*_nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
 //      myMillipedeConf.rubberFeet = true;1
       lpzrobots::OdeHandle rodeHandle = odeHandle;
+
+      // Set ground substance
       rodeHandle.substance = lpzrobots::Substance(0.8, 0.01, 40.0, 0.5);//lpzrobots::Substance::getDefaultSubstance();
+
+      // add terrain surface
 //      auto terrainground = new lpzrobots::TerrainGround(rodeHandle, osgHandle.changeColor(lpzrobots::Color(83.0/255.0, 48.0/255.0, 0.0)), "heightmap.ppm", "", 34.9, 34.9, 0.2);
 //      terrainground->setPose(osg::Matrix::translate(0, 0, 0.));
 //      global.obstacles.push_back(terrainground);
@@ -187,7 +200,7 @@ class adaptiveSFsim : public lpzrobots::Simulation {
       //Change weight over time to check evolution of sensory feedback strength
       myMillipedeConf.frontMass = trWeight;
 
-
+      //create robot
       millipede = new lpzrobots::Millipede(
           rodeHandle,
           osgHandle.changeColor(lpzrobots::Color(2, 1, 1)),
@@ -201,6 +214,7 @@ class adaptiveSFsim : public lpzrobots::Simulation {
       //  (specifiy index if needed)
       millipede->addSensor(std::make_shared<SpeedSensor>(1), Attachment(-1));
 
+      // set up controller
       controller = new adaptiveSF(myMillipedeConf);
       controller->initializeCPGs();
       controller->S = S;
@@ -218,9 +232,8 @@ class adaptiveSFsim : public lpzrobots::Simulation {
       global.agents.push_back(agent);
       global.configs.push_back(controller);
 
-
+      // Duration of simulation in seconds
       setSimulationDuration(21);
-      //usleep(500000);
   }
 
 
@@ -243,7 +256,3 @@ int main(int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 }
 
-
-
-
-//Locomotion control for complex behaviour of multiple legged systems

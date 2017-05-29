@@ -178,21 +178,21 @@ class CentralCPG : public AbstractController {
           double amplitude =0.5;
 
           for(int i = 0; i < mconf.nOfSegments; i++){
+              for(int j = 0; j < mconf.legsPerSegment; j++){
+                    int cpg_index = i*4+j;
 
+                    if(j == 0 || j == 3){
+                        y_[motorIdentity(mconf, i, j, 0)] = amplitude*C1;
+                        y_[motorIdentity(mconf, i, j, 1)] = amplitude*C2;
+                        y_[motorIdentity(mconf, i, j, 2)] = 0;
+                    }else{
+                        y_[motorIdentity(mconf, i, j, 0)] = -amplitude*C1;
+                        y_[motorIdentity(mconf, i, j, 1)] = -amplitude*C2;
+                        y_[motorIdentity(mconf, i, j, 2)] = 0;                      
+                    }
 
-              y_[motorIdentity(mconf, i, 0, 0)] = amplitude*C1;
-              y_[motorIdentity(mconf, i, 0, 1)] = amplitude*C2;
-              y_[motorIdentity(mconf, i, 0, 2)] = 0;
-              y_[motorIdentity(mconf, i, 3, 0)] = amplitude*C1;
-              y_[motorIdentity(mconf, i, 3, 1)] = amplitude*C2;
-              y_[motorIdentity(mconf, i, 3, 2)] = 0;
+                }
 
-              y_[motorIdentity(mconf, i, 1, 0)] = -C1*amplitude;
-              y_[motorIdentity(mconf, i, 1, 1)] = -C2*amplitude;
-              y_[motorIdentity(mconf, i, 1, 2)] = 0;
-              y_[motorIdentity(mconf, i, 2, 0)] = -C1*amplitude;
-              y_[motorIdentity(mconf, i, 2, 1)] = -C2*amplitude;
-              y_[motorIdentity(mconf, i, 2, 2)] = 0;
 
           }
       }

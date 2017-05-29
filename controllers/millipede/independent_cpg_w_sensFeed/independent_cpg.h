@@ -235,37 +235,41 @@ class IndependentCPGSF : public AbstractController {
             odom.push_back(accy);
             odom.push_back(accz);
 
+            //Control step for all limbs
             for(int i = 0; i < mconf.nOfSegments; i++){
 
                 for(int j = 0; j < mconf.legsPerSegment; j++){
                     int cpg_index = i*4+j;
-//                    if (j%2 != 0)
-//                        S = 0.12;
-//                    else
-//                        S = 0.1;
 
+                    //Update S (not used)
                     cpgs[cpg_index].w[2] = 0.18+S;
                     cpgs[cpg_index].w[3] = -0.18-S;
 
-//                    cpgs[i*4+j].B1 = 0.01-sfeed*(x_[touchSensorIdentity(mconf, i, j)]+1)/2*cos(cpgs[i*3+j].a1);
-//                    cpgs[i*4+j].B2 = 0.01-sfeed*(x_[touchSensorIdentity(mconf, i, j)]+1)/2*sin(cpgs[i*3+j].a2);
 
+                    // Inputs to CPG
                     double input1 = 0, input2 = 0;
                     if((i==0 && j>1) || i>0){
-                        input1 = followed*cpgs[i*4+j-2].C1;
+                        input1 = followed*cpgs[i*4+j-2].C2-followed*cpgs[i*4+j-2].prevC2;
+                        input2 = followed*cpgs[i*4+j-2].C1-followed*cpgs[i*4+j-2].prevC1;
+//                        input1 = followed*cpgs[i*4+j-2].C1;
 //                        input2 = followed*cpgs[i*4+j-2].C2;
                     }
 
+                    //Control step for each leg
                     std::vector<double> motorCommands = cpgs[cpg_index].control_step(x_[touchSensorIdentity(mconf, i, j)], input1, input2);
 
                     y_[motorIdentity(mconf, i, j, 0)] = motorCommands[0];
                     y_[motorIdentity(mconf, i, j, 1)] = motorCommands[1];
                     y_[motorIdentity(mconf, i, j, 2)] = motorCommands[2];
-//                    std::cout << cpgs[cpg_index].SFweight << std::endl;
 
-
+                    //Data to be saved
+                    sensors.push_back(cpgs[cpg_index].SFweight);
                     sensors.push_back(x_[touchSensorIdentity(mconf, i, j)]);
-                    motors.push_back(y_[motorIdentity(mconf,i,j,1)]);
+                    motors.push_back(cpgs[cpg_index].C1);
+                    motors.push_back(cpgs[cpg_index].C2);
+
+//                    sensors.push_back(x_[touchSensorIdentity(mconf, i, j)]);
+//                    motors.push_back(y_[motorIdentity(mconf,i,j,1)]);
 
 
                 }
@@ -274,6 +278,7 @@ class IndependentCPGSF : public AbstractController {
             if(saveData)
               saveAllData(sensors, motors, odom, t-100, simN);
         }else{
+            //Waiting for robot initialisation (until robot stays steady on the ground after being created)
             for(int i = 0; i < mconf.nOfSegments; i++){
                 for(int j = 0; j < mconf.legsPerSegment; j++){
                     y_[motorIdentity(mconf, i, j, 0)] = 0;
@@ -283,37 +288,6 @@ class IndependentCPGSF : public AbstractController {
             }
         }
 
-//      //Memory: 2 neuron recurrent net
-//      double activeL=-(2*x_[FL_us]-0.7);
-//      double activeR=-(2*x_[FR_us]-0.7);
-//      //std::cout << activeL << "\t" << activeR << std::endl;
-//      if(activeL<-1)
-//        activeL=-1;
-//      if(activeL>1)
-//        activeL=1;
-
-//      if(activeR<-1)
-//        activeR=-1;
-//      if(activeR>1)
-//        activeR=1;
-//      //std::cout << activeL << "\t" << activeR << std::endl;
-
-//      double sums1, sums2;
-//      sums1 = S1*5.4-S2*3.55+activeL*7;
-//      sums2 = S2*5.4-S1*3.55+activeR*7;
-
-//      S1 = tanh(sums1);
-//      S2 = tanh(sums2);
-//      //Antenna
-//      double turnR = 1;
-//      double turnL = 1;
-      /*/
-//      if(S1>0.95)
-//        turnR=-1;
-
-//      if(S2>0.95)
-//        turnL=-1;
-//    // */
 
       // update step counter
       t++;
@@ -341,76 +315,3 @@ class IndependentCPGSF : public AbstractController {
 };
 
 #endif
-
-
-/*
- * List of available Sensors and their numbers/enum's to be used for example as x_[TR0_as] in the step function
- *
-// Angle sensors (for actoric-sensor board (new board))
-       TR0_as=0, //Thoracic joint of right front leg
-       TR1_as=1, //Thoracic joint of right middle leg
-       TR2_as=2, //Thoracic joint of right hind leg
-
-       TL0_as=3, //Thoracic joint of left front leg
-       TL1_as=4, //Thoracic joint of left middle leg
-       TL2_as=5, //Thoracic joint of left hind leg
-
-       CR0_as=6, //Coxa joint of right front leg
-       CR1_as=7, //Coxa joint of right middle leg
-       CR2_as=8, //Coxa joint of right hind leg
-
-       CL0_as=9,  //Coxa joint of left hind leg
-       CL1_as=10, //Coxa joint of left hind leg
-       CL2_as=11, //Coxa joint of left hind leg
-
-       FR0_as=12, //Fibula joint of right front leg
-       FR1_as=13, //Fibula joint of right middle leg
-       FR2_as=14, //Fibula joint of right hind leg
-
-       FL0_as=15, //Fibula joint of left front leg
-       FL1_as=16, //Fibula joint of left middle leg
-       FL2_as=17, //Fibula joint of left hind leg
-
-       BJ_as= 18, //Backbone joint angle
-
-       //Foot contact sensors (AMOSII v1 and v2)
-       R0_fs= 19, //Right front foot
-       R1_fs= 20, //Right middle foot
-       R2_fs= 21, //Right hind foot
-       L0_fs= 22, //Left front foot
-       L1_fs= 23, //Left middle foot
-       L2_fs= 24, //Left hind foot
-
-       // US sensors (AMOSII v1 and v2)
-       FR_us=25, //Front Ultrasonic sensor (right)
-       FL_us=26, //Front Ultrasonic sensor (left)
-
-       // IR reflex sensors at legs (AMOSIIv2)
-       R0_irs=31,
-       R1_irs=29,
-       R2_irs=27,
-       L0_irs=32,
-       L1_irs=30,
-       L2_irs=28,
-
-       // goal orientation sensors (relative position to reference object 1 (red), e.g. camera)
-       G0x_s=62,
-       G0y_s=63,
-       G0z_s=64,
-
-       //Body speed sensors (only simulation)
-       BX_spd= 66,
-       BY_spd= 67,
-       BZ_spd= 68,
-
-       // goal orientation sensors (relative position to reference object 2 (green), e.g. camera)
-       G1x_s=72,
-       G1y_s=73,
-       G1z_s=74,
-
-       // goal orientation sensors (relative position to reference object 3 (blue), e.g. camera)
-       G2x_s=78,
-       G2y_s=79,
-       G2z_s=80,
-
- */

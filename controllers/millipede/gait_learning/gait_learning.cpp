@@ -1,5 +1,7 @@
 #include "gait_learning.h"
 
+/// Unfinished controller, without results!!!
+
 using namespace std;
 
 void gait_learning::initialize(){
@@ -27,11 +29,6 @@ void gait_learning::initialize(){
 //      gl_Bf = 0.0051;
 //      gl_Bs = 0.0001;
     //distributed sfw
-//    gl_Af = 0.59;
-//    gl_As = 0.992;
-//    gl_Bf = 0.031;
-//    gl_Bs = 0.0031;
-    //New ones, more stable
     gl_Af = 0.78;
     gl_As = 0.9972;
     gl_Bf = 0.001;
@@ -139,13 +136,16 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
 //                        input1 += cpgs[cpg_index].input_synapses[k]*signal1;//cpgs[cpg_index].interconnectionFilter[k];
 //                        input2 += cpgs[cpg_index].input_synapses[k]*signal2;//cpgs[cpg_index].interconnectionFilter[k];
 
-                        input1 += input_synapses[CPGphase_index]*signal1;
-                        input2 += input_synapses[CPGphase_index]*signal2;
+
+                        double dInput1 = cpgs[input_index].C1 - cpgs[input_index].prevC1;
+                        double dInput2 = cpgs[input_index].C2 - cpgs[input_index].prevC2;
+                        input1 += cpgs[cpg_index].input_synapses[k]*dInput1 + cpgs[cpg_index].input_synapses[k+6]*dInput2;
+
+//                        input1 += input_synapses[CPGphase_index]*signal1;
+//                        input2 += input_synapses[CPGphase_index]*signal2;
                     }
                 }
 
-//                if(t>1500)
-//                    sensor_data = 0;
 
                 std::vector<double> motorCommands = cpgs[cpg_index].control_step(sensor_data, input1, input2);
                 y_[motorIdentity(mconf, i, j, 0)] = motorCommands[0];
@@ -153,38 +153,11 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
                 y_[motorIdentity(mconf, i, j, 2)] = motorCommands[2];
 
 
-//                if (sumofvalues>1)
-//                    sumofvalues = 1;
-//                if(sumofvalues<0)
-//                    sumofvalues = 0;
-//                //compute error from forward model
-//                 //1 calculate fwd model output
-//                double G = sin(cpgs[cpg_index].C2) < sin(cpgs[cpg_index].prevC2) ? 0 : 1;
-
-//                cpgs[cpg_index].fwdMod = 0.5*G + 0.5*cpgs[cpg_index].fwdMod;
-
-//                 //2 calculate error
-//                double error = -sumofvalues + cpgs[cpg_index].fwdMod;
-
-//                if(t>100)
-//{
-//                 //3 calculate dw
-//                cpgs[cpg_index].dslow = cpgs[cpg_index].dslow*cpgs[cpg_index].As + error*cpgs[cpg_index].Bs;
-//                cpgs[cpg_index].dfast = cpgs[cpg_index].dfast*cpgs[cpg_index].Af + error*cpgs[cpg_index].Bf;
-//                cpgs[cpg_index].dW = (cpgs[cpg_index].dslow + cpgs[cpg_index].dfast);
-
-//                 //4 update weight
-//                cpgs[cpg_index].SFweight = cpgs[cpg_index].dW; // > 0 ? cpgs[cpg_index].dW : 0;
-//}
-                //calculate error for averaging
-
-//                total_error += cpgs[cpg_index].efferenceCopy_error;
-
                 // gait learner:
                 // difference between output from delayer and ouput of cpg
                 double du0 = cpgs[cpg_index].C1-cpgs[cpg_index].prevC1; //fwdMod-lastFwdMod;
 
-                double learning_rate = 0.51;
+                double learning_rate = 0.00051;
                 for(int k = 0; k < interNeuralConnections; k++){
                     int input_index;
                     if(cpg_index%2 == 0)
@@ -193,6 +166,17 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
                         input_index = cpg_index-interNeuralConnections/2+k;
 
                     if(input_index >= 0 && input_index < numberOfLegs && input_index!=cpg_index){
+                        double dInput1 = cpgs[input_index].C1 - cpgs[input_index].prevC1;
+                        double dInput2 = cpgs[input_index].C2 - cpgs[input_index].prevC2;
+                        //calculate error for prevC1
+                        double prevC1err = cpgs[cpg_index].C1*dInput1;
+                        double prevC2err = cpgs[cpg_index].C2*dInput2;
+                        //backpropagate error with weights.
+                        cpgs[cpg_index].input_synapses[k] = cpgs[cpg_index].input_synapses[k]*1 + learning_rate*prevC1err;
+                        cpgs[cpg_index].input_synapses[k+6] = cpgs[cpg_index].input_synapses[k]*1 + learning_rate*prevC2err;
+
+
+
                         // filter error
                         phaseIntegralErrors[nOfLegs*input_index+cpg_index] = phaseIntegralErrors[nOfLegs*input_index+cpg_index] *0.99+ cpgs[cpg_index].interconnectionFilter[k];
                         phaseErrors[nOfLegs*input_index + cpg_index] = (du0*cpgs[cpg_index].interconnectionFilter[k]);//(cpgs[cpg_index].C1 - cpgs[cpg_index].interconnectionFilter[k]);
@@ -202,8 +186,8 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
 //                        if(t>800){
 //                            cpgs[cpg_index].delays[k] = cpgs[cpg_index].delays[k]*0.992 + cpgs[cpg_index].gait_error[k]*learning_rate;//(du0*cpgs[cpg_index].interconnectionFilter[k])*learning_rate;
 
-                        if(t>2000)
-                            cpgs[cpg_index].input_synapses[k] =-0.01;//cpgs[cpg_index].input_synapses[k]*0.9995 - 0.0001/(1+cpgs[cpg_index].gait_error[k]*cpgs[cpg_index].gait_error[k]);
+//                        if(t>2000)
+//                           cpgs[cpg_index].input_synapses[k] =-0.01;//cpgs[cpg_index].input_synapses[k]*0.9995 - 0.0001/(1+cpgs[cpg_index].gait_error[k]*cpgs[cpg_index].gait_error[k]);
 //                        }
 
 
@@ -218,7 +202,7 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
                         else
                             input_index = cpg_index-interNeuralConnections/2+k;
 
-                        sensors.push_back(CPGphases[nOfLegs*input_index+cpg_index]);
+                        sensors.push_back(cpgs[cpg_index].input_synapses[k]);//CPGphases[nOfLegs*input_index+cpg_index]);
 //                        sensors.push_back(input_synapses[nOfLegs*input_index+cpg_index]);
 
 //                        sensors.push_back(cpgs[cpg_index].input_synapses[k]);
@@ -226,8 +210,8 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
                     }
 
                     motors.push_back(cpgs[cpg_index].SFweight);
-                    motors.push_back(cpgs[cpg_index].fwdMod);
                     motors.push_back(cpgs[cpg_index].C1);
+                    motors.push_back(cpgs[cpg_index].C2);
                 }
 
             }
@@ -235,7 +219,7 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
         }
 
 
-        //Inter limb coordination learning
+        //Inter limb coordination, dephase learning
 
         if(t>1000  ){
             double learning_rate = 0.01;
@@ -274,6 +258,16 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
             }
         }
 
+        //set inter limb coordination strength
+        if(t<3000){
+            double B_ilStr = 0.001;
+            for(int j = 0; j < nOfLegs; j++){
+                for(int i = 0; i < nOfLegs; i++){
+                    input_synapses[j*nOfLegs+i] = -0.01;// input_synapses[j*nOfLegs+i]*0.0 - B_ilStr*(0.01/(0.01+phaseIntegralErrors[nOfLegs*i+j]*phaseIntegralErrors[nOfLegs*i+j]));//phaseErrors2[nOfLegs*j+i]*phaseErrors2[nOfLegs*j+i]))*B_ilStr;
+                }
+            }
+        }
+
 
         //average all errors
         total_error = total_error/(nOfLegs);
@@ -283,21 +277,10 @@ void gait_learning::initializeCPGs(){ // To be called right after selecting a mc
         gl_dslow = gl_dslow*gl_As + total_error*gl_Bs;
         gl_dfast = gl_dfast*gl_Af + total_error*gl_Bf;
         gl_dW = (gl_dslow + gl_dfast);
-        cout << gl_dW << endl;
+//        cout << gl_dW << endl;
         gl_SFweight -= gl_dW;
 //            if(t>2000)
 //                gl_SFweight = 0.10;
-
-        if(t>2000){
-            double B_ilStr = 0.001;
-            for(int j = 0; j < nOfLegs; j++){
-                for(int i = 0; i < nOfLegs; i++){
-                    input_synapses[j*nOfLegs+i] = 0;// input_synapses[j*nOfLegs+i]*0.0 - B_ilStr*(0.01/(0.01+phaseIntegralErrors[nOfLegs*i+j]*phaseIntegralErrors[nOfLegs*i+j]));//phaseErrors2[nOfLegs*j+i]*phaseErrors2[nOfLegs*j+i]))*B_ilStr;
-                }
-            }
-//            cout << endl;
-        }
-
 
         if(saveData){
             saveAllData(sensors, motors, odom, t-100, simN);

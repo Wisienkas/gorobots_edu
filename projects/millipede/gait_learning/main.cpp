@@ -100,26 +100,33 @@ class gait_learningsim : public lpzrobots::Simulation {
 //    playground->setPosition(osg::Vec3(0,0,.0));
 //    global.obstacles.push_back(playground);
 
-    int diedIn = 0;
-    initial_S = 0.1;
-    initial_trWeight = 3;
+    // set parameters of controller
+    int diedIn = 0; //-> if the simulations stop at some point, they can be recovered from this
+
+    // initial values for the set of simulations:
+    initial_S = 0.1;        // parameter S for frequency of CPG)
+    initial_trWeight = 3;   // robot trunk weight
     Bs = 0.0;
     Bf = 0.0;
 
+    // Steps, on each reset, the parameters are updated
     S_step = 0.0;
     trWeight_step = 0.0;
     Bs_step = 0.00005;
     Bf_step = 0.0005;
 
+    // Get initial parameters when the simulation stops at some point
     S = initial_S + S_step*diedIn;
     trWeight = initial_trWeight + trWeight_step*diedIn;
     Bs += Bs_step*diedIn;
 //    Bf += Bf_step*diedIn; // To make bf change in every sim and not after a whole group
 
+    //Initialization of counters
     simN = diedIn;
     count = 0;
     instantiateAgent(global);
 
+    // total number of resets
     number_of_runs = 1;
 
   }
@@ -236,6 +243,3 @@ int main(int argc, char **argv)
 }
 
 
-
-
-//Locomotion control for complex behaviour of multiple legged systems

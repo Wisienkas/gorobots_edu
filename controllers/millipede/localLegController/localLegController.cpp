@@ -1,22 +1,38 @@
 #include"localLegController.h"
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::localLegController: Constructor
+/// \param w_: vector of 4 elements, CPG weights.
+///
 localLegController::localLegController(std::vector<double> w_){
     w = w_;
     lowpass_n = 5;
     filtererror_n = 2;
     lowpass = std::vector<double>(lowpass_n);
-    gait_error = std::vector<double>(8);
-    input_synapses = std::vector<double>(8);
-    interconnectionFilter = std::vector<double>(8);
+    gait_error = std::vector<double>(12);
+    input_synapses = std::vector<double>(12);
+    interconnectionFilter = std::vector<double>(12);
     delays = std::vector<double>(8);
 //    filtererror = std::vector<double>(filtererror_n);
+
+    Af = 0.59;
+    As = 0.9972;
+    Bf = 0.005;
+    Bs = 0.0005;
 
     liftamplitude = 0.4;
     wideamplitude = 0.7;
 
 }
 
-localLegController::localLegController(std::vector<double> w_, std::vector<double> learnParams_){
+
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::localLegController: constructor overload
+/// \param w_: vector of 4 elements, CPG weights.
+/// \param learnParams_: vector of 4 elements, SF weight learning parameters.
+///
+localLegController::localLegController(std::vector<double> w_,
+                                       std::vector<double> learnParams_){
     w = w_;
     Af = learnParams_[0];
     As = learnParams_[1];
@@ -35,6 +51,9 @@ localLegController::localLegController(std::vector<double> w_, std::vector<doubl
     wideamplitude = 0.7;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::CPG_step
+///
 void localLegController::CPG_step(){
     a1 = C1*w[0]+C2*w[2]+B1;
     a2 = C2*w[1]+C1*w[3]+B2;
@@ -44,6 +63,11 @@ void localLegController::CPG_step(){
     return;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::CPG_step
+/// \param input1   Input to neuron 1 on CPG
+/// \param input2   Input to neuron 2 on CPG
+///
 void localLegController::CPG_step(double input1, double input2){
     a1 = C1*w[0]+C2*w[2]+B1+input1;
     a2 = C2*w[1]+C1*w[3]+B2+input2;
@@ -53,6 +77,11 @@ void localLegController::CPG_step(double input1, double input2){
     return;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::control_step
+/// \param touchSensorData  Contact sensor data
+/// \return                 Vector of motor commands
+///
 std::vector<double> localLegController::control_step(double touchSensorData){
 
     double filteredData = sFeedFilter(touchSensorData);
@@ -76,6 +105,13 @@ std::vector<double> localLegController::control_step(double touchSensorData){
     return motorOutput;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::control_step
+/// \param touchSensorData  Contact sensor data
+/// \param CPGinput1        Input to neuron 1 on CPG
+/// \param CPGinput2        Input to neuron 2 on CPG
+/// \return                 Vector of motor commands
+///
 std::vector<double> localLegController::control_step(double touchSensorData, double CPGinput1, double CPGinput2){
 
     double filteredData = sFeedFilter(touchSensorData);
@@ -108,6 +144,11 @@ std::vector<double> localLegController::control_step(double touchSensorData, dou
     return motorOutput;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::sFeedbackLearning_step:
+///     Sensory feedback strength learning phase
+/// \param touchSensorData  Contact sensor data
+///
 void localLegController::sFeedbackLearning_step(double touchSensorData){
 
     if (touchSensorData>1)
@@ -127,10 +168,10 @@ void localLegController::sFeedbackLearning_step(double touchSensorData){
     dfast = dfast*Af + efferenceCopy_error*Bf;
     dW = (dslow + dfast);
 
-    if(efferenceCopy_error <= 0.5)
-        legPos_fixation = true;
-    else
-        legPos_fixation = false;
+//    if(efferenceCopy_error <= 0.5)
+//        legPos_fixation = true;
+//    else
+//        legPos_fixation = false;
 
 
     //4 update weight
@@ -140,6 +181,10 @@ void localLegController::sFeedbackLearning_step(double touchSensorData){
     return;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::reset
+/// Reset CPG
+///
 void localLegController::reset(){
     B1 = 0.01;
     B2 = 0.01;
@@ -148,22 +193,25 @@ void localLegController::reset(){
     return;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////
+/// \brief localLegController::sFeedFilter: Mean filter
+/// \param dataInput    Filter input
+/// \return             Filtered signal
+///
 double localLegController::sFeedFilter(double dataInput){
 
-    if(learning_SF)
-        dataInput = dataInput * 1.5 - 0.5;
+//    if(learning_SF)
+    //adaptation of input sensory data (can be modified)
+    dataInput = dataInput * 1.5 - 0.5;
+    dataInput*=4;
 
     double sumofvalues = 0;
     lowpass[0] = dataInput;
     std::rotate(lowpass.begin(), lowpass.begin()+1, lowpass.end());
     for(int k = 0; k < lowpass.size(); k++){
-        sumofvalues+= lowpass[k-1];
+        sumofvalues+= lowpass[k];
     }
-     //average
-//    sumofvalues = sumofvalues / lowpass_n * 1.0;
-    if(!learning_SF)
-        sumofvalues/= lowpass_n;
+    sumofvalues/= lowpass_n;
 
     return sumofvalues;
 }

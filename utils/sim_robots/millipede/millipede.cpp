@@ -154,6 +154,8 @@ namespace lpzrobots {
     assert(created);
     // robot must exist
     assert(motornumber==getMotorNumber());
+
+    //leg motor commands
     for (MotorMap::iterator it = servos.begin(); it != servos.end(); it++) {
       int const name = it->first;
       OneAxisServo * const servo = it->second;
@@ -163,6 +165,7 @@ namespace lpzrobots {
       }
     }
 
+    //intersegment motor commands
     for (LinkMap::iterator it = doubleServos.begin(); it != doubleServos.end(); it++){
         int const name = it->first;
         TwoAxisServo *const servo = it->second;
@@ -214,15 +217,12 @@ namespace lpzrobots {
         }
 
     } else { // Scaling since analog signals are used then we scale them to the range of [0,..,1]
+            //To be checked for different body weights!! Noise can make the value go above 1 or below 0
 
         for(unsigned int i = 0; i < legContactSensors.size(); i++)
             sensors[i] = legContactSensors[i] ? ((legContactSensors[i]->get())/1.5) : 0;
     }
-
-
     return NumberOfSensors;
-
-
   }
 
 
@@ -230,7 +230,7 @@ namespace lpzrobots {
 #ifdef VERBOSE
     std::cerr << "millipede::place BEGIN\n";
 #endif
-    // the position of the robot is the center of the body
+    // the position of the robot is the center of the first segment
     // to set the vehicle on the ground when the z component of the position
     // is 0
     //Matrix p2 = pose * ROTM(0, 0, conf.legLength + conf.legLength/8);
@@ -267,7 +267,8 @@ namespace lpzrobots {
             (*i)->update();
     }
     // update the graphical representation of the sensorbank
-    irSensorBank->update();
+    if(conf.irSensors)
+        irSensorBank->update();
 
     for (int i = 0; i < NumberOfLegs; i++) {
       if (legContactSensors[i])
@@ -294,7 +295,8 @@ namespace lpzrobots {
 
   void Millipede::sense(GlobalData& globalData) {
     OdeRobot::sense(globalData);
-    irSensorBank->sense(globalData);
+    if(conf.irSensors)
+        irSensorBank->sense(globalData);
 
     for (int i = 0; i < NumberOfLegs; i++) {
       if (legContactSensors[i])
@@ -368,6 +370,7 @@ namespace lpzrobots {
     /** central position of the trunk */
     const osg::Matrix trunkPos = pose;
 
+    //segment trunk
     millipedeSegment seg;
     seg.height = conf.height;
     seg.width = conf.width;
@@ -378,55 +381,49 @@ namespace lpzrobots {
 
     for(int j = 0; j < conf.nOfSegments; j++){
 
-        if(1){//j<3 || j>=(nOfSegments-1)){
-            //seg.nOfLegs = conf.legsPerSegment;
-            seg.position = TRANSM(-(seg.length+conf.linkLength*2)*j, 0, 0) * trunkPos;
-            createSegment(seg, &odeHandleBody);
+        //create segment trunk
+        seg.position = TRANSM(-(seg.length+conf.linkLength*2)*j, 0, 0) * trunkPos;
+        createSegment(seg, &odeHandleBody);
 
 
         /************************************
-         * LEGS
+         * adding LEGS
          ***********************************/
+        //currently, only four leg set up implemented
 
-            for(int i = 0; i < seg.nOfLegs; i++){
-                int leg = i;
-                double legPositionX;
-                if(i > 1)
-                    legPositionX = conf.legpos1;
-                else
-                    legPositionX = conf.legpos2;
+        for(int i = 0; i < seg.nOfLegs; i++){
+            int leg = i;
+            double legPositionX;
+            if(i > 1)
+                legPositionX = conf.legpos1;
+            else
+                legPositionX = conf.legpos2;
 
-                createLeg(leg, legPositionX, j, &osgHandleJoint);
-
-            }
-        }else{
-            seg.nOfLegs = 0;
-            seg.position = TRANSM(-(seg.length+conf.linkLength*2)*j, 0, 0) * trunkPos;
-            createSegment(seg, &odeHandleBody);
+            createLeg(leg, legPositionX, j, &osgHandleJoint);
 
         }
 
+        //adding universal joint between segment trunks
         if(j>0)
             createLink(j, &osgHandleJoint);
     }
 
-//    createLink(1);
+    //adding IR sensor at front
+    if(conf.irSensors){
+        // initialize the infrared sensors
+        irSensorBank = new RaySensorBank();
+        irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
+        irSensorBank->init(0);
 
+        // ultrasonic sensors at Front part
+        usSensorFrontRight = new IRSensor();
+        irSensorBank->registerSensor(usSensorFrontRight, segments[0].primitive,
+          ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
+          * TRANSM(0.3 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.45 * conf.height),
+          conf.usRangeFront, RaySensor::drawRay);
 
-
-    // initialize the infrared sensors
-    irSensorBank = new RaySensorBank();
-    irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
-    irSensorBank->init(0);
-
-    // ultrasonic sensors at Front part
-    usSensorFrontRight = new IRSensor();
-    irSensorBank->registerSensor(usSensorFrontRight, segments[0].primitive,
-      ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
-      * TRANSM(0.3 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.45 * conf.height),
-      conf.usRangeFront, RaySensor::drawRay);
-
-    NumberOfSensors++;
+        NumberOfSensors++;
+}
 
     setParam("dummy", 0); // apply all parameters.
 
@@ -437,8 +434,16 @@ namespace lpzrobots {
 
 }
 
-void Millipede::createLeg(int leg, double legPositionX, int segmentIndex, OsgHandle *osgHandleJoint){
 
+
+///////////////////////////////////////////////////////////
+/// \brief Millipede::createLeg
+/// \param leg: leg index
+/// \param legPositionX: position on segment
+/// \param segmentIndex: segment where attached
+/// \param osgHandleJoint: osgHandle
+///
+void Millipede::createLeg(int leg, double legPositionX, int segmentIndex, OsgHandle *osgHandleJoint){
 
     const osg::Matrix& segmentPose = segments[segmentIndex].position;
 
@@ -752,9 +757,10 @@ void Millipede::createSegment(millipedeSegment segment, OdeHandle *odeHandleBody
         }
 
       }
-
-      irSensorBank->clear();
-      delete irSensorBank;
+      if(conf.irSensors){
+          irSensorBank->clear();
+          delete irSensorBank;
+      }
 
       if (speedsensor) {
         delete speedsensor;
@@ -1127,11 +1133,14 @@ int Millipede::getLinkIndex(int linkNum){
     c.GoalSensor_references.clear(); //enforce empty vector -> no relative position sensing
     //----------------Add GoalSensor by Ren------------------
 
+    // Add IR sensors:
+    c.irSensors = false;
+
     return c;
   }
 
 
-
+// Getting motor command address
   int motorIdentity(const MillipedeConf &conf, int segmentNum, int legNum, int motNum){
 
       int totalprevLegs = 0;
@@ -1146,6 +1155,7 @@ int Millipede::getLinkIndex(int linkNum){
   }
 
 
+// Getting sensor address
     int touchSensorIdentity(const MillipedeConf &conf, int segmentNum, int legNum){
 
         int totalprevLegs = 0;

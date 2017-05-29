@@ -306,6 +306,8 @@ namespace lpzrobots {
 
       /** range of the infrared sensors at the legs */
       double irRangeLeg;
+      /** activation of irSensors */
+      bool irSensors;
 
       /** path to texture for legs */
       std::string texture;
@@ -618,7 +620,7 @@ namespace lpzrobots {
       AxisOrientationSensor* OrientationSensor;
       //---------------Add GoalSensor by Ren---------------
 
-      //Object creation functions
+      //Part creation functions
       void createLeg(int leg, double legPositionX, int segmentIndex, OsgHandle *osgHandleJoint);
       void createSegment(millipedeSegment segment, OdeHandle *odeHandleBody);
       void createLink(int segmentIndex, OsgHandle *osgHandleJoint);
