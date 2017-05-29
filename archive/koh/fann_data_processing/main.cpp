@@ -14,7 +14,7 @@ Basiert auf den Arbeiten Johannes zur Vorhersage des AS-Signals.
 #include <string.h>
 #include <floatfann.h>
 #include <cstring>
-
+#include "fann_cpp.h"
 
 
 #include "fann.h"
@@ -26,12 +26,14 @@ using namespace std;
 
 int train ( const string filename, const float desired_error, float learning_rate ) {
 
+	std::ofstream test_log;
+	test_log.open ("./train_vali.dat");
 
 	ofstream outputF1, outputF2, outputF3;
 	outputF1.open("error.dat");
 
 
-    float error;
+	float error;
 
 	const unsigned int num_layers = 3; // Can Change Number of layers
 	unsigned int neurons_per_layer[num_layers] = {INPUTS, HIDDEN, OUTPUTS};
@@ -65,8 +67,8 @@ int train ( const string filename, const float desired_error, float learning_rat
 	//  fann_set_training_algorithm ( ann, FANN_TRAIN_INCREMENTAL);
 	//  fann_set_training_algorithm ( ann,  FANN_TRAIN_RPROP );
 
-	fann_set_training_algorithm ( ann,   FANN_TRAIN_QUICKPROP);
-
+	//fann_set_training_algorithm ( ann,   FANN_TRAIN_QUICKPROP);
+	fann_set_training_algorithm ( ann,   FANN_TRAIN_BATCH);
 
 
 	fann_randomize_weights ( ann, -0.25, 0.25 );
@@ -74,28 +76,54 @@ int train ( const string filename, const float desired_error, float learning_rat
 
 	//fann_train_on_file ( ann, fninput, max_iterations,iterations_between_reports, desired_error );
 
-
+	// PATH TO TRAINING DATA HERE
 	struct fann_train_data *data = fann_read_train_from_file("training");
-	for(int i = 1 ; i <= max_iterations; i++) {
-	  error = fann_train_epoch(ann, data);
-	  if ( error < desired_error ) {
-		  break;
-	  }
 
-		cout << "error" << error << endl;
+
+	// PATH TO VALIDATION DATA HERE
+	FANN::training_data vali;
+	vali.read_train_from_file("training");
+
+
+
+	for(int i = 1 ; i <= max_iterations; i++) {
+		error = fann_train_epoch(ann, data);
+		if ( error < desired_error ) {
+			break;
+		}
+
+
+		printf("Training Error: %f", error); // Training error
+
+		/////// Added
+		fann_reset_MSE(ann);
+
+
+
+		for(int i = 0 ; i != vali.length_train_data() ; i++ ) {
+			fann_test(ann,vali.get_input()[i], vali.get_output()[i]);
+		}
+
+		printf("  \tValidation Error: %f\n", fann_get_MSE(ann)); // Validation error
+		test_log << i << "\t" << error << "\t" << fann_get_MSE(ann) << "\n";
+
+
+
+		//cout << "error" << error << endl;
 	}
 	fann_destroy_train(data);
 
-// Testing network
-//http://leenissen.dk/fann/html/files/fann_train-h.html#fann_test_data
+	// Testing network
+	//http://leenissen.dk/fann/html/files/fann_train-h.html#fann_test_data
 
 
-//	actual_error = fann_train_epoch ( ann, train_data );
-//	outputF1<< actual_error <<endl;
+	//	actual_error = fann_train_epoch ( ann, train_data );
+	//	outputF1<< actual_error <<endl;
 
 	fann_save ( ann, fnnet );
 
 	fann_destroy ( ann );
+	test_log.close();
 	cout << "Training done!!!!" << endl;
 	return 0;
 
@@ -104,8 +132,6 @@ int train ( const string filename, const float desired_error, float learning_rat
 	bool stop = false;
 
 	for ( unsigned int epoch=0; epoch<max_iterations; epoch++ ) {
-
-
 
 		actual_error = fann_train_epoch ( ann, train_data );
 		cout << "test5" << epoch << ", error " << actual_error << endl;
@@ -122,9 +148,9 @@ int train ( const string filename, const float desired_error, float learning_rat
 			stop = true;
 			break;
 		case 'l':
-		cout << "new learning rate: " << endl;
-		cin >> learning_rate;
-		break;
+			cout << "new learning rate: " << endl;
+			cin >> learning_rate;
+			break;
 		}
 
 		if ( actual_error < desired_error || stop ) {
