@@ -31,8 +31,7 @@ Then you will get a new file called "training"
 4) Run the FANN program to train a neural network 
 --> make  
 -->./start training
-F
-or example,
+For example,
 /workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ make
 /workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ ./start training
 
@@ -52,6 +51,12 @@ sudo apt-get install python-pyfann
 >> python generic_training_verifyer.py
 
 
+
+7) For validation, please prepare data for validation test or use 20 % of data in "training"
+then make the file call "validation"
+
+8) plot the testing error and validation error
+>> phython train_valid_plotter.py
 
 
 ////////////////////////////////////////////////////////////////////

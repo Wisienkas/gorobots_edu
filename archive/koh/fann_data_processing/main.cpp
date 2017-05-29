@@ -26,6 +26,7 @@ using namespace std;
 
 int train ( const string filename, const float desired_error, float learning_rate ) {
 
+	/////// Added // the log file for saving data and ploting
 	std::ofstream test_log;
 	test_log.open ("./train_vali.dat");
 
@@ -82,7 +83,7 @@ int train ( const string filename, const float desired_error, float learning_rat
 
 	// PATH TO VALIDATION DATA HERE
 	FANN::training_data vali;
-	vali.read_train_from_file("training");
+	vali.read_train_from_file("validation"); //It should be the file that contains validation data
 
 
 
@@ -95,10 +96,8 @@ int train ( const string filename, const float desired_error, float learning_rat
 
 		printf("Training Error: %f", error); // Training error
 
-		/////// Added
+		/////// Added // for testing validation
 		fann_reset_MSE(ann);
-
-
 
 		for(int i = 0 ; i != vali.length_train_data() ; i++ ) {
 			fann_test(ann,vali.get_input()[i], vali.get_output()[i]);
@@ -106,7 +105,7 @@ int train ( const string filename, const float desired_error, float learning_rat
 
 		printf("  \tValidation Error: %f\n", fann_get_MSE(ann)); // Validation error
 		test_log << i << "\t" << error << "\t" << fann_get_MSE(ann) << "\n";
-
+		/////// Added // for testing validation
 
 
 		//cout << "error" << error << endl;
@@ -123,7 +122,10 @@ int train ( const string filename, const float desired_error, float learning_rat
 	fann_save ( ann, fnnet );
 
 	fann_destroy ( ann );
+
+	/////// Added // the log file for saving data and ploting
 	test_log.close();
+
 	cout << "Training done!!!!" << endl;
 	return 0;
 
