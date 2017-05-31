@@ -441,7 +441,7 @@ class EmptyController : public AbstractController {
       u_ico_out = 1.0*u_ico_in.at(0)+exp_output;
       //u_ico_out = 1.0*u_ico_in.at(0)+1.0*u_ico_in.at(1)+exp_output;
 
-      outFileicolearning<<predictive_signal_green<<' '<<reflexive_signal_green<<' '
+      outFileicolearning<<w_ico.at(0)<<' '<<predictive_signal_green<<' '<<reflexive_signal_green<<' '
           <<predictive_signal_blue<<' '<<reflexive_signal_blue<<' '<<u_ico_out<<endl;
 
       //----Students--------Adding your ICO learning here------------------------------------------//
