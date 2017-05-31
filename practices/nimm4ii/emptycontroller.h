@@ -125,8 +125,8 @@ class EmptyController : public AbstractController {
       /*****************************************************************************************/
 
 
-      parameter.at(0) = sensors[4];
-      parameter.at(1) = sensors[5];
+      parameter.at(0) = sensors[4]; // IR right
+      parameter.at(1) = sensors[5]; // IR left
 
       // Example open loop controller:
 
@@ -136,7 +136,7 @@ class EmptyController : public AbstractController {
       // Outputs of your controller are sent to motors[0], motors[1], motors[2], motors[3].
 
 
-
+      printf("IR left:%f  IR right: %f \n", parameter.at(1), parameter.at(0));
 
 
 
