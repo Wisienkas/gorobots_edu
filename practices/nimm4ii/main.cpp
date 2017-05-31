@@ -34,9 +34,9 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 
-//#include "emptycontroller_icolearning.h"
+#include "emptycontroller_icolearning.h"
 
-#include "emptycontroller.h"
+//#include "emptycontroller.h"
 
 // OR an example controller
 //#include "samplecontroller.h"
@@ -53,22 +53,22 @@ EmptyController* qcontroller;
 //when select--> "emptycontroller_icolearning.h"
 
 //// students set this parameter = "true" for ico learning, and set it to "false" for RL
-//bool ico_learning_task = true;
+bool ico_learning_task = true;
 
 // students set this to "true" for reset robot in ico learning, set to "false" for RL
 // set this to "false" to control the robot by keyboard for checking the robot sensory signals
-//bool repeat_experiment = true;
+bool repeat_experiment = true;
 
 
 //Use this setup for the task RL & others
 //when select--> "emptycontroller.h" or samplecontroller.h
 
 // students set this parameter = "true" for ico learning, and set it to "false" for RL
-bool ico_learning_task = false;
+//bool ico_learning_task = false;
 //
 //// students set this to "true" for reset robot in ico learning, set to "false" for RL
 //// set this to "false" to control the robot by keyboard for checking the robot sensory signals
-bool repeat_experiment = false;
+//bool repeat_experiment = false;
 
 
 
