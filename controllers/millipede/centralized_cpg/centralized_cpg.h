@@ -193,7 +193,6 @@ class CentralCPG : public AbstractController {
 
                 }
 
-
           }
       }
 

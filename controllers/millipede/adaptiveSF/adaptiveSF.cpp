@@ -53,7 +53,6 @@ void adaptiveSF::stepNoLearning(const sensor* x_, int number_sensors,
 
   //----Students--------Adding your Neural Controller here------------------------------------------//
 
-
       //Outputs of CPG
 
     if(t>=100 && !active)

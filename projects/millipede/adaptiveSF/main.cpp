@@ -184,7 +184,7 @@ class adaptiveSFsim : public lpzrobots::Simulation {
   void instantiateAgent(GlobalData& global) {
       // Add millipedeII robot
       // currently only four legs per segment are implemented and a maximum of five segments can be used
-      lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 3/*_nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
+      lpzrobots::MillipedeConf myMillipedeConf = lpzrobots::Millipede::getDefaultConf(1.0 /*_scale*/, 4 /*_legspersegment*/, 5/* max is 5 _nofsegments*/, 1 /*_useShoulder*/,1 /*_useFoot*/,1 /*_useBack*/);
 //      myMillipedeConf.rubberFeet = true;1
       lpzrobots::OdeHandle rodeHandle = odeHandle;
 

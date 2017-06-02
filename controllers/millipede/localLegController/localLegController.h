@@ -37,6 +37,7 @@ public:
     bool local_SFweight = true;
     double SFweight = 0;
     double efferenceCopy_error = 0;
+    double fwdMod;
 
 
     // Variables for neural inter limb coordination (not used)
@@ -60,7 +61,6 @@ private:
 
     std::vector<double> lowpass;// filtererror;
     double lowpass_n, filtererror_n;
-    double fwdMod;
 
 //    bool legPos_fixation = false;
 
