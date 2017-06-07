@@ -1,0 +1,23 @@
+The example of using the trained RC network for controlling a robot
+
+see how to add / call rc network in 
+
+- emptycontroller.h : 
+
+
+see 	
+//----------------------Added Code RC network-------------------------//
+
+result = RCPrg->run(signalPoint, targetPoint); // The output of the network that you can use to control your robot
+
+
+
+
+- EEGapproxESN.cpp :
+
+Put you own file name .e.g., "Network/TRC6_M11_30_S80":
+
+
+	std::cout << "Initialize EEGapproxESN" << std::endl;
+	/// Load a network
+    ESN                     = new ESNetwork( 1, "Network/TRC6_M11_30_S80" );
