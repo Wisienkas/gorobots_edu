@@ -69,7 +69,7 @@ public:
 		// lpzrobots::OdeHandle playgroundHandle = odeHandle;
 		// playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!)
 		double steplength = 0.43;
-		ob_rand =0;//rand() % 3;
+		ob_rand = rand() % 3;
 	
 		// // //PLAYGROUND
 		// 	lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(6, 1,
@@ -268,7 +268,7 @@ public:
    				cylinder_controller =  new Modular_neural_control_cylinder();//new modularNeuroController(1,mCPGS,false);
 				cylinder_controller->finished = false;
 				cylinder_controller->bump = false;
-        		cylinder_controller->stationary_push = true;
+        		cylinder_controller->stationary_push = false;
         		cylinder_controller->boxing = false;
    				agent->init(cylinder_controller, dungBeetleRobot, wiring);
    				global.agents.push_back(agent);

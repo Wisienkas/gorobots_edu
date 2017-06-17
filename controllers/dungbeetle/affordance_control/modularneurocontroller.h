@@ -27,12 +27,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <map>
 
 //Add Delay line////////////////////
 #include "utils/delayline.h"
 ////////////////////////////////////
 
-
+extern int objectIndex = 0;
 extern int sim_count = 0;
 extern double I_l = 0.0;
 extern double I_r = 0.0;
@@ -68,6 +69,8 @@ class modularNeuroController : public AbstractController {
 
 		void sampleEnvironment();
 
+		
+
 
 	public:
 	//class constructor
@@ -75,6 +78,7 @@ class modularNeuroController : public AbstractController {
 
 		modularNeuroController(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled);
 		void initialize(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled);
+		void setFilePath();
 
 
 		
@@ -122,6 +126,7 @@ class modularNeuroController : public AbstractController {
 	affordanceController *aff;
 	ModularNeural *cpg;
 	bool mul_cpgs;
+	std::map<std::string, std::string> config;
 
 	double R0_H0;
 	double R0_H1;
@@ -165,6 +170,7 @@ class modularNeuroController : public AbstractController {
     	unsigned short numbersensors, numbermotors;
 		paramkey name;
 		int t;
+		
 
 	public:
 		
@@ -197,6 +203,7 @@ class modularNeuroController : public AbstractController {
   		bool save;
 		State previous,current;
 		int timesteps=0;
+		std::string filePath;
     /////////////////////////////////////////////
 
 };

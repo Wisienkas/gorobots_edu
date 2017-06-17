@@ -3,6 +3,10 @@
 #include "utils/delayline.cpp"
 #include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.cpp>
 
+#define DATASET_BALL_FILE_PATH 			"ball_dataset.txt"
+#define DATASET_CAPSULE_FILE_PATH 		"capsule_dataset.txt"
+#define DATASET_BOX_FILE_PATH 			"box_dataset.txt"
+
 using namespace matrix;
 using namespace cv;
 
@@ -74,7 +78,8 @@ modularNeuroController::modularNeuroController():AbstractController("modularNeur
 	initialize(2,false,false);
 }
 //Constructor of the abstract controller
-modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled):AbstractController("modularNeuroController", "$Id: modularneurocontroller.cpp,v 0.1 $"){
+modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled):AbstractController("modularNeuroController", "$Id: modularneurocontroller.cpp,v 0.1 $") 
+{
 	initialize(dungBeetletype, mCPGs, mMuscleModelisEnabled);
 	img = Mat(1000,1000, CV_8UC1,Scalar::all(255));
 	
@@ -206,7 +211,7 @@ modularNeuroController::modularNeuroController(int dungBeetletype,bool mCPGs,boo
 
 void modularNeuroController::initialize(int aAMOSversion,bool mCPGs,bool mMuscleModelisEnabled)
 {	
-	
+	setFilePath();
 	I_l = 0.0;
 	I_r = 0.0;
 	I3 = 0.0;
@@ -483,9 +488,6 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
   	}
 
 
-  	//Locomotion control Single CPG
-  	if(!mul_cpgs)
-  	{
 	//update neurons output for visualization in the GUI
   		lineSegmentation();
   		updateGui();
@@ -637,10 +639,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 						
 						if(abs(floor(x_[211]*100)/100-d0) <= 0.01) {
 							cout << "5" << endl;
-	  						
-	  						
-	  						cout << " size: " << size << endl;
-	  						tc0=floor(x_[0]*100)/100;
+							tc0=floor(x_[0]*100)/100;
 	  						
 	  						}else{
 	  							
@@ -664,21 +663,20 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 									if(timesteps>=9)
 										cout <<"done"<<endl;
 									size = floor(sqrt(pow(dl,2)+pow(dr,2)-2*dl*dr*cos(theta))*100+0.5)/100;
-									cout << " size: " << size << endl;
 									cout << "OK" << endl;
 									cout << " TC0: " << tc0 << endl;
 									cout << " ds " << ds << endl;
 									cout << " d0 " << d0 << endl;
-									file.open("/home/michelangelo/ball_dataset_v2.txt", ios::out | ios::app );
+									file.open(filePath, ios::out | ios::app );
 									if (file.is_open()){
 										file << size <<" "<< tc0 <<" "<< ds-d0 << endl;
 										file.close();
 									}else
 										cerr << "couldn't open the file"<<endl;
 									
-	  								//  	if(counter <= 7000){
-		 								// counter++;
-		 								// 	sim_flag = true;}
+	  								 	
+		 							counter++;
+		 							//sim_flag = true;
 									pushed = true;
 									timesteps = 0;
 									//save = false;
@@ -701,7 +699,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 		 								// 	counter = 0; 
 		 								// 	sim_flag = true;}
 
-  		imshow("laser",color_dst);
+  		
 		//waitKey(0);
 	  	
 	  //backbone joint
@@ -745,73 +743,7 @@ void modularNeuroController::step(const sensor* x_, int number_sensors, motor* y
 
 	  //backbone joint
 	    	y_[18]=0;
-	    }
-	}else if(mul_cpgs)
-	{	
-	//filtering of the feedback signal
-	feedback0 =joint_R0->update(x.at(0));
-    feedback1 =joint_R1->update(x.at(7));
-    feedback2 =joint_R2->update(x.at(8));
-    
-    feedback3 =joint_L0->update(x.at(3));
-    feedback4 =joint_L1->update(x.at(10));
-    feedback5 =joint_L2->update(x.at(11));
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  	//input perturbation to the adaptive oscillator the number is the ID of the single CPGs
-  	//front right ID 0
-  	//middle right ID 1
-  	//rear right ID 2
-  	//front left ID 3
-  	//middle left ID 4
-  	//rear left ID 5
-  	//the feedback corresponds to the filtered signal from the CT angle sensor for middle/hind legs and TC angle sensor for front legs.
-  	//Infact for the given dungbeetle simulation,the CT joint is responsible for forward/backward movement (middle/hind legs).
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	cpg->update(feedback0,0);    
-	cpg->update(feedback1,1);
-	cpg->update(feedback2,2);    
-	cpg->update(feedback3,3);
-	cpg->update(feedback4,4);    
-	cpg->update(feedback5,5);
-	
-	  //left back
-	  		y_[5]=0;//(cpg->getPsnOutput(5,10)*1.2)+0.25;
-	  		y_[11]=0;//cpg->getCpgOut1(5);
-	  		y_[17]=0;//-cpg->getCpgOut1(5);
-
-	  //right back
-	  		y_[2]=0;//cpg->getPsnOutput(2,10)*1.2+0.25;
-	  		y_[8]=0;//cpg->getCpgOut1(2);
-	  		y_[14]=0;//-cpg->getCpgOut1(2);
-	 
-	  //left middle
-	  		y_[4]=0;//cpg->getPsnOutput(4,10)*1.2+0.25;
-	  		y_[10]=0;//cpg->getCpgOut1(4);
-	  		y_[16]=0;//-cpg->getCpgOut1(4);
-
-	  //right middle
-	  		y_[1]=0;//cpg->getPsnOutput(1,10)*1.2+0.25;
-	  		y_[7]=0;//cpg->getCpgOut1(1);
-	  		y_[13]=0;//-cpg->getCpgOut1(1);
-
-	  //top left
-	  		y_[3]=0;//cpg->getCpgOut1(3);
-	  		y_[9]=0;//-cpg->getPsnOutput(3,10)*1.2-0.20;
-	  		y_[15]=0;//-cpg->getCpgOut1(3);
-
-	  //top right
-	  		y_[0]=0;//cpg->getCpgOut1(0);
-	  		y_[6]=0;//-cpg->getPsnOutput(0,10)*1.2-0.20;
-	  		y_[12]=0;//-cpg->getCpgOut1(0);
-
-// 	  //backbone joint
-	    	y_[18]=0;
-
-	    	lineSegmentation();
-	    	updateGui();
-	    	imshow("laser",color_dst);
-			//waitKey(0);
-		}  	
+	    } 	
   	/***Don't touch****Set Motor outputs begin *******************/
   	for(unsigned int j=0; j<y_MCPGs.size();j++)
   		for(unsigned k=0; k< 3; k++)//index of angel joints
@@ -830,4 +762,14 @@ bool modularNeuroController::store(FILE* f) const {
 bool modularNeuroController::restore(FILE* f) {
   //	Configurable::parse(f);
   return true;
+}
+
+void modularNeuroController::setFilePath()
+{
+	if(objectIndex == 0)
+		filePath.append(DATASET_CAPSULE_FILE_PATH);
+	else if(objectIndex == 1)
+		filePath.append(DATASET_BOX_FILE_PATH);
+	else if(objectIndex == 2)
+		filePath.append(DATASET_BALL_FILE_PATH);
 }
