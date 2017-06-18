@@ -20,10 +20,13 @@ int main( int argc, char ** argv ) {
         //string targetPath                   = "resources/eeg_data/Target_14000.txt";
 
       //Foot sensor data
-    	string inputPath                    = "resources/cpg_footsensor_data/InputData_4000_noise.txt"; //InputData_4900_noise.txt
-      string targetPath                   = "resources/cpg_footsensor_data/TargetData_4000.txt";//TargetData_4900.txt
+    	//string inputPath                    = "resources/cpg_footsensor_data/InputData_4000_noise.txt"; //percentage_1 = 90.0
+      //string targetPath                   = "resources/cpg_footsensor_data/TargetData_4000.txt";//
 
 
+      //force feedback different terrains data
+        string inputPath                    = "resources/terrain_recognition/Input_013.txt"; //percentage_1 = 59.61
+        string targetPath                   = "resources/terrain_recognition/Target_013.txt";//
 
 
 	    string resultPath                   = "results/result.txt";
@@ -33,13 +36,13 @@ int main( int argc, char ** argv ) {
         unsigned int numberOfOutputs        = 1;
         unsigned int numberOfHiddenUnits    = 50;
         unsigned int learningMode           = 1;
-        unsigned int internalNonlinearity   = 2;
-        unsigned int outputNonlinearity     = 0; //0 = linear, 1 = sigmoid (logistic), 2  = tanh:
+        unsigned int internalNonlinearity   = 1;
+        unsigned int outputNonlinearity     = 1; //0 = linear, 1 = sigmoid (logistic), 2  = tanh:
         double inputSparsity                = 20.0;
         double internalSparsity             = 50.0;
         double learningRate                 = 0.99;
         double leak                         = 0.23;
-        double percentage_1                 = 90.0; //  85% of total data for "training" (save)
+        double percentage_1                 = 50.61; //  85% of total data for "training" (save)
         double percentage_2                 = 100.0; // 100% of the remaining data (15% of total) for "validationUnits" (save & final) and another 0% of the remaining data (15% of total)  for "testing" (not use!)
         unsigned int repetition             = 1;
         unsigned int iterationLimit         = 500000;
