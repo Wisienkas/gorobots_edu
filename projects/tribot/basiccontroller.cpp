@@ -8,12 +8,14 @@ using namespace std;
 using namespace matrix;
 using namespace tribot;
 
-BasicController::BasicController(lpzrobots::Tribot* robot, const Position& goal,
-                                 const std::string& name)
+BasicController::BasicController(lpzrobots::Tribot* robot,
+                                 const Position& goal,
+                                 const std::string& name,
+                                 SoundGenerator soundGenerator)
   : AbstractController(name, "1.0"),
     robot(robot),
     goal(goal),
-    braitenBerg(1.0)
+    braitenBerg(soundGenerator)
 {
   initialized = false;
   calculateLizardEarSpectrum();
@@ -51,59 +53,30 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
   sim_step++;
 
   tribot::Output pair1Goal = getLizardEarOutput(goal);
+  // Not used to commnented, due to compiler warning(I know its harmless)
+  //tribot::Output pair2Goal = getLizardEarOutput(goal,
+  //                                              robot->getWheelToWorldAngle() + M_PI / 2);
+
   // Determines rotation for to stay aligned
   tribot::Output pair1Mate = getLizardEarOutput(mate->getPosition());
   // Determines if speed should increase or fall using diff
   tribot::Output pair2Mate = getLizardEarOutput(mate->getPosition(),
                                                 robot->getWheelToWorldAngle() + M_PI / 2);
-
-  // Basespeed constant
   double k = 0.2;
-  double speedup = 1;
 
-  //double goalMod = 1;
-  //double goalMod = std::pow(0.96, (pair1Goal.getDifference() * pair1Mate.getDifference()));
   double goalMod = pair1Goal.getDifference() * pair1Mate.getDifference() < 0 ? 1 : 0;
 
   double power = featureScaling(pair1Goal.right) * goalMod + featureScaling(pair1Goal.left) * goalMod;
-  //std::cout << getName() << ":" << goalMod << "\n";
   double leftWheel = k
-    + featureScaling(pair1Goal.right) * goalMod
-    + featureScaling(pair1Mate.left) * pair2Mate.getDifference()
-    - power / 2;
+    + featureScaling(pair1Goal.right) * k
+    + featureScaling(pair1Mate.left) * pair2Mate.getDifference() / 4
+    - power / 20;
   double rightWheel = k
-    + featureScaling(pair1Goal.left) * goalMod // Using Cross -> seek mode
-    + featureScaling(pair1Mate.right) * pair2Mate.getDifference() // Using fear, sateliting
-    - power / 2;
+    + featureScaling(pair1Goal.left) * k // Using Cross -> seek mode
+    + featureScaling(pair1Mate.right) * pair2Mate.getDifference() / 4 // love and fear
+    - power / 20;
 
-  setMotorPower(motors, softstep(leftWheel) * speedup, softstep(rightWheel) * speedup);
-  /*
-  double leftPower = featureScaling(goalOutput.right);
-  double rightPower = featureScaling(goalOutput.left);
-  if(!mate) {
-    setMotorPower(motors, leftPower, rightPower);
-    return;
-  }
-
-  tribot::Output mateOutputFront = getLizardEarOutput(mate->getPosition());
-
-  //stearGoal(goalOutput, mateOutputFront, motors);
-  if (toolbox::isSameSign(mateOutputFront.getDifference(), goalOutput.getDifference())) {
-    stearParrallel(mateOutputFront, motors);
-  } else {
-    stearGoal(goalOutput, mateOutputFront, motors);
-    }*/
-}
-
-double BasicController::softstep(double y) {
-  double L = 1.0; // Max value of curve
-  double x0 = 100.0; // mid point
-  double k = 0.1; // Steepness of curve
-  double x = sim_step; // time unit
-
-  double a = L / (1.0 + std::pow(M_E, -k * (x - x0)));
-
-  return y;
+  setMotorPower(motors, leftWheel / 60, rightWheel / 60);
 }
 
 void BasicController::setMotorPower(motor* motors, double left, double right) {
@@ -111,19 +84,6 @@ void BasicController::setMotorPower(motor* motors, double left, double right) {
   motors[MIdx("right motor")] = right;
 }
 
-void BasicController::stearParrallel(tribot::Output mate, motor * motors) {
-  updateMateValue(mate.getDifference());
-  // WHAT A HACK TODO FIX THIS LOL
-  double turned90DegreeAngle = mate.getDifference() < 0 ?
-                                                      robot->getWheelToWorldAngle() + (M_PI / 2) :
-    robot->getWheelToWorldAngle() - (M_PI / 2);
-  tribot::Output mateOutput = getLizardEarOutput(this->mate->getPosition(), turned90DegreeAngle);
-
-  double baseSpeed = 0.5;
-  setMotorPower(motors,
-                baseSpeed + featureScaling(mateOutput.right),
-                baseSpeed + featureScaling(mateOutput.left));
-}
 
 double BasicController::rangeToGoal() {
   Position pos = robot->getPosition();
@@ -136,16 +96,6 @@ void BasicController::updateMateValue(double incoming) {
   if (std::fabs(incoming) > std::fabs(highestMateValue)) {
     highestMateValue = incoming;
   }
-}
-
-void BasicController::stearGoal(tribot::Output goal, tribot::Output mate, motor * motors) {
-  double baseSpeed = 0.5;
-  double turned90DegreeAngle = robot->getWheelToWorldAngle() + (M_PI / 2);
-  tribot::Output mateOutput = getLizardEarOutput(this->mate->getPosition(), turned90DegreeAngle);
-
-  setMotorPower(motors,
-                baseSpeed + featureScaling(goal.right) - featureScaling(mateOutput.right),
-                baseSpeed + featureScaling(goal.left)  - featureScaling(mateOutput.left));
 }
 
 tribot::Output BasicController::getLizardEarOutput(const Position& position) {

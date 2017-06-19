@@ -1,15 +1,22 @@
 #include "sinewave.h"
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
 namespace tribot {
+
+  Jitter Sinewave::jitter = Jitter();
+
   double generatePhaseshift(double angle, double frequency) {
     return 2 * M_PI * frequency * tribot::EAR_DISTANCE_MM * sin(angle) / tribot::SPEED_OF_SOUND;
   }
 
-  Sinewave::Sinewave(double frequency, double phaseshift):
+  Sinewave::Sinewave(double frequency, double phaseshift, bool noise):
     frequency(frequency),
-    phaseshift(phaseshift) {}
+    phaseshift(phaseshift),
+    noise(noise)
+    {
+  }
 
   std::vector<double> Sinewave::sample(std::vector<double> series) {
     std::vector<double> result;
@@ -31,7 +38,11 @@ namespace tribot {
   }
 
   double Sinewave::sample(double t) {
-    return sin(2.0 * M_PI * frequency * t + phaseshift);
+    return sin(2.0 * M_PI * frequency * t + phaseshift + getNoise());
+  }
+
+  double Sinewave::getNoise() {
+    return noise ? jitter.get() : 0.0;
   }
 
 }

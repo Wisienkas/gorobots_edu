@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <vector>
-
+#include "jitter.h"
 
 namespace tribot {
 
@@ -17,12 +17,16 @@ namespace tribot {
   private:
     double frequency;
     double phaseshift;
+    bool noise;
   public:
-    Sinewave(double frequency, double phaseshift);
+    static Jitter jitter;
 
-    std::vector<double> sample(std::vector<double> series);
-    std::vector<double> sample(double from, double to, double stepSize);
+    Sinewave(double frequency, double phaseshift, bool noise);
+
+    std::vector<double> sample(std::vector<double> series) ;
+    std::vector<double> sample(double from, double to, double stepSize) ;
     double sample(double t);
+    double getNoise();
   };
 }
 

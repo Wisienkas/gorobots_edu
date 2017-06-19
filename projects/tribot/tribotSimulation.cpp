@@ -66,10 +66,10 @@ lpzrobots::Playground * TribotSimulation::initializePlayground(const lpzrobots::
    * Creates and adds the robots to the simulation
    */
 lpzrobots::OdeAgent * TribotSimulation::createRobot(const lpzrobots::OdeHandle& odeHandle,
-                                  const lpzrobots::OsgHandle& osgHandle,
-                                  lpzrobots::GlobalData& global,
-                                  const TribotAgentConfig& agentConfig,
-                                  const Position& goal)
+                                                    const lpzrobots::OsgHandle& osgHandle,
+                                                    lpzrobots::GlobalData& global,
+                                                    const Position& goal,
+                                                    const TribotAgentConfig& agentConfig)
 {
   auto robot = new lpzrobots::Tribot(odeHandle,
                                      osgHandle,
@@ -77,7 +77,10 @@ lpzrobots::OdeAgent * TribotSimulation::createRobot(const lpzrobots::OdeHandle& 
                                      agentConfig.name);
   robot->place(agentConfig.position);
 
-  auto controller = new BasicController(robot, goal, agentConfig.name);
+  auto controller = new BasicController(robot,
+                                        goal,
+                                        agentConfig.name,
+                                        tribotSimTaskHandle.soundGenerator);
   One2OneWiring* wiring =
     new One2OneWiring(new ColorUniformNoise(.1));
 
@@ -99,13 +102,13 @@ void TribotSimulation::initializeRobots(const lpzrobots::OdeHandle& odeHandle,
   lpzrobots::OdeAgent * agent1 = createRobot(odeHandle,
                                              osgHandle,
                                              global,
-                                             tribotSimTaskHandle.agent1,
-                                             goal);
+                                             goal,
+                                             tribotSimTaskHandle.agent1);
   lpzrobots::OdeAgent * agent2 = createRobot(odeHandle,
                                              osgHandle,
                                              global,
-                                             tribotSimTaskHandle.agent2,
-                                             goal);
+                                             goal,
+                                             tribotSimTaskHandle.agent2);
 
   // Sets robot2 to controller1
   BasicController * controller1 = dynamic_cast<BasicController*>(agent1->getController());
@@ -186,7 +189,7 @@ void TribotSimulation::addCallback(lpzrobots::GlobalData &globalData,
     // Will end simulation as goal condition
     simulation_time_reached = true;
   }
-  if(globalData.sim_step >= 3000) {
+  if(globalData.sim_step >= 8000) {
     std::cout << "Sim ended noncomplete at step 5000\n";
     simulation_time_reached = true;
   }
@@ -212,16 +215,4 @@ bool TribotSimulation::restart(const lpzrobots::OdeHandle &,
                           int taskId)
 {
   return false;
-}
-
-
-bool TribotSimulation::command(const lpzrobots::OdeHandle &,
-                         const lpzrobots::OsgHandle &,
-                         lpzrobots::GlobalData &globalData,
-                         int key,
-                         bool down,
-                         lpzrobots::SimulationTaskHandle &,
-                         int taskId)
-{
-  return true;
 }

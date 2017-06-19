@@ -52,7 +52,7 @@ build: Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS) $(LIBSELFORG)
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
 $(EXEC): build
-	./$(EXEC) -g 1
+	./$(EXEC)
 
 libode_robots:
 	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) lib

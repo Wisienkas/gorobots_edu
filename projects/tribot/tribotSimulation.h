@@ -35,8 +35,8 @@ namespace tribot {
     lpzrobots::OdeAgent * createRobot(const lpzrobots::OdeHandle& odeHandle,
                                       const lpzrobots::OsgHandle& osgHandle,
                                       lpzrobots::GlobalData& global,
-                                      const TribotAgentConfig& agentConfig,
-                                      const Position& goal);
+                                      const Position& goal,
+                                      const TribotAgentConfig& agentConfig);
     lpzrobots::AbstractObstacle * initializeGoal(const lpzrobots::OdeHandle& odeHandle,
                                            const lpzrobots::OsgHandle& osgHandle,
                                            lpzrobots::GlobalData& globalData);
@@ -74,13 +74,6 @@ namespace tribot {
                           lpzrobots::GlobalData &globalData,
                           lpzrobots::SimulationTaskHandle &,
                           int taskId);
-    virtual bool command(const lpzrobots::OdeHandle &,
-                         const lpzrobots::OsgHandle &,
-                         lpzrobots::GlobalData &globalData,
-                         int key,
-                         bool down,
-                         lpzrobots::SimulationTaskHandle &,
-                         int taskId);
   };
 }
 

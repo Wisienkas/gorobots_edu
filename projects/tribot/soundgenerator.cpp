@@ -1,15 +1,21 @@
 #include "soundgenerator.h"
 
 #include "sinewave.h"
-
+#include <iostream>
 namespace tribot {
+
+  SoundGenerator::SoundGenerator(bool noise) {
+    this->noise = noise;
+  }
+
+  SoundGenerator::SoundGenerator(){}
 
   Sound SoundGenerator::sample(double angle, int samples, int samplerate, int frequency) {
     double leftPhaseshift = 0.0;
     double rightPhaseshift = tribot::generatePhaseshift(angle, frequency);
 
-    tribot::Sinewave leftSinewave = tribot::Sinewave(frequency, leftPhaseshift);
-    tribot::Sinewave rightSinewave = tribot::Sinewave(frequency, rightPhaseshift);
+    tribot::Sinewave leftSinewave = tribot::Sinewave(frequency, leftPhaseshift, noise);
+    tribot::Sinewave rightSinewave = tribot::Sinewave(frequency, rightPhaseshift, noise);
 
     double from = 0.0;
     double to = (double) samples / samplerate;

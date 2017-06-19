@@ -37,6 +37,7 @@ namespace toolbox {
    * sinewave_L = sin(2*pi*freq*t + phase_shift_L);
    * sinewave_R = sin(2*pi*freq*t + phase_shift_R);
    */
+  /*
   std::vector<std::vector<double>> sinewaveSampling(double angle,
                                                     int samples,
                                                     int samplerate,
@@ -47,8 +48,9 @@ namespace toolbox {
 
     //std::cout << "phase: " << rightPhaseshift << "\n";
 
-    tribot::Sinewave leftSinewave = tribot::Sinewave(frequency, leftPhaseshift);
-    tribot::Sinewave rightSinewave = tribot::Sinewave(frequency, rightPhaseshift);
+    tribot::Zero z();
+    tribot::Sinewave leftSinewave = tribot::Sinewave(frequency, leftPhaseshift, z);
+    tribot::Sinewave rightSinewave = tribot::Sinewave(frequency, rightPhaseshift, z);
 
     double from = 0.0;
     double to = (double) samples / samplerate;
@@ -60,7 +62,7 @@ namespace toolbox {
     result.push_back(rightSinewave.sample(from, to, step));
 
     return result;
-  }
+    }*/
 
   bool isSameSign(double a, double b) {
     if (std::fabs(a) < 0.001 || std::fabs(b) < 0.001) {
@@ -71,4 +73,5 @@ namespace toolbox {
       return b < 0;
     }
   }
+
 }

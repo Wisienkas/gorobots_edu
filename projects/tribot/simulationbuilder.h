@@ -8,6 +8,8 @@
 #include "soundgenerator.h"
 #include <ode_robots/pos.h>
 #include <experimental/optional>
+#include "toolbox.h"
+#include "nullopt.h"
 
 namespace tribot {
 
@@ -20,8 +22,7 @@ namespace tribot {
     std::experimental::optional<TribotGoal> goal =
       TribotGoal(Position(2.5, 20,0), 5);
     std::experimental::optional<std::string> name = std::string("sim1");
-    std::experimental::optional<SoundGenerator> soundGenerator
-      = SoundGenerator();
+    std::experimental::optional<SoundGenerator> soundGenerator;
 
   public:
     SimulationBuilder(){};

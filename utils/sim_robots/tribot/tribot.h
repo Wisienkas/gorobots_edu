@@ -49,12 +49,12 @@ namespace lpzrobots {
       conf.wheelRadius        = .6;
       conf.wheelHeight        = .4;
       conf.wheelMass          = 5.;
-      conf.wheelMotorPower    = 5.;
-      conf.wheelMotorMaxSpeed = 5.;
-      conf.maxTurnSpeed = 0.2;
-      conf.maxTurnAccelleration = 0.05;
-      conf.speedupAccelleration = 0.1;
-      conf.speedupMargin = M_PI / 12;
+      conf.wheelMotorPower    = 500.;
+      conf.wheelMotorMaxSpeed = 500.;
+      conf.maxTurnSpeed = 500;
+      conf.maxTurnAccelleration = 500;
+      conf.speedupAccelleration = 500;
+      conf.speedupMargin = 500;
       return conf;
     }
 

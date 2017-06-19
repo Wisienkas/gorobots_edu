@@ -47,14 +47,11 @@ class BasicController : public AbstractController{
   tribot::Output getLizardEarOutput(const Position& position);
   tribot::Output getLizardEarOutput(const Position& position, double offsetAngle);
 
-  // Stearing Methods
-  void stearParrallel(tribot::Output mate, motor * motors);
-  void stearGoal(tribot::Output goal, tribot::Output mate, motor * motors);
-
-  double softstep(double y);
-
  public:
-  BasicController(lpzrobots::Tribot* robot, const Position& goal, const std::string& name);
+  BasicController(lpzrobots::Tribot* robot,
+                  const Position& goal,
+                  const std::string& name,
+                  SoundGenerator soundGenerator);
 
   virtual void setMatePositionReference(lpzrobots::Tribot * mate);
 
