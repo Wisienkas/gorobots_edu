@@ -1,0 +1,18 @@
+# Para conectarse a la red de Locokit
+# (hay que titarlo con sudo)
+# la id del wifi puede ser distinta a wlp2s0, buscar con ifconfig
+
+#1. Stop network manager para que no cambie a eduroam
+service network-manager stop
+
+#2. apagar el wifi
+ifconfig wlan1 down
+
+#3. configurar la red de locokit
+iwconfig wlan1 mode ad-hoc essid locokit02 #cambiar por el nombre de red de cada locokit
+
+#4. configurar la ip de tu ordenador en la red
+ifconfig wlan1 192.168.2.3				
+
+#5. Arrancar el wifi otra vez
+ifconfig wlan1 up

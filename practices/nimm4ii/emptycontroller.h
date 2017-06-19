@@ -23,6 +23,12 @@ class EmptyController : public AbstractController {
     double distance3;
     double mc[4];
 
+    //For students, define your variables here -begin//
+
+    // XXXXXX
+
+    //For students, define your variables here -end//
+
     //Define global parameters-end//
 
     /// contructor (hint: use $ID$ for revision)
@@ -31,6 +37,8 @@ class EmptyController : public AbstractController {
 
       //For students, Initialization -begin//
       parameter.resize(2);
+
+      // XXXXX
       //For students, Initialization -end//
 
 
@@ -117,10 +125,22 @@ class EmptyController : public AbstractController {
       /*****************************************************************************************/
 
 
-      parameter.at(0) = sensors[4];
-      parameter.at(1) = sensors[5];
+      parameter.at(0) = sensors[4]; // IR right
+      parameter.at(1) = sensors[5]; // IR left
 
       // Example open loop controller:
+
+      /// For student, please add your neural control here //
+
+      // Inputs to your controller are parameter.at(0)  &   parameter.at(1).
+      // Outputs of your controller are sent to motors[0], motors[1], motors[2], motors[3].
+
+
+      printf("IR left:%f  IR right: %f \n", parameter.at(1), parameter.at(0));
+
+
+
+      /// For student, please add your neural control here //
 
       //    // turn right in place
       //    motors[0]=  1;

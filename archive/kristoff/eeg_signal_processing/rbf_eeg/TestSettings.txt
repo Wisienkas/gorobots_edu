@@ -1,0 +1,6 @@
+inputPath = {../../../../../src/rbf_eeg/eeg_resources/inputs/in.txt}
+targetPath = {../../../../../src/rbf_eeg/eeg_resources/inputs/out.txt}
+resultPath = {../../../../../src/rbf_eeg/eeg_resources/results/testing/12123.txt}
+loadPath = {../../../../../src/rbf_eeg/eeg_resources/save_files/12321.txt}
+percentage_1 = {80.0}
+percentage_2 = {50.0}

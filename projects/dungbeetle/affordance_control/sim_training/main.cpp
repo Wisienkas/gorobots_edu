@@ -8,6 +8,7 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
+<<<<<<< HEAD
 //#include <ode_robots/dungBeetle.h>
 
 
@@ -16,6 +17,12 @@
 
 // the controller
 //#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
+=======
+#include "utils/sim_robots/dungbeetle/dungbeetle_laser.cpp"
+
+#include <unistd.h>
+// the controller
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 #include "controllers/dungbeetle/affordance_control/modularneurocontroller.cpp"
 #include <ode_robots/joint.h>
 
@@ -67,6 +74,7 @@ public:
     double width = 0.2;
     double height = 0.2;
     bool obstacle_active = false;
+<<<<<<< HEAD
    lpzrobots::OdeHandle objHandle = odeHandle;
    objHandle.substance.toMetal(0.1);	
     if(obstacle_active)
@@ -139,6 +147,47 @@ public:
 		dungbeetleConf myDungBeetleConf = dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
 				1 /*_useFoot*/, 1 /*_useBack*/);
 		myDungBeetleConf.rubberFeet = true;
+=======
+    trainingFlag = true;
+   lpzrobots::OdeHandle objHandle = odeHandle;
+   objHandle.substance.toMetal(0.1);	
+
+//SET OBJECT TO BE PUSHED
+//0-CAPSULE
+//1-BOX
+//2-SPHERE
+//---------------------
+objectIndex = 1;
+   switch(objectIndex){
+				case 0:
+				c1 = new PassiveCapsule(objHandle, osgHandle, 0.3,1.0,10);
+    			c1->setColor(Color(1,0,0));
+    			c1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ M_PI/2, 1,0, 0) * osg::Matrix::translate(0.5, 0.0,0.3) /* pose*/);
+    			global.obstacles.push_back(c1);
+				break;
+				case 1:
+				b1 =new PassiveBox(objHandle, osgHandle, osg::Vec3(length, width, height/*size*/),0.1);
+				b1->setColor(Color(1,0,0));
+      			b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(0.35,0.0,0.1) /* pose*/);
+      			global.obstacles.push_back(b1);
+				break;
+
+				case 2:
+   				s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.3,1);
+    			s1->setColor(Color(1,0,0));
+    			s1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(0.5, 0.0,0.3) /* pose*/);
+    			global.obstacles.push_back(s1);
+				break;
+			}
+   
+		double steplength = 0.43;
+
+		dungbeetleConf myDungBeetleConf = dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
+				1 /*_useFoot*/, 1 /*_useBack*/);
+		myDungBeetleConf.rubberFeet = true;
+		myDungBeetleConf.useLidar = true;
+
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 		lpzrobots::OdeHandle rodeHandle = odeHandle;
 		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
@@ -167,6 +216,10 @@ public:
 
 		//controller = new dungBeetlecontrol(/*dungBeetle*/1,/*MCPGs=true*/false,/*Muscle Model =true*/false);
 		controller = new modularNeuroController(1,mCPGS,false);
+<<<<<<< HEAD
+=======
+		
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 		// create wiring
 		One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
@@ -246,9 +299,24 @@ public:
         	// //delete (agent);
         	// global.agents.pop_back();
 
+<<<<<<< HEAD
         	delete s1;
         	global.obstacles.pop_back();
 
+=======
+        	delete c1;
+        	global.obstacles.pop_back();
+
+        	lpzrobots::OdeHandle objHandle = odeHandle;
+   			objHandle.substance.toMetal(0.1);	
+
+        	c1 = new PassiveCapsule(objHandle, osgHandle, 0.3,1.0,10);
+    		c1->setColor(Color(1,0,0));
+   			c1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ M_PI/2, 1,0, 0) * osg::Matrix::translate(0.5, 0.0,0.3) /* pose*/);
+    		global.obstacles.push_back(c1);
+    		usleep(1000);
+
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
    			
 
 
@@ -291,12 +359,15 @@ public:
 
   //       	// Possibility to add tracking for robot
   //       	if (track) agent->setTrackOptions(TrackRobot(false, false, false, true, "", 60)); // Display trace
+<<<<<<< HEAD
          lpzrobots::OdeHandle objHandle = odeHandle;
    objHandle.substance.toMetal(0.1);
       	s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.3,1);
     s1->setColor(Color(1,0,0));
     s1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(distan, 0.0,0.3) /* pose*/);
     global.obstacles.push_back(s1);
+=======
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
       // b1 = new PassiveBox(objHandle, osgHandle, osg::Vec3(1, 0.2, 0.2/*size*/),0.1);
       // b1->setColor(Color(1,0,0));
       // b1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(distan,0.0,0.1) /* pose*/);
@@ -310,6 +381,10 @@ public:
     	}
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//   optional additional callback function which is called every simulation step.
 	//   Called between physical simulation step and drawing.
@@ -320,6 +395,7 @@ public:
 	virtual void addCallback(lpzrobots::GlobalData& globalData, bool draw, bool pause, bool control) {
 
 
+<<<<<<< HEAD
 		// 	cout << "\n/------------------------------------------"<< counter <<"---------------------------------------------/\n"<<endl;
 		// if(sim_flag && distan < 1.6){
 		// 	sim_flag=false;
@@ -330,6 +406,23 @@ public:
 		// 	restart(odeHandle,osgHandle,globalData);
 
 		// }
+=======
+			
+		if(sim_flag){
+			cout << "\n/------------------------------------------"<< counter <<"---------------------------------------------/\n"<<endl;
+			sim_flag=false;
+			pushed = false;
+			cout << "\n/------------------------------------------------------------------------------------------------------/\n"<<endl;
+			restart(odeHandle,osgHandle,globalData);
+			// delete s1;
+			// globalData.obstacles.pop_back();
+			// s1 = new lpzrobots::PassiveSphere(odeHandle, osgHandle, 0.3,1);
+   //  		s1->setColor(Color(1,0,0));
+   //  		s1->setPose(osg::Matrix::rotate(/*-0.5*(M_PI/4)*/ (M_PI/2), 0,0, 1) * osg::Matrix::translate(distan, 0.0,0.3) /* pose*/);
+   //  		globalData.obstacles.push_back(s1);
+
+		}
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 	}
 
 protected:

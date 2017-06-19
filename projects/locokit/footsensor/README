@@ -1,0 +1,95 @@
+To run Locokit:
+
+1) ifconfig
+
+you will see:
+something like this:
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:1451 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1451 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:132292 (132.2 KB)  TX bytes:132292 (132.2 KB)
+
+wlan1     Link encap:Ethernet  HWaddr 40:f0:2f:4f:3c:f9  
+          inet addr:192.168.2.3  Bcast:192.168.2.255  Mask:255.255.255.0
+          inet6 addr: fe80::42f0:2fff:fe4f:3cf9/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:15539 errors:0 dropped:0 overruns:0 frame:41429
+          TX packets:11061 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:19216759 (19.2 MB)  TX bytes:1498472 (1.4 MB)
+          Interrupt:19 
+
+
+2) open connectionToLocokit
+
+make sure that you have the variable "wlan1" in there everywhere 
+
+
+#1. Stop network manager para que no cambie a eduroam
+service network-manager stop
+
+#2. apagar el wifi
+ifconfig wlan1 down
+
+#3. configurar la red de locokit
+iwconfig wlan1 mode ad-hoc essid locokit02 #cambiar por el nombre de red de cada locokit
+
+#4. configurar la ip de tu ordenador en la red
+ifconfig wlan1 192.168.2.3				
+
+#5. Arrancar el wifi otra vez
+ifconfig wlan1 up
+
+
+3) then run the file "connectionToLocokit"
+poma@poma-HP-EliteBook-840-G1:~/workspace/pmanoonpong-gorobots-fork/projects/locokit/footsensor$ sudo ./connectionToLocokit 
+
+It will display
+stop: Unknown instance: 
+
+
+4) then open web browser and type "http://192.168.2.2/"
+
+5) insert motor IDs into the web 11,8,6,46
+
+6) set motor command
+
+
+-------------------------------------------------
+
+Running the code on Locokit
+
+
+1) poma@poma-HP-EliteBook-840-G1:~/workspace/pmanoonpong-gorobots-fork/projects/locokit/footsensor$ ssh root@192.168.2.2
+
+2) password: enter
+
+3) root@overo:~# 
+
+--> go to AitorTests  --> py
+
+4) root@overo:~/AitorTests/py# 
+
+To run the gallop gait
+root@overo:~/AitorTests/py# python gallop.py
+
+5) To stop 
+root@overo:~/AitorTests/py# python stop.py
+
+Note, if you change the wheel, then you have to change the angle setting:
+
+6) nano gallop.py
+
+
+actuatorID = [8,11,6,46]
+correction = [0, 0, 0, 0]
+actuatorDefase = [180,180,0,270] // angle setting!!!!!
+actuatorDirection = [0,1,0,1] // direction 
+period= 1 // set speed
+
+
