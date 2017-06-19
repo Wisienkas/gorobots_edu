@@ -6,8 +6,6 @@
 #include <string>
 // The Tribot robot header file
 #include "tribot.h"
-// The action enumerates
-#include "action.h"
 
 #include "braiten_berg.h"
 
