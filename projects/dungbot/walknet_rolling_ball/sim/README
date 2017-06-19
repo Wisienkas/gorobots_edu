@@ -1,0 +1,12 @@
+Change to dungbot simple (or visa versa) 
+
+1) Change in "$(DUNGBOT)/dungbot \" to "$(DUNGBOT)/dungbot_simple \" in Makefile.conf
+
+2) Include dungbot_simple.h instead of dungbot.h in DungBotSimulation.h
+
+4) Write true with the AEP, MID and PEP for simple dungbot in walknetSeparateLeg.cpp
+
+5) Use the swing and stance net simple in walknetSeparateLeg.cpp
+
+6) Choose simplestand in dungbotemptycontroller.cpp
+

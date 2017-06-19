@@ -83,6 +83,18 @@ class EmptyController : public AbstractController {
     //ICO learning
     double u_ico_out;
 
+    //For students, define your variables -begin//
+
+    std::vector<double> w_ico;
+    std::vector<double> u_ico_in;
+
+
+    //XXXXXXXXXX
+    //XXXXXXXXXX
+
+
+    //For students, Initialization -end//
+
 
 
     bool manual_control;
@@ -93,9 +105,18 @@ class EmptyController : public AbstractController {
     EmptyController(const std::string& name, const std::string& revision)
     : AbstractController(name, revision){
 
-      //For students, Initialization -begin//
+
+
+      //For students, Initialization of your variables -begin//
       parameter.resize(2);
       input_angle_s.resize(4);
+
+      w_ico.resize(2);
+      u_ico_in.resize(2);
+
+      //XXXXXXXXXX
+      //XXXXXXXXXX
+
 
       //For students, Initialization -end//
 
@@ -396,11 +417,31 @@ class EmptyController : public AbstractController {
       //orientation detection in a short distance
       reflexive_signal_blue;//reflex signal
 
+
+
+
+      //----ICO learning-------//
+
+      u_ico_in.at(0) = 0; // Green//0; // Green
+      //u_ico_in.at(1) = 0;// Blue//0;// Blue
+
+
+      //Weights of ICO learning modify these by implementing ICO learning rule!!
+
+      w_ico.at(0) += 0; //Green
+      //w_ico.at(1) += 0; //Blue
+
+
+
+      printf("w_ico[0] = %f \n",  w_ico.at(0));
+
+
       //OUTPUT
       // Output to steer the robot at the moment, the robot is controlled by noise (as exploration or searching for an object)
-      u_ico_out = exp_output;
+      u_ico_out = 1.0*u_ico_in.at(0)+exp_output;
+      //u_ico_out = 1.0*u_ico_in.at(0)+1.0*u_ico_in.at(1)+exp_output;
 
-      outFileicolearning<<predictive_signal_green<<' '<<reflexive_signal_green<<' '
+      outFileicolearning<<w_ico.at(0)<<' '<<predictive_signal_green<<' '<<reflexive_signal_green<<' '
           <<predictive_signal_blue<<' '<<reflexive_signal_blue<<' '<<u_ico_out<<endl;
 
       //----Students--------Adding your ICO learning here------------------------------------------//

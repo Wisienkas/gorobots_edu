@@ -18,6 +18,10 @@
 //#define BPM_ITER   2001   //set it equal to the number of total data (if using Testing Data_2000.txt)
 
 
+//#define NUMBER_DATA  4001 //number of total data (Testing Data_4000.txt)
+//#define BPM_ITER   4001   //set it equal to the number of total data (Testing Data_4000.txt)
+
+
 ///////////////////////////////////////////
 TestESN* test;
 int t;
@@ -40,7 +44,7 @@ float *train_vector;
 
 //For students (example learning Sine^9 wave)
 int dataset_type = 3; //1->Narma10, 2->Narma30, 3->sine wave to Sine^9 Wave, or 4->sine wave to Rectangle Wave
-bool use_file_data = false; // if set this to true, esn will be trained using "TestingData_4900.txt or TestingData_2000.txt"
+bool use_file_data = true; // if set this to true, esn will be trained using "TestingData_4900.txt or TestingData_2000.txt"
 
 
 vector<double> m_r0_t;
@@ -195,9 +199,9 @@ int main (int argc, char **argv)
       char str[10];
 
       //For students
-      //ifstream b_file ("TestingData_4900.txt"); // 2 column data, first column = input, second column = target
-      ifstream b_file ("TestingData_2000.txt"); // 2 column data, first column = input, second column = target
-
+      ifstream b_file ("TestingData_4900.txt"); // 2 column data, first column = input, second column = target
+      //ifstream b_file ("TestingData_2000.txt"); // 2 column data, first column = input, second column = target
+      //ifstream b_file ("TestingData_4000.txt"); // 2 column data, first column = input, second column = target
 
       if(!initialized)
       {i_text_loop = 0;

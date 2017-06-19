@@ -8,10 +8,14 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
+<<<<<<< HEAD
 //#include <ode_robots/dungBeetle.h>
 
 
 #include "utils/sim_robots/dungbeetle/dungbeetle_laser.h"
+=======
+#include "utils/sim_robots/dungbeetle/dungbeetle_laser.cpp"
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 // the controller
 //#include "controllers/dungbeetle/Michelangelo/dung_beetle/dungBeetlecontrol.h"
@@ -72,7 +76,11 @@ public:
 		// lpzrobots::OdeHandle playgroundHandle = odeHandle;
 		// playgroundHandle.substance = lpzrobots::Substance(100.0, 0.0, 50.0, 0.0); //substance for playgrounds (NON-SLIPPERY!!!)
 		double steplength = 0.43;
+<<<<<<< HEAD
 		ob_rand =0;//rand() % 3;
+=======
+		ob_rand = rand() % 3;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 	
 		// // //PLAYGROUND
 		// 	lpzrobots::Playground* playground = new lpzrobots::Playground(playgroundHandle, osgHandle, osg::Vec3(6, 1,
@@ -87,6 +95,10 @@ public:
 		dungbeetleConf myDungBeetleConf = dungbeetle::getDefaultConf(1.0 /*_scale*/, 0 /*_useShoulder*/,
 				1 /*_useFoot*/, 1 /*_useBack*/);
 		myDungBeetleConf.rubberFeet = true;
+<<<<<<< HEAD
+=======
+		myDungBeetleConf.useLidar = true;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 		lpzrobots::OdeHandle rodeHandle = odeHandle;
 		rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
@@ -120,7 +132,11 @@ public:
 
 		// create agent and init it with controller, robot and wiring
 		lpzrobots::OdeAgent* agent = new lpzrobots::OdeAgent(global);
+<<<<<<< HEAD
 
+=======
+		trainingFlag = false;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 		if(!created){
 				lpzrobots::OdeHandle objectHandle = odeHandle;
     			objectHandle.substance = lpzrobots::Substance(3, 0.0, 50.0, 0.0);			
@@ -182,6 +198,7 @@ public:
 
 		agent->init(affordance, dungBeetleRobot, wiring);
 
+<<<<<<< HEAD
 		//put dung beetl ein the air
 
 		 // robotfixator = new lpzrobots::FixedJoint(
@@ -198,6 +215,8 @@ public:
 		       << "\n\n" << std::endl;
 
 		    //
+=======
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
        // Possibility to add tracking for robot
 		if (track)
@@ -216,6 +235,7 @@ public:
 	}
 
 
+<<<<<<< HEAD
 	 virtual bool command(const lpzrobots::OdeHandle&,
 	      const lpzrobots::OsgHandle&,
 	      lpzrobots::GlobalData& globalData,
@@ -240,6 +260,8 @@ public:
 
 	    return false;
 	  }
+=======
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 
 /**************************Reset Function***************************************************************/
@@ -310,7 +332,11 @@ public:
    				cylinder_controller =  new Modular_neural_control_cylinder();//new modularNeuroController(1,mCPGS,false);
 				cylinder_controller->finished = false;
 				cylinder_controller->bump = false;
+<<<<<<< HEAD
         		cylinder_controller->stationary_push = true;
+=======
+        		cylinder_controller->stationary_push = false;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
         		cylinder_controller->boxing = false;
    				agent->init(cylinder_controller, dungBeetleRobot, wiring);
    				global.agents.push_back(agent);

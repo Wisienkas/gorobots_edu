@@ -1,0 +1,56 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Order of motor data: ext. flex.
+
+from __future__ import print_function
+from __future__ import division
+
+import pyfann
+from pyfann.libfann import neural_net as nn
+
+from numpy import array
+
+import pylab
+
+
+net = nn()
+net.create_from_file("training.net")
+
+train_data = open("training")
+
+nsamples, num_in_neurons, num_out_neurons = train_data.readline().split()
+
+out_data = list(); real_data = list(); foot_data = list()
+
+while True:
+    in_data  = array(train_data.readline().split(), dtype=float)
+
+    if len(in_data) == 0:
+        break
+
+    foot_data.append( in_data )
+    out_data.append( array(train_data.readline().split(), dtype=float) )
+    real_data.append( net.run(in_data) )
+
+real_data = array(real_data); out_data = array(out_data); foot_data = array(foot_data)
+foot_data[:,0] /= max(foot_data[:,0])
+foot_data[:,1] /= max(foot_data[:,1])
+
+pylab.figure(figsize=(8,6))
+pylab.subplot(211)
+pylab.ylabel("foot contact strength")
+pylab.plot(foot_data[:,0], 'g-',  label="left  foot", linewidth=0.9)
+pylab.plot(foot_data[:,1], 'g--', label="right foot", linewidth=0.9)
+pylab.subplot(212)
+pylab.ylabel("flexor strength")
+pylab.plot(real_data[:], 'b-',  label="motor (network)")
+pylab.plot(out_data [:], 'b--', label="motor (runbot)",   linewidth=1.5)
+pylab.xlabel("time")
+#pylab.legend(loc=4)
+
+pylab.savefig("image.png")
+pylab.savefig("image.pdf")
+
+pylab.show()
+

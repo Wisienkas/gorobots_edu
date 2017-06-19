@@ -184,7 +184,7 @@ NeuralLocomotionControlAdaptiveClimbing::NeuralLocomotionControlAdaptiveClimbing
 	switchon_purefootsignal = false;//true;//false;//true; // 1==on using only foot signal, 0 == using forward model & foot signal
 
 	//Switch on or off IR reflexes
-	switchon_irreflexes = false;//true;
+	switchon_irreflexes = true;
 
 	//Switch on foot inhibition
 	switchon_footinhibition = false; //true = hind foot inhibit front foot, false;

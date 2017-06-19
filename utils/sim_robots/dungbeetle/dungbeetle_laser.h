@@ -31,7 +31,11 @@
 //-------------Add by Ren relativepositionsensor.h-------
 #include <ode_robots/relativepositionsensor.h>
 //#include <ode_robots/amosiisensormotordefinition_laser.h>
+<<<<<<< HEAD
 #include "amosiisensormotordefinition_laser.h"
+=======
+#include "dungbeetlesensormotordefinition_laser.h"
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 #include <ode_robots/axisorientationsensor.h>
 #include <ode_robots/rangeFinder.h>
 
@@ -63,6 +67,11 @@ namespace lpzrobots {
        * Enable or disable different element and features
        */
       /**@{*/
+<<<<<<< HEAD
+=======
+      /** if true a simulated lidar is fixed on the front of the robot */ 
+      bool useLidar;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
       /** fix the shoulder element to the trunk. */
       bool useShoulder;
       /** whether to use joints at the knees or fix them */
@@ -345,8 +354,13 @@ namespace lpzrobots {
         // maximum value, used for iteration
         LEG_JOINT_TYPE_MAX
       };
+<<<<<<< HEAD
       typedef AmosIIMotorNames MotorName;
       typedef AmosIISensorNames SensorName;
+=======
+      typedef DungBeetleMotorNames MotorName;
+      typedef DungBeetleSensorNames SensorName;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
       /**
        * Returns the default configuration values

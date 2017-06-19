@@ -18,21 +18,36 @@
 #include "utils/ann-framework/ann.cpp"
 #include "utils/ann-library/vrn.cpp"
 #include "controllers/dungbeetle/multiple_adaptive_cpg/ModularNeural.cpp"
+<<<<<<< HEAD
 #include "utils/sim_robots/dungbeetle/amosiisensormotordefinition_laser.h"
 #include <ode_robots/rangeFinder.h>
 #include <controllers/dungbeetle/adaptivecpg/shiftregister.h>
 #include <controllers/dungbeetle/adaptivecpg/lowPassfilter.cpp>
+=======
+#include "utils/sim_robots/dungbeetle/dungbeetlesensormotordefinition_laser.h"
+#include <ode_robots/rangeFinder.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/shiftregister.h>
+#include <controllers/dungbeetle/hind_leg_control/adaptivecpg/lowPassfilter.cpp>
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 #include <opencv2/opencv.hpp>
 #include "affordance.cpp"
 
 #include <iostream>
 #include <fstream>
+<<<<<<< HEAD
+=======
+#include <map>
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 //Add Delay line////////////////////
 #include "utils/delayline.h"
 ////////////////////////////////////
 
+<<<<<<< HEAD
 
+=======
+extern int objectIndex = 0;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 extern int sim_count = 0;
 extern double I_l = 0.0;
 extern double I_r = 0.0;
@@ -40,7 +55,11 @@ extern double I3 = 0.0;
 extern double I2 = 1.0;
 extern bool sim_flag = false;
 extern bool pushed = false;
+<<<<<<< HEAD
 extern double distan = 0.90;
+=======
+extern double distan = 0.30;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 extern int counter=0;
 extern bool cylinder_object = false;
 extern bool sphere_object = false;
@@ -49,6 +68,10 @@ extern bool detected = false;
 extern bool transporting = false;
 extern bool turning = false;
 extern double mode = 0.0;
+<<<<<<< HEAD
+=======
+extern bool trainingFlag = true;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 void getCommand(char key);
 
@@ -65,6 +88,13 @@ class modularNeuroController : public AbstractController {
 
 		void saveOnFile();
 
+<<<<<<< HEAD
+=======
+		void sampleEnvironment();
+
+		
+
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 	public:
 	//class constructor
@@ -72,6 +102,10 @@ class modularNeuroController : public AbstractController {
 
 		modularNeuroController(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled);
 		void initialize(int dungBeetletype,bool mCPGs,bool mMuscleModelisEnabled);
+<<<<<<< HEAD
+=======
+		void setFilePath();
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 
 		
@@ -119,6 +153,10 @@ class modularNeuroController : public AbstractController {
 	affordanceController *aff;
 	ModularNeural *cpg;
 	bool mul_cpgs;
+<<<<<<< HEAD
+=======
+	std::map<std::string, std::string> config;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 	double R0_H0;
 	double R0_H1;
@@ -162,6 +200,10 @@ class modularNeuroController : public AbstractController {
     	unsigned short numbersensors, numbermotors;
 		paramkey name;
 		int t;
+<<<<<<< HEAD
+=======
+		
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
 
 	public:
 		
@@ -183,6 +225,10 @@ class modularNeuroController : public AbstractController {
     	cv::Mat color_dst;    	
     	vector<vector<cv::Point> > contours;
   		vector<cv::Vec4i> hierarchy;
+<<<<<<< HEAD
+=======
+  		vector<double> points_shape;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
   		enum State {stop,zero,one,two,three,four,five};
   		double d0,tc0,size,d1,ds;
   		
@@ -193,6 +239,10 @@ class modularNeuroController : public AbstractController {
   		bool save;
 		State previous,current;
 		int timesteps=0;
+<<<<<<< HEAD
+=======
+		std::string filePath;
+>>>>>>> d7e6b105acaa0fa52730375fd20873511d4c69c5
     /////////////////////////////////////////////
 
 };

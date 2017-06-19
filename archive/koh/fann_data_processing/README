@@ -1,0 +1,139 @@
+
+1) Preparing data in text file containing, e.g.,
+
+Column1 Column2 Column3 Column4
+
+Input1 Input2 Input3 Output
+Input1 Input2 Input3 Output
+Input1 Input2 Input3 Output
+Input1 Input2 Input3 Output
+
+Example, input_output_data.txt
+
+2) Rearrange the data to the format for FANN by executing
+
+" ./extract_training_data    file_contain_data    number_of_output_column "
+
+For example, 
+
+workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ ./extract_training_data input_output_data.txt 1
+
+
+Then you will get a new file called "training" 
+
+"training" will contain
+
+- All data of training file / 2 = number of training data
+- write on top of training file ==> number of data   number of inputs    number of output
+
+3) Set number of neurons (input, hidden, output) in "network.h"
+
+4) Run the FANN program to train a neural network 
+--> make  
+-->./start training
+For example,
+/workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ make
+/workspace/pmanoonpong-gorobots-fork/archive/koh/fann/extract_data$ ./start training
+
+5) After training, the network parameters (trained weights) will be saved in "training.net"
+use this file to test the network
+
+
+To use python file "test_trained_net", you need to install python-pyfann
+to install it>
+
+sudo apt-get update
+sudo apt-get install python-pyfann
+
+
+6) Testing the trained network
+
+>> python generic_training_verifyer.py
+
+
+
+7) For validation, please prepare data for validation test or use 20 % of data in "training"
+then make the file call "validation"
+
+8) plot the testing error and validation error
+>> phython train_valid_plotter.py
+
+
+////////////////////////////////////////////////////////////////////
+
+To include fann into your program you need to add the following
+
+Needed headers:
+#include <fann.h>
+
+
+Needed code:
+struct  fann *network;						// FANN network variable
+network = fann_create_from_file(filename.c_str());		// Load trained network from file
+
+// input_array is an array of type fann_type, too.
+fann_type* result_array;					// Array for network output
+result_array = fann_run(network, input_array);			// Run data through loaded network
+
+////////////////////////////////////////////////////////////////
+
+Under Ubuntu 9.10:
+
+1) Installing: double click libfann2_2.0.0-1_i386.deb
+2) Installing: double click libfann2-dev_2.0.0-1_i386.deb
+3) Installing: double click libfann2-py_2.0.0-1_i386.deb (optional for python)
+
+Then to Run FANN
+
+1) Using files 
+
+-knee_controller.h = containing number of input, output, and hidden neurons
+
+const unsigned int INPUTS = 3; // define number of input neurons
+const unsigned int OUTPUTS = 1; // define number of output neurons
+const unsigned int HIDDEN = 3; // define number of hidden neurons
+
+
+-Makefile
+
+-test_trained_net = pytho script to test the trained network
+>> python test_trained_net
+
+
+-training = containing training data
+
+Ex:
+Line 1)	number of data, number of inputs, number of output
+Line 2) input1(t)  input2(t)  input3(t)
+Line 3) Output1(t)
+Line 4) input1(t+1)  input2(t+1)  input3(t+1)
+Line 5) Output1(t+1)
+....	...
+....	...
+....	...
+	
+	2001 3 1
+	0.0 0.902815255676 0.511333122856
+	0.8009597313
+	0.0 0.929387436007 0.481457322196
+	0.97667026419
+	0.0 0.949512016745 0.463624737127
+	0.990017265959
+	0.0 0.956346304189 0.468256660798
+
+
+- train_knee_controller.cpp = main file to run the networks
+
+To Run:
+
+>>poramate@ubuntu:~/Project/WORK/FANN/Tranining/RunBotFNNs$ make
+>>poramate@ubuntu:~/Project/WORK/FANN/Tranining/RunBotFNNs$ ./train_knee_controller training
+
+./exe_file  training_data_file
+
+-training.net = result after training!!!
+
+-cfann.h, cfann.cpp for testing network
+
+
+
