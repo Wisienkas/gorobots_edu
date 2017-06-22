@@ -7,7 +7,6 @@
 #include "tribotSimTaskHandle.h"
 #include "soundgenerator.h"
 #include <ode_robots/pos.h>
-#include <experimental/optional>
 #include "toolbox.h"
 #include "nullopt.h"
 
@@ -15,14 +14,11 @@ namespace tribot {
 
   class SimulationBuilder {
   private:
-    std::experimental::optional<TribotAgentConfig> agent1 =
-      TribotAgentConfig(lpzrobots::Pos(0,0,0), .0, "Agent1");
-    std::experimental::optional<TribotAgentConfig> agent2 =
-      TribotAgentConfig(lpzrobots::Pos(5,0,0), .0, "Agent2");
-    std::experimental::optional<TribotGoal> goal =
-      TribotGoal(Position(2.5, 20,0), 5);
-    std::experimental::optional<std::string> name = std::string("sim1");
-    std::experimental::optional<SoundGenerator> soundGenerator;
+    TribotAgentConfig agent1 = TribotAgentConfig(lpzrobots::Pos(0,0,0), .0, "Agent1");
+    TribotAgentConfig agent2 = TribotAgentConfig(lpzrobots::Pos(5,0,0), .0, "Agent2");
+    TribotGoal goal = TribotGoal(Position(2.5, 20,0), 5);
+    std::string name = std::string("sim1");
+    SoundGenerator soundGenerator = SoundGenerator(false);
 
   public:
     SimulationBuilder(){};

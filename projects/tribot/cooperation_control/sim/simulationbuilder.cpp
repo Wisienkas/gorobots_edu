@@ -27,10 +27,10 @@ namespace tribot {
   }
 
   TribotSimTaskHandle SimulationBuilder::build() {
-    return TribotSimTaskHandle(*agent1,
-                               *agent2,
-                               *goal,
-                               *name,
-                               *soundGenerator);
+    return TribotSimTaskHandle(agent1,
+                               agent2,
+                               goal,
+                               name,
+                               soundGenerator);
   }
 }
